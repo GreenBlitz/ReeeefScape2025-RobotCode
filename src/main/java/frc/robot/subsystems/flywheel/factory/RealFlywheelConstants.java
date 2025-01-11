@@ -7,10 +7,10 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.constants.GlobalConstants;
-import frc.robot.constants.IDs;
+import frc.robot.IDs;
+import frc.robot.RobotConstants;
 import frc.robot.hardware.interfaces.InputSignal;
-import frc.robot.hardware.phoenix6.motor.TalonFXMotor;
+import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.request.Phoenix6Request;
 import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
@@ -63,26 +63,28 @@ public class RealFlywheelConstants {
 		Phoenix6Request<Double> rightVoltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0).withEnableFOC(true));
 		Phoenix6Request<Double> leftVoltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0).withEnableFOC(true));
 
-		TalonFXMotor rightFlywheel = new TalonFXMotor(rightLogPath, IDs.TalonFXIDs.RIGHT_FLYWHEEL, generateMotorConfig(), generateSysidConfig());
+		TalonFXMotor rightFlywheel = new TalonFXMotor(rightLogPath, IDs.TalonFXIDs.RIGHT_FLYWHEEL, generateSysidConfig());
+		rightFlywheel.applyConfiguration(generateMotorConfig());
 
 		Phoenix6AngleSignal rightVelocitySignal = Phoenix6SignalBuilder.generatePhoenix6Signal(
-			rightFlywheel.getMotor().getVelocity(),
-			GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
+			rightFlywheel.getDevice().getVelocity(),
+			RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
 			AngleUnit.ROTATIONS
 		);
 		Phoenix6DoubleSignal rightCurrentSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(rightFlywheel.getMotor().getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.generatePhoenix6Signal(rightFlywheel.getDevice().getStatorCurrent(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal rightVoltageSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(rightFlywheel.getMotor().getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.generatePhoenix6Signal(rightFlywheel.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 
-		TalonFXMotor leftFlywheel = new TalonFXMotor(leftLogPath, IDs.TalonFXIDs.LEFT_FLYWHEEL, generateMotorConfig(), generateSysidConfig());
+		TalonFXMotor leftFlywheel = new TalonFXMotor(leftLogPath, IDs.TalonFXIDs.LEFT_FLYWHEEL, generateSysidConfig());
+		leftFlywheel.applyConfiguration(generateMotorConfig());
 
 		Phoenix6AngleSignal leftVelocitySignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(leftFlywheel.getMotor().getVelocity(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+			.generatePhoenix6Signal(leftFlywheel.getDevice().getVelocity(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
 		Phoenix6DoubleSignal leftCurrentSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(leftFlywheel.getMotor().getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.generatePhoenix6Signal(leftFlywheel.getDevice().getStatorCurrent(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal leftVoltageSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(leftFlywheel.getMotor().getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.generatePhoenix6Signal(leftFlywheel.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 
 		return new FlywheelStuff(
 			logPath,

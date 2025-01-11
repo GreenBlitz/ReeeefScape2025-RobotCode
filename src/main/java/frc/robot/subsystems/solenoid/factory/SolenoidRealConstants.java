@@ -1,7 +1,7 @@
 package frc.robot.subsystems.solenoid.factory;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import frc.robot.constants.IDs;
+import frc.robot.IDs;
 import frc.robot.hardware.motor.talonsrx.TalonSRXMotor;
 import frc.robot.hardware.signal.supplied.SuppliedDoubleSignal;
 import frc.robot.subsystems.solenoid.SolenoidComponents;
