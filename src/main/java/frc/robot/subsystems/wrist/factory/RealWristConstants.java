@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import frc.robot.constants.IDs;
+import frc.robot.IDs;
 import frc.robot.hardware.motor.talonsrx.TalonSRXMotor;
 import frc.robot.hardware.request.srx.AngleSRXRequest;
 import frc.robot.hardware.signal.supplied.SuppliedAngleSignal;

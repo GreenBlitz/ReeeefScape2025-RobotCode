@@ -4,11 +4,11 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.constants.GlobalConstants;
-import frc.robot.constants.IDs;
+import frc.robot.IDs;
+import frc.robot.RobotConstants;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
-import frc.robot.hardware.phoenix6.motor.TalonFXMotor;
+import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.lifter.LifterStuff;
 import frc.utils.AngleUnit;
@@ -35,15 +35,16 @@ public class LifterRealConstants {
 
 	//@formatter:off
 	protected static LifterStuff generateLifterStuff(String logPath) {
-		TalonFXMotor lifter = new TalonFXMotor(logPath, IDs.TalonFXIDs.LIFTER, generateMotorConfiguration(), new SysIdRoutine.Config());
+		TalonFXMotor lifter = new TalonFXMotor(logPath, IDs.TalonFXIDs.LIFTER, new SysIdRoutine.Config());
+		lifter.applyConfiguration(generateMotorConfiguration());
 		return new LifterStuff(
 			logPath,
 			lifter,
 			DRUM_RADIUS,
 			generateLimitSwitch(),
 			Phoenix6SignalBuilder.generatePhoenix6Signal(
-				lifter.getMotor().getPosition(),
-				GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
+				lifter.getDevice().getPosition(),
+				RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
 				AngleUnit.ROTATIONS
 			)
 		);

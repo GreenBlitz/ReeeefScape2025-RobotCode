@@ -16,6 +16,11 @@ public class CANCoderEncoder extends Phoenix6Device implements IAngleEncoder {
 	}
 
 	@Override
+	public CANcoder getDevice() {
+		return encoder;
+	}
+
+	@Override
 	public void setPosition(Rotation2d position) {
 		encoder.setPosition(position.getRotations());
 	}

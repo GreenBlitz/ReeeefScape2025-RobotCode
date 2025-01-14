@@ -24,17 +24,36 @@ public class ModuleUtils {
 
 	}
 
+	public enum ControlMode {
+
+		NONE("NONE (Target states are not being used)"),
+		CUSTOM("CUSTOM (Target states are not being used)"),
+		TARGET_STATE("TARGET_STATE");
+
+
+		private final String toLog;
+
+		ControlMode(String toLog) {
+			this.toLog = toLog;
+		}
+
+		public String toLog() {
+			return toLog;
+		}
+
+	}
+
 	public static double velocityToOpenLoopVoltage(
-		double velocityMetersPerSecond,
+		double driveVelocityMetersPerSecond,
 		Rotation2d steerVelocityPerSecond,
 		double couplingRatio,
-		Rotation2d maxVelocityPerSecond,
+		Rotation2d maxDriveVelocityPerSecond,
 		double wheelDiameterMeters,
 		double voltageCompensationSaturation
 	) {
-		Rotation2d velocityPerSecond = Conversions.distanceToAngle(velocityMetersPerSecond, wheelDiameterMeters);
-		Rotation2d coupledVelocityPerSecond = coupleDriveAngle(velocityPerSecond, steerVelocityPerSecond, couplingRatio);
-		return velocityToVoltage(coupledVelocityPerSecond, maxVelocityPerSecond, voltageCompensationSaturation);
+		Rotation2d driveVelocityPerSecond = Conversions.distanceToAngle(driveVelocityMetersPerSecond, wheelDiameterMeters);
+		Rotation2d driveCoupledVelocityPerSecond = coupleDriveAngle(driveVelocityPerSecond, steerVelocityPerSecond, couplingRatio);
+		return velocityToVoltage(driveCoupledVelocityPerSecond, maxDriveVelocityPerSecond, voltageCompensationSaturation);
 	}
 
 	public static double velocityToVoltage(Rotation2d velocityPerSecond, Rotation2d maxVelocityPerSecond, double voltageCompensationSaturation) {
@@ -59,17 +78,6 @@ public class ModuleUtils {
 
 	public static Rotation2d coupleSteerAngle(Rotation2d steerAngle, double couplingRatio) {
 		return Rotation2d.fromRotations(steerAngle.getRotations() * couplingRatio);
-	}
-
-
-	/**
-	 * When changing direction, the module will skew since the angle motor is not at its target angle. This method will counter that by reducing
-	 * the target velocity according to the angle motor's error cosine.
-	 */
-	public static double reduceSkew(double targetDriveVelocityMetersPerSecond, Rotation2d targetSteerPosition, Rotation2d currentSteerPosition) {
-		double steerDeltaRadians = targetSteerPosition.getRadians() - currentSteerPosition.getRadians();
-		double cosineScalar = Math.abs(Math.cos(steerDeltaRadians));
-		return targetDriveVelocityMetersPerSecond * cosineScalar;
 	}
 
 }

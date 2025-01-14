@@ -1,21 +1,24 @@
 package frc.robot.subsystems.swerve.factories.gyro;
 
 import frc.robot.Robot;
-import frc.robot.subsystems.swerve.GyroStuff;
-import frc.robot.subsystems.swerve.SwerveType;
+import frc.robot.hardware.interfaces.IGyro;
+import frc.robot.hardware.phoenix6.gyro.Pigeon2Gyro;
+import frc.robot.subsystems.swerve.GyroSignals;
 
 public class GyroFactory {
 
-	private static GyroStuff createSwerveGyroStuff(String logPath) {
+	public static IGyro createGyro(String logPath) {
+		logPath += "Gyro/";
 		return switch (Robot.ROBOT_TYPE) {
-			case REAL -> RealGyroConstants.generateGyroStuff(logPath);
-			case SIMULATION -> null;// TODO
+			case REAL -> RealGyroConstants.generateGyro(logPath);
+			case SIMULATION -> SimulationGyroConstants.generateGyro(logPath);
 		};
 	}
 
-	public static GyroStuff create(SwerveType swerveType) {
-		return switch (swerveType) {
-			case SWERVE -> createSwerveGyroStuff(swerveType.getLogPath() + "Gyro/");
+	public static GyroSignals createSignals(IGyro gyro) {
+		return switch (Robot.ROBOT_TYPE) {
+			case REAL -> RealGyroConstants.generateSignals((Pigeon2Gyro) gyro);
+			case SIMULATION -> SimulationGyroConstants.generateSignals();
 		};
 	}
 
