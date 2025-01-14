@@ -122,19 +122,16 @@ public class JoysticksBindings {
 					)
 			);
 
-
-//		usedJoystick.BACK.whileTrue(
-//			robot.getSwerve()
-//				.getCommandsBuilder()
-//				.driveToPose(robot.getPoseEstimator()::getCurrentPose, () -> new Pose2d(4, 4, Rotation2d.fromDegrees(17)))
-//				.until(() -> robot.getSuperStructure().isAtPose(new Pose2d(4, 4, Rotation2d.fromDegrees(17))))
-//		);
-//		usedJoystick.START.whileTrue(
-//			robot.getSwerve()
-//				.getCommandsBuilder()
-//				.driveToPose(robot.getPoseEstimator()::getCurrentPose, () -> new Pose2d(6, 6, Rotation2d.fromDegrees(90)))
-//				.until(() -> robot.getSuperStructure().isAtPose(new Pose2d(6, 6, Rotation2d.fromDegrees(90))))
-//		);
+		usedJoystick.BACK.whileTrue(
+			robot.getSwerve()
+				.getCommandsBuilder()
+				.driveToPose(robot.getPoseEstimator()::getCurrentPose, () -> new Pose2d(4, 4, Rotation2d.fromDegrees(17)))
+		);
+		usedJoystick.START.whileTrue(
+			robot.getSwerve()
+				.getCommandsBuilder()
+				.driveToPose(robot.getPoseEstimator()::getCurrentPose, () -> new Pose2d(6, 6, Rotation2d.fromDegrees(90)))
+		);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
