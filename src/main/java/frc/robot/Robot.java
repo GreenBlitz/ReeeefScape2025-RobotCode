@@ -145,6 +145,10 @@ public class Robot {
 		return swerve;
 	}
 
+	public PoseEstimator getPoseEstimator() {
+		return poseEstimator;
+	}
+
 	public Solenoid getSolenoid() {
 		return solenoid;
 	}
