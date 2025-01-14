@@ -1,10 +1,11 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.autonomous.AutonomousConstants;
+import frc.robot.poseestimation.PoseEstimator;
 import frc.robot.subsystems.funnel.Funnel;
 import frc.robot.subsystems.funnel.FunnelConstants;
 import frc.robot.subsystems.funnel.factory.FunnelFactory;
@@ -31,7 +32,6 @@ import frc.robot.subsystems.solenoid.SolenoidConstants;
 import frc.robot.subsystems.solenoid.factory.SolenoidFactory;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.RobotManager;
-import frc.constants.GlobalConstants;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.subsystems.swerve.Swerve;
@@ -43,6 +43,7 @@ import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.factory.WristFactory;
 import frc.robot.superstructure.StatesMotionPlanner;
 import frc.robot.superstructure.Superstructure;
+import frc.utils.auto.PathPlannerUtils;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.auto.AutonomousChooser;
 
@@ -59,8 +60,8 @@ public class Robot {
 
 	private AutonomousChooser autonomousChooser;
 
-
 	private final Swerve swerve;
+	private final PoseEstimator poseEstimator;
 	private final Solenoid solenoid;
 	private final Funnel funnel;
 	private final Intake intake;
@@ -77,10 +78,10 @@ public class Robot {
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
 
-		IGyro gyro = GyroFactory.createGyro(GlobalConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/");
+		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/");
 		this.swerve = new Swerve(
-			SwerveConstantsFactory.create(GlobalConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
-			ModulesFactory.create(GlobalConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
+			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
+			ModulesFactory.create(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
 			gyro,
 			GyroFactory.createSignals(gyro)
 		);
@@ -100,8 +101,9 @@ public class Robot {
 		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
 		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
 
-//		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
-//		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
+		this.poseEstimator = new PoseEstimator(swerve::setHeading, swerve.getKinematics());
+		swerve.setHeadingSupplier(() -> poseEstimator.getCurrentPose().getRotation());
+		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getCurrentPose);
 
 		this.superstructure = new Superstructure("Superstructure/", this);
 		this.statesMotionPlanner = new StatesMotionPlanner(superstructure);
@@ -109,10 +111,11 @@ public class Robot {
 		configPathPlanner();
 	}
 
+
 	public void periodic() {
 		swerve.update();
 //		poseEstimator.updateVision(limelightFilterer.getFilteredVisionObservations());
-//		poseEstimator.updateOdometry(Arrays.asList(swerve.getAllOdometryObservations()));
+		poseEstimator.updatePoseEstimator(swerve.getAllOdometryObservations());
 		superstructure.logStatus();
 		BatteryUtils.logStatus();
 		BusChain.logChainsStatuses();
@@ -125,11 +128,11 @@ public class Robot {
 //		PathPlannerUtils.registerCommand(RobotState.PRE_SPEAKER.name(), superstructure.setState(RobotState.PRE_SPEAKER));
 //		PathPlannerUtils.registerCommand(RobotState.SPEAKER.name(), superstructure.setState(RobotState.SPEAKER));
 
-//		swerve.configPathPlanner(
-//			poseEstimator::getEstimatedPose,
-//			poseEstimator::resetPose,
-//			PathPlannerUtils.getGuiRobotConfig().orElse(AutonomousConstants.SYNCOPA_ROBOT_CONFIG)
-//		);
+		swerve.configPathPlanner(
+			poseEstimator::getCurrentPose,
+			poseEstimator::resetPose,
+			PathPlannerUtils.getGuiRobotConfig().orElse(AutonomousConstants.SYNCOPA_ROBOT_CONFIG)
+		);
 		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 	}
 
