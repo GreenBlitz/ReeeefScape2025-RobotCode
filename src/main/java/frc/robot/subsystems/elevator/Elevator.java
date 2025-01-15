@@ -1,10 +1,12 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.subsystems.GBSubsystem;
+import frc.robot.subsystems.elevator.records.ElevatorMotor;
 import frc.utils.Conversions;
 import org.littletonrobotics.junction.Logger;
 
@@ -12,34 +14,43 @@ public class Elevator extends GBSubsystem {
 
 	private final String limitSwitchLogPath;
 	private final DigitalInputInputsAutoLogged digitalInputInputsAutoLogged;
-	private final ElevatorMotorStuff firstMotorStuff;
-	private final ElevatorMotorStuff secondMotorStuff;
+	private final ElevatorMotor firstMotorStuff;
+	private final ElevatorMotor secondMotorStuff;
 	private final ControllableMotor firstMotor;
 	private final ControllableMotor secondMotor;
 	private final IDigitalInput limitSwitch;
 	private final ElevatorCommandsBuilder commandsBuilder;
 
+	private boolean hasBeenResetBySwitch;
+
 	public Elevator(
 		String logPath,
 		String limitSwitchLogPath,
-		ElevatorMotorStuff firstMotorStuff,
-		ElevatorMotorStuff secondMotorStuff,
+		ElevatorMotor firstMotorStuff,
+		ElevatorMotor secondMotorStuff,
 		IDigitalInput limitSwitch
 	) {
 		super(logPath);
 		this.limitSwitchLogPath = limitSwitchLogPath;
-		this.firstMotorStuff = firstMotorStuff;
-		this.secondMotorStuff = secondMotorStuff;
-		this.firstMotor = firstMotorStuff.motor();
-		this.secondMotor = firstMotorStuff.motor();
-		this.limitSwitch = limitSwitch;
 
+		this.firstMotorStuff = firstMotorStuff;
+		this.firstMotor = firstMotorStuff.motor();
+
+		this.secondMotorStuff = secondMotorStuff;
+		this.secondMotor = firstMotorStuff.motor();
+
+		this.limitSwitch = limitSwitch;
 		this.digitalInputInputsAutoLogged = new DigitalInputInputsAutoLogged();
+		hasBeenResetBySwitch = false;
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 	}
 
 	public ElevatorCommandsBuilder getCommandsBuilder() {
 		return commandsBuilder;
+	}
+
+	public boolean hasBeenResetBySwitch() {
+		return hasBeenResetBySwitch;
 	}
 
 	public boolean isAtBackwardsLimit() {
@@ -62,57 +73,64 @@ public class Elevator extends GBSubsystem {
 	}
 
 	protected void setVoltage(double voltage) {
-		firstMotor.applyRequest(firstMotorStuff.requests().voltageRequest().withSetPoint(voltage));
-		secondMotor.applyRequest(secondMotorStuff.requests().voltageRequest().withSetPoint(voltage));
+		firstMotor.applyRequest(firstMotorStuff.voltageRequest().withSetPoint(voltage));
+		secondMotor.applyRequest(secondMotorStuff.voltageRequest().withSetPoint(voltage));
 	}
 
 	protected void setTargetPositionMeters(double targetPositionMeters) {
 		Rotation2d targetPosition = convertMetersToRotations(targetPositionMeters);
-		firstMotor.applyRequest(firstMotorStuff.requests().positionRequest().withSetPoint(targetPosition));
-		secondMotor.applyRequest(secondMotorStuff.requests().positionRequest().withSetPoint(targetPosition));
+		firstMotor.applyRequest(firstMotorStuff.positionRequest().withSetPoint(targetPosition));
+		secondMotor.applyRequest(secondMotorStuff.positionRequest().withSetPoint(targetPosition));
 	}
 
-	protected void stayInPlace() {
-		setTargetPositionMeters(getElevatorPositionMeters());
-	}
-
-	protected void resetMotors(Rotation2d position) {
-		firstMotor.resetPosition(position);
-		secondMotor.resetPosition(position);
+	public void resetMotors(double positionMeters) {
+		Rotation2d convertedPosition = convertMetersToRotations(positionMeters);
+		firstMotor.resetPosition(convertedPosition);
+		secondMotor.resetPosition(convertedPosition);
 	}
 
 	public double getElevatorPositionMeters() {
-		return convertRotationsToMeters(
-			Rotation2d.fromRotations(
-				firstMotorStuff.signals().positionSignal().getLatestValue().getRotations()
-					+ secondMotorStuff.signals().positionSignal().getLatestValue().getRotations() / 2
-			)
-		);
+		return convertRotationsToMeters(firstMotorStuff.positionSignal().getLatestValue());
+	}
+
+	private void dynamicReset() {
+		if (getElevatorPositionMeters() <= ElevatorConstants.MINIMUM_ACHIEVABLE_ANGLE_METERS) {
+			resetMotors(ElevatorConstants.MINIMUM_ACHIEVABLE_ANGLE_METERS);
+		}
+	}
+
+	private void limitSwitchReset() {
+		if (digitalInputInputsAutoLogged.debouncedValue && DriverStation.isDisabled() && !hasBeenResetBySwitch) {
+			resetMotors(ElevatorConstants.MINIMUM_ACHIEVABLE_ANGLE_METERS);
+			hasBeenResetBySwitch = true;
+		}
+	}
+
+	private void handleReset() {
+		dynamicReset();
+		limitSwitchReset();
 	}
 
 	private void updateInputs() {
-		firstMotor.updateInputs(firstMotorStuff.signals().positionSignal(), firstMotorStuff.signals().voltageSignal());
-		firstMotor.updateInputs(firstMotorStuff.signals().otherSignals());
-		secondMotor.updateInputs(secondMotorStuff.signals().positionSignal(), firstMotorStuff.signals().voltageSignal());
-		secondMotor.updateInputs(secondMotorStuff.signals().otherSignals());
+		firstMotor.updateInputs(firstMotorStuff.positionSignal(), firstMotorStuff.voltageSignal());
+		firstMotor.updateInputs(firstMotorStuff.otherSignals());
+		secondMotor.updateInputs(secondMotorStuff.positionSignal(), firstMotorStuff.voltageSignal());
+		secondMotor.updateInputs(secondMotorStuff.otherSignals());
 		limitSwitch.updateInputs(digitalInputInputsAutoLogged);
-
-		log();
 	}
 
 	private void log() {
 		Logger.recordOutput(getLogPath() + "PositionMeters", getElevatorPositionMeters());
 		Logger.recordOutput(getLogPath() + "isAtBackwardsLimit", isAtBackwardsLimit());
+		Logger.recordOutput(getLogPath() + "hasBeenResetBySwitch", hasBeenResetBySwitch);
 		Logger.processInputs(limitSwitchLogPath, digitalInputInputsAutoLogged);
 	}
 
 	@Override
 	protected void subsystemPeriodic() {
-		if (getElevatorPositionMeters().getRotations() <= ElevatorConstants.MINIMUM_ACHIEVABLE_ANGLE.getRotations()) {
-			resetMotors(ElevatorConstants.MINIMUM_ACHIEVABLE_ANGLE);
-		}
-
 		updateInputs();
+		handleReset();
+		log();
 	}
 
 	private double convertRotationsToMeters(Rotation2d position) {
