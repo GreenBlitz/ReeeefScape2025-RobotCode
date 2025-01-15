@@ -3,20 +3,14 @@ package frc.robot.subsystems.elevator.factory;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
 import frc.robot.hardware.phoenix6.Phoenix6DeviceID;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
-import frc.robot.hardware.phoenix6.motors.TalonFXWrapper;
-import frc.robot.hardware.phoenix6.request.Phoenix6Request;
 import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.records.ElevatorMotorStuff;
-import frc.robot.subsystems.elevator.records.ElevatorRequests;
-import frc.robot.subsystems.elevator.records.ElevatorSignals;
 import frc.utils.AngleUnit;
 
 public class RealElevatorConstants {

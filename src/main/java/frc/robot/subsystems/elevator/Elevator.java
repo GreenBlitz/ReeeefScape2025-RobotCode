@@ -5,7 +5,6 @@ import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.subsystems.GBSubsystem;
-import frc.robot.subsystems.elevator.records.ElevatorMotorStuff;
 import frc.utils.Conversions;
 import org.littletonrobotics.junction.Logger;
 
