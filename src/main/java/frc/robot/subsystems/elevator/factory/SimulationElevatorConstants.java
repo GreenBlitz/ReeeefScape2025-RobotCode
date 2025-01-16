@@ -47,7 +47,7 @@ public class SimulationElevatorConstants {
         configuration.Slot0.withKP(KP).withKI(KI).withKD(KD);
         configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
         configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-        configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(frc.robot.subsystems.elevator.factory.ElevatorConstants.MINIMUM_ACHIEVABLE_POSITION_METERS);
+        configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.MINIMUM_ACHIEVABLE_POSITION_METERS);
         configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
         motor.applyConfiguration(configuration);
     }
@@ -71,7 +71,7 @@ public class SimulationElevatorConstants {
                 new ElevatorSim(
                         LinearSystemId.createElevatorSystem(
                                 DCMotor.getKrakenX60Foc(2),
-                                MASS_KG,
+                                ElevatorConstants.MASS_KG,
                                 RADIUS_METERS,
                                 ElevatorConstants.DRUM_RADIUS
                         ),
