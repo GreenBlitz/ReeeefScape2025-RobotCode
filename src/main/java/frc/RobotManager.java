@@ -4,11 +4,23 @@
 
 package frc;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
+import frc.robot.RobotConstants;
+import frc.robot.hardware.mechanisms.wpilib.SimpleMotorSimulation;
+import frc.robot.hardware.phoenix6.Phoenix6DeviceID;
+import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
+import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
+import frc.robot.hardware.phoenix6.signal.Phoenix6DoubleSignal;
+import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.factory.ElevatorFactory;
+import frc.utils.AngleUnit;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtils;
@@ -29,7 +41,11 @@ public class RobotManager extends LoggedRobot {
 	private Command autonomousCommand;
 	private int roborioCycles;
 
-	private final Elevator elevator;
+//	private final Elevator elevator;
+
+	private final TalonFXMotor motor;
+	private final Phoenix6AngleSignal positionSignal;
+	private final Phoenix6DoubleSignal voltageSignal;
 
 	public RobotManager() {
 		LoggerFactory.initializeLogger();
@@ -38,7 +54,22 @@ public class RobotManager extends LoggedRobot {
 		this.roborioCycles = 0;
 		this.robot = new Robot();
 
-		elevator = ElevatorFactory.create(ElevatorConstants.LOG_PATH);
+//		elevator = ElevatorFactory.create(ElevatorConstants.LOG_PATH);
+
+		SysIdRoutine.Config sysIdConfig = new SysIdRoutine.Config();
+
+		SimpleMotorSimulation simpleMotorSimulation = new SimpleMotorSimulation(
+				new DCMotorSim(
+						LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.001, 1),
+						DCMotor.getKrakenX60(1)
+				));
+		motor =  new TalonFXMotor("Subsystems/Test/", new Phoenix6DeviceID(1), sysIdConfig, simpleMotorSimulation);
+		positionSignal = Phoenix6SignalBuilder
+				.generatePhoenix6Signal(motor.getDevice().getPosition(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+		voltageSignal = Phoenix6SignalBuilder
+				.generatePhoenix6Signal(motor.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+
+		simpleMotorSimulation.setInputVoltage(12);
 
 		JoysticksBindings.configureBindings(robot);
 	}
@@ -71,7 +102,8 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
-		elevator.getCommandsBuilder().setPower(1).schedule();
+//		elevator.getCommandsBuilder().setVoltage(122).schedule();
+		motor.setPower(1);
 	}
 
 	@Override
@@ -79,6 +111,7 @@ public class RobotManager extends LoggedRobot {
 		updateTimeRelatedData(); // Better to be first
 		robot.periodic();
 		AlertManager.reportAlerts();
+		motor.updateInputs(positionSignal, voltageSignal);
 	}
 
 	private void updateTimeRelatedData() {
