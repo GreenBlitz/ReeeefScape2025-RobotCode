@@ -14,7 +14,6 @@ import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.records.ElevatorMotorStuff;
 import frc.robot.subsystems.elevator.records.ElevatorRequests;
 import frc.robot.subsystems.elevator.records.ElevatorSignals;
 import frc.utils.AngleUnit;
@@ -60,27 +59,21 @@ public class RealElevatorConstants {
     public static Elevator generate(String logPath){
         TalonFXMotor firstMotor = new TalonFXMotor(logPath + "FirstMotor/", IDs.Phoenix6IDs.ELEVATOR_FIRST_MOTOR_ID, FIRST_MOTOR_CONFIG);
         configMotor(firstMotor);
-        ElevatorMotorStuff firstMotorStuff = new ElevatorMotorStuff(
-                firstMotor,
-                createRequests(),
-                createSignals(firstMotor)
-        );
 
         TalonFXMotor secondMotor = new TalonFXMotor(logPath + "SecondMotor/", IDs.Phoenix6IDs.ELEVATOR_SECOND_MOTOR_ID, SECOND_MOTOR_CONFIG);
         configMotor(secondMotor);
-        ElevatorMotorStuff secondMotorStuff = new ElevatorMotorStuff(
-                secondMotor,
-                createRequests(),
-                createSignals(secondMotor)
-        );
 
         ChanneledDigitalInput limitSwitch = new ChanneledDigitalInput(new DigitalInput(LIMIT_SWITCH_CHANNEL), new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME));
 
         return new Elevator(
                 logPath,
                 logPath + "LimitSwitch/",
-                firstMotorStuff,
-                secondMotorStuff,
+                firstMotor,
+                createSignals(firstMotor),
+                createRequests(),
+                secondMotor,
+                createSignals(secondMotor),
+                createRequests(),
                 limitSwitch
         );
     }

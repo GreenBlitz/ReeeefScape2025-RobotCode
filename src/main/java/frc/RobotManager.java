@@ -6,6 +6,9 @@ package frc;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtils;
@@ -26,12 +29,16 @@ public class RobotManager extends LoggedRobot {
 	private Command autonomousCommand;
 	private int roborioCycles;
 
+	private final Elevator elevator;
+
 	public RobotManager() {
 		LoggerFactory.initializeLogger();
 		PathPlannerUtils.startPathfinder();
 
 		this.roborioCycles = 0;
 		this.robot = new Robot();
+
+		elevator = ElevatorFactory.create(ElevatorConstants.LOG_PATH);
 
 		JoysticksBindings.configureBindings(robot);
 	}
@@ -64,6 +71,7 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
+		elevator.getCommandsBuilder().setPower(1).schedule();
 	}
 
 	@Override

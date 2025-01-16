@@ -17,16 +17,14 @@ import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.records.ElevatorMotorStuff;
 import frc.robot.subsystems.elevator.records.ElevatorRequests;
 import frc.robot.subsystems.elevator.records.ElevatorSignals;
 import frc.utils.AngleUnit;
+import org.littletonrobotics.junction.Logger;
 
 public class SimulationElevatorConstants {
 
     private static final double LIMIT_SWITCH_DEBOUNCE_TIME = 0.04;
-    private static final int DEFAULT_SIGNALS_FREQUENCY_HERTZ = 60;
-
     private static final double RADIUS_METERS = 0.025;
     private static final int NUMBER_OF_MOTORS = 2;
     private static final double MIN_HEIGHT_METERS = 0;
@@ -39,32 +37,28 @@ public class SimulationElevatorConstants {
     private static final SysIdRoutine.Config MOTOR_CONFIG = new SysIdRoutine.Config();
 
     private static final double KP = 1;
-    private static final double KI = 1;
-    private static final double KD = 1;
+    private static final double KI = 0;
+    private static final double KD = 0;
 
     private static void configMotor(TalonFXMotor motor){
         TalonFXConfiguration configuration = new TalonFXConfiguration();
         configuration.Slot0.withKP(KP).withKI(KI).withKD(KD);
         configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
         configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-        configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.MINIMUM_ACHIEVABLE_POSITION_METERS);
+        configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(MIN_HEIGHT_METERS).getRotations());
         configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
+        configuration.SoftwareLimitSwitch.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(MAX_HEIGHT_METERS).getRotations());
+        configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
         motor.applyConfiguration(configuration);
     }
 
-    private static ElevatorRequests createRequests(){
-        return new ElevatorRequests(
-                Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true)),
-                Phoenix6RequestBuilder.build(new VoltageOut(0).withEnableFOC(true))
-        );
-    }
+//    private static ElevatorRequests createRequests(){
+//        return
+//    }
 
-    private static ElevatorSignals createSignals(TalonFXMotor motor){
-        return new ElevatorSignals(
-                Phoenix6SignalBuilder.generatePhoenix6Signal(motor.getDevice().getPosition(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS),
-                Phoenix6SignalBuilder.generatePhoenix6Signal(motor.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ)
-        );
-    }
+//    private static ElevatorSignals createSignals(TalonFXMotor motor){
+//        return
+//    }
 
     public static Elevator generate(String logPath){
         ElevatorSimulation elevatorSimulation = new ElevatorSimulation(
@@ -84,23 +78,32 @@ public class SimulationElevatorConstants {
                 ElevatorConstants.DRUM_RADIUS,
                 GEAR_RATIO
         );
+        elevatorSimulation.setInputVoltage(12);
         TalonFXMotor firstMotor = new TalonFXMotor(logPath + "FirstMotor/", IDs.Phoenix6IDs.ELEVATOR_FIRST_MOTOR_ID, MOTOR_CONFIG, elevatorSimulation);
-        ElevatorRequests firstMotorRequests = createRequests();
-        ElevatorSignals firstMotorSignals = createSignals(firstMotor);
         configMotor(firstMotor);
-        ElevatorMotorStuff firstMotorStuff = new ElevatorMotorStuff(
-                firstMotor,
-                firstMotorRequests,
-                firstMotorSignals
-        );
 
         SuppliedDigitalInput digitalInput = new SuppliedDigitalInput(() -> false, new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME));
 
+        ElevatorSignals signals = new ElevatorSignals(
+                Phoenix6SignalBuilder.generatePhoenix6Signal(firstMotor.getDevice().getPosition(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS),
+                Phoenix6SignalBuilder.generatePhoenix6Signal(firstMotor.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ)
+        );
+
+        ElevatorRequests requests = new ElevatorRequests(
+                Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true)),
+                Phoenix6RequestBuilder.build(new VoltageOut(0).withEnableFOC(true))
+        );
+
+        Logger.recordOutput("pos", firstMotor.getDevice().getPosition().getValueAsDouble());
         return new Elevator(
                 logPath,
                 logPath + "LimitSwitch/",
-                firstMotorStuff,
-                firstMotorStuff,
+                firstMotor,
+                signals,
+                requests,
+                firstMotor,
+                signals,
+                requests,
                 digitalInput
         );
     }
