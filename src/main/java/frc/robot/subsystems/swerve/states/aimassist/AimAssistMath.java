@@ -51,9 +51,14 @@ public class AimAssistMath {
 		Translation2d objectRelativeToRobot = PoseMath.getRelativeTranslation(robotPose, objectTranslation);
 		double pidHorizontalToObjectOutputVelocityMetersPerSecond = swerveConstants.yMetersPIDController()
 			.calculate(0, objectRelativeToRobot.getY());
+
+		if (!Field.isFieldConventionAlliance()) {
+			pidHorizontalToObjectOutputVelocityMetersPerSecond *= -1;
+		}
 		
 		double xVelocityMetersPerSecond = speeds.vxMetersPerSecond;
 		double yVelocityMetersPerSecond = speeds.vyMetersPerSecond;
+
 		switch (swerveState.getDriveMode()) {
 			case FIELD_RELATIVE -> {
 				double xFieldRelativeVelocityAddition = pidHorizontalToObjectOutputVelocityMetersPerSecond
@@ -61,19 +66,11 @@ public class AimAssistMath {
 				double yFieldRelativeVelocityAddition = pidHorizontalToObjectOutputVelocityMetersPerSecond
 					* robotPose.getRotation().unaryMinus().getCos();
 
-				if (!Field.isFieldConventionAlliance()) {
-					xFieldRelativeVelocityAddition = -xFieldRelativeVelocityAddition;
-					yFieldRelativeVelocityAddition = -yFieldRelativeVelocityAddition;
-				}
-
 				xVelocityMetersPerSecond += xFieldRelativeVelocityAddition;
-				yVelocityMetersPerSecond += yFieldRelativeVelocityAddition;
+				yVelocityMetersPerSecond = yFieldRelativeVelocityAddition;
 			}
 			case ROBOT_RELATIVE -> {
-				if (!Field.isFieldConventionAlliance()) {
-					pidHorizontalToObjectOutputVelocityMetersPerSecond = -pidHorizontalToObjectOutputVelocityMetersPerSecond;
-				}
-				yVelocityMetersPerSecond += pidHorizontalToObjectOutputVelocityMetersPerSecond;
+				yVelocityMetersPerSecond = pidHorizontalToObjectOutputVelocityMetersPerSecond;
 			}
 		}
 
