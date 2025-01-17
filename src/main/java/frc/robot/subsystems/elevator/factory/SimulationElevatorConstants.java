@@ -31,27 +31,26 @@ public class SimulationElevatorConstants {
     private static final double MIN_HEIGHT_METERS = 0;
     private static final double MAX_HEIGHT_METERS = 2;
     private static final double STARTING_HEIGHT_METERS = 0;
-    private static final double GEAR_RATIO = 1.0 / 5.0;
     private static final double CURRENT_LIMIT = 40;
     private static final boolean CURRENT_LIMIT_ENABLE = true;
     private static final boolean SOFT_LIMIT_ENABLE = true;
     private static final SysIdRoutine.Config MOTOR_CONFIG = new SysIdRoutine.Config();
 
-    private static final double KP = 1;
-    private static final double KI = 0;
+    private static final double KP = 50;
+    private static final double KI = 1;
     private static final double KD = 0;
 
-//    private static void configMotor(TalonFXMotor motor){
-//        TalonFXConfiguration configuration = new TalonFXConfiguration();
-//        configuration.Slot0.withKP(KP).withKI(KI).withKD(KD);
-//        configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
-//        configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-//        configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(MIN_HEIGHT_METERS).getRotations());
-//        configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
-//        configuration.SoftwareLimitSwitch.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(MAX_HEIGHT_METERS).getRotations());
-//        configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
-//        motor.applyConfiguration(configuration);
-//    }
+    private static void configMotor(TalonFXMotor motor){
+        TalonFXConfiguration configuration = new TalonFXConfiguration();
+        configuration.Slot0.withKP(KP).withKI(KI).withKD(KD);
+        configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
+        configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
+        configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(MIN_HEIGHT_METERS).getRotations());
+        configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
+        configuration.SoftwareLimitSwitch.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(MAX_HEIGHT_METERS).getRotations());
+        configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
+        motor.applyConfiguration(configuration);
+    }
 
 //    private static ElevatorRequests createRequests(){
 //        return
@@ -66,20 +65,20 @@ public class SimulationElevatorConstants {
                 new ElevatorSim(
                         LinearSystemId.createElevatorSystem(
                                 DCMotor.getKrakenX60Foc(2),
-                                ElevatorConstants.MASS_KG,
-                                RADIUS_METERS,
-                                ElevatorConstants.DRUM_RADIUS
+                                4,
+                                0.05,
+                                10
                         ),
-                        DCMotor.getKrakenX60Foc(NUMBER_OF_MOTORS),
-                        MIN_HEIGHT_METERS,
-                        MAX_HEIGHT_METERS,
+                        DCMotor.getKrakenX60Foc(1),
+                        0,
+                        2,
                         false,
-                        STARTING_HEIGHT_METERS
+                        0
                 ),
-                ElevatorConstants.DRUM_RADIUS,
-                GEAR_RATIO
+                0.1,
+                10
         );
-        elevatorSimulation.setInputVoltage(2000);
+//        elevatorSimulation.setInputVoltage(12);
         TalonFXMotor firstMotor = new TalonFXMotor(logPath + "FirstMotor/", IDs.Phoenix6IDs.ELEVATOR_FIRST_MOTOR_ID, MOTOR_CONFIG, elevatorSimulation);
 //        configMotor(firstMotor);
 

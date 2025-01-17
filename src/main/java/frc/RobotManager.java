@@ -20,6 +20,9 @@ import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6DoubleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.utils.AngleUnit;
 import frc.utils.Conversions;
 import frc.utils.auto.PathPlannerUtils;
@@ -42,37 +45,37 @@ public class RobotManager extends LoggedRobot {
 	private Command autonomousCommand;
 	private int roborioCycles;
 
-//	private final Elevator elevator;
+	private final Elevator elevator;
 //	private final TalonFXMotor motor;
 //	private final Phoenix6AngleSignal position;
 //	private final Phoenix6DoubleSignal motorVol;
 //	private final Phoenix6DoubleSignal supplyVol;
 //	private final ElevatorSimulation simulation;
 
-	public static TalonFXMotor talonFXMotor = new TalonFXMotor(
-			"Tester/",
-			new Phoenix6DeviceID(1),
-			new SysIdRoutine.Config(),
-			new ElevatorSimulation(
-					new ElevatorSim(
-							LinearSystemId.createElevatorSystem(DCMotor.getKrakenX60Foc(1), 4, 0.05, 10),
-							DCMotor.getKrakenX60Foc(1),
-							0,
-							2.5,
-							false,
-							0
-					),
-					0.1,
-					10
-			)
-	);
-	static {
-		talonFXMotor.applyConfiguration(new TalonFXConfiguration().withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true).withForwardSoftLimitThreshold(500).withReverseSoftLimitEnable(true).withReverseSoftLimitThreshold(0)));
-	}
-	public static Phoenix6DoubleSignal voltageSignla = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(talonFXMotor.getDevice().getMotorVoltage(), 50);
-	public static Phoenix6AngleSignal positionSignla = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(talonFXMotor.getDevice().getPosition(), 50, AngleUnit.ROTATIONS);
+//	public static TalonFXMotor talonFXMotor = new TalonFXMotor(
+//			"Tester/",
+//			new Phoenix6DeviceID(1),
+//			new SysIdRoutine.Config(),
+//			new ElevatorSimulation(
+//					new ElevatorSim(
+//							LinearSystemId.createElevatorSystem(DCMotor.getKrakenX60Foc(1), 4, 0.05, 10),
+//							DCMotor.getKrakenX60Foc(1),
+//							0,
+//							2.5,
+//							false,
+//							0
+//					),
+//					0.1,
+//					10
+//			)
+//	);
+//	static {
+//		talonFXMotor.applyConfiguration(new TalonFXConfiguration().withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true).withForwardSoftLimitThreshold(500).withReverseSoftLimitEnable(true).withReverseSoftLimitThreshold(0)));
+//	}
+//	public static Phoenix6DoubleSignal voltageSignla = Phoenix6SignalBuilder
+//			.generatePhoenix6Signal(talonFXMotor.getDevice().getMotorVoltage(), 50);
+//	public static Phoenix6AngleSignal positionSignla = Phoenix6SignalBuilder
+//			.generatePhoenix6Signal(talonFXMotor.getDevice().getPosition(), 50, AngleUnit.ROTATIONS);
 
 
 	public RobotManager() {
@@ -82,7 +85,7 @@ public class RobotManager extends LoggedRobot {
 		this.roborioCycles = 0;
 		this.robot = new Robot();
 
-//		elevator = ElevatorFactory.create(ElevatorConstants.LOG_PATH);
+		elevator = ElevatorFactory.create(ElevatorConstants.LOG_PATH);
 //		simulation = new ElevatorSimulation(
 //				new ElevatorSim(
 //						DCMotor.getKrakenX60Foc(1),
@@ -127,11 +130,13 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.schedule();
 		}
-		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(12)));
+//		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(10)));
+		elevator.getCommandsBuilder().setTargetPositionMeters(2).schedule();
 	}
 	@Override
 	public void testInit() {
-		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(-6)));
+//		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(-6)));
+		elevator.getCommandsBuilder().setTargetPositionMeters(0.5).schedule();
 	}
 
 	@Override
@@ -142,7 +147,8 @@ public class RobotManager extends LoggedRobot {
 //		elevator.getCommandsBuilder().setVoltage(122).schedule();
 //		motor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(12)));
 //		simulation.setInputVoltage(12);
-		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(0)));
+//		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(0)));
+		elevator.getCommandsBuilder().setTargetPositionMeters(1).schedule();
 
 	}
 
@@ -154,9 +160,9 @@ public class RobotManager extends LoggedRobot {
 
 //		motor.updateSimulation();
 //		motor.updateInputs(position, motorVol, supplyVol);
-		Logger.recordOutput("Tester/posMeters", Conversions.angleToDistance(positionSignla.getLatestValue(), 0.1));
-		talonFXMotor.updateSimulation();
-		talonFXMotor.updateInputs(voltageSignla, positionSignla);
+//		Logger.recordOutput("Tester/posMeters", Conversions.angleToDistance(positionSignla.getLatestValue(), 0.1));
+//		talonFXMotor.updateSimulation();
+//		talonFXMotor.updateInputs(voltageSignla, positionSignla);
 	}
 
 	private void updateTimeRelatedData() {
