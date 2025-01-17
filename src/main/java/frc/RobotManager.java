@@ -9,23 +9,17 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
-import frc.robot.RobotConstants;
 import frc.robot.hardware.mechanisms.wpilib.ElevatorSimulation;
-import frc.robot.hardware.mechanisms.wpilib.SimpleMotorSimulation;
 import frc.robot.hardware.phoenix6.Phoenix6DeviceID;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6DoubleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.utils.AngleUnit;
 import frc.utils.Conversions;
 import frc.utils.auto.PathPlannerUtils;
@@ -77,7 +71,7 @@ public class RobotManager extends LoggedRobot {
 	}
 	public static Phoenix6DoubleSignal voltageSignla = Phoenix6SignalBuilder
 			.generatePhoenix6Signal(talonFXMotor.getDevice().getMotorVoltage(), 50);
-	public static Phoenix6AngleSignal supplyVColtage = Phoenix6SignalBuilder
+	public static Phoenix6AngleSignal positionSignla = Phoenix6SignalBuilder
 			.generatePhoenix6Signal(talonFXMotor.getDevice().getPosition(), 50, AngleUnit.ROTATIONS);
 
 
@@ -133,7 +127,7 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.schedule();
 		}
-		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(10)));
+		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(12)));
 	}
 	@Override
 	public void testInit() {
@@ -160,9 +154,9 @@ public class RobotManager extends LoggedRobot {
 
 //		motor.updateSimulation();
 //		motor.updateInputs(position, motorVol, supplyVol);
-//		Logger.recordOutput("Test/posMeters", Conversions.angleToDistance(position.getLatestValue(), 0.05));
+		Logger.recordOutput("Tester/posMeters", Conversions.angleToDistance(positionSignla.getLatestValue(), 0.1));
 		talonFXMotor.updateSimulation();
-		talonFXMotor.updateInputs(voltageSignla, supplyVColtage);
+		talonFXMotor.updateInputs(voltageSignla, positionSignla);
 	}
 
 	private void updateTimeRelatedData() {
