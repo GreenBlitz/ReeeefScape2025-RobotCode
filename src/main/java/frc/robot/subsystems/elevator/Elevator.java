@@ -76,7 +76,9 @@ public class Elevator extends GBSubsystem {
 	@Override
 	protected void subsystemPeriodic() {
 		updateInputs();
-		handleReset();
+		if (handleReset()) {
+			updateInputs();
+		}
 		firstMotor.updateSimulation();
 		secondMotor.updateSimulation();
 	}
