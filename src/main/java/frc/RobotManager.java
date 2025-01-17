@@ -4,27 +4,11 @@
 
 package frc;
 
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VoltageOut;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
-import frc.robot.hardware.mechanisms.wpilib.ElevatorSimulation;
-import frc.robot.hardware.phoenix6.Phoenix6DeviceID;
-import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
-import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
-import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
-import frc.robot.hardware.phoenix6.signal.Phoenix6DoubleSignal;
-import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.factory.ElevatorFactory;
-import frc.utils.AngleUnit;
-import frc.utils.Conversions;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtils;
@@ -133,6 +117,7 @@ public class RobotManager extends LoggedRobot {
 //		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(10)));
 		elevator.getCommandsBuilder().setTargetPositionMeters(2).schedule();
 	}
+
 	@Override
 	public void testInit() {
 //		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(-6)));
@@ -149,7 +134,6 @@ public class RobotManager extends LoggedRobot {
 //		simulation.setInputVoltage(12);
 //		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(0)));
 		elevator.getCommandsBuilder().setTargetPositionMeters(1).schedule();
-
 	}
 
 	@Override
