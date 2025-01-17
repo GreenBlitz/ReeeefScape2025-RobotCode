@@ -141,18 +141,12 @@ public class Elevator extends GBSubsystem {
 	}
 
 	private boolean shouldResetByMinimumPosition() {
-		if (getElevatorPositionMeters() <= ElevatorConstants.MINIMUM_HEIGHT_METERS) {
-			return true;
-		}
-		return false;
-	}
+        return getElevatorPositionMeters() <= ElevatorConstants.MINIMUM_HEIGHT_METERS;
+    }
 
 	private boolean shouldResetByLimitSwitch() {
-		if (isAtBackwardsLimit() && DriverStation.isDisabled() && !hasBeenResetBySwitch) {
-			return true;
-		}
-		return false;
-	}
+        return isAtBackwardsLimit() && DriverStation.isDisabled() && !hasBeenResetBySwitch;
+    }
 
 	private boolean handleReset() {
 		if (shouldResetByMinimumPosition() || shouldResetByLimitSwitch()) {
