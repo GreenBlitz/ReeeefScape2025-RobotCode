@@ -6,8 +6,8 @@ package frc;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.RobotConstants;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
@@ -69,7 +69,7 @@ public class RobotManager extends LoggedRobot {
 		this.roborioCycles = 0;
 		this.robot = new Robot();
 
-		elevator = ElevatorFactory.create(ElevatorConstants.LOG_PATH);
+		elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "Elevator/");
 //		simulation = new ElevatorSimulation(
 //				new ElevatorSim(
 //						DCMotor.getKrakenX60Foc(1),
