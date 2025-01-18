@@ -2,10 +2,6 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.Robot;
 import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.interfaces.ControllableMotor;
@@ -34,8 +30,6 @@ public class Elevator extends GBSubsystem {
 
 	private final SysIdCalibrator firstMotorSysIdCalibrator;
 	private final SysIdCalibrator secondMotorSysIdCalibrator;
-
-	private final MechanismLigament2d elevatorLigament;
 
 	private boolean hasBeenResetBySwitch;
 
@@ -81,9 +75,6 @@ public class Elevator extends GBSubsystem {
 				this::setVoltage
 		);
 
-		this.elevatorLigament = new MechanismLigament2d("elevatorLigament", getElevatorPositionMeters(), 90, 10, new Color8Bit(Color.kRed));
-		Robot.mech2d.getRoot("Elevator", 10,4).append(elevatorLigament);
-
 		updateInputs();
 	}
 
@@ -119,8 +110,6 @@ public class Elevator extends GBSubsystem {
 		}
 		firstMotor.updateSimulation();
 		secondMotor.updateSimulation();
-
-		elevatorLigament.setLength(getElevatorPositionMeters()*2);
 	}
 
 	private void updateInputs() {
