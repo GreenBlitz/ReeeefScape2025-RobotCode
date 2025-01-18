@@ -2,6 +2,10 @@ package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.Robot;
 import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.interfaces.ControllableMotor;
@@ -9,6 +13,7 @@ import frc.robot.hardware.interfaces.IRequest;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
 import frc.utils.Conversions;
+import frc.utils.calibration.sysid.SysIdCalibrator;
 import frc.utils.math.ToleranceMath;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,6 +31,11 @@ public class Elevator extends GBSubsystem {
 	private final IRequest<Double> voltageRequest;
 	private final IDigitalInput limitSwitch;
 	private final ElevatorCommandsBuilder commandsBuilder;
+
+	private final SysIdCalibrator firstMotorSysIdCalibrator;
+	private final SysIdCalibrator secondMotorSysIdCalibrator;
+
+	private final MechanismLigament2d elevatorLigament;
 
 	private boolean hasBeenResetBySwitch;
 
@@ -54,11 +64,39 @@ public class Elevator extends GBSubsystem {
 		hasBeenResetBySwitch = false;
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 
+		this.firstMotorSysIdCalibrator = new SysIdCalibrator(
+				new SysIdCalibrator.SysIdConfigInfo(
+						firstMotor.getSysidConfigInfo().config(),
+						true
+				),
+				this,
+				this::setVoltage
+		);
+		this.secondMotorSysIdCalibrator = new SysIdCalibrator(
+				new SysIdCalibrator.SysIdConfigInfo(
+						secondMotor.getSysidConfigInfo().config(),
+						true
+				),
+				this,
+				this::setVoltage
+		);
+
+		this.elevatorLigament = new MechanismLigament2d("elevatorLigament", getElevatorPositionMeters(), 90, 10, new Color8Bit(Color.kRed));
+		Robot.mech2d.getRoot("Elevator", 10,4).append(elevatorLigament);
+
 		updateInputs();
 	}
 
 	public ElevatorCommandsBuilder getCommandsBuilder() {
 		return commandsBuilder;
+	}
+
+	public SysIdCalibrator getFirstMotorSysIdCalibrator() {
+		return firstMotorSysIdCalibrator;
+	}
+
+	public SysIdCalibrator getSecondMotorSysIdCalibrator() {
+		return secondMotorSysIdCalibrator;
 	}
 
 	public double getElevatorPositionMeters() {
@@ -81,6 +119,8 @@ public class Elevator extends GBSubsystem {
 		}
 		firstMotor.updateSimulation();
 		secondMotor.updateSimulation();
+
+		elevatorLigament.setLength(getElevatorPositionMeters()*2);
 	}
 
 	private void updateInputs() {

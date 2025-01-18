@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -19,9 +21,12 @@ import frc.utils.battery.BatteryUtils;
 public class Robot {
 
 	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
+	public static final Mechanism2d mech2d = new Mechanism2d(20,20);
 
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
+		SmartDashboard.putData("Mechanism2d", mech2d);
+
 	}
 
 	public void periodic() {
