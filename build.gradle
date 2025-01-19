@@ -4,7 +4,6 @@ import groovy.json.JsonSlurper
 plugins {
 	id "java"
 	id "edu.wpi.first.GradleRIO" version "2025.2.1"
-	id "edu.wpi.first.GradleRIO" version "2025.2.1"
 	id "com.diffplug.spotless" version "6.25.0"
 }
 
@@ -68,6 +67,7 @@ def includeDesktopSupport = true
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
+	annotationProcessor wpi.java.deps.wpilibAnnotations()
 	implementation wpi.java.deps.wpilib()
 	implementation wpi.java.vendor.java()
 
@@ -88,10 +88,8 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	def akitJson = new JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
-	annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:$akitJson.version"
-}
-
+	def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
+	annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"}
 
 repositories {
 	maven {
@@ -102,6 +100,8 @@ repositories {
 		}
 	}
 	mavenLocal()
+	maven {url "https://jitpack.io"}
+	mavenCentral()
 }
 
 
@@ -190,13 +190,13 @@ tasks.register('setVisualVMHost') {
 	}
 }
 
-compileJava.finalizedBy('checkAkitInstall')
-tasks.register('checkAkitInstall', JavaExec) {
-	group = 'execution'
-	dependsOn('classes')
-	mainClass = "org.littletonrobotics.junction.CheckInstall"
-	classpath = sourceSets.main.runtimeClasspath
-}
+//compileJava.finalizedBy('checkAkitInstall')
+//tasks.register('checkAkitInstall', JavaExec) {
+//	group = 'execution'
+//	dependsOn('classes')
+//	mainClass = "org.littletonrobotics.junction.CheckInstall"
+//	classpath = sourceSets.main.runtimeClasspath
+//}
 
 tasks.named("deploy").configure { finalizedBy('runComputerPrograms') }
 tasks.register('runComputerPrograms', JavaExec) {

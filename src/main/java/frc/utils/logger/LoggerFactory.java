@@ -52,8 +52,8 @@ public class LoggerFactory {
 
 	private static void setLoggingPath(Path path) {
 		String stringPath = path.toString();
-//		SignalLogger.setPath(stringPath);
-//		Logger.addDataReceiver(new WPILOGWriter(stringPath));
+		SignalLogger.setPath(stringPath);
+		Logger.addDataReceiver(new WPILOGWriter(stringPath));
 	}
 
 }
