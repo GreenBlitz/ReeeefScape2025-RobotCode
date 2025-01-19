@@ -87,11 +87,6 @@ public class RobotManager extends LoggedRobot {
 		robot.periodic();
 		AlertManager.reportAlerts();
 		
-		Logger.recordOutput("robot", new Pose3d(0,0,0,new Rotation3d()));
-		Logger.recordOutput("elevator_stage_1", ElevatorSimulationHelper.getFirstStagePoseFromHeight(robot.elevator.getElevatorPositionMeters()));
-		Logger.recordOutput("elevator_stage_2", ElevatorSimulationHelper.getSecondStagePoseFromHeight(robot.elevator.getElevatorPositionMeters()));
-		Logger.recordOutput("arm", new Pose3d());
-
 //		motor.updateSimulation();
 //		motor.updateInputs(position, motorVol, supplyVol);
 //		Logger.recordOutput("Tester/posMeters", Conversions.angleToDistance(positionSignla.getLatestValue(), 0.1));
