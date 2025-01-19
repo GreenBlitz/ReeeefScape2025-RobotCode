@@ -3,7 +3,8 @@ import groovy.json.JsonSlurper
 
 plugins {
 	id "java"
-	id "edu.wpi.first.GradleRIO" version "2025.1.1-beta-1"
+	id "edu.wpi.first.GradleRIO" version "2025.2.1"
+	id "edu.wpi.first.GradleRIO" version "2025.2.1"
 	id "com.diffplug.spotless" version "6.25.0"
 }
 
@@ -104,9 +105,9 @@ repositories {
 }
 
 
-configurations.configureEach {
-	exclude group: "edu.wpi.first.wpilibj"
-}
+//configurations.configureEach {
+//	exclude group: "edu.wpi.first.wpilibj"
+//}
 
 test {
 	useJUnitPlatform()

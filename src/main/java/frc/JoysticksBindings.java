@@ -24,6 +24,10 @@ public class JoysticksBindings {
 
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
+		
+		usedJoystick.A.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(1));
+		usedJoystick.B.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(2));
+		usedJoystick.X.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(0));
 		// bindings...
 	}
 
