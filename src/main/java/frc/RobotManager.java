@@ -29,7 +29,7 @@ public class RobotManager extends LoggedRobot {
 	private Command autonomousCommand;
 	private int roborioCycles;
 
-	private final Elevator elevator;
+//	private final Elevator elevator;
 //	private final TalonFXMotor motor;
 //	private final Phoenix6AngleSignal position;
 //	private final Phoenix6DoubleSignal motorVol;
@@ -69,7 +69,7 @@ public class RobotManager extends LoggedRobot {
 		this.roborioCycles = 0;
 		this.robot = new Robot();
 
-		elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "Elevator/");
+//		elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "Elevator/");
 //		simulation = new ElevatorSimulation(
 //				new ElevatorSim(
 //						DCMotor.getKrakenX60Foc(1),
@@ -115,13 +115,13 @@ public class RobotManager extends LoggedRobot {
 			autonomousCommand.schedule();
 		}
 //		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(10)));
-		elevator.getCommandsBuilder().setTargetPositionMeters(2).schedule();
+//		elevator.getCommandsBuilder().setTargetPositionMeters(2).schedule();
 	}
 
 	@Override
 	public void testInit() {
 //		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(-6)));
-		elevator.getCommandsBuilder().setTargetPositionMeters(0.5).schedule();
+//		elevator.getCommandsBuilder().setTargetPositionMeters(0.5).schedule();
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class RobotManager extends LoggedRobot {
 //		motor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(12)));
 //		simulation.setInputVoltage(12);
 //		talonFXMotor.applyRequest(Phoenix6RequestBuilder.build(new VoltageOut(0)));
-		elevator.getCommandsBuilder().setTargetPositionMeters(1).schedule();
+//		elevator.getCommandsBuilder().setTargetPositionMeters(1).schedule();
 	}
 
 	@Override

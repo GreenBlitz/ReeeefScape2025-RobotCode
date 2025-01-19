@@ -17,6 +17,7 @@ import frc.robot.RobotConstants;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
 import frc.robot.hardware.digitalinput.chooser.ChooserDigitalInput;
+import frc.robot.hardware.digitalinput.supplied.SuppliedDigitalInput;
 import frc.robot.hardware.mechanisms.wpilib.ElevatorSimulation;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.request.Phoenix6Request;
@@ -61,8 +62,8 @@ public class ElevatorFactory {
 		configuration.Slot0.withKP(REAL_KP).withKI(REAL_KI).withKD(REAL_KD);
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.MINIMUM_HEIGHT_METERS);
-		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
+//		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.MINIMUM_HEIGHT_METERS);
+//		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
 		return configuration;
 	}
 
@@ -81,8 +82,9 @@ public class ElevatorFactory {
 	}
 
 	private static IDigitalInput generateDigitalInput() {
-		return Robot.ROBOT_TYPE.isSimulation()
-			? new ChooserDigitalInput("ElevatorDigitalInput")
+		return Robot.ROBOT_TYPE.isReal()
+//			? new ChooserDigitalInput("ElevatorDigitalInput")
+			? new SuppliedDigitalInput(() -> false, new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME))
 			: new ChanneledDigitalInput(new DigitalInput(LIMIT_SWITCH_CHANNEL), new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME));
 	}
 
