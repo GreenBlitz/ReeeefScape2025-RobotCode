@@ -1,8 +1,10 @@
 package frc.robot.subsystems.elevator.factory;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -29,8 +31,7 @@ import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
 import frc.utils.AngleUnit;
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 public class ElevatorFactory {
 
@@ -50,10 +51,10 @@ public class ElevatorFactory {
 
 	private static SysIdRoutine.Config generateSysidConfig() {
 		return new SysIdRoutine.Config(
-				Volts.of(1).per(Seconds.of(1).baseUnit()),
+				Volts.of(1).per(Second),
 				Volts.of(7),
 				Seconds.of(10),
-				(state) -> Logger.recordOutput("state", state.toString())
+				(state) -> SignalLogger.writeString("state", state.toString())
 		);
 	}
 
@@ -62,9 +63,12 @@ public class ElevatorFactory {
 		configuration.Slot0.withKP(REAL_KP).withKI(REAL_KI).withKD(REAL_KD);
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS);
+		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS).getRotations());
 		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
-		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS).getRotations());
+		configuration.SoftwareLimitSwitch.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS).getRotations());
+		configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
+		configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		configuration.Feedback.SensorToMechanismRatio = ElevatorConstants.GEAR_RATIO;
 		return configuration;
 	}
 
