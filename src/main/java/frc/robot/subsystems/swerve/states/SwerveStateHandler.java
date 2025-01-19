@@ -20,6 +20,7 @@ public class SwerveStateHandler {
 	private final Swerve swerve;
 	private final SwerveConstants swerveConstants;
 	private Optional<Supplier<Pose2d>> robotPoseSupplier;
+	private Supplier<Optional<Translation2d>> feederTranslationSupplier;
 	private Supplier<Optional<Translation2d>> branchTranslationSupplier;
 	private Supplier<Optional<Translation2d>> algiTranslationSupplier;
 	private Supplier<Optional<Translation2d>> slotTranslationSupplier;
@@ -28,6 +29,7 @@ public class SwerveStateHandler {
 		this.swerve = swerve;
 		this.swerveConstants = swerve.getConstants();
 		this.robotPoseSupplier = Optional.empty();
+		this.feederTranslationSupplier = Optional::empty;
 		this.branchTranslationSupplier = Optional::empty;
 		this.algiTranslationSupplier = Optional::empty;
 		this.slotTranslationSupplier = Optional::empty;
@@ -35,6 +37,10 @@ public class SwerveStateHandler {
 
 	public void setRobotPoseSupplier(Supplier<Pose2d> robotPoseSupplier) {
 		this.robotPoseSupplier = Optional.of(robotPoseSupplier);
+	}
+
+	public void setFeederTranslationSupplier(Supplier<Optional<Translation2d>> feederTranslationSupplier) {
+		this.feederTranslationSupplier = feederTranslationSupplier;
 	}
 
 	public void setBranchTranslationSupplier(Supplier<Optional<Translation2d>> branchTranslationSupplier) {
@@ -56,7 +62,7 @@ public class SwerveStateHandler {
 		if (swerveState.getAimAssist() == AimAssist.REEF && robotPoseSupplier.isPresent()) {
 			return handleReefAimAssist(speeds, robotPoseSupplier.get().get().getRotation());
 		}
-		if (swerveState.getAimAssist() == AimAssist.FEEDER && robotPoseSupplier.isPresent()) {
+		if (swerveState.getAimAssist() == AimAssist.FEEDER && robotPoseSupplier.isPresent() && feederTranslationSupplier.get().isPresent()) {
 			return handleFeederAimAssist(speeds, robotPoseSupplier.get().get().getRotation());
 		}
 		if (swerveState.getAimAssist() == AimAssist.BRANCH && robotPoseSupplier.isPresent() && branchTranslationSupplier.get().isPresent()) {
@@ -77,7 +83,7 @@ public class SwerveStateHandler {
 	}
 
 	private ChassisSpeeds handleFeederAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
-		return AimAssistMath.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, Rotation2d.fromRadians(Field.LENGTH_METERS), swerveConstants); //use closer feeder
+		return AimAssistMath.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, feederTranslationSupplier.get().get().getAngle(), swerveConstants);
 	}
 
 	private ChassisSpeeds handleBranchAimAssist(ChassisSpeeds chassisSpeeds, Pose2d robotPose, Translation2d branchTranslation, SwerveState swerveState) {
