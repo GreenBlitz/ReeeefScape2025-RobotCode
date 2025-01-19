@@ -52,7 +52,7 @@ public class ElevatorFactory {
 	private static SysIdRoutine.Config generateSysidConfig() {
 		return new SysIdRoutine.Config(
 				Volts.of(1).per(Second),
-				Volts.of(7),
+				Volts.of(2),
 				Seconds.of(10),
 				(state) -> SignalLogger.writeString("state", state.toString())
 		);
@@ -78,10 +78,10 @@ public class ElevatorFactory {
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
 		configuration.SoftwareLimitSwitch
-			.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.MINIMUM_HEIGHT_METERS).getRotations());
+			.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS).getRotations());
 		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
 		configuration.SoftwareLimitSwitch
-			.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.MAXIMUM_HEIGHT_METERS).getRotations());
+			.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS).getRotations());
 		configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
 		return configuration;
 	}
@@ -127,6 +127,7 @@ public class ElevatorFactory {
 			elevatorSimulation
 		);
 		firstMotor.applyConfiguration(Robot.ROBOT_TYPE.isSimulation() ? generateSimulationConfiguration() : generateRealConfiguration());
+		Logger.recordOutput("Subsystem/Elevator/applied config", true);
 
 		TalonFXMotor secondMotor = new TalonFXMotor(logPath + "SecondMotor/", IDs.Phoenix6IDs.ELEVATOR_SECOND_MOTOR_ID, generateSysidConfig());
 		secondMotor.applyConfiguration(Robot.ROBOT_TYPE.isSimulation() ? generateSimulationConfiguration() : generateRealConfiguration());
