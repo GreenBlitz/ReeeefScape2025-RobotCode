@@ -62,8 +62,9 @@ public class ElevatorFactory {
 		configuration.Slot0.withKP(REAL_KP).withKI(REAL_KI).withKD(REAL_KD);
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-//		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.MINIMUM_HEIGHT_METERS);
-//		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
+		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS);
+		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
+		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS).getRotations());
 		return configuration;
 	}
 
