@@ -20,35 +20,77 @@ public class SwerveStateHandler {
 	private final Swerve swerve;
 	private final SwerveConstants swerveConstants;
 	private Optional<Supplier<Pose2d>> robotPoseSupplier;
-	private Supplier<Optional<Translation2d>> objectTranslationSupplier;
+	private Supplier<Optional<Translation2d>> branchTranslationSupplier;
+	private Supplier<Optional<Translation2d>> algiTranslationSupplier;
+	private Supplier<Optional<Translation2d>> slotTranslationSupplier;
 
 	public SwerveStateHandler(Swerve swerve) {
 		this.swerve = swerve;
 		this.swerveConstants = swerve.getConstants();
 		this.robotPoseSupplier = Optional.empty();
-		this.objectTranslationSupplier = Optional::empty;
+		this.branchTranslationSupplier = Optional::empty;
+		this.algiTranslationSupplier = Optional::empty;
+		this.slotTranslationSupplier = Optional::empty;
 	}
 
 	public void setRobotPoseSupplier(Supplier<Pose2d> robotPoseSupplier) {
 		this.robotPoseSupplier = Optional.of(robotPoseSupplier);
 	}
 
-	public void setObjectTranslationSupplier(Supplier<Optional<Translation2d>> objectTranslationSupplier) {
-		this.objectTranslationSupplier = objectTranslationSupplier;
+	public void setBranchTranslationSupplier(Supplier<Optional<Translation2d>> branchTranslationSupplier) {
+		this.branchTranslationSupplier = branchTranslationSupplier;
+	}
+
+	public void setAlgiTranslationSupplier(Supplier<Optional<Translation2d>> algiTranslationSupplier) {
+		this.algiTranslationSupplier = algiTranslationSupplier;
+	}
+
+	public void setSlotTranslationSupplier(Supplier<Optional<Translation2d>> slotTranslationSupplier) {
+		this.slotTranslationSupplier = slotTranslationSupplier;
 	}
 
 	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
 		if (swerveState.getAimAssist() == AimAssist.NONE) {
 			return speeds;
 		}
+		if (swerveState.getAimAssist() == AimAssist.REEF && robotPoseSupplier.isPresent()) {
+			return handleReefAimAssist(speeds, robotPoseSupplier.get().get().getRotation());
+		}
+		if (swerveState.getAimAssist() == AimAssist.FEEDER && robotPoseSupplier.isPresent()) {
+			return handleFeederAimAssist(speeds, robotPoseSupplier.get().get().getRotation());
+		}
+		if (swerveState.getAimAssist() == AimAssist.BRANCH && robotPoseSupplier.isPresent() && branchTranslationSupplier.get().isPresent()) {
+			return handleBranchAimAssist(speeds, robotPoseSupplier.get().get(), branchTranslationSupplier.get().get(), swerveState);
+		}
+		if (swerveState.getAimAssist() == AimAssist.ALGI_REMOVE && robotPoseSupplier.isPresent() && algiTranslationSupplier.get().isPresent()) {
+			return handleAlgiAimAssist(speeds, robotPoseSupplier.get().get(), algiTranslationSupplier.get().get(), swerveState);
+		}
+		if (swerveState.getAimAssist() == AimAssist.SLOT && robotPoseSupplier.isPresent() && slotTranslationSupplier.get().isPresent()) {
+			return handleSlotAimAssist(speeds, robotPoseSupplier.get().get(), slotTranslationSupplier.get().get(), swerveState);
+		}
+
 		return speeds;
 	}
 	
-	private ChassisSpeeds handleReefAngleAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
+	private ChassisSpeeds handleReefAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
 		return AimAssistMath.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, Rotation2d.fromRadians(Field.LENGTH_METERS), swerveConstants); //use actual position
 	}
-	
-	private
+
+	private ChassisSpeeds handleFeederAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
+		return AimAssistMath.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, Rotation2d.fromRadians(Field.LENGTH_METERS), swerveConstants); //use closer feeder
+	}
+
+	private ChassisSpeeds handleBranchAimAssist(ChassisSpeeds chassisSpeeds, Pose2d robotPose, Translation2d branchTranslation, SwerveState swerveState) {
+		return AimAssistMath.getObjectAssistedSpeeds(chassisSpeeds, robotPose, branchTranslation, swerveConstants, swerveState);
+	}
+
+	private ChassisSpeeds handleAlgiAimAssist(ChassisSpeeds chassisSpeeds, Pose2d robotPose, Translation2d algiTranslation, SwerveState swerveState) {
+		return AimAssistMath.getObjectAssistedSpeeds(chassisSpeeds, robotPose, algiTranslation, swerveConstants, swerveState);
+	}
+
+	private ChassisSpeeds handleSlotAimAssist(ChassisSpeeds chassisSpeeds, Pose2d robotPose, Translation2d slotTranslation, SwerveState swerveState) {
+		return AimAssistMath.getObjectAssistedSpeeds(chassisSpeeds, robotPose, slotTranslation, swerveConstants, swerveState);
+	}
 
 	public Translation2d getRotationAxis(RotateAxis rotationAxisState) {
 		return switch (rotationAxisState) {

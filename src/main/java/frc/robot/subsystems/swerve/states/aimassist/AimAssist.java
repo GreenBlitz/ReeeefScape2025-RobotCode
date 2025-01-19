@@ -3,10 +3,10 @@ package frc.robot.subsystems.swerve.states.aimassist;
 public enum AimAssist {
 
 	NONE,
-	REEF_ANGLE,
+	REEF,
 	BRANCH,
 	ALGI_REMOVE,
-	FEEDER_ANGLE,
-	FEEDER_SLOT;
+	FEEDER,
+	SLOT;
 
 }
