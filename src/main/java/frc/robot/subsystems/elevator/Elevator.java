@@ -59,20 +59,14 @@ public class Elevator extends GBSubsystem {
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 
 		this.firstMotorSysIdCalibrator = new SysIdCalibrator(
-				new SysIdCalibrator.SysIdConfigInfo(
-						firstMotor.getSysidConfigInfo().config(),
-						true
-				),
-				this,
-				this::setVoltage
+			new SysIdCalibrator.SysIdConfigInfo(firstMotor.getSysidConfigInfo().config(), true),
+			this,
+			this::setVoltage
 		);
 		this.secondMotorSysIdCalibrator = new SysIdCalibrator(
-				new SysIdCalibrator.SysIdConfigInfo(
-						secondMotor.getSysidConfigInfo().config(),
-						true
-				),
-				this,
-				this::setVoltage
+			new SysIdCalibrator.SysIdConfigInfo(secondMotor.getSysidConfigInfo().config(), true),
+			this,
+			this::setVoltage
 		);
 
 		updateInputs();
