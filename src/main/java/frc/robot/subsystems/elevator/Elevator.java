@@ -15,8 +15,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends GBSubsystem {
 
-	private final DigitalInputInputsAutoLogged digitalInputInputs;
-
 	private final ControllableMotor firstMotor;
 	private final ElevatorMotorSignals firstMotorSignals;
 
@@ -25,9 +23,11 @@ public class Elevator extends GBSubsystem {
 
 	private final IRequest<Rotation2d> positionRequest;
 	private final IRequest<Double> voltageRequest;
-	private final IDigitalInput limitSwitch;
-	private final ElevatorCommandsBuilder commandsBuilder;
 
+	private final IDigitalInput limitSwitch;
+	private final DigitalInputInputsAutoLogged digitalInputInputs;
+
+	private final ElevatorCommandsBuilder commandsBuilder;
 	private final SysIdCalibrator firstMotorSysIdCalibrator;
 
 	private boolean hasBeenResetBySwitch;
@@ -62,13 +62,8 @@ public class Elevator extends GBSubsystem {
 			this,
 			this::setVoltage
 		);
-		this.secondMotorSysIdCalibrator = new SysIdCalibrator(
-			new SysIdCalibrator.SysIdConfigInfo(secondMotor.getSysidConfigInfo().config(), true),
-			this,
-			this::setVoltage
-		);
 
-		updateInputs();
+		subsystemPeriodic();
 	}
 
 	public ElevatorCommandsBuilder getCommandsBuilder() {
@@ -77,10 +72,6 @@ public class Elevator extends GBSubsystem {
 
 	public SysIdCalibrator getFirstMotorSysIdCalibrator() {
 		return firstMotorSysIdCalibrator;
-	}
-
-	public SysIdCalibrator getSecondMotorSysIdCalibrator() {
-		return secondMotorSysIdCalibrator;
 	}
 
 	public double getElevatorPositionMeters() {
@@ -176,7 +167,12 @@ public class Elevator extends GBSubsystem {
 	}
 
 	private boolean handleReset() {
-		if (shouldResetByMinimumPosition() || shouldResetByLimitSwitch()) {
+		if (shouldResetByLimitSwitch()) {
+			hasBeenResetBySwitch = true;
+			resetMotors(ElevatorConstants.MINIMUM_HEIGHT_METERS);
+			return true;
+		}
+		if (shouldResetByMinimumPosition()) {
 			resetMotors(ElevatorConstants.MINIMUM_HEIGHT_METERS);
 			return true;
 		}
@@ -184,11 +180,11 @@ public class Elevator extends GBSubsystem {
 	}
 
 	public static double convertRotationsToMeters(Rotation2d position) {
-		return Conversions.angleToDistance(position, ElevatorConstants.DRUM_RADIUS);
+		return Conversions.angleToDistance(position, ElevatorConstants.DRUM_RADIUS_METERS);
 	}
 
 	public static Rotation2d convertMetersToRotations(double meters) {
-		return Conversions.distanceToAngle(meters, ElevatorConstants.DRUM_RADIUS);
+		return Conversions.distanceToAngle(meters, ElevatorConstants.DRUM_RADIUS_METERS);
 	}
 
 }

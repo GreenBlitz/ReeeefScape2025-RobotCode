@@ -114,7 +114,7 @@ public class ElevatorFactory {
 				false,
 				STARTING_HEIGHT_METERS
 			),
-			ElevatorConstants.DRUM_RADIUS,
+			ElevatorConstants.DRUM_RADIUS_METERS,
 			ElevatorConstants.GEAR_RATIO
 		);
 
