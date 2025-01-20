@@ -61,6 +61,13 @@ public class JoysticksBindings {
 				)
 		);
 		// bindings...
+		
+//		usedJoystick.A.onTrue(robot.getElevator().getCommandsBuilder().setPower(0.1));
+//		usedJoystick.B.onTrue(
+//				robot.getElevator().getCommandsBuilder().setPower(-0.1));
+//		usedJoystick.X.onTrue(robot.getElevator().getCommandsBuilder().setPower(0.3));
+//		usedJoystick.Y.onTrue(robot.getElevator().getCommandsBuilder().stop());
+		robot.getElevator().getFirstMotorSysIdCalibrator().setAllButtonsForCalibration(usedJoystick);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

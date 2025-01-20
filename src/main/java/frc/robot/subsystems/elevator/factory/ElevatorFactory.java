@@ -1,8 +1,10 @@
 package frc.robot.subsystems.elevator.factory;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -17,6 +19,7 @@ import frc.robot.RobotConstants;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
 import frc.robot.hardware.digitalinput.chooser.ChooserDigitalInput;
+import frc.robot.hardware.digitalinput.supplied.SuppliedDigitalInput;
 import frc.robot.hardware.mechanisms.wpilib.ElevatorSimulation;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.request.Phoenix6Request;
@@ -28,8 +31,7 @@ import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
 import frc.utils.AngleUnit;
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 public class ElevatorFactory {
 
@@ -49,10 +51,10 @@ public class ElevatorFactory {
 
 	private static SysIdRoutine.Config generateSysidConfig() {
 		return new SysIdRoutine.Config(
-				Volts.of(1).per(Seconds.of(1).baseUnit()),
-				Volts.of(7),
+				Volts.of(1).per(Second),
+				Volts.of(2),
 				Seconds.of(10),
-				(state) -> Logger.recordOutput("state", state.toString())
+				(state) -> SignalLogger.writeString("state", state.toString())
 		);
 	}
 
@@ -61,8 +63,12 @@ public class ElevatorFactory {
 		configuration.Slot0.withKP(REAL_KP).withKI(REAL_KI).withKD(REAL_KD);
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
-		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(ElevatorConstants.MINIMUM_HEIGHT_METERS);
+		configuration.SoftwareLimitSwitch.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS).getRotations());
 		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
+		configuration.SoftwareLimitSwitch.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS).getRotations());
+		configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
+		configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		configuration.Feedback.SensorToMechanismRatio = ElevatorConstants.GEAR_RATIO;
 		return configuration;
 	}
 
@@ -72,17 +78,18 @@ public class ElevatorFactory {
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
 		configuration.SoftwareLimitSwitch
-			.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.MINIMUM_HEIGHT_METERS).getRotations());
+			.withReverseSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS).getRotations());
 		configuration.SoftwareLimitSwitch.withReverseSoftLimitEnable(SOFT_LIMIT_ENABLE);
 		configuration.SoftwareLimitSwitch
-			.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.MAXIMUM_HEIGHT_METERS).getRotations());
+			.withForwardSoftLimitThreshold(Elevator.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS).getRotations());
 		configuration.SoftwareLimitSwitch.withForwardSoftLimitEnable(SOFT_LIMIT_ENABLE);
 		return configuration;
 	}
 
 	private static IDigitalInput generateDigitalInput() {
-		return Robot.ROBOT_TYPE.isSimulation()
-			? new ChooserDigitalInput("ElevatorDigitalInput")
+		return Robot.ROBOT_TYPE.isReal()
+//			? new ChooserDigitalInput("ElevatorDigitalInput")
+			? new SuppliedDigitalInput(() -> false, new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME))
 			: new ChanneledDigitalInput(new DigitalInput(LIMIT_SWITCH_CHANNEL), new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME));
 	}
 
@@ -120,6 +127,7 @@ public class ElevatorFactory {
 			elevatorSimulation
 		);
 		firstMotor.applyConfiguration(Robot.ROBOT_TYPE.isSimulation() ? generateSimulationConfiguration() : generateRealConfiguration());
+		Logger.recordOutput("Subsystem/Elevator/applied config", true);
 
 		TalonFXMotor secondMotor = new TalonFXMotor(logPath + "SecondMotor/", IDs.Phoenix6IDs.ELEVATOR_SECOND_MOTOR_ID, generateSysidConfig());
 		secondMotor.applyConfiguration(Robot.ROBOT_TYPE.isSimulation() ? generateSimulationConfiguration() : generateRealConfiguration());

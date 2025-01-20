@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.RobotManager;
 import frc.robot.hardware.phoenix6.BusChain;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.utils.battery.BatteryUtils;
 
 /**
@@ -22,10 +24,13 @@ public class Robot {
 
 	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
 	public static final Mechanism2d mech2d = new Mechanism2d(20,20);
+	
+	private final Elevator elevator;
 
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
 		SmartDashboard.putData("Mechanism2d", mech2d);
+		elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "Elevator/");
 
 	}
 
@@ -38,5 +43,9 @@ public class Robot {
 	public Command getAutonomousCommand() {
 		return new InstantCommand();
 	}
-
+	
+	public Elevator getElevator() {
+		return elevator;
+	}
+	
 }
