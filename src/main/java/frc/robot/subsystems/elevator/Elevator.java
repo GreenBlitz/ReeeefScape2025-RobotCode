@@ -29,7 +29,6 @@ public class Elevator extends GBSubsystem {
 	private final ElevatorCommandsBuilder commandsBuilder;
 
 	private final SysIdCalibrator firstMotorSysIdCalibrator;
-	private final SysIdCalibrator secondMotorSysIdCalibrator;
 
 	private boolean hasBeenResetBySwitch;
 
