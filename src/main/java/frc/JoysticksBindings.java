@@ -3,6 +3,7 @@ package frc;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 
 public class JoysticksBindings {
 
@@ -25,8 +26,8 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		
-		usedJoystick.A.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(1));
-		usedJoystick.B.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(2));
+		usedJoystick.A.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(ElevatorConstants.MAXIMUM_HEIGHT_METERS/2));
+		usedJoystick.B.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(ElevatorConstants.MAXIMUM_HEIGHT_METERS));
 		usedJoystick.X.whileTrue(robot.elevator.getCommandsBuilder().setTargetPositionMeters(0));
 		// bindings...
 	}

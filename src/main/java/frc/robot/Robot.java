@@ -48,6 +48,8 @@ public class Robot {
 	}
 	
 	private void logElevatorSimulationPositions(double heightInMeters){
+		Logger.recordOutput("robot", new Pose2d());
+		Logger.recordOutput("arm", ElevatorSimulationHelper.getSecondStagePoseFromHeight(heightInMeters));
 		Logger.recordOutput("elevator stage 1", ElevatorSimulationHelper.getFirstStagePoseFromHeight(heightInMeters));
 		Logger.recordOutput("elevator stage 2", ElevatorSimulationHelper.getSecondStagePoseFromHeight(heightInMeters));
 	}
