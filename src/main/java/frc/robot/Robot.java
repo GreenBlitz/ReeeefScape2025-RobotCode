@@ -5,8 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,10 +26,10 @@ import org.littletonrobotics.junction.Logger;
 public class Robot {
 
 	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
-	public static final Mechanism2d mech2d = new Mechanism2d(20,20);
+	public static final Mechanism2d mech2d = new Mechanism2d(20, 20);
 
 	public final Elevator elevator;
-	
+
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
 		SmartDashboard.putData("Mechanism2d", mech2d);
@@ -43,11 +41,11 @@ public class Robot {
 		BatteryUtils.logStatus();
 		BusChain.logChainsStatuses();
 		CommandScheduler.getInstance().run();// Should be last
-		
+
 		logElevatorSimulationPositions(elevator.getElevatorPositionMeters());
 	}
-	
-	private void logElevatorSimulationPositions(double heightInMeters){
+
+	private void logElevatorSimulationPositions(double heightInMeters) {
 		Logger.recordOutput("robot", new Pose2d());
 		Logger.recordOutput("arm", ElevatorSimulationHelper.getSecondStagePoseFromHeight(heightInMeters));
 		Logger.recordOutput("elevator stage 1", ElevatorSimulationHelper.getFirstStagePoseFromHeight(heightInMeters));

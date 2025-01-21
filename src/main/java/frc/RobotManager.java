@@ -4,17 +4,8 @@
 
 package frc;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import frc.robot.RobotConstants;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.ElevatorSimulationHelper;
-import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtils;
@@ -86,7 +77,7 @@ public class RobotManager extends LoggedRobot {
 		updateTimeRelatedData(); // Better to be first
 		robot.periodic();
 		AlertManager.reportAlerts();
-		
+
 //		motor.updateSimulation();
 //		motor.updateInputs(position, motorVol, supplyVol);
 //		Logger.recordOutput("Tester/posMeters", Conversions.angleToDistance(positionSignla.getLatestValue(), 0.1));

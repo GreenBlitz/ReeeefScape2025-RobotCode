@@ -7,7 +7,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -25,7 +24,7 @@ import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.Seconds;
@@ -49,10 +48,10 @@ public class ElevatorFactory {
 
 	private static SysIdRoutine.Config generateSysidConfig() {
 		return new SysIdRoutine.Config(
-				Volts.of(1).per(Seconds.of(1).baseUnit()),
-				Volts.of(7),
-				Seconds.of(10),
-				(state) -> Logger.recordOutput("state", state.toString())
+			Volts.of(1).per(Seconds.of(1).baseUnit()),
+			Volts.of(7),
+			Seconds.of(10),
+			(state) -> Logger.recordOutput("state", state.toString())
 		);
 	}
 

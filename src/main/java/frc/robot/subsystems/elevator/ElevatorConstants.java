@@ -10,7 +10,7 @@ public class ElevatorConstants {
 	public static final double MINIMUM_HEIGHT_METERS = 0;
 	public static final double MAXIMUM_HEIGHT_METERS = 1.2;
 	public static final double STARTING_HEIGHT_METERS = 0;
-	
+
 	public static final double FIRST_STAGE_MAX_HEIGHT_METERS = 0.7;
 
 }
