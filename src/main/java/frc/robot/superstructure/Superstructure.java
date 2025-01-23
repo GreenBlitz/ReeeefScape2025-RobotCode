@@ -114,6 +114,7 @@ public class Superstructure {
                 new ParallelCommandGroup(
                     //elevator.l1
                     //arm.l1
+                    //endeffector.keep
                 ).until(this::isReadyToScoreL1),
                 //endeffector.outtake.until(!isCoralIn),
                 new ParallelCommandGroup(
@@ -132,6 +133,7 @@ public class Superstructure {
                 new ParallelCommandGroup(
                     //elevator.l2
                     //arm.l2
+                    //endeffector.keep
                 ).until(this::isReadyToScoreL2),
                 //endeffector.outtake.until(!isCoralIn),
                 new ParallelCommandGroup(
@@ -150,6 +152,7 @@ public class Superstructure {
                 new ParallelCommandGroup(
                     //elevator.l3
                     //arm.l3
+                    //endeffector.keep
                 ).until(this::isReadyToScoreL3),
                 //endeffector.outtake.until(!isCoralIn),
                 new ParallelCommandGroup(
@@ -168,6 +171,7 @@ public class Superstructure {
                 new ParallelCommandGroup(
                     //elevator.l4
                     //arm.l4
+                    //endeffector.keep
                 ).until(this::isReadyToScoreL4),
                 //endeffector.outtake.until(!isCoralIn),
                 new ParallelCommandGroup(
