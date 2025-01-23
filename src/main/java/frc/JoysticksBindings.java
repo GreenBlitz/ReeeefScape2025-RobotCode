@@ -38,7 +38,7 @@ public class JoysticksBindings {
 		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetHeading(new Rotation2d())));
 		usedJoystick.B.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPose(new Pose2d(5, 5, new Rotation2d()))));
 
-		usedJoystick.A.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheelsInX());
+//		usedJoystick.A.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheelsInX());
 		usedJoystick.X.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheels(Rotation2d.fromDegrees(90), true));
 
 		usedJoystick.POV_UP.whileTrue(robot.getSwerve().getCommandsBuilder().turnToHeading(Rotation2d.fromDegrees(180)));
@@ -57,14 +57,14 @@ public class JoysticksBindings {
 		usedJoystick.POV_RIGHT
 			.whileTrue(robot.getSwerve().getCommandsBuilder().turnToHeading(Rotation2d.fromDegrees(180), RotateAxis.BACK_RIGHT_MODULE));
 
-		usedJoystick.L3.whileTrue(
+		usedJoystick.R1.whileTrue(
 			robot.getSwerve()
 				.getCommandsBuilder()
 				.driveByState(
 					() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
 					() -> usedJoystick.getAxisValue(Axis.LEFT_X),
 					() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
-					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP)
+					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF)
 				)
 		);
 		usedJoystick.L1.whileTrue(
@@ -74,17 +74,7 @@ public class JoysticksBindings {
 					() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
 					() -> usedJoystick.getAxisValue(Axis.LEFT_X),
 					() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
-					SwerveState.DEFAULT_DRIVE.withDriveRelative(DriveRelative.ROBOT_RELATIVE).withAimAssist(AimAssist.NOTE)
-				)
-		);
-		usedJoystick.R1.whileTrue(
-			robot.getSwerve()
-				.getCommandsBuilder()
-				.driveByState(
-					() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-					() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-					() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
-					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.SPEAKER)
+					SwerveState.DEFAULT_DRIVE.withDriveRelative(DriveRelative.ROBOT_RELATIVE).withAimAssist(AimAssist.BRANCH)
 				)
 		);
 

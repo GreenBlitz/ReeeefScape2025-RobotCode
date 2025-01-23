@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -47,6 +48,9 @@ public class Robot {
 		this.poseEstimator = new PoseEstimator(swerve::setHeading, swerve.getKinematics());
 
 		swerve.setHeadingSupplier(() -> poseEstimator.getCurrentPose().getRotation());
+
+		swerve.getStateHandler().setBranchTranslationSupplier(()-> java.util.Optional.of(new Translation2d(1, 2)));
+
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getCurrentPose);
 
 		this.superStructure = new Superstructure(swerve, poseEstimator);
