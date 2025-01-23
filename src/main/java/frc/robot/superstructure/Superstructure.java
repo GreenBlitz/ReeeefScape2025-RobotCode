@@ -61,7 +61,7 @@ public class Superstructure {
 		return true;
 	}
 
-    //@formatter:off
+	//@formatter:off
     private Command setState(RobotState state) {
 		return new ParallelCommandGroup(
             new InstantCommand(() -> currentState = state),
