@@ -43,6 +43,10 @@ public class Superstructure {
 		return robot.getEndEffector().isCoralInBack() && robot.getEndEffector().isCoralInFront();
 	}
 
+    private boolean isCoralOutOfEndEffector(){
+        return !robot.getEndEffector().isCoralInBack() && !robot.getEndEffector().isCoralInFront();
+    }
+
 	private boolean isReadyToScoreL1() {
 		return robot.getElevator()
 			.isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) /* && isArmAtPos */;
