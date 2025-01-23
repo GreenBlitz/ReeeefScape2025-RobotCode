@@ -12,7 +12,7 @@ public class Superstructure {
 	private final String logPath;
 
 	private final Robot robot;
-//    private final Swerve swerve;
+//    private final SwerveStateHandler swerveStateHandler;
 //    private final ElevatorStateHandler elevatorStateHandler;
 //    private final ArmStateHandler armStateHandler;
 //    private final EndEffectorStateHandler endEffectorStateHandler;
@@ -23,7 +23,7 @@ public class Superstructure {
 		this.logPath = logPath;
 
 		this.robot = robot;
-//        this.swerve = robot.getSwerve();
+//        this.swerve = new SwerveStateHandler(robot.getSwerve());
 //        this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
 //        this.armStateHandler = new ArmStateHandler(robot.getArm());
 //        this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
@@ -61,28 +61,27 @@ public class Superstructure {
 		return true;
 	}
 
-	private Command wrappedState(RobotState state) {
-		return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), switch (state) {
-			case IDLE -> idle();
-			case INTAKE -> intake();
-			case L1 -> l1();
-			case L2 -> l2();
-			case L3 -> l3();
-			case L4 -> l4();
-			case PRE_L1 -> preL1();
-			case PRE_L2 -> preL2();
-			case PRE_L3 -> preL3();
-			case PRE_L4 -> preL4();
-			case OUTTAKE -> outtake();
-			case ALIGN_REEF -> alignReef();
-		});
+    //@formatter:off
+    private Command setState(RobotState state) {
+		return new ParallelCommandGroup(
+            new InstantCommand(() -> currentState = state),
+            switch (state) {
+			    case IDLE -> idle();
+		    	case INTAKE -> intake();
+			    case L1 -> l1();
+			    case L2 -> l2();
+			    case L3 -> l3();
+			    case L4 -> l4();
+			    case PRE_L1 -> preL1();
+			    case PRE_L2 -> preL2();
+			    case PRE_L3 -> preL3();
+			    case PRE_L4 -> preL4();
+			    case OUTTAKE -> outtake();
+			    case ALIGN_REEF -> alignReef();
+		    }
+        );
 	}
 
-	public Command setState(RobotState state) {
-		return wrappedState(state);
-	}
-
-	//@formatter:off
     public Command idle(){
         return new ParallelCommandGroup(
             //swerve.defaultDrive
