@@ -14,7 +14,7 @@ public class ElevatorSimulationHelper {
 	}
 
 	public static Pose3d getSecondStagePose(double heightMeters) {
-		return getPose3dFromHeight(heightMeters);
+		return getPose3dFromHeight(heightMeters - ElevatorConstants.STAGE_HEIGHT_METERS);
 	}
 
 	private static Pose3d getPose3dFromHeight(double heightMeters) {

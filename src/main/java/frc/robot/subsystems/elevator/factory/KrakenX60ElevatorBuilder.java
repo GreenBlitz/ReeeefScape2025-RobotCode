@@ -55,7 +55,6 @@ public class KrakenX60ElevatorBuilder {
 	private static final double SIMULATION_KI = 0;
 	private static final double SIMULATION_KD = 0;
 	private static final int NUMBER_OF_MOTORS = 2;
-	private static final double STARTING_HEIGHT_METERS = 0;
 
 	private static final Velocity<VoltageUnit> CONFIG_RAMP_RATE = Volts.of(1).per(Second);
 	private static final Voltage CONFIG_STEP_VOLTAGE = Volts.of(7);
@@ -123,7 +122,7 @@ public class KrakenX60ElevatorBuilder {
 				ElevatorConstants.MINIMUM_HEIGHT_METERS,
 				ElevatorConstants.MAXIMUM_HEIGHT_METERS,
 				false,
-				STARTING_HEIGHT_METERS
+				ElevatorConstants.STAGE_HEIGHT_METERS
 			),
 			ElevatorConstants.DRUM_DIAMETER_METERS,
 			ElevatorConstants.GEAR_RATIO
@@ -132,18 +131,19 @@ public class KrakenX60ElevatorBuilder {
 
 	public static Elevator createRealElevator(String logPath) {
 		TalonFXMotor firstMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_FIRST_MOTOR_ID, generateSysidConfig());
+		firstMotor.resetPosition(Elevator.convertMetersToRotations(ElevatorConstants.STAGE_HEIGHT_METERS));
 		firstMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
 
 		TalonFXMotor secondMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_SECOND_MOTOR_ID, generateSysidConfig());
+		secondMotor.resetPosition(Elevator.convertMetersToRotations(ElevatorConstants.STAGE_HEIGHT_METERS));
 		secondMotor.applyConfiguration(generateConfiguration(IS_SECOND_MOTOR_INVERTED));
 
 		return create(logPath, firstMotor, secondMotor);
 	}
 
 	public static Elevator createSimulationElevator(String logPath) {
-		ElevatorSimulation elevatorSimulation = generateSimulation();
-
 		TalonFXMotor firstMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_FIRST_MOTOR_ID, generateSysidConfig(), generateSimulation());
+		firstMotor.resetPosition(Elevator.convertMetersToRotations(ElevatorConstants.STAGE_HEIGHT_METERS));
 		firstMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
 
 		return create(logPath, firstMotor, firstMotor);
