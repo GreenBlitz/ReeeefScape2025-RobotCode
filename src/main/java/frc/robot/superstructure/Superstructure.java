@@ -96,6 +96,7 @@ public class Superstructure {
         return new ParallelCommandGroup(
             //swerve.defaultDrive
             elevatorStateHandler.setState(ElevatorState.CLOSED),
+            armStateHandler.setState(ArmState.CLOSED),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
         );
     }
