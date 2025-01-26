@@ -48,23 +48,19 @@ public class Superstructure {
 	}
 
 	private boolean isReadyToScoreL1() {
-		return robot.getElevator()
-			.isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
 	}
 
 	private boolean isReadyToScoreL2() {
-		return robot.getElevator()
-			.isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
 	}
 
 	private boolean isReadyToScoreL3() {
-		return robot.getElevator()
-			.isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
 	}
 
 	private boolean isReadyToScoreL4() {
-		return robot.getElevator()
-			.isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
 	}
 
 	//@formatter:off
