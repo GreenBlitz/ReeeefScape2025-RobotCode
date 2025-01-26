@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Robot;
+import frc.robot.subsystems.arm.ArmState;
+import frc.robot.subsystems.arm.ArmStateHandler;
 import frc.robot.subsystems.elevator.ElevatorState;
 import frc.robot.subsystems.elevator.ElevatorStateHandler;
 import frc.robot.subsystems.endeffector.EndEffectorState;
@@ -18,7 +20,7 @@ public class Superstructure {
 	private final Robot robot;
 //    private final SwerveStateHandler swerveStateHandler;
 	private final ElevatorStateHandler elevatorStateHandler;
-//    private final ArmStateHandler armStateHandler;
+    private final ArmStateHandler armStateHandler;
     private final EndEffectorStateHandler endEffectorStateHandler;
 
 	private RobotState currentState;
@@ -29,7 +31,7 @@ public class Superstructure {
 		this.robot = robot;
 //        this.swerve = new SwerveStateHandler(robot.getSwerve());
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
-//        this.armStateHandler = new ArmStateHandler(robot.getArm());
+        this.armStateHandler = new ArmStateHandler(robot.getArm());
         this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 	}
 
@@ -54,19 +56,19 @@ public class Superstructure {
 	}
 
 	private boolean isReadyToScoreL1() {
-		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	private boolean isReadyToScoreL2() {
-		return robot.getElevator().isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L2.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	private boolean isReadyToScoreL3() {
-		return robot.getElevator().isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L3.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	private boolean isReadyToScoreL4() {
-		return robot.getElevator().isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS) /* && isArmAtPos */;
+		return robot.getElevator().isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L4.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	//@formatter:off
@@ -103,12 +105,12 @@ public class Superstructure {
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.FEEDER),
-                    //arm.feeder
+                    armStateHandler.setState(ArmState.INTAKE),
                     endEffectorStateHandler.setState(EndEffectorState.INTAKE)
                 ).until(this::isCoralIn),
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.CLOSED),
-                    //arm.closed
+                    armStateHandler.setState(ArmState.CLOSED),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 )
             )
@@ -121,13 +123,13 @@ public class Superstructure {
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.L1),
-                    //arm.l1
+                    armStateHandler.setState(ArmState.L1),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 ).until(this::isReadyToScoreL1),
                 endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn()),
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.CLOSED),
-                    //arm.closed
+                    armStateHandler.setState(ArmState.CLOSED),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 )
             )
@@ -140,13 +142,13 @@ public class Superstructure {
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.L2),
-                    //arm.l2
+                    armStateHandler.setState(ArmState.L2),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 ).until(this::isReadyToScoreL2),
                 endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn()),
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.CLOSED),
-                    //arm.closed
+                    armStateHandler.setState(ArmState.CLOSED),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 )
             )
@@ -159,13 +161,13 @@ public class Superstructure {
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.L3),
-                    //arm.l3
+                    armStateHandler.setState(ArmState.L3),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 ).until(this::isReadyToScoreL3),
                 endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn()),
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.CLOSED),
-                    //arm.closed
+                    armStateHandler.setState(ArmState.CLOSED),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 )
             )
@@ -178,13 +180,13 @@ public class Superstructure {
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.L4),
-                    //arm.l4
+                    armStateHandler.setState(ArmState.L4),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 ).until(this::isReadyToScoreL4),
                 endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn()),
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.CLOSED),
-                    //arm.closed
+                    armStateHandler.setState(ArmState.CLOSED),
                     endEffectorStateHandler.setState(EndEffectorState.KEEP)
                 )
             )
@@ -195,7 +197,7 @@ public class Superstructure {
     public Command preL1(){
         return new ParallelCommandGroup(
             elevatorStateHandler.setState(ElevatorState.L1),
-            //arm.prel1
+            armStateHandler.setState(ArmState.PRE_L1),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
             //swerve.defaultdrive
         );
@@ -204,7 +206,7 @@ public class Superstructure {
     public Command preL2(){
         return new ParallelCommandGroup(
             elevatorStateHandler.setState(ElevatorState.L2),
-            //arm.prel2
+            armStateHandler.setState(ArmState.PRE_L2),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
             //swerve.defaultdrive
         );
@@ -213,7 +215,7 @@ public class Superstructure {
     public Command preL3(){
         return new ParallelCommandGroup(
             elevatorStateHandler.setState(ElevatorState.L3),
-            //arm.prel3
+            armStateHandler.setState(ArmState.PRE_L3),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
             //swerve.defaultdrive
         );
@@ -222,7 +224,7 @@ public class Superstructure {
     public Command preL4(){
         return new ParallelCommandGroup(
             elevatorStateHandler.setState(ElevatorState.L4),
-            //arm.prel4
+            armStateHandler.setState(ArmState.PRE_L4),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
             //swerve.defaultdrive
         );
@@ -232,7 +234,7 @@ public class Superstructure {
         return new ParallelCommandGroup(
             //swerve.defaultdrive
             elevatorStateHandler.setState(ElevatorState.OUTTAKE),
-            //arm.outtake
+            armStateHandler.setState(ArmState.OUTTAKE),
             endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
         );
     }
@@ -241,7 +243,7 @@ public class Superstructure {
         return new ParallelCommandGroup(
             //swerve.aimassist.alignReef
             elevatorStateHandler.setState(ElevatorState.CLOSED),
-            //arm.closed
+            armStateHandler.setState(ArmState.CLOSED),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
         );
     }
