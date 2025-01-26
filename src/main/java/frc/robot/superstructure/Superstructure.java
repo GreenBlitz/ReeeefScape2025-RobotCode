@@ -35,17 +35,17 @@ public class Superstructure {
 		return currentState;
 	}
 
-	public void logStatus() {
+	public void log() {
 		Logger.recordOutput(logPath + "/CurrentState", currentState);
 	}
 
-	private boolean isCoralInEndEffector() {
+	private boolean isCoralIn() {
 		return robot.getEndEffector().isCoralInBack() && robot.getEndEffector().isCoralInFront();
 	}
 
-    private boolean isCoralOutOfEndEffector(){
-        return !robot.getEndEffector().isCoralInBack() && !robot.getEndEffector().isCoralInFront();
-    }
+	private boolean isCoralOut() {
+		return !robot.getEndEffector().isCoralInBack() && !robot.getEndEffector().isCoralInFront();
+	}
 
 	private boolean isReadyToScoreL1() {
 		return robot.getElevator()
@@ -103,7 +103,7 @@ public class Superstructure {
                     elevatorStateHandler.setState(ElevatorState.FEEDER)
                     //arm.feeder
                     //endeffector.intake
-                ).until(this::isCoralInEndEffector),
+                ).until(this::isCoralIn),
                 new ParallelCommandGroup(
                     elevatorStateHandler.setState(ElevatorState.CLOSED)
                     //arm.closed
@@ -242,6 +242,10 @@ public class Superstructure {
             //arm.closed
             //endeffector.keep
         );
+    }
+
+    public void endState(RobotState state) {
+        setState(RobotState.IDLE);
     }
     //@formatter:on
 
