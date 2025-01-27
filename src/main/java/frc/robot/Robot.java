@@ -22,6 +22,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
+import frc.robot.superstructure.Superstructure;
 import frc.utils.battery.BatteryUtils;
 import frc.utils.brakestate.BrakeStateManager;
 
@@ -41,6 +42,7 @@ public class Robot {
 	private final Arm arm;
 	private final EndEffector endEffector;
 
+	private final Superstructure superstructure;
 	private final SimulationManager simulationManager;
 
 	public Robot() {
@@ -72,6 +74,7 @@ public class Robot {
 
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
 
+		this.superstructure = new Superstructure("Superstructure", this);
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 	}
 
@@ -108,4 +111,7 @@ public class Robot {
 		return endEffector;
 	}
 
+	public Superstructure getSuperstructure() {
+		return superstructure;
+	}
 }
