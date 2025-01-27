@@ -1,9 +1,6 @@
 package frc.robot.superstructure;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmState;
@@ -13,6 +10,8 @@ import frc.robot.subsystems.elevator.ElevatorStateHandler;
 import frc.robot.subsystems.endeffector.EndEffectorState;
 import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.Arrays;
 
 public class Superstructure extends GBSubsystem {
 
@@ -33,9 +32,8 @@ public class Superstructure extends GBSubsystem {
 		this.armStateHandler = new ArmStateHandler(robot.getArm());
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 
-		Command defaultCommand = endState(getCurrentState()).asProxy();
-		defaultCommand.addRequirements(this);
-		this.setDefaultCommand(defaultCommand);
+		this.setDefaultCommand(new RunCommand(this::endState, this));
+
 	}
 
 	public RobotState getCurrentState() {
@@ -96,7 +94,7 @@ public class Superstructure extends GBSubsystem {
             armStateHandler.setState(ArmState.INTAKE),
             endEffectorStateHandler.setState(EndEffectorState.INTAKE)
             //swerve.aimassist.intake
-        ).until(this::isCoralIn);
+        )/*.until(this::isCoralIn)*/;
     }
 
     public Command l1(){
@@ -193,7 +191,7 @@ public class Superstructure extends GBSubsystem {
         );
     }
 
-    private  Command endState(RobotState state) {
+    private Command endState() {
         return setState(RobotState.IDLE);
     }
     //@formatter:on
