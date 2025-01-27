@@ -44,10 +44,6 @@ public class Superstructure extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/CurrentState", currentState);
 	}
 
-	private boolean isCoralFullyIn() {
-		return robot.getEndEffector().isCoralInBack() && robot.getEndEffector().isCoralInFront();
-	}
-
 	private boolean isCoralIn() {
 		return robot.getEndEffector().isCoralInFront();
 	}
@@ -56,24 +52,10 @@ public class Superstructure extends GBSubsystem {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
-	private boolean isReadyToScoreL1() {
-		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
-			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
-	}
-
-	private boolean isReadyToScoreL2() {
-		return robot.getElevator().isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
-			&& robot.getArm().isAtPosition(ArmState.L2.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
-	}
-
-	private boolean isReadyToScoreL3() {
-		return robot.getElevator().isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
-			&& robot.getArm().isAtPosition(ArmState.L3.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
-	}
-
-	private boolean isReadyToScoreL4() {
-		return robot.getElevator().isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
-			&& robot.getArm().isAtPosition(ArmState.L4.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
+	private boolean isReadyToScore(ReefLevel reefLevel) {
+		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT__METERS)
+			&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
+		// && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
 	}
 
 	//@formatter:off
@@ -116,54 +98,43 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command l1(){
-        return new ParallelCommandGroup(
-            elevatorStateHandler.setState(ElevatorState.L1),
-                armStateHandler.setState(ArmState.L1),
-                endEffectorStateHandler.setState(EndEffectorState.KEEP)
-                //swerve.aimassist.reef
-            ).until(this::isReadyToScoreL1)
-                .andThen(endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-                        .until(() -> !isCoralFullyIn()
-                    )
-                );
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				preL1().until(() -> isReadyToScore(ReefLevel.L1)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			)
+			//swerve.aimassist.reef
+		).until(this::isCoralOut);
     }
 
     public Command l2(){
-        return new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                preL2().until(this::isReadyToScoreL2),
-                endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn())
-            )
-            //swerve.aimassist.reef
-        );
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				preL2().until(() -> isReadyToScore(ReefLevel.L2)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			)
+			//swerve.aimassist.reef
+		).until(this::isCoralOut);
     }
 
     public Command l3(){
-        return new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    elevatorStateHandler.setState(ElevatorState.L3),
-                    armStateHandler.setState(ArmState.L3),
-                    endEffectorStateHandler.setState(EndEffectorState.KEEP)
-                ).until(this::isReadyToScoreL3),
-                endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-            )
-            //swerve.aimassist.reef
-        );
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				preL3().until(() -> isReadyToScore(ReefLevel.L3)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			)
+			//swerve.aimassist.reef
+		).until(this::isCoralOut);
     }
 
     public Command l4(){
-        return new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    elevatorStateHandler.setState(ElevatorState.L4),
-                    armStateHandler.setState(ArmState.L4),
-                    endEffectorStateHandler.setState(EndEffectorState.KEEP)
-                ).until(this::isReadyToScoreL4),
-                endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn())
-            )
-            //swerve.aimassist.reef
-        );
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				preL4().until(() -> isReadyToScore(ReefLevel.L4)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			)
+			//swerve.aimassist.reef
+		).until(this::isCoralOut);
     }
 
     public Command preL1(){
@@ -171,7 +142,7 @@ public class Superstructure extends GBSubsystem {
             elevatorStateHandler.setState(ElevatorState.L1),
             armStateHandler.setState(ArmState.PRE_L1),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
-            //swerve.defaultdrive
+            //swerve.aimassist.reef
         );
     }
 
@@ -180,7 +151,7 @@ public class Superstructure extends GBSubsystem {
             elevatorStateHandler.setState(ElevatorState.L2),
             armStateHandler.setState(ArmState.PRE_L2),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
-            //swerve.defaultdrive
+            //swerve.aimassist.reef
         );
     }
 
@@ -189,7 +160,7 @@ public class Superstructure extends GBSubsystem {
             elevatorStateHandler.setState(ElevatorState.L3),
             armStateHandler.setState(ArmState.PRE_L3),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
-            //swerve.defaultdrive
+            //swerve.aimassist.reef
         );
     }
 
@@ -198,7 +169,7 @@ public class Superstructure extends GBSubsystem {
             elevatorStateHandler.setState(ElevatorState.L4),
             armStateHandler.setState(ArmState.PRE_L4),
             endEffectorStateHandler.setState(EndEffectorState.KEEP)
-            //swerve.defaultdrive
+            //swerve.aimassist.reef
         );
     }
 
