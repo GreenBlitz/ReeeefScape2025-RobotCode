@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Robot;
+import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
 import frc.robot.subsystems.elevator.ElevatorState;
@@ -13,26 +14,26 @@ import frc.robot.subsystems.endeffector.EndEffectorState;
 import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import org.littletonrobotics.junction.Logger;
 
-public class Superstructure {
-
-	private final String logPath;
+public class Superstructure extends GBSubsystem {
 
 	private final Robot robot;
-//    private final SwerveStateHandler swerveStateHandler;
+	// private final SwerveStateHandler swerveStateHandler;
 	private final ElevatorStateHandler elevatorStateHandler;
-    private final ArmStateHandler armStateHandler;
-    private final EndEffectorStateHandler endEffectorStateHandler;
+	private final ArmStateHandler armStateHandler;
+	private final EndEffectorStateHandler endEffectorStateHandler;
 
 	private RobotState currentState;
 
 	public Superstructure(String logPath, Robot robot) {
-		this.logPath = logPath;
+		super(logPath);
 
 		this.robot = robot;
 //        this.swerve = new SwerveStateHandler(robot.getSwerve());
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
-        this.armStateHandler = new ArmStateHandler(robot.getArm());
-        this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
+		this.armStateHandler = new ArmStateHandler(robot.getArm());
+		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
+
+		this.setDefaultCommand(endState(currentState));
 	}
 
 	public RobotState getCurrentState() {
@@ -40,35 +41,39 @@ public class Superstructure {
 	}
 
 	public void log() {
-		Logger.recordOutput(logPath + "/CurrentState", currentState);
+		Logger.recordOutput(getLogPath() + "/CurrentState", currentState);
 	}
 
 	private boolean isCoralFullyIn() {
 		return robot.getEndEffector().isCoralInBack() && robot.getEndEffector().isCoralInFront();
 	}
 
-    private boolean isCoralIn(){
-        return robot.getEndEffector().isCoralInFront();
-    }
+	private boolean isCoralIn() {
+		return robot.getEndEffector().isCoralInFront();
+	}
 
 	private boolean isCoralOut() {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
 	private boolean isReadyToScoreL1() {
-		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
+			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	private boolean isReadyToScoreL2() {
-		return robot.getElevator().isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L2.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
+		return robot.getElevator().isAtPosition(ElevatorState.L2.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
+			&& robot.getArm().isAtPosition(ArmState.L2.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	private boolean isReadyToScoreL3() {
-		return robot.getElevator().isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L3.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
+		return robot.getElevator().isAtPosition(ElevatorState.L3.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
+			&& robot.getArm().isAtPosition(ArmState.L3.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	private boolean isReadyToScoreL4() {
-		return robot.getElevator().isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS) && robot.getArm().isAtPosition(ArmState.L4.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
+		return robot.getElevator().isAtPosition(ElevatorState.L4.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_TOLERANCE_METERS)
+			&& robot.getArm().isAtPosition(ArmState.L4.getPosition(), Tolerances.ARM_ANGLE_TOLERANCE);
 	}
 
 	//@formatter:off
@@ -103,45 +108,31 @@ public class Superstructure {
 
     public Command intake(){
         return new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    elevatorStateHandler.setState(ElevatorState.FEEDER),
-                    armStateHandler.setState(ArmState.INTAKE),
-                    endEffectorStateHandler.setState(EndEffectorState.INTAKE)
-                ).until(this::isCoralIn)
-            )
+            elevatorStateHandler.setState(ElevatorState.FEEDER),
+            armStateHandler.setState(ArmState.INTAKE),
+            endEffectorStateHandler.setState(EndEffectorState.INTAKE)
             //swerve.aimassist.intake
-        );
+        ).until(this::isCoralIn);
     }
 
     public Command l1(){
         return new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    elevatorStateHandler.setState(ElevatorState.L1),
-                    armStateHandler.setState(ArmState.L1),
-                    endEffectorStateHandler.setState(EndEffectorState.KEEP)
-                ).until(this::isReadyToScoreL1),
-                endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn())
-            )
-            //swerve.aimassist.reef
-        );
+            elevatorStateHandler.setState(ElevatorState.L1),
+                armStateHandler.setState(ArmState.L1),
+                endEffectorStateHandler.setState(EndEffectorState.KEEP)
+                //swerve.aimassist.reef
+            ).until(this::isReadyToScoreL1)
+                .andThen(endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+                        .until(() -> !isCoralFullyIn()
+                    )
+                );
     }
 
     public Command l2(){
         return new ParallelCommandGroup(
             new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                    elevatorStateHandler.setState(ElevatorState.L2),
-                    armStateHandler.setState(ArmState.L2),
-                    endEffectorStateHandler.setState(EndEffectorState.KEEP)
-                ).until(this::isReadyToScoreL2),
-                endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn()),
-                new ParallelCommandGroup(
-                    elevatorStateHandler.setState(ElevatorState.CLOSED),
-                    armStateHandler.setState(ArmState.CLOSED),
-                    endEffectorStateHandler.setState(EndEffectorState.KEEP)
-                )
+                preL2().until(this::isReadyToScoreL2),
+                endEffectorStateHandler.setState(EndEffectorState.OUTTAKE).until(() -> !isCoralFullyIn())
             )
             //swerve.aimassist.reef
         );
@@ -229,8 +220,8 @@ public class Superstructure {
         );
     }
 
-    public void endState(RobotState state) {
-        setState(RobotState.IDLE);
+    private  Command endState(RobotState state) {
+        return setState(RobotState.IDLE);
     }
     //@formatter:on
 
