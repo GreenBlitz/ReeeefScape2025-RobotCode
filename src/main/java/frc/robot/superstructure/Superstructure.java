@@ -18,6 +18,15 @@ import java.util.Set;
 
 public class Superstructure extends GBSubsystem {
 
+	public class RobotCommand extends ParallelCommandGroup {
+
+		public RobotCommand(Command... commands) {
+			super(commands);
+			addRequirements(Superstructure.this);
+		}
+
+	}
+
 	private final Robot robot;
  	private final Swerve swerve;
 	private final ElevatorStateHandler elevatorStateHandler;
@@ -36,7 +45,6 @@ public class Superstructure extends GBSubsystem {
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 
 		setDefaultCommand(new DeferredCommand(this::endState, Set.of(this)));
-
 	}
 
 	public RobotState getCurrentState() {
@@ -63,30 +71,27 @@ public class Superstructure extends GBSubsystem {
 
 	//@formatter:off
     public Command setState(RobotState state) {
-		return new InstantCommand(() ->
-		 new ParallelCommandGroup(
-				new InstantCommand(() -> currentState = state),
-				switch (state) {
-					case IDLE -> idle();
-					case FEEDER_INTAKE -> intake();
-					case L1 -> l1();
-					case L2 -> l2();
-					case L3 -> l3();
-					case L4 -> l4();
-					case PRE_L1 -> preL1();
-					case PRE_L2 -> preL2();
-					case PRE_L3 -> preL3();
-					case PRE_L4 -> preL4();
-					case OUTTAKE -> outtake();
-					case ALIGN_REEF -> alignReef();
-				}
-		).schedule(),
-				this
+		return new ParallelCommandGroup(
+			new InstantCommand(() -> currentState = state),
+			switch (state) {
+				case IDLE -> idle();
+				case FEEDER_INTAKE -> intake();
+				case L1 -> l1();
+				case L2 -> l2();
+				case L3 -> l3();
+				case L4 -> l4();
+				case PRE_L1 -> preL1();
+				case PRE_L2 -> preL2();
+				case PRE_L3 -> preL3();
+				case PRE_L4 -> preL4();
+				case OUTTAKE -> outtake();
+				case ALIGN_REEF -> alignReef();
+			}
 		);
 	}
 
     public Command idle(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.CLOSED),
             armStateHandler.setState(ArmState.CLOSED),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
@@ -95,7 +100,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command intake(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.FEEDER),
             armStateHandler.setState(ArmState.INTAKE),
             endEffectorStateHandler.setState(EndEffectorState.INTAKE),
@@ -104,7 +109,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command l1(){
-		return new ParallelCommandGroup(
+		return new RobotCommand(
 			new SequentialCommandGroup(
 				preL1().until(() -> isReadyToScore(ReefLevel.L1)),
 				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
@@ -114,7 +119,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command l2(){
-		return new ParallelCommandGroup(
+		return new RobotCommand(
 			new SequentialCommandGroup(
 				preL2().until(() -> isReadyToScore(ReefLevel.L2)),
 				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
@@ -124,7 +129,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command l3(){
-		return new ParallelCommandGroup(
+		return new RobotCommand(
 			new SequentialCommandGroup(
 				preL3().until(() -> isReadyToScore(ReefLevel.L3)),
 				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
@@ -134,7 +139,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command l4(){
-		return new ParallelCommandGroup(
+		return new RobotCommand(
 			new SequentialCommandGroup(
 				preL4().until(() -> isReadyToScore(ReefLevel.L4)),
 				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
@@ -144,7 +149,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command preL1(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.L1),
             armStateHandler.setState(ArmState.PRE_L1),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
@@ -153,7 +158,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command preL2(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.L2),
             armStateHandler.setState(ArmState.PRE_L2),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
@@ -162,7 +167,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command preL3(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.L3),
             armStateHandler.setState(ArmState.PRE_L3),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
@@ -171,7 +176,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command preL4(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.L4),
             armStateHandler.setState(ArmState.PRE_L4),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
@@ -180,7 +185,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command outtake(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.OUTTAKE),
             armStateHandler.setState(ArmState.OUTTAKE),
             endEffectorStateHandler.setState(EndEffectorState.OUTTAKE),
@@ -189,7 +194,7 @@ public class Superstructure extends GBSubsystem {
     }
 
     public Command alignReef(){
-        return new ParallelCommandGroup(
+        return new RobotCommand(
             elevatorStateHandler.setState(ElevatorState.CLOSED),
             armStateHandler.setState(ArmState.CLOSED),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
