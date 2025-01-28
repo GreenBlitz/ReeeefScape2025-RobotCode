@@ -49,10 +49,6 @@ public class Superstructure extends GBSubsystem {
 		return currentState;
 	}
 
-	public void log() {
-		Logger.recordOutput(getLogPath() + "/CurrentState", currentState);
-	}
-
 	public boolean isCoralFullyIn() {
 		return robot.getEndEffector().isCoralInFront() && robot.getEndEffector().isCoralInBack();
 	}
@@ -67,8 +63,17 @@ public class Superstructure extends GBSubsystem {
 
 	private boolean isReadyToScore(ReefLevel reefLevel) {
 		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
+				&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
 		// && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
+	}
+
+	@Override
+	protected void subsystemPeriodic() {
+		log();
+	}
+
+	public void log() {
+		Logger.recordOutput(getLogPath() + "/CurrentState", currentState);
 	}
 
 	//@formatter:off
