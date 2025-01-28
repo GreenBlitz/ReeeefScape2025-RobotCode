@@ -53,11 +53,15 @@ public class Superstructure extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/CurrentState", currentState);
 	}
 
-	private boolean isCoralIn() {
+	public boolean isCoralFullyIn() {
 		return robot.getEndEffector().isCoralInFront() && robot.getEndEffector().isCoralInBack();
 	}
 
-	private boolean isCoralOut() {
+	public boolean isCoralIn() {
+		return robot.getEndEffector().isCoralInFront();
+	}
+
+	public boolean isCoralOut() {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
@@ -99,11 +103,14 @@ public class Superstructure extends GBSubsystem {
 
     public Command intake(){
         return new ParallelRobotCommand(
+			new SequentialCommandGroup(
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE).until(this::isCoralIn), //TODO aim assist feeder
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
             elevatorStateHandler.setState(ElevatorState.FEEDER),
             armStateHandler.setState(ArmState.INTAKE),
-            endEffectorStateHandler.setState(EndEffectorState.INTAKE),
-			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO aim assist feeder
-        ).until(this::isCoralIn);
+            endEffectorStateHandler.setState(EndEffectorState.INTAKE)
+        ).until(this::isCoralFullyIn);
     }
 
     public Command l1(){
