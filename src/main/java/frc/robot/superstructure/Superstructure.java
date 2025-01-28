@@ -68,7 +68,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command setState(RobotState state) {
-		return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), switch (state) {
+		return switch (state) {
 			case IDLE -> idle();
 			case FEEDER_INTAKE -> feederIntake();
 			case L1 -> l1();
@@ -81,7 +81,7 @@ public class Superstructure extends GBSubsystem {
 			case PRE_L4 -> preL4();
 			case OUTTAKE -> outtake();
 			case ALIGN_REEF -> alignReef();
-		});
+		};
 	}
 
 	public Command idle() {
@@ -92,7 +92,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.KEEP),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 			),
-			RobotState.IDLE.name()
+			RobotState.IDLE
 		);
 	}
 
@@ -107,7 +107,7 @@ public class Superstructure extends GBSubsystem {
 				armStateHandler.setState(ArmState.INTAKE),
 				endEffectorStateHandler.setState(EndEffectorState.INTAKE)
 			).until(this::isCoralFullyIn),
-			RobotState.FEEDER_INTAKE.name()
+			RobotState.FEEDER_INTAKE
 		);
 	}
 
@@ -122,7 +122,7 @@ public class Superstructure extends GBSubsystem {
 				armStateHandler.setState(ArmState.L1),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			).until(this::isCoralOut),
-			RobotState.L1.name()
+			RobotState.L1
 		);
 	}
 
@@ -137,7 +137,7 @@ public class Superstructure extends GBSubsystem {
 				armStateHandler.setState(ArmState.L2),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			).until(this::isCoralOut),
-			RobotState.L2.name()
+			RobotState.L2
 		);
 	}
 
@@ -152,7 +152,7 @@ public class Superstructure extends GBSubsystem {
 				armStateHandler.setState(ArmState.L3),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			).until(this::isCoralOut),
-			RobotState.L3.name()
+			RobotState.L3
 		);
 	}
 
@@ -167,7 +167,7 @@ public class Superstructure extends GBSubsystem {
 				armStateHandler.setState(ArmState.L4),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			).until(this::isCoralOut),
-			RobotState.L4.name()
+			RobotState.L4
 		);
 	}
 
@@ -179,7 +179,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.KEEP),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			),
-			RobotState.PRE_L1.name()
+			RobotState.PRE_L1
 		);
 	}
 
@@ -191,7 +191,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.KEEP),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			),
-			RobotState.PRE_L2.name()
+			RobotState.PRE_L2
 		);
 	}
 
@@ -203,7 +203,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.KEEP),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			),
-			RobotState.PRE_L3.name()
+			RobotState.PRE_L3
 		);
 	}
 
@@ -215,7 +215,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.KEEP),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO branch aim assist
 			),
-			RobotState.PRE_L4.name()
+			RobotState.PRE_L4
 		);
 	}
 
@@ -227,7 +227,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 			).until(this::isCoralOut),
-			RobotState.OUTTAKE.name()
+			RobotState.OUTTAKE
 		);
 	}
 
@@ -239,12 +239,19 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.KEEP),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) // TODO reef aim assist
 			),
-			RobotState.ALIGN_REEF.name()
+			RobotState.ALIGN_REEF
 		);
 	}
 
 	private Command endState() {
 		return setState(RobotState.IDLE);
 	}
-
+	
+	public Command asSubsystemCommand(Command command, RobotState state) {
+		command =  super.asSubsystemCommand(command, state.name());
+		return new ParallelCommandGroup(
+			new InstantCommand(() -> currentState = state),
+			command
+		);
+	}
 }
