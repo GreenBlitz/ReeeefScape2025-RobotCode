@@ -17,17 +17,8 @@ import java.util.Set;
 
 public class Superstructure extends GBSubsystem {
 
-	public class ParallelRobotCommand extends ParallelCommandGroup {
-
-		public ParallelRobotCommand(Command... commands) {
-			super(commands);
-			addRequirements(Superstructure.this);
-		}
-
-	}
-
 	private final Robot robot;
- 	private final Swerve swerve;
+	private final Swerve swerve;
 	private final ElevatorStateHandler elevatorStateHandler;
 	private final ArmStateHandler armStateHandler;
 	private final EndEffectorStateHandler endEffectorStateHandler;
@@ -37,7 +28,7 @@ public class Superstructure extends GBSubsystem {
 	public Superstructure(String logPath, Robot robot) {
 		super(logPath);
 		this.robot = robot;
-        this.swerve = robot.getSwerve();
+		this.swerve = robot.getSwerve();
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
 		this.armStateHandler = new ArmStateHandler(robot.getArm());
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
@@ -63,7 +54,7 @@ public class Superstructure extends GBSubsystem {
 
 	private boolean isReadyToScore(ReefLevel reefLevel) {
 		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-				&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
+			&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
 		// && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
 	}
 
@@ -98,12 +89,15 @@ public class Superstructure extends GBSubsystem {
 	}
 
     public Command idle(){
-        return new ParallelRobotCommand(
-            elevatorStateHandler.setState(ElevatorState.CLOSED),
-            armStateHandler.setState(ArmState.CLOSED),
-            endEffectorStateHandler.setState(EndEffectorState.KEEP),
-			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-        );
+        return asSubsystemCommand(
+			new ParallelCommandGroup(
+            	elevatorStateHandler.setState(ElevatorState.CLOSED),
+            	armStateHandler.setState(ArmState.CLOSED),
+            	endEffectorStateHandler.setState(EndEffectorState.KEEP),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+        	),
+			RobotState.IDLE.name()
+		);
     }
 
     public Command intake(){
