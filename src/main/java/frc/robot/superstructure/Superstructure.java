@@ -109,53 +109,49 @@ public class Superstructure extends GBSubsystem {
     public Command l1(){
 		return new ParallelRobotCommand(
 			new SequentialCommandGroup(
-					new ParallelCommandGroup(
-							elevatorStateHandler.setState(ElevatorState.L1),
-							armStateHandler.setState(ArmState.L1)
-					).until(this::isCoralIn),
-					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+				new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L1)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
 			),
+			elevatorStateHandler.setState(ElevatorState.L1),
+			armStateHandler.setState(ArmState.L1),
 			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
 		).until(this::isCoralOut);
     }
 
     public Command l2(){
 		return new ParallelRobotCommand(
-				new SequentialCommandGroup(
-						new ParallelCommandGroup(
-								elevatorStateHandler.setState(ElevatorState.L2),
-								armStateHandler.setState(ArmState.L2)
-						).until(this::isCoralIn),
-						endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-				),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
-		)/*.until(this::isCoralOut)*/;
+			new SequentialCommandGroup(
+				new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L2)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			),
+			elevatorStateHandler.setState(ElevatorState.L2),
+			armStateHandler.setState(ArmState.L2),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
+		).until(this::isCoralOut);
     }
 
     public Command l3(){
 		return new ParallelRobotCommand(
-				new SequentialCommandGroup(
-						new ParallelCommandGroup(
-								elevatorStateHandler.setState(ElevatorState.L3),
-								armStateHandler.setState(ArmState.L3)
-						).until(this::isCoralIn),
-						endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-				),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
-		)/*.until(this::isCoralOut)*/;
+			new SequentialCommandGroup(
+				new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L3)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			),
+			elevatorStateHandler.setState(ElevatorState.L3),
+			armStateHandler.setState(ArmState.L3),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
+		).until(this::isCoralOut);
     }
 
     public Command l4(){
 		return new ParallelRobotCommand(
-				new SequentialCommandGroup(
-						new ParallelCommandGroup(
-								elevatorStateHandler.setState(ElevatorState.L4),
-								armStateHandler.setState(ArmState.L4)
-						).until(this::isCoralIn),
-						endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-				),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
-		)/*.until(this::isCoralOut)*/;
+			new SequentialCommandGroup(
+				new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L4)),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			),
+			elevatorStateHandler.setState(ElevatorState.L4),
+			armStateHandler.setState(ArmState.L4),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
+		).until(this::isCoralOut);
     }
 
     public Command preL1(){
@@ -200,7 +196,7 @@ public class Superstructure extends GBSubsystem {
             armStateHandler.setState(ArmState.OUTTAKE),
             endEffectorStateHandler.setState(EndEffectorState.OUTTAKE),
 			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-		);
+		).until(this::isCoralOut);
     }
 
     public Command alignReef(){
