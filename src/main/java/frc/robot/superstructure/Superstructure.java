@@ -36,7 +36,6 @@ public class Superstructure extends GBSubsystem {
 
 	public Superstructure(String logPath, Robot robot) {
 		super(logPath);
-
 		this.robot = robot;
         this.swerve = robot.getSwerve();
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
@@ -63,7 +62,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private boolean isReadyToScore(ReefLevel reefLevel) {
-		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT__METERS)
+		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
 		// && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
 	}
@@ -161,7 +160,8 @@ public class Superstructure extends GBSubsystem {
 
     public Command preL1(){
         return new ParallelRobotCommand(
-
+			elevatorStateHandler.setState(ElevatorState.L1),
+			armStateHandler.setState(ArmState.PRE_L1),
             endEffectorStateHandler.setState(EndEffectorState.KEEP),
 			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE) //TODO branch aim assist
         );
