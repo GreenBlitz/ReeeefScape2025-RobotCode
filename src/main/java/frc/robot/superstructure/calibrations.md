@@ -3,3 +3,5 @@
 ## Tolerances:
 - [ ] Elevator height
 - [ ] Arm position
+- [ ] Chassis position
+- [ ] Chassis rotation

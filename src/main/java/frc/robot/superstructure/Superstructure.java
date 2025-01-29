@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
+import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
@@ -13,6 +14,7 @@ import frc.robot.subsystems.endeffector.EndEffectorState;
 import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.states.SwerveState;
+import frc.utils.math.ToleranceMath;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
@@ -50,20 +52,21 @@ public class Superstructure extends GBSubsystem {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
-	public boolean isAtTargetPose(Pose2d targetPose, Pose2d actualPose){
+	public boolean isAtTargetPose(Pose2d targetPose, IPoseEstimator poseEstimator){
 		boolean isXAxisInTolerance = MathUtil.isNear(
 				targetPose.getX(),
-				actualPose.getX(),
+				poseEstimator.getEstimatedPose().getX(),
 				Tolerances.CHASSIS_POSITION_METERS
 		);
 		boolean isYAxisInTolerance = MathUtil.isNear(
 				targetPose.getY(),
-				actualPose.getY(),
+				poseEstimator.getEstimatedPose().getY(),
 				Tolerances.CHASSIS_POSITION_METERS
 		);
+		
 		boolean isRotationInTolerance = MathUtil.isNear(
 				targetPose.getRotation().getRotations(),
-				actualPose.getRotation().getRotations(),
+				poseEstimator.getEstimatedPose().getRotation().getRotations(),
 				Tolerances.CHASSIS_ROTATION.getRotations()
 		);
 		
