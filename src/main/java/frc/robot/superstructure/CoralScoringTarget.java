@@ -8,7 +8,7 @@ import frc.robot.subsystems.elevator.ElevatorState;
 
 import java.util.function.Function;
 
-public enum ReefLevel {
+public enum CoralScoringTarget {
 
 	L1(ElevatorState.L1.getHeightMeters(), ArmState.L1.getPosition(), branch -> new Pose2d()),
 	L2(ElevatorState.L2.getHeightMeters(), ArmState.L2.getPosition(), branch -> new Pose2d()),
@@ -19,7 +19,7 @@ public enum ReefLevel {
 	private final Rotation2d armTargetPosition;
 	private final Function<ReefBranch, Pose2d> swerveTargetPosition;
 
-	ReefLevel(double elevatorTargetPositionMeters, Rotation2d armTargetPosition, Function<ReefBranch, Pose2d> swerveTargetPosition) {
+	CoralScoringTarget(double elevatorTargetPositionMeters, Rotation2d armTargetPosition, Function<ReefBranch, Pose2d> swerveTargetPosition) {
 		this.elevatorTargetPositionMeters = elevatorTargetPositionMeters;
 		this.armTargetPosition = armTargetPosition;
 		this.swerveTargetPosition = swerveTargetPosition;

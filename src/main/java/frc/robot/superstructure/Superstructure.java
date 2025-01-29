@@ -52,9 +52,9 @@ public class Superstructure extends GBSubsystem {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
-	private boolean isReadyToScore(ReefLevel reefLevel) {
-		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
+	private boolean isReadyToScore(CoralScoringTarget coralScoringTarget) {
+		return robot.getElevator().isAtPosition(coralScoringTarget.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& robot.getArm().isAtPosition(coralScoringTarget.getArmTargetPosition(), Tolerances.ARM_POSITION);
 //		 && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
 	}
 
@@ -115,7 +115,7 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L1)),
+					new RunCommand(() -> {}).until(() -> isReadyToScore(CoralScoringTarget.L1)),
 					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
 				),
 				elevatorStateHandler.setState(ElevatorState.L1),
@@ -130,7 +130,7 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L2)),
+					new RunCommand(() -> {}).until(() -> isReadyToScore(CoralScoringTarget.L2)),
 					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
 				),
 				elevatorStateHandler.setState(ElevatorState.L2),
@@ -145,7 +145,7 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L3)),
+					new RunCommand(() -> {}).until(() -> isReadyToScore(CoralScoringTarget.L3)),
 					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
 				),
 				elevatorStateHandler.setState(ElevatorState.L3),
@@ -160,7 +160,7 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					new RunCommand(() -> {}).until(() -> isReadyToScore(ReefLevel.L4)),
+					new RunCommand(() -> {}).until(() -> isReadyToScore(CoralScoringTarget.L4)),
 					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
 				),
 				elevatorStateHandler.setState(ElevatorState.L4),
