@@ -40,12 +40,8 @@ public class Superstructure extends GBSubsystem {
 		return currentState;
 	}
 
-	public boolean isCoralFullyIn() {
-		return robot.getEndEffector().isCoralInFront() && robot.getEndEffector().isCoralInBack();
-	}
-
 	public boolean isCoralIn() {
-		return robot.getEndEffector().isCoralInFront();
+		return robot.getEndEffector().isCoralInFront() && robot.getEndEffector().isCoralInBack();
 	}
 
 	public boolean isCoralOut() {
@@ -106,7 +102,7 @@ public class Superstructure extends GBSubsystem {
 				elevatorStateHandler.setState(ElevatorState.FEEDER),
 				armStateHandler.setState(ArmState.INTAKE),
 				endEffectorStateHandler.setState(EndEffectorState.INTAKE)
-			).until(this::isCoralFullyIn),
+			).until(this::isCoralIn),
 			RobotState.FEEDER_INTAKE
 		);
 	}
