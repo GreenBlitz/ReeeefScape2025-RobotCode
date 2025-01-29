@@ -33,7 +33,7 @@ public class Superstructure extends GBSubsystem {
 		this.armStateHandler = new ArmStateHandler(robot.getArm());
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 
-		setDefaultCommand(new DeferredCommand(this::endState, Set.of(this)));
+		super.setDefaultCommand(endState());
 	}
 
 	public RobotState getCurrentState() {
@@ -240,7 +240,10 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command endState() {
-		return setState(RobotState.IDLE);
+		Command endState = setState(RobotState.IDLE);
+		endState.addRequirements(this);
+		
+		return endState;
 	}
 	
 	public Command asSubsystemCommand(Command command, RobotState state) {

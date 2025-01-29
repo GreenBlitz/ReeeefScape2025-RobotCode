@@ -54,10 +54,10 @@ public class JoysticksBindings {
 
 		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
 		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.FEEDER_INTAKE));
-		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.L1));
-		usedJoystick.Y.onTrue(robot.getSuperstructure().setState(RobotState.L2));
-		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructure().setState(RobotState.L3));
-		usedJoystick.POV_LEFT.onTrue(robot.getSuperstructure().setState(RobotState.L4));
+		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.PRE_L1));
+		usedJoystick.Y.onTrue(robot.getSuperstructure().setState(RobotState.PRE_L2));
+		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructure().setState(RobotState.PRE_L3));
+		usedJoystick.POV_LEFT.onTrue(robot.getSuperstructure().setState(RobotState.PRE_L4));
 		usedJoystick.POV_RIGHT.onTrue(robot.getSuperstructure().setState(RobotState.OUTTAKE));
 	}
 
