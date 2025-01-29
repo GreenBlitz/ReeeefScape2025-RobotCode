@@ -1,5 +1,7 @@
 package frc.robot.superstructure;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.subsystems.GBSubsystem;
@@ -48,6 +50,26 @@ public class Superstructure extends GBSubsystem {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
+	public boolean isAtTargetPose(Pose2d targetPose, Pose2d actualPose){
+		boolean isXAxisInTolerance = MathUtil.isNear(
+				targetPose.getX(),
+				actualPose.getX(),
+				Tolerances.CHASSIS_POSITION_METERS
+		);
+		boolean isYAxisInTolerance = MathUtil.isNear(
+				targetPose.getY(),
+				actualPose.getY(),
+				Tolerances.CHASSIS_POSITION_METERS
+		);
+		boolean isRotationInTolerance = MathUtil.isNear(
+				targetPose.getRotation().getRotations(),
+				actualPose.getRotation().getRotations(),
+				Tolerances.CHASSIS_ROTATION.getRotations()
+		);
+		
+		return isXAxisInTolerance && isYAxisInTolerance && isRotationInTolerance;
+	}
+	
 	private boolean isReadyToScore(CoralScoringTarget coralScoringTarget) {
 		return robot.getElevator().isAtPosition(coralScoringTarget.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& robot.getArm().isAtPosition(coralScoringTarget.getArmTargetPosition(), Tolerances.ARM_POSITION);
