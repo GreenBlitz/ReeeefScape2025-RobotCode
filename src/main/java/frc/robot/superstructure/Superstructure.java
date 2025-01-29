@@ -55,7 +55,7 @@ public class Superstructure extends GBSubsystem {
 	private boolean isReadyToScore(ReefLevel reefLevel) {
 		return robot.getElevator().isAtPosition(reefLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& robot.getArm().isAtPosition(reefLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
-		// && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
+//		 && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
 	}
 
 	@Override
