@@ -5,3 +5,4 @@
 - [ ] Arm position
 - [ ] Chassis position
 - [ ] Chassis rotation
+- [ ] Velocity deadband

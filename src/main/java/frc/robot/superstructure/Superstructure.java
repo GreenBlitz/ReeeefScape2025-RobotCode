@@ -52,14 +52,14 @@ public class Superstructure extends GBSubsystem {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
-	public boolean isAtTargetPose(Pose2d targetPose, IPoseEstimator poseEstimator) {
+	public boolean isAtTargetPose(Pose2d targetPose) {
 		boolean isXAxisInTolerance = MathUtil
-			.isNear(targetPose.getX(), poseEstimator.getEstimatedPose().getX(), Tolerances.CHASSIS_POSITION_METERS);
+			.isNear(targetPose.getX(), robot.getPoseEstimator().getEstimatedPose().getX(), Tolerances.CHASSIS_POSITION_METERS);
 		boolean isYAxisInTolerance = MathUtil
-			.isNear(targetPose.getY(), poseEstimator.getEstimatedPose().getY(), Tolerances.CHASSIS_POSITION_METERS);
+			.isNear(targetPose.getY(), robot.getPoseEstimator().getEstimatedPose().getY(), Tolerances.CHASSIS_POSITION_METERS);
 
 		boolean isRotationInTolerance = ToleranceMath
-			.isNearWrapped(targetPose.getRotation(), poseEstimator.getEstimatedPose().getRotation(), Tolerances.CHASSIS_ROTATION);
+			.isNearWrapped(targetPose.getRotation(), robot.getPoseEstimator().getEstimatedPose().getRotation(), Tolerances.CHASSIS_ROTATION);
 
 		double rotationVelocityRadiansPerSecond = swerve.getRobotRelativeVelocity().omegaRadiansPerSecond;
 		boolean isStopping = Math.abs(rotationVelocityRadiansPerSecond) < Tolerances.VELOCITY_DEADBAND_ANGLES_PER_SECOND.getRadians();
@@ -70,7 +70,7 @@ public class Superstructure extends GBSubsystem {
 	private boolean isReadyToScore(CoralScoringTarget coralScoringTarget) {
 		return robot.getElevator().isAtPosition(coralScoringTarget.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& robot.getArm().isAtPosition(coralScoringTarget.getArmTargetPosition(), Tolerances.ARM_POSITION)
-			&& isAtTargetPose(coralScoringTarget.getSwerveTargetPosition(ScoringHelpers.targetBranch), robot.getPoseEstimator());
+			&& isAtTargetPose(coralScoringTarget.getSwerveTargetPosition(ScoringHelpers.targetBranch));
 	}
 
 	@Override
