@@ -34,12 +34,12 @@ public enum CoralScoringTarget {
 
 	private final double elevatorTargetPositionMeters;
 	private final Rotation2d armTargetPosition;
-	private final Function<ReefBranch, Pose2d> swerveTargetPosition;
+	private final Function<ReefBranch, Pose2d> targetPosition;
 
-	CoralScoringTarget(double elevatorTargetPositionMeters, Rotation2d armTargetPosition, Function<ReefBranch, Pose2d> swerveTargetPosition) {
+	CoralScoringTarget(double elevatorTargetPositionMeters, Rotation2d armTargetPosition, Function<ReefBranch, Pose2d> targetPosition) {
 		this.elevatorTargetPositionMeters = elevatorTargetPositionMeters;
 		this.armTargetPosition = armTargetPosition;
-		this.swerveTargetPosition = swerveTargetPosition;
+		this.targetPosition = targetPosition;
 	}
 
 	public double getElevatorTargetPositionMeters() {
@@ -50,8 +50,8 @@ public enum CoralScoringTarget {
 		return armTargetPosition;
 	}
 
-	public Pose2d getSwerveTargetPosition(ReefBranch branch) {
-		return swerveTargetPosition.apply(branch);
+	public Pose2d getTargetPosition(ReefBranch branch) {
+		return targetPosition.apply(branch);
 	}
 
 }
