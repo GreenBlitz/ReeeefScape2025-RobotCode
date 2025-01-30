@@ -23,8 +23,8 @@ import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
 import frc.robot.superstructure.Superstructure;
-import frc.utils.battery.BatteryUtils;
 import frc.utils.brakestate.BrakeStateManager;
+import frc.utils.battery.BatteryUtil;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -46,7 +46,7 @@ public class Robot {
 	private final SimulationManager simulationManager;
 
 	public Robot() {
-		BatteryUtils.scheduleLimiter();
+		BatteryUtil.scheduleLimiter();
 
 		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve");
 		this.swerve = new Swerve(
@@ -81,7 +81,7 @@ public class Robot {
 	public void periodic() {
 		swerve.update();
 		poseEstimator.updateOdometry(swerve.getAllOdometryObservations());
-		BatteryUtils.logStatus();
+		BatteryUtil.logStatus();
 		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
 		CommandScheduler.getInstance().run(); // Should be last
