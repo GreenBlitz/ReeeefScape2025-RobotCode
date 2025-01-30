@@ -63,14 +63,17 @@ public class Superstructure extends GBSubsystem {
 				poseEstimator.getEstimatedPose().getY(),
 				Tolerances.CHASSIS_POSITION_METERS
 		);
-		
-		boolean isRotationInTolerance = MathUtil.isNear(
-				targetPose.getRotation().getRotations(),
-				poseEstimator.getEstimatedPose().getRotation().getRotations(),
-				Tolerances.CHASSIS_ROTATION.getRotations()
+
+		boolean isRotationInTolerance = ToleranceMath.isNearWrapped(
+				targetPose.getRotation(),
+				poseEstimator.getEstimatedPose().getRotation(),
+				Tolerances.CHASSIS_ROTATION
 		);
-		
-		return isXAxisInTolerance && isYAxisInTolerance && isRotationInTolerance;
+
+		double rotationVelocityRadiansPerSecond = swerve.getRobotRelativeVelocity().omegaRadiansPerSecond;
+		boolean isStopping = Math.abs(rotationVelocityRadiansPerSecond) < Tolerances.VELOCITY_DEADBAND_ANGLES_PER_SECOND.getRadians();
+
+		return isXAxisInTolerance && isYAxisInTolerance && isRotationInTolerance && isStopping;
 	}
 	
 	private boolean isReadyToScore(CoralScoringTarget coralScoringTarget) {
