@@ -242,7 +242,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command endState() {
-        return setState(RobotState.IDLE);
+		return setState(RobotState.IDLE);
 	}
 
 	public Command asSubsystemCommand(Command command, RobotState state) {
