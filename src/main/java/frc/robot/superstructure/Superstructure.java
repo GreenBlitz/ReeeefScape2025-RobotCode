@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.poseestimator.IPoseEstimator;
+import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
@@ -17,7 +18,6 @@ import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.math.ToleranceMath;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Set;
 
 public class Superstructure extends GBSubsystem {
 
@@ -37,7 +37,7 @@ public class Superstructure extends GBSubsystem {
 		this.armStateHandler = new ArmStateHandler(robot.getArm());
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 
-		setDefaultCommand(new DeferredCommand(this::endState, Set.of(this)));
+		super.setDefaultCommand(endState());
 	}
 
 	public RobotState getCurrentState() {
@@ -45,41 +45,32 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public boolean isCoralIn() {
-		return robot.getEndEffector().isCoralInFront() && robot.getEndEffector().isCoralInBack();
+		return robot.getEndEffector().isCoralInBack();
 	}
 
 	public boolean isCoralOut() {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
-	public boolean isAtTargetPose(Pose2d targetPose, IPoseEstimator poseEstimator){
-		boolean isXAxisInTolerance = MathUtil.isNear(
-				targetPose.getX(),
-				poseEstimator.getEstimatedPose().getX(),
-				Tolerances.CHASSIS_POSITION_METERS
-		);
-		boolean isYAxisInTolerance = MathUtil.isNear(
-				targetPose.getY(),
-				poseEstimator.getEstimatedPose().getY(),
-				Tolerances.CHASSIS_POSITION_METERS
-		);
+	public boolean isAtTargetPose(Pose2d targetPose, IPoseEstimator poseEstimator) {
+		boolean isXAxisInTolerance = MathUtil
+			.isNear(targetPose.getX(), poseEstimator.getEstimatedPose().getX(), Tolerances.CHASSIS_POSITION_METERS);
+		boolean isYAxisInTolerance = MathUtil
+			.isNear(targetPose.getY(), poseEstimator.getEstimatedPose().getY(), Tolerances.CHASSIS_POSITION_METERS);
 
-		boolean isRotationInTolerance = ToleranceMath.isNearWrapped(
-				targetPose.getRotation(),
-				poseEstimator.getEstimatedPose().getRotation(),
-				Tolerances.CHASSIS_ROTATION
-		);
+		boolean isRotationInTolerance = ToleranceMath
+			.isNearWrapped(targetPose.getRotation(), poseEstimator.getEstimatedPose().getRotation(), Tolerances.CHASSIS_ROTATION);
 
 		double rotationVelocityRadiansPerSecond = swerve.getRobotRelativeVelocity().omegaRadiansPerSecond;
 		boolean isStopping = Math.abs(rotationVelocityRadiansPerSecond) < Tolerances.VELOCITY_DEADBAND_ANGLES_PER_SECOND.getRadians();
 
 		return isXAxisInTolerance && isYAxisInTolerance && isRotationInTolerance && isStopping;
 	}
-	
+
 	private boolean isReadyToScore(CoralScoringTarget coralScoringTarget) {
 		return robot.getElevator().isAtPosition(coralScoringTarget.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& robot.getArm().isAtPosition(coralScoringTarget.getArmTargetPosition(), Tolerances.ARM_POSITION);
-//		 && swerve.isattargetpos(reefLevel.getSwerveTargetPosition)
+			&& robot.getArm().isAtPosition(coralScoringTarget.getArmTargetPosition(), Tolerances.ARM_POSITION)
+			&& isAtTargetPose(coralScoringTarget.getSwerveTargetPosition(ScoringHelpers.targetBranch), robot.getPoseEstimator());
 	}
 
 	@Override
@@ -268,14 +259,15 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command endState() {
-		return setState(RobotState.IDLE);
+		Command endState = setState(RobotState.IDLE);
+		endState.addRequirements(this);
+
+		return endState;
 	}
-	
+
 	public Command asSubsystemCommand(Command command, RobotState state) {
-		command =  super.asSubsystemCommand(command, state.name());
-		return new ParallelCommandGroup(
-			new InstantCommand(() -> currentState = state),
-			command
-		);
+		command = super.asSubsystemCommand(command, state.name());
+		return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), command);
 	}
+
 }
