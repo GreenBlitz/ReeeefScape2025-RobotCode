@@ -13,7 +13,6 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import org.littletonrobotics.junction.Logger;
 
-
 public class Superstructure extends GBSubsystem {
 
 	private final Robot robot;
@@ -239,10 +238,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command endState() {
-		Command endState = setState(RobotState.IDLE);
-		endState.addRequirements(this);
-
-		return endState;
+        return setState(RobotState.IDLE);
 	}
 
 	public Command asSubsystemCommand(Command command, RobotState state) {
