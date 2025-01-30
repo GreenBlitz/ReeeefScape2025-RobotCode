@@ -97,7 +97,7 @@ public class Superstructure extends GBSubsystem {
 	public Command feederIntake() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE).until(this::isCoralIn), // TODO aim assist feeder,
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE), // TODO aim assist feeder,
 				elevatorStateHandler.setState(ElevatorState.FEEDER),
 				armStateHandler.setState(ArmState.INTAKE),
 				endEffectorStateHandler.setState(EndEffectorState.INTAKE)
