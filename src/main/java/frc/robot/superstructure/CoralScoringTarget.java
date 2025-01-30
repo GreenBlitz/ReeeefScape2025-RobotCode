@@ -11,10 +11,26 @@ import java.util.function.Function;
 
 public enum CoralScoringTarget {
 
-	L1(ElevatorState.L1.getHeightMeters(), ArmState.L1.getPosition(), branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)),
-	L2(ElevatorState.L2.getHeightMeters(), ArmState.L2.getPosition(), branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)),
-	L3(ElevatorState.L3.getHeightMeters(), ArmState.L3.getPosition(), branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)),
-	L4(ElevatorState.L4.getHeightMeters(), ArmState.L4.getPosition(), branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS));
+	L1(
+		ElevatorState.L1.getHeightMeters(),
+		ArmState.L1.getPosition(),
+		branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)
+	),
+	L2(
+		ElevatorState.L2.getHeightMeters(),
+		ArmState.L2.getPosition(),
+		branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)
+	),
+	L3(
+		ElevatorState.L3.getHeightMeters(),
+		ArmState.L3.getPosition(),
+		branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)
+	),
+	L4(
+		ElevatorState.L4.getHeightMeters(),
+		ArmState.L4.getPosition(),
+		branch -> ScoringHelpers.getRobotScoringPose(branch, SuperstructureConstants.ROBOT_SCORING_POSE_DISTANCE_FROM_REEF_METERS)
+	);
 
 	private final double elevatorTargetPositionMeters;
 	private final Rotation2d armTargetPosition;
