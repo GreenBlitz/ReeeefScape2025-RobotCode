@@ -22,7 +22,7 @@ public class SysIdCalibrator {
 	public record SysIdConfigInfo(SysIdRoutine.Config config, boolean isCTRE) {}
 
 	/**
-	 * IMPORTANT: You must do SignalLogger.stop() at the end of the calibration
+	 * IMPORTANT: You must do SignalLogger.stop() at the end of the calibration.md
 	 *
 	 * @param voltageSetControl - note that this function needs to use kg in it so the mechanism won't move because of gravity.
 	 */
@@ -41,8 +41,8 @@ public class SysIdCalibrator {
 	}
 
 	/**
-	 * Sets for you all the buttons you need to do sysid calibration. The buttons are ordered by the click order. IMPORTANT: You must do
-	 * SignalLogger.stop() at the end of the calibration
+	 * Sets for you all the buttons you need to do sysid calibration.md. The buttons are ordered by the click order. IMPORTANT: You must do
+	 * SignalLogger.stop() at the end of the calibration.md
 	 *
 	 * @param smartJoystick - the joystick to apply the buttons on
 	 */
