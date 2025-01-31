@@ -1,6 +1,6 @@
 package frc.constants.field.enums;
 
-public enum Branch {
+public enum ReefBranch {
 
 	A(0, ReefSide.A),
 	B(1, ReefSide.A),
@@ -18,7 +18,7 @@ public enum Branch {
 	private final int index;
 	private final ReefSide reefSide;
 
-	Branch(int index, ReefSide reefSide) {
+	ReefBranch(int index, ReefSide reefSide) {
 		this.index = index;
 		this.reefSide = reefSide;
 	}

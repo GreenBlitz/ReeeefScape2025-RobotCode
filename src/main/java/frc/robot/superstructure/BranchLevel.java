@@ -2,7 +2,7 @@ package frc.robot.superstructure;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.constants.field.enums.Branch;
+import frc.constants.field.enums.ReefBranch;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.elevator.ElevatorState;
@@ -17,7 +17,7 @@ public enum BranchLevel {
 
 	private final double elevatorTargetPositionMeters;
 	private final Rotation2d armTargetPosition;
-	private final Function<Branch, Pose2d> targetPosition;
+	private final Function<ReefBranch, Pose2d> targetPosition;
 
 	BranchLevel(double elevatorTargetPositionMeters, Rotation2d armTargetPosition, double scoringPoseDistanceFromBranchMeters) {
 		this.elevatorTargetPositionMeters = elevatorTargetPositionMeters;
@@ -33,7 +33,7 @@ public enum BranchLevel {
 		return armTargetPosition;
 	}
 
-	public Pose2d getTargetPosition(Branch branch) {
+	public Pose2d getTargetPosition(ReefBranch branch) {
 		return targetPosition.apply(branch);
 	}
 
