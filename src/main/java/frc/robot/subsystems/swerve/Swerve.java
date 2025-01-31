@@ -252,7 +252,7 @@ public class Swerve extends GBSubsystem {
 			return speeds;
 		}
 
-		if (Math.abs(speeds.omegaRadiansPerSecond) > SwerveConstants.ROTATIONAL_VELOCITY_PER_SECOND_DEADBAND.getRadians()) {
+		if (Math.abs(speeds.omegaRadiansPerSecond) > SwerveConstants.DEADBANDS.getRotation().getRadians()) {
 			headingStabilizer.unlockTarget();
 			return speeds;
 		}
