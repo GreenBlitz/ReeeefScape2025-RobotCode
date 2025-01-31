@@ -49,8 +49,8 @@ public class Superstructure extends GBSubsystem {
 				robot.getPoseEstimator().getEstimatedPose(),
 				branchLevel.getTargetPosition(branch),
 				swerve.getRobotRelativeVelocity(),
-				Tolerances.branchScorePose(branch.getReefSide()),
-				Tolerances.branchScoreVelocityDeadbands(branch.getReefSide())
+				Tolerances.BRANCH_SCORE_POSE.rotateBy(Field.getReefSideMiddle(branch.getReefSide()).getRotation()),
+				Tolerances.BRANCH_SCORE_VELOCITY_DEADBANDS.rotateBy(Field.getReefSideMiddle(branch.getReefSide()).getRotation())
 			);
 	}
 
@@ -61,8 +61,8 @@ public class Superstructure extends GBSubsystem {
 				robot.getPoseEstimator().getEstimatedPose(),
 				Field.getReefSideMiddle(reefSide),
 				swerve.getRobotRelativeVelocity(),
-				Tolerances.l1ScorePose(reefSide),
-				Tolerances.l1ScoreVelocityDeadbands(reefSide)
+				Tolerances.L1_SCORE_POSE.rotateBy(Field.getReefSideMiddle(reefSide).getRotation()),
+				Tolerances.L1_SCORE_VELOCITY_DEADBANDS.rotateBy(Field.getReefSideMiddle(reefSide).getRotation())
 			);
 	}
 
