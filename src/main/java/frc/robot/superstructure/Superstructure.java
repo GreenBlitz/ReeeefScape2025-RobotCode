@@ -2,6 +2,7 @@ package frc.robot.superstructure;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
 import frc.robot.subsystems.GBSubsystem;
@@ -12,6 +13,7 @@ import frc.robot.subsystems.elevator.ElevatorStateHandler;
 import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
+import frc.utils.math.ToleranceMath;
 
 public class Superstructure extends GBSubsystem {
 
@@ -40,8 +42,8 @@ public class Superstructure extends GBSubsystem {
 
 	private boolean isReadyToScoreBranch(BranchLevel branchLevel, Branch branch) {
 		return robot.getElevator().isAtPosition(branchLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& robot.getArm().isAtPosition(branchLevel.getArmTargetPosition(), Tolerances.ARM_POSITION)
-			&& isAtPose(branchLevel.getTargetPosition(branch), Tolerances.SWERVE_BRANCH_SCORE);
+			&& robot.getArm().isAtPosition(branchLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
+//			&& isAtPose(branchLevel.getTargetPosition(branch), Tolerances.BRANCH_SCORE_POSE, Tolerances.BRANCH_SCORE_VELOCITY_DEADBANDS);
 	}
 
 	private boolean isReadyToScoreL1() {
@@ -50,12 +52,11 @@ public class Superstructure extends GBSubsystem {
 //		    && isAtPose(reefLevel.getSwerveTargetPosition)
 	}
 
-	public boolean isAtPose(Pose2d targetPose, Pose2d tolerances) {
-		boolean isAtX = MathUtil.isNear(targetPose.getX(), robot.getPoseEstimator().getEstimatedPose().getX(), tolerances.getX());
-		boolean isAtY = MathUtil.isNear(targetPose.getY(), robot.getPoseEstimator().getEstimatedPose().getY(), tolerances.getY());
-		boolean isAtHeading = swerve
-			.isAtHeading(targetPose.getRotation(), tolerances.getRotation(), Tolerances.SWERVE_BRANCH_SCORE_DEADBANDS.getRotation());
-		boolean isStopping = SwerveMath.isStill(swerve.getRobotRelativeVelocity(), Tolerances.SWERVE_BRANCH_SCORE_DEADBANDS);
+	public boolean isAtPose(Pose2d currentPose, Pose2d targetPose, ChassisSpeeds currentSpeeds, Pose2d tolerances, Pose2d deadbands) {
+		boolean isAtX = MathUtil.isNear(targetPose.getX(), currentPose.getX(), tolerances.getX());
+		boolean isAtY = MathUtil.isNear(targetPose.getY(), currentPose.getY(), tolerances.getY());
+		boolean isAtHeading = ToleranceMath.isNearWrapped(targetPose.getRotation(), currentPose.getRotation(), tolerances.getRotation());
+		boolean isStopping = SwerveMath.isStill(currentSpeeds, deadbands);
 		return isAtX && isAtY && isAtHeading && isStopping;
 	}
 

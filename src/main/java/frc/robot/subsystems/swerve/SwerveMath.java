@@ -47,10 +47,8 @@ public class SwerveMath {
 	}
 
 	public static ChassisSpeeds applyDeadband(ChassisSpeeds chassisSpeeds, Pose2d deadbands) {
-		double xVelocityMetersPerSecond = ToleranceMath
-			.applyDeadband(chassisSpeeds.vxMetersPerSecond, deadbands.getX());
-		double yVelocityMetersPerSecond = ToleranceMath
-			.applyDeadband(chassisSpeeds.vyMetersPerSecond, deadbands.getY());
+		double xVelocityMetersPerSecond = ToleranceMath.applyDeadband(chassisSpeeds.vxMetersPerSecond, deadbands.getX());
+		double yVelocityMetersPerSecond = ToleranceMath.applyDeadband(chassisSpeeds.vyMetersPerSecond, deadbands.getY());
 		double rotationalVelocityRadiansPerSecond = ToleranceMath
 			.applyDeadband(chassisSpeeds.omegaRadiansPerSecond, deadbands.getRotation().getRadians());
 

@@ -26,7 +26,7 @@ public class Field {
 
 	private static final Translation2d MIDDLE_OF_REEF = new Translation2d(4.48934, 4.03225);
 
-	public static final double LENGTH_OF_REEF_SIDE_METERS = 0.96;
+	public static final double REEF_SIDE_LENGTH_METERS = 0.96;
 
 	private static final Pose2d[] MIDDLE_OF_REEF_SIDES = new Pose2d[] {
 		new Pose2d(3.65760, 4.03220, Rotation2d.fromDegrees(0)),
