@@ -74,7 +74,7 @@ public class Field {
 		return getAllianceRelative(MIDDLE_OF_REEF_SIDES[side.getIndex()], true, true, AngleTransform.INVERT);
 	}
 
-	public static Translation2d getCoralPlacement(ReefBranch branch) {
+	public static Translation2d getCoralPlacement(Branch branch) {
 		return getAllianceRelative(CORAL_BRANCHES[branch.getIndex()], true, true);
 	}
 
