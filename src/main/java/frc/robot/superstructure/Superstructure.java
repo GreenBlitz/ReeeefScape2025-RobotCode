@@ -3,9 +3,7 @@ package frc.robot.superstructure;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
-import frc.constants.field.enums.ReefSide;
 import frc.robot.Robot;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmState;
@@ -44,26 +42,14 @@ public class Superstructure extends GBSubsystem {
 
 	private boolean isReadyToScoreBranch(BranchLevel branchLevel, Branch branch) {
 		return robot.getElevator().isAtPosition(branchLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& robot.getArm().isAtPosition(branchLevel.getArmTargetPosition(), Tolerances.ARM_POSITION)
-			&& isAtPose(
-				robot.getPoseEstimator().getEstimatedPose(),
-				branchLevel.getTargetPosition(branch),
-				swerve.getRobotRelativeVelocity(),
-				Tolerances.branchScorePose(branch.getReefSide()),
-				Tolerances.branchScoreVelocityDeadbands(branch.getReefSide())
-			);
+			&& robot.getArm().isAtPosition(branchLevel.getArmTargetPosition(), Tolerances.ARM_POSITION);
+//			&& isAtPose(branchLevel.getTargetPosition(branch), Tolerances.BRANCH_SCORE_POSE, Tolerances.BRANCH_SCORE_VELOCITY_DEADBANDS);
 	}
 
-	private boolean isReadyToScoreL1(ReefSide reefSide) {
+	private boolean isReadyToScoreL1() {
 		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)
-			&& isAtPose(
-				robot.getPoseEstimator().getEstimatedPose(),
-				Field.getReefSideMiddle(reefSide),
-				swerve.getRobotRelativeVelocity(),
-				Tolerances.l1ScorePose(reefSide),
-				Tolerances.l1ScoreVelocityDeadbands(reefSide)
-			);
+			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION);
+//		    && isAtPose(reefLevel.getSwerveTargetPosition)
 	}
 
 	public boolean isAtPose(Pose2d currentPose, Pose2d targetPose, ChassisSpeeds currentSpeeds, Pose2d tolerances, Pose2d deadbands) {
