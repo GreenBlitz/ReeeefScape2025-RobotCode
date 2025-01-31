@@ -2,7 +2,7 @@ package frc.robot.superstructure;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.constants.field.enums.ReefBranch;
+import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmState;
@@ -38,7 +38,7 @@ public class Superstructure extends GBSubsystem {
 		return !robot.getEndEffector().isCoralInFront();
 	}
 
-	private boolean isReadyToScoreBranch(BranchLevel branchLevel, ReefBranch branch) {
+	private boolean isReadyToScoreBranch(BranchLevel branchLevel, Branch branch) {
 		return robot.getElevator().isAtPosition(branchLevel.getElevatorTargetPositionMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& robot.getArm().isAtPosition(branchLevel.getArmTargetPosition(), Tolerances.ARM_POSITION)
 			&& isAtPose(branchLevel.getTargetPosition(branch), Tolerances.SWERVE_BRANCH_SCORE);
