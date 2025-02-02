@@ -18,6 +18,7 @@ import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class RobotCommander extends GBSubsystem {
 
@@ -133,6 +134,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public Command preScoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
+		return asSubsystemCommand(
+				new ParallelCommandGroup(
+						superstructure.preScore(scoreLevel),
+						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				),
+				scoreLevel.getRobotPreScore()
+		);
+	}
+
 	private Command preL1() {
 		return genericPreScore(ScoreLevel.L1);
 	}
@@ -154,6 +165,24 @@ public class RobotCommander extends GBSubsystem {
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH)),
+					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
+				).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
+				superstructure.score(scoreLevel)
+			).until(superstructure::isCoralOut),
+			scoreLevel.getRobotScore()
+		);
+	}
+
+	public Command scoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
+		Supplier<Pose2d> targetAngle = () -> new Pose2d(
+			Field.getCoralPlacement(branch),
+			Field.getReefSideMiddle(branch.getReefSide()).getRotation()
+		);
+
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					swerve.getCommandsBuilder().driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), targetAngle),
 					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
 				).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 				superstructure.score(scoreLevel)

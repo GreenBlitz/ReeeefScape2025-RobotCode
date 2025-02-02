@@ -1,9 +1,11 @@
 package frc;
 
+import frc.constants.field.enums.Branch;
 import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -51,6 +53,7 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
+		usedJoystick.A.onTrue(robot.getRobotCommander().scoreWithMoveToPose(ScoreLevel.L2, Branch.C));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
