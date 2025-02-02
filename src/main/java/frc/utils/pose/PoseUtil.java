@@ -10,7 +10,6 @@ import frc.robot.hardware.signal.TimedValue;
 import frc.robot.poseestimator.Pose2dComponentsValue;
 import frc.robot.poseestimator.Pose3dComponentsValue;
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.vision.data.VisionData;
 import frc.utils.alerts.Alert;
