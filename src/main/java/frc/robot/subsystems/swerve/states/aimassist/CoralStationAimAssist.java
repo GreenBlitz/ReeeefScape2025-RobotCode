@@ -2,27 +2,26 @@ package frc.robot.subsystems.swerve.states.aimassist;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.field.Field;
+import frc.constants.field.enums.CoralStation;
 import frc.constants.field.enums.ReefSide;
-import frc.robot.subsystems.swerve.SwerveConstants;
 
 import java.util.function.Supplier;
 
-public class ReefAimAssist implements IRotationalAimAssist {
+public class CoralStationAimAssist implements IRotationalAimAssist{
 
-    private final ReefSide target;
+    private final CoralStation target;
 
     private final Supplier<Pose2d> robotPoseSupplier;
 
-    public ReefAimAssist(ReefSide reefSide, Supplier<Pose2d> robotPoseSupplier) {
-        target = reefSide;
+    public CoralStationAimAssist(CoralStation coralStation, Supplier<Pose2d> robotPoseSupplier) {
+        target = coralStation;
         this.robotPoseSupplier = robotPoseSupplier;
     }
 
     @Override
     public Rotation2d getTargetHeading() {
-        return Field.getReefSideMiddle(target).getRotation();
+        return Field.getCoralStationMiddle(target).getRotation();
     }
 
     @Override

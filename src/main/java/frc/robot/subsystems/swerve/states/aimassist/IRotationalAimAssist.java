@@ -8,9 +8,10 @@ import java.util.function.Supplier;
 
 public interface IRotationalAimAssist extends IAimAssist {
 
-    default Supplier<ChassisSpeeds> handleAimAssist(ChassisSpeeds chassisSpeeds, SwerveConstants swerveConstants, Rotation2d robotHeading) {
-        return () -> AimAssistMath.getRotationAssistedSpeeds(chassisSpeeds, robotHeading, getTargetHeading(), swerveConstants);
+    default Supplier<ChassisSpeeds> handleAimAssist(ChassisSpeeds chassisSpeeds, SwerveConstants swerveConstants) {
+        return () -> AimAssistMath.getRotationAssistedSpeeds(chassisSpeeds, getRobotPose().get().getRotation(), getTargetHeading(), swerveConstants);
     }
 
     Rotation2d getTargetHeading();
+
 }

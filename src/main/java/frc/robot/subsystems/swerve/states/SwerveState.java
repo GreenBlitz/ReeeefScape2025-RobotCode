@@ -23,7 +23,7 @@ public class SwerveState {
 	private DriveSpeed driveSpeed;
 	private LoopMode loopMode;
 	private RotateAxis rotateAxis;
-	private AimAssist aimAssist;
+	private IAimAssist aimAssist;
 	private HeadingControl headingControl;
 
 	public SwerveState(SwerveState swerveState) {
@@ -46,7 +46,7 @@ public class SwerveState {
 		DriveSpeed driveSpeed,
 		LoopMode loopMode,
 		RotateAxis rotateAxis,
-		AimAssist aimAssist,
+		IAimAssist aimAssist,
 		HeadingControl headingControl
 	) {
 		this.driveRelative = driveRelative;
@@ -90,7 +90,7 @@ public class SwerveState {
 		return swerveState;
 	}
 
-	public SwerveState withAimAssist(AimAssist aimAssist) {
+	public SwerveState withAimAssist(IAimAssist aimAssist) {
 		SwerveState swerveState = new SwerveState(this);
 		swerveState.aimAssist = aimAssist;
 		return swerveState;
@@ -119,7 +119,7 @@ public class SwerveState {
 		return rotateAxis;
 	}
 
-	public AimAssist getAimAssist() {
+	public IAimAssist getAimAssist() {
 		return aimAssist;
 	}
 
