@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve.states;
 
 import frc.robot.Robot;
+import frc.robot.subsystems.swerve.states.aimassist.EmptyAimAssist;
 import frc.robot.subsystems.swerve.states.aimassist.IAimAssist;
 import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import org.littletonrobotics.junction.Logger;
@@ -11,7 +12,7 @@ public class SwerveState {
 	private static final DriveSpeed DEFAULT_DRIVE_SPEED = DriveSpeed.NORMAL;
 	private static final LoopMode DEFAULT_LOOP_MODE = Robot.ROBOT_TYPE.isSimulation() ? LoopMode.OPEN : LoopMode.CLOSED;
 	private static final RotateAxis DEFAULT_ROTATE_AXIS = RotateAxis.MIDDLE_OF_CHASSIS;
-	private static final IAimAssist DEFAULT_AIM_ASSIST = null;
+	private static final IAimAssist DEFAULT_AIM_ASSIST = new EmptyAimAssist();
 	private static final HeadingControl DEFAULT_HEADING_CONTROL = HeadingControl.NONE;
 
 	public static final SwerveState DEFAULT_PATH_PLANNER = new SwerveState().withDriveRelative(DriveRelative.ROBOT_RELATIVE);

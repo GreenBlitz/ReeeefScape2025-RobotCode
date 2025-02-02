@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve.states.aimassist;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.subsystems.swerve.Swerve;
@@ -13,11 +14,13 @@ public interface ITranslationalAimAssist extends IAimAssist {
 		return AimAssistMath.getObjectAssistedSpeeds(
 			chassisSpeeds,
 			getRobotPose().get(),
-			swerve.getAllianceRelativeHeading(),
+			getTargetHeading(),
 			getObjectTranslation(),
 			swerve.getConstants()
 		);
 	}
+
+	Rotation2d getTargetHeading();
 
 	Translation2d getObjectTranslation();
 

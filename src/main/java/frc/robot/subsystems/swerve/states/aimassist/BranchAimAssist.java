@@ -44,7 +44,7 @@ public class BranchAimAssist implements IRotationalAimAssist, ITranslationalAimA
 
 	@Override
 	public String getName() {
-		return "";
+		return "Branch";
 	}
 
 }
