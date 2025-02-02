@@ -10,6 +10,7 @@ import frc.robot.hardware.signal.TimedValue;
 import frc.robot.poseestimator.Pose2dComponentsValue;
 import frc.robot.poseestimator.Pose3dComponentsValue;
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.vision.data.VisionData;
 import frc.utils.alerts.Alert;
@@ -24,6 +25,20 @@ public class PoseUtil {
 		boolean isAtHeading = ToleranceMath.isNearWrapped(targetPose.getRotation(), currentPose.getRotation(), tolerances.getRotation());
 		boolean isStill = SwerveMath.isStill(currentSpeeds, deadbands);
 		return isAtX && isAtY && isAtHeading && isStill;
+	}
+
+	public static boolean isAtPoseAndAcceleration(
+		Pose2d currentPose,
+		Pose2d targetPose,
+		ChassisSpeeds currentSpeeds,
+		Pose2d tolerances,
+		Pose2d deadbands,
+		double currentAcceleration,
+		double targetAcceleration,
+		double accelerationTolerance
+	) {
+		boolean isAtAcceleration = MathUtil.isNear(targetAcceleration, currentAcceleration, accelerationTolerance);
+		return isAtPose(currentPose, targetPose, currentSpeeds, tolerances, deadbands) && isAtAcceleration;
 	}
 
 	public static Pose3d poseArrayToPose3D(double[] poseArray, AngleUnit angleUnit) {

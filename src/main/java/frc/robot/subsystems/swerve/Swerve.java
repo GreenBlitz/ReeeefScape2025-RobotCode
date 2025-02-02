@@ -20,6 +20,7 @@ import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import frc.robot.subsystems.swerve.states.heading.HeadingStabilizer;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.auto.PathPlannerUtil;
+import frc.utils.time.TimeUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -42,6 +43,8 @@ public class Swerve extends GBSubsystem {
 	private SwerveState currentState;
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
+	private ChassisSpeeds currentSpeeds;
+	private double accelerationMetersPerSecond;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
@@ -55,10 +58,13 @@ public class Swerve extends GBSubsystem {
 		this.gyroSignals = gyroSignals;
 
 		this.kinematics = new SwerveDriveKinematics(modules.getModulePositionsFromCenterMeters());
+		this.currentSpeeds = kinematics.toChassisSpeeds(modules.getCurrentStates());
 		this.headingSupplier = this::getGyroAbsoluteYaw;
 		this.headingStabilizer = new HeadingStabilizer(this.constants);
 		this.stateHandler = new SwerveStateHandler(this);
 		this.commandsBuilder = new SwerveCommandsBuilder(this);
+
+		this.accelerationMetersPerSecond = 0;
 
 		update();
 		setDefaultCommand(commandsBuilder.driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
@@ -128,6 +134,10 @@ public class Swerve extends GBSubsystem {
 		gyro.updateInputs(gyroSignals.yawSignal());
 		modules.updateInputs();
 
+		accelerationMetersPerSecond = (SwerveMath.getDriveMagnitude(kinematics.toChassisSpeeds(modules.getCurrentStates()))
+			- SwerveMath.getDriveMagnitude(currentSpeeds)) / TimeUtil.DEFAULT_CYCLE_TIME_SECONDS;
+		currentSpeeds = kinematics.toChassisSpeeds(modules.getCurrentStates());
+
 		currentState.log(constants.stateLogPath());
 
 		ChassisSpeeds allianceRelativeSpeeds = getAllianceRelativeVelocity();
@@ -179,6 +189,10 @@ public class Swerve extends GBSubsystem {
 
 	public ChassisSpeeds getRobotRelativeVelocity() {
 		return kinematics.toChassisSpeeds(modules.getCurrentStates());
+	}
+
+	public double getRobotRelativeAcceleration() {
+		return accelerationMetersPerSecond;
 	}
 
 	public ChassisSpeeds getAllianceRelativeVelocity() {
