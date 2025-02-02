@@ -1,6 +1,5 @@
 package frc;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.constants.field.enums.Branch;
 import frc.constants.field.enums.ReefSide;
 import frc.joysticks.Axis;
@@ -56,23 +55,19 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		usedJoystick.L1.whileTrue(robot.getSwerve()
-			.getCommandsBuilder()
-			.driveByDriversInputs(
-					SwerveState.DEFAULT_DRIVE.withAimAssist(new ReefAimAssist(ReefSide.A))
-			));
-		usedJoystick.R1.whileTrue(robot.getSwerve()
-				.getCommandsBuilder()
-				.driveByDriversInputs(
-						SwerveState.DEFAULT_DRIVE.withAimAssist(new ReefAimAssist(ReefSide.B))
-				));
+		usedJoystick.L1.whileTrue(
+			robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(new ReefAimAssist(ReefSide.A)))
+		);
+		usedJoystick.R1.whileTrue(
+			robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(new ReefAimAssist(ReefSide.B)))
+		);
 		usedJoystick.A.whileTrue(
-				robot.getSwerve()
+			robot.getSwerve()
 				.getCommandsBuilder()
 				.driveByDriversInputs(
-						SwerveState.DEFAULT_DRIVE.withAimAssist(
-								new BranchAimAssist(Branch.C, () -> robot.getPoseEstimator().getEstimatedPose()))
-				));
+					SwerveState.DEFAULT_DRIVE.withAimAssist(new BranchAimAssist(Branch.C, () -> robot.getPoseEstimator().getEstimatedPose()))
+				)
+		);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

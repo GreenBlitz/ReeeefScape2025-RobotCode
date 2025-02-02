@@ -10,20 +10,20 @@ import java.util.function.Supplier;
 
 public interface ITranslationalAimAssist extends IAimAssist {
 
-    default ChassisSpeeds handleAimAssist(ChassisSpeeds allianceRelativeChassisSpeeds, Swerve swerve) {
-        return AimAssistMath.getObjectAssistedSpeeds(
-                allianceRelativeChassisSpeeds,
-                getRobotPose().get(),
-                getTargetHeading(),
-                getObjectTranslation(),
-                swerve.getConstants()
-        );
-    }
+	default ChassisSpeeds handleAimAssist(ChassisSpeeds allianceRelativeChassisSpeeds, Swerve swerve) {
+		return AimAssistMath.getObjectAssistedSpeeds(
+			allianceRelativeChassisSpeeds,
+			getRobotPose().get(),
+			getTargetHeading(),
+			getObjectTranslation(),
+			swerve.getConstants()
+		);
+	}
 
-    Rotation2d getTargetHeading();
+	Rotation2d getTargetHeading();
 
-    Translation2d getObjectTranslation();
+	Translation2d getObjectTranslation();
 
-    Supplier<Pose2d> getRobotPose();
+	Supplier<Pose2d> getRobotPose();
 
 }
