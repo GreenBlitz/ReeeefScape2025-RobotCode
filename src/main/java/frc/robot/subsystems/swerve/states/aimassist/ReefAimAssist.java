@@ -13,11 +13,8 @@ public class ReefAimAssist implements IRotationalAimAssist {
 
     private final ReefSide target;
 
-    private final Supplier<Pose2d> robotPoseSupplier;
-
-    public ReefAimAssist(ReefSide reefSide, Supplier<Pose2d> robotPoseSupplier) {
+    public ReefAimAssist(ReefSide reefSide) {
         target = reefSide;
-        this.robotPoseSupplier = robotPoseSupplier;
     }
 
     @Override
@@ -25,8 +22,4 @@ public class ReefAimAssist implements IRotationalAimAssist {
         return Field.getReefSideMiddle(target).getRotation();
     }
 
-    @Override
-    public Supplier<Pose2d> getRobotPose() {
-        return robotPoseSupplier;
-    }
 }

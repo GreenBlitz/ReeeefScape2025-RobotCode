@@ -12,11 +12,8 @@ public class CoralStationAimAssist implements IRotationalAimAssist{
 
     private final CoralStation target;
 
-    private final Supplier<Pose2d> robotPoseSupplier;
-
-    public CoralStationAimAssist(CoralStation coralStation, Supplier<Pose2d> robotPoseSupplier) {
+    public CoralStationAimAssist(CoralStation coralStation) {
         target = coralStation;
-        this.robotPoseSupplier = robotPoseSupplier;
     }
 
     @Override
@@ -24,8 +21,4 @@ public class CoralStationAimAssist implements IRotationalAimAssist{
         return Field.getCoralStationMiddle(target).getRotation();
     }
 
-    @Override
-    public Supplier<Pose2d> getRobotPose() {
-        return robotPoseSupplier;
-    }
 }

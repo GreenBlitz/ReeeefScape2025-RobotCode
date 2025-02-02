@@ -28,21 +28,13 @@ public class SwerveStateHandler {
 		this.swerveConstants = swerve.getConstants();
 	}
 
-	private void reportMissingSupplier(String supplierName) {
-		new Alert(Alert.AlertType.WARNING, swerve.getLogPath() + "/AimAssist/missing " + supplierName + " supplier").report();
-	}
-
 	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
 		IAimAssist aimAssist = swerveState.getAimAssist();
-		if (aimAssist instanceof IRotationalAimAssist && aimAssist instanceof ITranslationalAimAssist) {
-			speeds = ((IRotationalAimAssist) aimAssist).handleAimAssist(speeds, swerveConstants).get();
-			return ((ITranslationalAimAssist) aimAssist).handleAimAssist(speeds, swerveConstants, swerveState).get();
-		}
 		if (aimAssist instanceof IRotationalAimAssist) {
-			return ((IRotationalAimAssist) aimAssist).handleAimAssist(speeds, swerveConstants).get();
+			speeds = ((IRotationalAimAssist) aimAssist).handleAimAssist(speeds, swerve.getAbsoluteHeading(), swerveConstants).get();
 		}
 		if (aimAssist instanceof ITranslationalAimAssist) {
-			return ((ITranslationalAimAssist) aimAssist).handleAimAssist(speeds, swerveConstants, swerveState).get();
+			speeds = ((ITranslationalAimAssist) aimAssist).handleAimAssist(speeds, swerveConstants, swerveState).get();
 		}
 		return speeds;
 	}

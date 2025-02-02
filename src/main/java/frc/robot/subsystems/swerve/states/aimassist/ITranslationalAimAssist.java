@@ -20,4 +20,6 @@ public interface ITranslationalAimAssist extends IAimAssist{
 
     Translation2d getObjectTranslation();
 
+    Supplier<Pose2d> getRobotPose();
+
 }

@@ -7,6 +7,5 @@ import java.util.function.Supplier;
 
 public interface IAimAssist {
 
-    Supplier<Pose2d> getRobotPose();
 
 }
