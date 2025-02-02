@@ -22,4 +22,5 @@ public class CoralStationAimAssist implements IRotationalAimAssist {
 	public String getName() {
 		return "CoralStation";
 	}
+
 }

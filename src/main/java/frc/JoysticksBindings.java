@@ -60,12 +60,12 @@ public class JoysticksBindings {
 			);
 
 		robot.getSwerve()
-				.getCommandsBuilder()
-				.driveByDriversInputs(
-						SwerveState.DEFAULT_DRIVE
-								.withAimAssist(AimAssistFactory.createFeederFactory(
-										robot.getSwerve(), CoralStation.LEFT, () -> robot.getPoseEstimator().getEstimatedPose()))
-				);
+			.getCommandsBuilder()
+			.driveByDriversInputs(
+				SwerveState.DEFAULT_DRIVE.withAimAssist(
+					AimAssistFactory.createFeederFactory(robot.getSwerve(), CoralStation.LEFT, () -> robot.getPoseEstimator().getEstimatedPose())
+				)
+			);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

@@ -22,4 +22,5 @@ public class ReefAimAssist implements IRotationalAimAssist {
 	public String getName() {
 		return "Reef";
 	}
+
 }

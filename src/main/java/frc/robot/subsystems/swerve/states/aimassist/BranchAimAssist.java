@@ -21,13 +21,13 @@ public class BranchAimAssist implements IRotationalAimAssist, ITranslationalAimA
 		this.robotPoseSupplier = robotPoseSupplier;
 	}
 
-    @Override
-    public ChassisSpeeds handleAimAssist(ChassisSpeeds chassisSpeeds, Swerve swerve) {
-        ChassisSpeeds rotationalAimAssistSpeeds = IRotationalAimAssist.super.handleAimAssist(chassisSpeeds, swerve);
-        return ITranslationalAimAssist.super.handleAimAssist(rotationalAimAssistSpeeds, swerve);
-    }
+	@Override
+	public ChassisSpeeds handleAimAssist(ChassisSpeeds chassisSpeeds, Swerve swerve) {
+		ChassisSpeeds rotationalAimAssistSpeeds = IRotationalAimAssist.super.handleAimAssist(chassisSpeeds, swerve);
+		return ITranslationalAimAssist.super.handleAimAssist(rotationalAimAssistSpeeds, swerve);
+	}
 
-    @Override
+	@Override
 	public Rotation2d getTargetHeading() {
 		return Field.getReefSideMiddle(target.getReefSide()).getRotation();
 	}
@@ -42,8 +42,9 @@ public class BranchAimAssist implements IRotationalAimAssist, ITranslationalAimA
 		return robotPoseSupplier;
 	}
 
-    @Override
-    public String getName() {
-        return "";
-    }
+	@Override
+	public String getName() {
+		return "";
+	}
+
 }

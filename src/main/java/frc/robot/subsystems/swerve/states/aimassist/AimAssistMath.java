@@ -7,7 +7,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.field.Field;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveMath;
-import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
 
@@ -55,7 +54,8 @@ public class AimAssistMath {
 
 		Rotation2d targetHeadingHingeSystemAngle = Field.getAllianceRelative(allianceRelativeTargetHeading);
 
-		ChassisSpeeds targetHeadingRelativeSpeeds = SwerveMath.allianceToRobotRelativeSpeeds(allianceRelativeSpeeds, targetHeadingHingeSystemAngle);
+		ChassisSpeeds targetHeadingRelativeSpeeds = SwerveMath
+			.allianceToRobotRelativeSpeeds(allianceRelativeSpeeds, targetHeadingHingeSystemAngle);
 		ChassisSpeeds assistedSpeeds = new ChassisSpeeds(
 			targetHeadingRelativeSpeeds.vxMetersPerSecond,
 			neededObjectHorizontalVelocityMetersPerSecond,

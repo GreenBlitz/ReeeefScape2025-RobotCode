@@ -46,4 +46,5 @@ public class AlgaeAimAssist implements IRotationalAimAssist, ITranslationalAimAs
 	public String getName() {
 		return "Algae";
 	}
+
 }
