@@ -41,7 +41,7 @@ public class RobotCommander extends GBSubsystem {
 	 * Checks if elevator and arm in place and is robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
 	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
 	 */
-	private boolean isReadyToScore(ScoreLevel level, Branch branch) {
+	private boolean isPreScoreReady(ScoreLevel level, Branch branch) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
 		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
@@ -52,7 +52,7 @@ public class RobotCommander extends GBSubsystem {
 		ChassisSpeeds reefRelativeSpeeds = SwerveMath
 			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
 
-		return superstructure.isReadyToScore(level) && switch (level) {
+		return superstructure.isPreScoreReady(level) && switch (level) {
 			case L1 ->
 				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
@@ -101,7 +101,7 @@ public class RobotCommander extends GBSubsystem {
 			new ParallelCommandGroup(
 				superstructure.intake(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
-			),
+			).until(superstructure::isCoralIn),
 			RobotState.INTAKE
 		);
 	}
@@ -123,7 +123,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command preScore(ScoreLevel scoreLevel) {
+	private Command genericPreScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.preScore(scoreLevel),
@@ -134,48 +134,48 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private Command preL1() {
-		return preScore(ScoreLevel.L1);
+		return genericPreScore(ScoreLevel.L1);
 	}
 
 	private Command preL2() {
-		return preScore(ScoreLevel.L2);
+		return genericPreScore(ScoreLevel.L2);
 	}
 
 	private Command preL3() {
-		return preScore(ScoreLevel.L2);
+		return genericPreScore(ScoreLevel.L3);
 	}
 
 	private Command preL4() {
-		return preScore(ScoreLevel.L4);
+		return genericPreScore(ScoreLevel.L4);
 	}
 
-	private Command score(ScoreLevel scoreLevel) {
+	private Command genericScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH)),
-					superstructure.preScore(scoreLevel)
-				).until(() -> isReadyToScore(scoreLevel, ScoringHelpers.targetBranch)),
+					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
+				).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 				superstructure.score(scoreLevel)
-			),
+			).until(superstructure::isCoralOut),
 			scoreLevel.getRobotScore()
 		);
 	}
 
 	private Command scoreL1() {
-		return score(ScoreLevel.L1);
+		return genericScore(ScoreLevel.L1);
 	}
 
 	private Command scoreL2() {
-		return score(ScoreLevel.L2);
+		return genericScore(ScoreLevel.L2);
 	}
 
 	private Command scoreL3() {
-		return score(ScoreLevel.L3);
+		return genericScore(ScoreLevel.L3);
 	}
 
 	private Command scoreL4() {
-		return score(ScoreLevel.L4);
+		return genericScore(ScoreLevel.L4);
 	}
 
 	private Command asSubsystemCommand(Command command, RobotState state) {
