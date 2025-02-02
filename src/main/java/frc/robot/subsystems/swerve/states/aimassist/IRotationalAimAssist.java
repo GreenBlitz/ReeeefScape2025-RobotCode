@@ -7,9 +7,9 @@ import frc.robot.subsystems.swerve.Swerve;
 
 public interface IRotationalAimAssist extends IAimAssist {
 
-	default ChassisSpeeds handleAimAssist(ChassisSpeeds chassisSpeeds, Swerve swerve) {
+	default ChassisSpeeds handleAimAssist(ChassisSpeeds allianceRelativeChassisSpeeds, Swerve swerve) {
 		return AimAssistMath
-			.getRotationAssistedSpeeds(chassisSpeeds, swerve.getAllianceRelativeHeading(), getTargetHeading(), swerve.getConstants());
+			.getRotationAssistedSpeeds(allianceRelativeChassisSpeeds, swerve.getAllianceRelativeHeading(), getTargetHeading(), swerve.getConstants());
 	}
 
 	Rotation2d getTargetHeading();

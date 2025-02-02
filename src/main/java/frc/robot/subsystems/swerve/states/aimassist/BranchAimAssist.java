@@ -22,8 +22,8 @@ public class BranchAimAssist implements IRotationalAimAssist, ITranslationalAimA
 	}
 
 	@Override
-	public ChassisSpeeds handleAimAssist(ChassisSpeeds chassisSpeeds, Swerve swerve) {
-		ChassisSpeeds rotationalAimAssistSpeeds = IRotationalAimAssist.super.handleAimAssist(chassisSpeeds, swerve);
+	public ChassisSpeeds handleAimAssist(ChassisSpeeds allianceRelativeChassisSpeeds, Swerve swerve) {
+		ChassisSpeeds rotationalAimAssistSpeeds = IRotationalAimAssist.super.handleAimAssist(allianceRelativeChassisSpeeds, swerve);
 		return ITranslationalAimAssist.super.handleAimAssist(rotationalAimAssistSpeeds, swerve);
 	}
 

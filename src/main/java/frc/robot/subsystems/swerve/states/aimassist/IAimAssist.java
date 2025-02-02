@@ -5,7 +5,7 @@ import frc.robot.subsystems.swerve.Swerve;
 
 public interface IAimAssist {
 
-	ChassisSpeeds handleAimAssist(ChassisSpeeds chassisSpeeds, Swerve swerve);
+	ChassisSpeeds handleAimAssist(ChassisSpeeds allianceRelativeChassisSpeedschassisSpeeds, Swerve swerve);
 
 	String getName();
 
