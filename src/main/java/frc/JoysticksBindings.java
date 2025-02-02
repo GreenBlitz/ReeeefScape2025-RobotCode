@@ -52,8 +52,20 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(
-				new FeederAimAssist(CoralStation.LEFT, () -> robot.getPoseEstimator().getEstimatedPose())));
+		robot.getSwerve()
+			.getCommandsBuilder()
+			.driveByDriversInputs(
+				SwerveState.DEFAULT_DRIVE
+					.withAimAssist(new FeederAimAssist(CoralStation.LEFT, () -> robot.getPoseEstimator().getEstimatedPose()))
+			);
+
+		robot.getSwerve()
+				.getCommandsBuilder()
+				.driveByDriversInputs(
+						SwerveState.DEFAULT_DRIVE
+								.withAimAssist(AimAssistFactory.createFeederFactory(
+										robot.getSwerve(), CoralStation.LEFT, () -> robot.getPoseEstimator().getEstimatedPose()))
+				);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

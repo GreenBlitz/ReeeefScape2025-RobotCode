@@ -1,42 +1,28 @@
 package frc.robot.subsystems.swerve.states;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.MathConstants;
-import frc.constants.field.Field;
-import frc.constants.field.enums.Branch;
-import frc.constants.field.enums.CoralStation;
-import frc.constants.field.enums.ReefSide;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtil;
 import frc.robot.subsystems.swerve.states.aimassist.*;
-import frc.utils.alerts.Alert;
 
-import java.util.Optional;
-import java.util.function.Supplier;
 
 public class SwerveStateHandler {
 
 	private final Swerve swerve;
-	private final SwerveConstants swerveConstants;
 
 	public SwerveStateHandler(Swerve swerve) {
 		this.swerve = swerve;
-		this.swerveConstants = swerve.getConstants();
 	}
 
-	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
-		IAimAssist aimAssist = swerveState.getAimAssist();
-		if (aimAssist instanceof IRotationalAimAssist) {
-			speeds = ((IRotationalAimAssist) aimAssist).handleAimAssist(speeds, swerve.getAbsoluteHeading(), swerveConstants).get();
+	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds allianceRelativeSpeeds, SwerveState swerveState) {
+		if (swerveState.getAimAssist() == null) {
+			return allianceRelativeSpeeds;
 		}
-		if (aimAssist instanceof ITranslationalAimAssist) {
-			speeds = ((ITranslationalAimAssist) aimAssist).handleAimAssist(speeds, swerveConstants, swerveState).get();
-		}
-		return speeds;
+		return swerveState.getAimAssist().handleAimAssist(allianceRelativeSpeeds, swerve);
 	}
 
 	public Translation2d getRotationAxis(RotateAxis rotationAxisState) {

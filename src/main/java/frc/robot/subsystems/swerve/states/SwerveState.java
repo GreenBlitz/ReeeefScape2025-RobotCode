@@ -11,7 +11,7 @@ public class SwerveState {
 	private static final DriveSpeed DEFAULT_DRIVE_SPEED = DriveSpeed.NORMAL;
 	private static final LoopMode DEFAULT_LOOP_MODE = Robot.ROBOT_TYPE.isSimulation() ? LoopMode.OPEN : LoopMode.CLOSED;
 	private static final RotateAxis DEFAULT_ROTATE_AXIS = RotateAxis.MIDDLE_OF_CHASSIS;
-	private static final IAimAssist DEFAULT_AIM_ASSIST = IAimAssist;
+	private static final IAimAssist DEFAULT_AIM_ASSIST = null;
 	private static final HeadingControl DEFAULT_HEADING_CONTROL = HeadingControl.NONE;
 
 	public static final SwerveState DEFAULT_PATH_PLANNER = new SwerveState().withDriveRelative(DriveRelative.ROBOT_RELATIVE);
@@ -61,7 +61,7 @@ public class SwerveState {
 		Logger.recordOutput(logPath + "/DriveSpeed", driveSpeed);
 		Logger.recordOutput(logPath + "/LoopMode", loopMode);
 		Logger.recordOutput(logPath + "/RotateAxis", rotateAxis);
-		Logger.recordOutput(logPath + "/AimAssist", aimAssist);
+		Logger.recordOutput(logPath + "/AimAssist", aimAssist.getName());
 		Logger.recordOutput(logPath + "/HeadingControl", headingControl);
 	}
 
