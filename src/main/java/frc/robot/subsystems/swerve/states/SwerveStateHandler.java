@@ -18,7 +18,7 @@ public class SwerveStateHandler {
 	}
 
 	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds allianceRelativeSpeeds, SwerveState swerveState) {
-		if (swerveState.getAimAssist() == null) {
+		if (swerveState.getAimAssist() instanceof EmptyAimAssist) {
 			return allianceRelativeSpeeds;
 		}
 		return swerveState.getAimAssist().handleAimAssist(allianceRelativeSpeeds, swerve);
