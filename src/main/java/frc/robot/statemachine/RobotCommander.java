@@ -136,11 +136,11 @@ public class RobotCommander extends GBSubsystem {
 
 	public Command preScoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
 		return asSubsystemCommand(
-				new ParallelCommandGroup(
-						superstructure.preScore(scoreLevel),
-						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-				),
-				scoreLevel.getRobotPreScore()
+			new ParallelCommandGroup(
+				superstructure.preScore(scoreLevel),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+			),
+			scoreLevel.getRobotPreScore()
 		);
 	}
 
@@ -183,8 +183,7 @@ public class RobotCommander extends GBSubsystem {
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					swerve.getCommandsBuilder().driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), targetPose),
-					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
-						new RunCommand(() -> System.out.println(targetPose.get()))
+					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
 				).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 				superstructure.score(scoreLevel)
 			).until(superstructure::isCoralOut),
