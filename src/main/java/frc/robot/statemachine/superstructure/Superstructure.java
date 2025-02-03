@@ -163,6 +163,24 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
+	private Command genericOnlyScore(ScoreLevel scoreLevel) {
+		return asSubsystemCommand(
+				new SequentialCommandGroup(
+						new ParallelCommandGroup(
+								elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+								armStateHandler.setState(scoreLevel.getArmScore()),
+								endEffectorStateHandler.setState(EndEffectorState.KEEP)
+						).until(() -> isReadyToScore(scoreLevel)),
+						new ParallelCommandGroup(
+								elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+								armStateHandler.setState(scoreLevel.getArmScore()),
+								endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+						)
+				).until(this::isCoralOut),
+				scoreLevel.getSuperstructureScore()
+		);
+	}
+
 	public Command scoreL1() {
 		return genericScore(ScoreLevel.L1);
 	}

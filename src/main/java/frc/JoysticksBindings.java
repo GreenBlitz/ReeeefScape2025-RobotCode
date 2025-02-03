@@ -2,10 +2,12 @@ package frc;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.constants.field.enums.Branch;
 import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -56,8 +58,11 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(
 			robot.getSwerve()
 				.getCommandsBuilder()
-				.driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), () -> new Pose2d(2, 2, Rotation2d.fromDegrees(60)))
+				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> new Pose2d(2, 2, Rotation2d.fromDegrees(60)))
 		);
+
+		usedJoystick.X.onTrue(robot.getRobotCommander().scoreWithMoveToPose(ScoreLevel.L4, Branch.C));
+		usedJoystick.Y.onTrue(robot.getRobotCommander().scoreWithMoveToPose(ScoreLevel.L3, Branch.F));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

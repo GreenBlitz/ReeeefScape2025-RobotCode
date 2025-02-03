@@ -18,7 +18,6 @@ import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class RobotCommander extends GBSubsystem {
 
@@ -174,20 +173,71 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command scoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
-		Supplier<Pose2d> targetPose = () -> new Pose2d(
-			Field.getCoralPlacement(branch),
-			Field.getReefSideMiddle(branch.getReefSide()).getRotation()
-		);
+		Rotation2d targetAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		return asSubsystemCommand(
+		Pose2d targetPose = new Pose2d(Field.getCoralPlacement(branch), targetAngle);
+
+		double waitingX = targetPose.getX() - StateMachineConstants.ROBOT_SCORE_WAITING_DISTANCE_FROM_REEF_METERS * targetAngle.getCos();
+		double waitingY = targetPose.getY() - StateMachineConstants.ROBOT_SCORE_WAITING_DISTANCE_FROM_REEF_METERS * targetAngle.getSin();
+
+		Pose2d waitPose = new Pose2d(waitingX, waitingY, targetAngle);
+
+		Command driveToWait = robot.getSwerve()
+			.getCommandsBuilder()
+			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
+			.until(
+				() -> PoseUtil.isAtPose(
+					robot.getPoseEstimator().getEstimatedPose(),
+					waitPose,
+					robot.getSwerve().getRobotRelativeVelocity(),
+					Tolerances.REEF_RELATIVE_SCORING_DEADBANDS,
+					new Pose2d(0.5, 0.5, Rotation2d.fromDegrees(3))
+				)
+			);
+
+		Command secondDriveToWait = robot.getSwerve()
+				.getCommandsBuilder()
+				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
+				.until(
+						() -> PoseUtil.isAtPose(
+								robot.getPoseEstimator().getEstimatedPose(),
+								waitPose,
+								robot.getSwerve().getRobotRelativeVelocity(),
+								Tolerances.REEF_RELATIVE_SCORING_DEADBANDS,
+								new Pose2d(0.5, 0.5, Rotation2d.fromDegrees(3))
+						)
+				);
+
+		Command driveToTarget = robot.getSwerve()
+				.getCommandsBuilder()
+				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> targetPose)
+				.until(
+						() -> PoseUtil.isAtPose(
+								robot.getPoseEstimator().getEstimatedPose(),
+								targetPose,
+								robot.getSwerve().getRobotRelativeVelocity(),
+								Tolerances.REEF_RELATIVE_SCORING_DEADBANDS,
+								new Pose2d(0.5, 0.5, Rotation2d.fromDegrees(3))
+						)
+				);
+
+		return new SequentialCommandGroup(
 			new SequentialCommandGroup(
+				driveToWait,
+				new InstantCommand(() -> System.out.println("at wait point")),
 				new ParallelCommandGroup(
-					swerve.getCommandsBuilder().driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), targetPose),
-					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
-				).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
-				superstructure.score(scoreLevel)
-			).until(superstructure::isCoralOut),
-			scoreLevel.getRobotScore()
+						superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
+						new SequentialCommandGroup(
+								driveToTarget,
+								superstructure.score(scoreLevel).until(superstructure::isCoralOut)
+						)
+
+				)
+//
+//				secondDriveToWait,
+//				new InstantCommand(() -> System.out.println("at wait point")),
+//				superstructure.idle()
+			)
 		);
 	}
 
