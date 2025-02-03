@@ -174,7 +174,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command scoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
-		Supplier<Pose2d> targetAngle = () -> new Pose2d(
+		Supplier<Pose2d> targetPose = () -> new Pose2d(
 			Field.getCoralPlacement(branch),
 			Field.getReefSideMiddle(branch.getReefSide()).getRotation()
 		);
@@ -182,8 +182,9 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					swerve.getCommandsBuilder().driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), targetAngle),
-					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
+					swerve.getCommandsBuilder().driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), targetPose),
+					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
+						new RunCommand(() -> System.out.println(targetPose.get()))
 				).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 				superstructure.score(scoreLevel)
 			).until(superstructure::isCoralOut),
