@@ -17,6 +17,7 @@ import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 public class Superstructure extends GBSubsystem {
 
@@ -182,19 +183,19 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command scoreL1() {
-		return genericScore(ScoreLevel.L1);
+		return genericOnlyScore(ScoreLevel.L1);
 	}
 
 	public Command scoreL2() {
-		return genericScore(ScoreLevel.L2);
+		return genericOnlyScore(ScoreLevel.L2);
 	}
 
 	public Command scoreL3() {
-		return genericScore(ScoreLevel.L3);
+		return genericOnlyScore(ScoreLevel.L3);
 	}
 
 	public Command scoreL4() {
-		return genericScore(ScoreLevel.L4);
+		return genericOnlyScore(ScoreLevel.L4);
 	}
 
 	public Command score(ScoreLevel scoreLevel) {

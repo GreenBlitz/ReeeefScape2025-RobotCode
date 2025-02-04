@@ -217,12 +217,9 @@ public class RobotCommander extends GBSubsystem {
 	public Command scoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
 		Rotation2d targetAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d targetPose = new Pose2d(Field.getCoralPlacement(branch), targetAngle);
+		Pose2d targetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 
-		double waitingX = targetPose.getX() - StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS * targetAngle.getCos();
-		double waitingY = targetPose.getY() - StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS * targetAngle.getSin();
-
-		Pose2d waitPose = new Pose2d(waitingX, waitingY, targetAngle);
+		Pose2d waitPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
 
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
@@ -268,17 +265,16 @@ public class RobotCommander extends GBSubsystem {
 				driveToWait,
 				new InstantCommand(() -> System.out.println("at wait point")),
 				new ParallelCommandGroup(
-						superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
-						new SequentialCommandGroup(
-								driveToTarget,
-								superstructure.score(scoreLevel).until(superstructure::isCoralOut)
-						)
-
-				)
-//
-//				secondDriveToWait,
-//				new InstantCommand(() -> System.out.println("at wait point")),
-//				superstructure.idle()
+					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
+					driveToTarget
+				),
+				superstructure.score(scoreLevel).until(superstructure::isCoralOut),
+				new ParallelCommandGroup(
+					superstructure.score(scoreLevel),
+					secondDriveToWait
+				),
+				new InstantCommand(() -> System.out.println("at wait point")),
+				superstructure.idle()
 			)
 		);
 	}
