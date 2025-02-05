@@ -40,7 +40,7 @@ public class ArmCommandsBuilder {
 	}
 
 	public Command loggedDashboardSetVoltage() {
-		return arm.asSubsystemCommand(new LoggedDashboardCommand("Set Arm Voltage", arm::setVoltage), "Set voltage via dashboard");
+		return arm.asSubsystemCommand(new LoggedDashboardCommand("Set Arm Voltage", arm::setVoltage, arm), "Set voltage via dashboard");
 	}
 
 }
