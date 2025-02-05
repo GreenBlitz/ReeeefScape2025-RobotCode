@@ -215,8 +215,6 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command scoreWithMoveToPose(ScoreLevel scoreLevel, Branch branch) {
-		Rotation2d targetAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
-
 		Pose2d targetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 
 		Pose2d waitPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
@@ -268,13 +266,10 @@ public class RobotCommander extends GBSubsystem {
 					superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
 					driveToTarget
 				),
-				superstructure.score(scoreLevel).until(superstructure::isCoralOut),
-				new ParallelCommandGroup(
-					superstructure.score(scoreLevel),
+				superstructure.score(scoreLevel),
 					secondDriveToWait
-				),
-				new InstantCommand(() -> System.out.println("at wait point")),
-				superstructure.idle()
+//				new InstantCommand(() -> System.out.println("at wait point")),
+//				superstructure.idle()
 			)
 		);
 	}
