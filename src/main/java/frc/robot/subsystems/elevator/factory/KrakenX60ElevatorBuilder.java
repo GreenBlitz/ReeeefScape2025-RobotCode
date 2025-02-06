@@ -1,12 +1,11 @@
 package frc.robot.subsystems.elevator.factory;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.VoltageUnit;
@@ -24,6 +23,7 @@ import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
 import frc.robot.hardware.digitalinput.chooser.ChooserDigitalInput;
 import frc.robot.hardware.mechanisms.wpilib.ElevatorSimulation;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
+import frc.robot.hardware.phoenix6.request.Phoenix6FeedForwardRequest;
 import frc.robot.hardware.phoenix6.request.Phoenix6Request;
 import frc.robot.hardware.phoenix6.request.Phoenix6RequestBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
@@ -50,8 +50,12 @@ public class KrakenX60ElevatorBuilder {
 	private static final double REAL_KP = 1;
 	private static final double REAL_KI = 0;
 	private static final double REAL_KD = 0;
+	public static final double kG = 0;
+	private static final double kS = 0;
+	private static final double kV = 0;
+	private static final double kA = 0;
 
-	private static final double SIMULATION_KP = 1.6;
+	private static final double SIMULATION_KP = 1;
 	private static final double SIMULATION_KI = 0;
 	private static final double SIMULATION_KD = 0.05;
 	private static final int NUMBER_OF_MOTORS = 2;
@@ -76,6 +80,10 @@ public class KrakenX60ElevatorBuilder {
 			configuration.Slot0.kP = REAL_KP;
 			configuration.Slot0.kI = REAL_KI;
 			configuration.Slot0.kD = REAL_KD;
+			configuration.Slot0.kG = kG;
+			configuration.Slot0.kS = kS;
+			configuration.Slot0.kV = kV;
+			configuration.Slot0.kA = kA;
 		} else {
 			configuration.Slot0.kP = SIMULATION_KP;
 			configuration.Slot0.kI = SIMULATION_KI;
@@ -130,34 +138,43 @@ public class KrakenX60ElevatorBuilder {
 	}
 
 	public static Elevator createRealElevator(String logPath) {
-		TalonFXMotor firstMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_FIRST, generateSysidConfig());
-		firstMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
+		TalonFXMotor rightMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_RIGHT, generateSysidConfig());
+		rightMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
 
-		TalonFXMotor secondMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_SECOND, generateSysidConfig());
-		secondMotor.applyConfiguration(generateConfiguration(IS_SECOND_MOTOR_INVERTED));
+		TalonFXMotor leftMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_LEFT, generateSysidConfig());
+		leftMotor.applyConfiguration(generateConfiguration(IS_SECOND_MOTOR_INVERTED));
 
-		return create(logPath, firstMotor, secondMotor);
+		return create(logPath, rightMotor, leftMotor);
 	}
 
 	public static Elevator createSimulationElevator(String logPath) {
-		TalonFXMotor firstMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_FIRST, generateSysidConfig(), generateSimulation());
-		firstMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
+		TalonFXMotor rightMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_RIGHT, generateSysidConfig(), generateSimulation());
+		rightMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
 
-		return create(logPath, firstMotor, firstMotor);
+		return create(logPath, rightMotor, rightMotor);
 	}
 
-	private static Elevator create(String logPath, TalonFXMotor firstMotor, TalonFXMotor secondMotor) {
+	private static Elevator create(String logPath, TalonFXMotor rightMotor, TalonFXMotor leftMotor) {
 		IDigitalInput digitalInput = generateDigitalInput();
 
-		Phoenix6Request<Rotation2d> positionRequest = Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true));
-		Phoenix6Request<Double> voltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0).withEnableFOC(true));
+		Phoenix6FeedForwardRequest positionRequest = Phoenix6RequestBuilder.build(
+			new DynamicMotionMagicVoltage(
+				0,
+				Elevator.convertMetersToRotations(ElevatorConstants.CRUISE_VELOCITY_METERS_PER_SECOND).getRotations(),
+				Elevator.convertMetersToRotations(ElevatorConstants.ACCELERATION_METERS_PER_SECOND_SQUARED).getRotations(),
+				0
+			),
+			0,
+			true
+		);
+		Phoenix6Request<Double> voltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0), true);
 
 		return new Elevator(
 			logPath,
-			firstMotor,
-			createSignals(firstMotor),
-			secondMotor,
-			createSignals(secondMotor),
+			rightMotor,
+			createSignals(rightMotor),
+			leftMotor,
+			createSignals(leftMotor),
 			positionRequest,
 			voltageRequest,
 			digitalInput

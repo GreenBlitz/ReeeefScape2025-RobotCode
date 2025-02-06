@@ -1,6 +1,6 @@
 Calibrations
 ----------------------------------
-- [ ] Rename Motor Names By Position On Robot
+- [x] Rename Motor Names By Position On Robot
 - [ ] Motor: Id, Type
 - [ ] Buschain
 - [ ] Inverted
@@ -13,6 +13,6 @@ Calibrations
 - [ ] Limit Switch Channel
 - [ ] Enable FOC
 - [ ] Control: kS, kG, PID
-- [ ] Profile Constants (Maybe): Max acceleration, cruse velocity
+- [ ] Max acceleration, Cruise velocity
 - [ ] Elevator Mass
 - [ ] States heights
