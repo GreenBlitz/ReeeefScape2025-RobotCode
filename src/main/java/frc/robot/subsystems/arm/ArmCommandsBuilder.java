@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.utils.utilcommands.LoggedDashboardCommand;
-import frc.utils.utilcommands.LoggedDashboardCommandFix;
+import frc.utils.utilcommands.LoggedDashboardCommandCheck;
 
 import java.util.function.DoubleSupplier;
 
@@ -44,7 +44,10 @@ public class ArmCommandsBuilder {
 		return arm.asSubsystemCommand(new LoggedDashboardCommand("Set Arm Voltage", arm::setVoltage, arm), "Set voltage via dashboard");
 	}
 	public Command loggedDashBoardSetVoltageFix(){
-		return arm.asSubsystemCommand(new LoggedDashboardCommandFix((voltage)-> setVoltage(voltage),"MotorVoltage", arm), "Set voltage via dashboard");
+		return arm.asSubsystemCommand(new LoggedDashboardCommandCheck((voltage)-> setVoltage(voltage),"MotorVoltage", arm), "Set voltage via dashboard");
+	}
+	public Command loggedDashBoardSetVoltageCheck(){
+		return arm.asSubsystemCommand(new )
 	}
 
 }
