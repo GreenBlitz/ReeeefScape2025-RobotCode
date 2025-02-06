@@ -4,7 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import frc.robot.hardware.signal.AngleSignal;
 import frc.utils.TimedValue;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.time.TimeUtil;
 
 public class Phoenix6LatencySignal extends AngleSignal implements SignalGetter {
