@@ -16,7 +16,11 @@ public class AutosBuilder {
 
 	public static List<Supplier<PathPlannerAutoWrapper>> getAllTestAutos() {
 		return List.of(
-			() -> new PathPlannerAutoWrapper("Rotate"),
+			() -> PathPlannerAutoWrapper.chainAutos(
+					new PathPlannerAutoWrapper("AL1-I"),
+					new PathPlannerAutoWrapper("I-US"),
+					new PathPlannerAutoWrapper("US-H")
+			),
 			() -> new PathPlannerAutoWrapper("Rotate 2m"),
 			() -> new PathPlannerAutoWrapper("Straight 2m")
 		);
