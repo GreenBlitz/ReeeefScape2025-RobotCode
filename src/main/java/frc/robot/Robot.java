@@ -23,6 +23,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
+import frc.utils.auto.AutonomousChooser;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.battery.BatteryUtil;
 
@@ -44,6 +45,8 @@ public class Robot {
 
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
+	
+	private final AutonomousChooser autonomousChooser;
 
 	public Robot() {
 		BatteryUtil.scheduleLimiter();
@@ -76,6 +79,8 @@ public class Robot {
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
+		
+		this.autonomousChooser = new AutonomousChooser("AutonomousChooser");
 	}
 
 	public void periodic() {
@@ -88,7 +93,7 @@ public class Robot {
 	}
 
 	public Command getAutonomousCommand() {
-		return new InstantCommand();
+		return autonomousChooser.getChosenValue();
 	}
 
 	public WPILibPoseEstimatorWrapper getPoseEstimator() {
