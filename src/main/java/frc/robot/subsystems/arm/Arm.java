@@ -43,11 +43,12 @@ public class Arm extends GBSubsystem {
 		this.encoder = encoder;
 		this.encoderPositionSignal = encoderPositionSignal;
 		this.commandsBuilder = new ArmCommandsBuilder(this);
-		this.sysIdCalibrator = new SysIdCalibrator(motor.getSysidConfigInfo(), this, voltage -> setVoltage(voltage + getKgVoltage()));
+		this.sysIdCalibrator = new SysIdCalibrator(motor.getSysidConfigInfo(), this,
+                this::setVoltage);
 
 		periodic();
 		resetByEncoderPosition();
-		setDefaultCommand(getCommandsBuilder().stayInPlace());
+//		setDefaultCommand(getCommandsBuilder().stayInPlace());
 	}
 
 	public ArmCommandsBuilder getCommandsBuilder() {
