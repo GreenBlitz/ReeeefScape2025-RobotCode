@@ -42,8 +42,8 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	/**
-	 * Checks if robot is at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
-	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
+	 * Checks if robot is at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is horizontal to the branch So when you
+	 * check if robot in place in y-axis its in parallel to the reef side.
 	 */
 
 	private boolean isAtPoseByDistanceFromReef(ScoreLevel level, Branch branch, double distanceMeters) {
@@ -133,13 +133,10 @@ public class RobotCommander extends GBSubsystem {
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
-				.until(() -> isAtPoseByDistanceFromReef(scoreLevel, branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS));
+			.until(() -> isAtPoseByDistanceFromReef(scoreLevel, branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS));
 
 		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				driveToWait,
-				superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))
-			),
+			new SequentialCommandGroup(driveToWait, superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))),
 			scoreLevel.getRobotPreScore()
 		);
 	}
@@ -148,16 +145,13 @@ public class RobotCommander extends GBSubsystem {
 		Pose2d waitPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
 
 		Command driveToWait = robot.getSwerve()
-				.getCommandsBuilder()
-				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
-				.until(() -> isAtPoseByDistanceFromReef(scoreLevel, branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS));
+			.getCommandsBuilder()
+			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
+			.until(() -> isAtPoseByDistanceFromReef(scoreLevel, branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS));
 
 		return asSubsystemCommand(
-				new SequentialCommandGroup(
-						superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)),
-						driveToWait
-				),
-				scoreLevel.getRobotPreScore()
+			new SequentialCommandGroup(superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel)), driveToWait),
+			scoreLevel.getRobotPreScore()
 		);
 	}
 
