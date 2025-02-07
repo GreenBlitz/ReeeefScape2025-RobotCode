@@ -50,6 +50,10 @@ public class KrakenX60ElevatorBuilder {
 	private static final double REAL_KP = 1;
 	private static final double REAL_KI = 0;
 	private static final double REAL_KD = 0;
+	public static final double kG = 0;
+	private static final double kS = 0;
+	private static final double kV = 0;
+	private static final double kA = 0;
 
 	private static final double SIMULATION_KP = 1;
 	private static final double SIMULATION_KI = 0;
@@ -76,6 +80,10 @@ public class KrakenX60ElevatorBuilder {
 			configuration.Slot0.kP = REAL_KP;
 			configuration.Slot0.kI = REAL_KI;
 			configuration.Slot0.kD = REAL_KD;
+			configuration.Slot0.kG = kG;
+			configuration.Slot0.kS = kS;
+			configuration.Slot0.kV = kV;
+			configuration.Slot0.kA = kA;
 		} else {
 			configuration.Slot0.kP = SIMULATION_KP;
 			configuration.Slot0.kI = SIMULATION_KI;
@@ -93,13 +101,14 @@ public class KrakenX60ElevatorBuilder {
 		configuration.SoftwareLimitSwitch.ForwardSoftLimitEnable = SOFT_LIMIT_ENABLE;
 		configuration.MotorOutput.Inverted = inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
 		configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		configuration.Feedback.SensorToMechanismRatio = ElevatorConstants.GEAR_RATIO;
 		return configuration;
 	}
 
 	private static IDigitalInput generateDigitalInput() {
 		return Robot.ROBOT_TYPE.isSimulation()
 			? new ChooserDigitalInput("ElevatorLimitSwitch")
-			: new ChanneledDigitalInput(new DigitalInput(LIMIT_SWITCH_CHANNEL), new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME));
+			: new ChanneledDigitalInput(new DigitalInput(LIMIT_SWITCH_CHANNEL), new Debouncer(LIMIT_SWITCH_DEBOUNCE_TIME), true);
 	}
 
 	private static ElevatorMotorSignals createSignals(TalonFXMotor motor) {
@@ -130,10 +139,10 @@ public class KrakenX60ElevatorBuilder {
 	}
 
 	public static Elevator createRealElevator(String logPath) {
-		TalonFXMotor rightMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_RIGHT, generateSysidConfig());
+		TalonFXMotor rightMotor = new TalonFXMotor(logPath + "/right", IDs.TalonFXIDs.ELEVATOR_RIGHT, generateSysidConfig());
 		rightMotor.applyConfiguration(generateConfiguration(IS_FIRST_MOTOR_INVERTED));
 
-		TalonFXMotor leftMotor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_LEFT, generateSysidConfig());
+		TalonFXMotor leftMotor = new TalonFXMotor(logPath + "/left", IDs.TalonFXIDs.ELEVATOR_LEFT, generateSysidConfig());
 		leftMotor.applyConfiguration(generateConfiguration(IS_SECOND_MOTOR_INVERTED));
 
 		return create(logPath, rightMotor, leftMotor);

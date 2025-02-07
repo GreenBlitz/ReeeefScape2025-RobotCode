@@ -221,4 +221,8 @@ public class Superstructure extends GBSubsystem {
 		};
 	}
 
+	public EndEffectorStateHandler getEndEffectorStateHandler() {
+		return endEffectorStateHandler;
+	}
+
 }
