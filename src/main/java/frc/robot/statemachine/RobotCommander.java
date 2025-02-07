@@ -145,6 +145,36 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
+	private boolean isAtScoringPoseByDistance(ScoreLevel level, Branch branch, double distanceMeters) {
+		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
+
+		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, distanceMeters).rotateBy(reefAngle.unaryMinus());
+		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
+
+		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
+		ChassisSpeeds reefRelativeSpeeds = SwerveMath
+			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
+
+		return switch (level) {
+			case L1 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
+					Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS
+				);
+			case L2, L3, L4 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					Tolerances.REEF_RELATIVE_SCORING_POSITION,
+					Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+				);
+		};
+	}
+
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -296,13 +326,19 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command completeAutoScore(ScoreLevel scoreLevel) {
+		Pose2d waitPose = ScoringHelpers
+			.getRobotScoringPose(ScoringHelpers.targetBranch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
+		Command driveToWait = robot.getSwerve()
+			.getCommandsBuilder()
+			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
+			.until(() -> isAtScoringPoseByDistance(scoreLevel, ScoringHelpers.targetBranch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS));
+
 		return new SequentialCommandGroup(
 			autoPreScore(scoreLevel, ScoringHelpers.targetBranch),
 			autoScore(scoreLevel, ScoringHelpers.targetBranch),
-			new InstantCommand(() -> System.out.println("score")),
 			autoPreScore(scoreLevel, ScoringHelpers.targetBranch),
-			new InstantCommand(() -> System.out.println("2 wait"))
-//			setState(RobotState.DRIVE)
+			driveToWait,
+			setState(RobotState.DRIVE)
 		);
 	}
 

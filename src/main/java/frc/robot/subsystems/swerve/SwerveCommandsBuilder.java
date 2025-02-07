@@ -185,17 +185,13 @@ public class SwerveCommandsBuilder {
 			pathFollowingCommand = AutoBuilder.pathfindToPose(targetPose, AutonomousConstants.REAL_TIME_CONSTRAINTS);
 		}
 
-		return swerve.asSubsystemCommand(
-			new SequentialCommandGroup(new InstantCommand(swerve::resetPIDControllers), pathFollowingCommand),
-			"Path to pose: " + targetPose
-		);
+		return new SequentialCommandGroup(new InstantCommand(swerve::resetPIDControllers), pathFollowingCommand)
+			.withName("Path to pose: " + targetPose);
 	}
 
 	public Command pidToPose(Supplier<Pose2d> currentPose, Pose2d targetPose) {
-		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
-			"PID to pose: " + targetPose
-		);
+		return new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose))
+			.withName("PID to pose: " + targetPose);
 	}
 
 }
