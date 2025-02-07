@@ -53,13 +53,6 @@ public class Superstructure extends GBSubsystem {
 			&& armStateHandler.getCurrentState() == scoreLevel.getArmPreScore();
 	}
 
-	public boolean isReadyToScore(ScoreLevel scoreLevel) {
-		return robot.getElevator().isAtPosition(scoreLevel.getElevatorScore().getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == scoreLevel.getElevatorScore()
-			&& robot.getArm().isAtPosition(scoreLevel.getArmScore().getPosition(), Tolerances.ARM_POSITION)
-			&& armStateHandler.getCurrentState() == scoreLevel.getArmScore();
-	}
-
 	@Override
 	protected void subsystemPeriodic() {
 		log();
@@ -138,39 +131,6 @@ public class Superstructure extends GBSubsystem {
 			case L3 -> preL3();
 			case L4 -> preL4();
 		};
-	}
-
-	private Command genericScore(ScoreLevel scoreLevel) {
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.getElevatorPreScore()),
-					armStateHandler.setState(scoreLevel.getArmPreScore()),
-					endEffectorStateHandler.setState(EndEffectorState.KEEP)
-				).until(() -> isPreScoreReady(scoreLevel)),
-				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(EndEffectorState.KEEP)
-				).until(() -> isReadyToScore(scoreLevel)),
-				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-				)
-			).until(this::isCoralOut),
-			scoreLevel.getSuperstructureScore()
-		);
-	}
-
-	public Command genericCompleteScore(ScoreLevel scoreLevel) {
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				genericMoveToScorePositions(scoreLevel).until(() -> isReadyToScore(scoreLevel)),
-				genericActualScore(scoreLevel)
-			).until(this::isCoralOut),
-			scoreLevel.getSuperstructureScore()
-		);
 	}
 
 	private Command genericMoveToScorePositions(ScoreLevel scoreLevel) {
