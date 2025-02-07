@@ -17,7 +17,6 @@ import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 
 public class Superstructure extends GBSubsystem {
 
@@ -166,19 +165,20 @@ public class Superstructure extends GBSubsystem {
 
 	private Command genericOnlyScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
-				new SequentialCommandGroup(
-						new ParallelCommandGroup(
-								elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-								armStateHandler.setState(scoreLevel.getArmScore()),
-								endEffectorStateHandler.setState(EndEffectorState.KEEP)
-						).until(() -> isReadyToScore(scoreLevel)),
-						new ParallelCommandGroup(
-								elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-								armStateHandler.setState(scoreLevel.getArmScore()),
-								endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-						)
-				).until(this::isCoralOut),
-				scoreLevel.getSuperstructureScore()
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+					armStateHandler.setState(scoreLevel.getArmScore()),
+					endEffectorStateHandler.setState(EndEffectorState.KEEP)
+				).until(() -> isReadyToScore(scoreLevel)),
+				new ParallelCommandGroup(
+					new InstantCommand(() -> System.out.println("scoreing")),
+					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+					armStateHandler.setState(scoreLevel.getArmScore()),
+					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+				)
+			).until(this::isCoralOut),
+			scoreLevel.getSuperstructureScore()
 		);
 	}
 
