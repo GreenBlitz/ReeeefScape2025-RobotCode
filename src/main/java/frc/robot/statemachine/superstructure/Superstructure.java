@@ -115,19 +115,19 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	public Command preL1() {
+	private Command preL1() {
 		return genericPreScore(ScoreLevel.L1);
 	}
 
-	public Command preL2() {
+	private Command preL2() {
 		return genericPreScore(ScoreLevel.L2);
 	}
 
-	public Command preL3() {
+	private Command preL3() {
 		return genericPreScore(ScoreLevel.L3);
 	}
 
-	public Command preL4() {
+	private Command preL4() {
 		return genericPreScore(ScoreLevel.L4);
 	}
 
@@ -163,47 +163,82 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	private Command genericOnlyScore(ScoreLevel scoreLevel) {
+	public Command genericCompleteScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(EndEffectorState.KEEP)
-				).until(() -> isReadyToScore(scoreLevel)),
-				new ParallelCommandGroup(
-					new InstantCommand(() -> System.out.println("scoreing")),
-					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-				)
+				genericMoveToScorePositions(scoreLevel).until(() -> isReadyToScore(scoreLevel)),
+				genericActualScore(scoreLevel)
 			).until(this::isCoralOut),
 			scoreLevel.getSuperstructureScore()
 		);
 	}
 
-	public Command scoreL1() {
-		return genericOnlyScore(ScoreLevel.L1);
+	private Command genericMoveToScorePositions(ScoreLevel scoreLevel) {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+				armStateHandler.setState(scoreLevel.getArmScore()),
+				endEffectorStateHandler.setState(EndEffectorState.KEEP)
+			),
+			scoreLevel.getSuperstructureScore()
+		);
 	}
 
-	public Command scoreL2() {
-		return genericOnlyScore(ScoreLevel.L2);
+	private Command moveToL1Positions() {
+		return genericMoveToScorePositions(ScoreLevel.L1);
 	}
 
-	public Command scoreL3() {
-		return genericOnlyScore(ScoreLevel.L3);
+	private Command moveToL2Positions() {
+		return genericMoveToScorePositions(ScoreLevel.L2);
 	}
 
-	public Command scoreL4() {
-		return genericOnlyScore(ScoreLevel.L4);
+	private Command moveToL3Positions() {
+		return genericMoveToScorePositions(ScoreLevel.L3);
 	}
 
-	public Command score(ScoreLevel scoreLevel) {
+	private Command moveToL4Positions() {
+		return genericMoveToScorePositions(ScoreLevel.L4);
+	}
+
+	public Command moveToScorePositions(ScoreLevel scoreLevel) {
 		return switch (scoreLevel) {
-			case L1 -> scoreL1();
-			case L2 -> scoreL2();
-			case L3 -> scoreL3();
-			case L4 -> scoreL4();
+			case L1 -> moveToL1Positions();
+			case L2 -> moveToL2Positions();
+			case L3 -> moveToL3Positions();
+			case L4 -> moveToL4Positions();
+		};
+	}
+
+	private Command genericActualScore(ScoreLevel scoreLevel) {
+		return new ParallelCommandGroup(
+			elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+			armStateHandler.setState(scoreLevel.getArmScore()),
+			endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+		).until(this::isCoralOut);
+	}
+
+	public Command actualScoreL1() {
+		return genericActualScore(ScoreLevel.L1);
+	}
+
+	public Command actualScoreL2() {
+		return genericActualScore(ScoreLevel.L2);
+	}
+
+	public Command actualScoreL3() {
+		return genericActualScore(ScoreLevel.L3);
+	}
+
+	public Command actualScoreL4() {
+		return genericActualScore(ScoreLevel.L4);
+	}
+
+	public Command actualScore(ScoreLevel scoreLevel) {
+		return switch (scoreLevel) {
+			case L1 -> actualScoreL1();
+			case L2 -> actualScoreL2();
+			case L3 -> actualScoreL3();
+			case L4 -> actualScoreL4();
 		};
 	}
 

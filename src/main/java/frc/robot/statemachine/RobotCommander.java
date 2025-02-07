@@ -279,7 +279,7 @@ public class RobotCommander extends GBSubsystem {
 				new SequentialCommandGroup(
 					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.preScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
-					superstructure.score(scoreLevel)
+					superstructure.genericCompleteScore(scoreLevel)
 				),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
 			).until(superstructure::isCoralOut),
@@ -293,17 +293,18 @@ public class RobotCommander extends GBSubsystem {
 		Command driveToTarget = robot.getSwerve()
 			.getCommandsBuilder()
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> targetPose)
-			.until(() -> isScoreReady(scoreLevel, branch));
+			.until(() -> isAtScoringPoseByDistance(scoreLevel, branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS));
+
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					new SequentialCommandGroup(
-						superstructure.score(scoreLevel).until(superstructure::isCoralOut),
-						new InstantCommand(() -> System.out.println("elevator scoreing"))
-					),
-					new SequentialCommandGroup(driveToTarget, new InstantCommand(() -> System.out.println("at target pose")))
-				),
+				new SequentialCommandGroup(
+					new SequentialCommandGroup(driveToTarget, new InstantCommand(() -> System.out.println("at target pose"))),
+					superstructure.moveToScorePositions(scoreLevel)
+				).until(() -> isScoreReady(scoreLevel, branch)),
+				new InstantCommand(() -> System.out.println("movedToScorePositions")),
+				superstructure.actualScore(scoreLevel),
 				new InstantCommand(() -> System.out.println("scored"))
+
 			),
 			scoreLevel.getRobotScore()
 		);
@@ -331,7 +332,13 @@ public class RobotCommander extends GBSubsystem {
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
-			.until(() -> isAtScoringPoseByDistance(scoreLevel, ScoringHelpers.targetBranch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS));
+			.until(
+				() -> isAtScoringPoseByDistance(
+					scoreLevel,
+					ScoringHelpers.targetBranch,
+					StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS
+				)
+			);
 
 		return new SequentialCommandGroup(
 			autoPreScore(scoreLevel, ScoringHelpers.targetBranch),
