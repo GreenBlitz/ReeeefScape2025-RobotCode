@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.*;
 import org.littletonrobotics.junction.Logger;
 
-
 public abstract class GBSubsystem extends SubsystemBase {
 
 	private final String logPath;
@@ -26,7 +25,6 @@ public abstract class GBSubsystem extends SubsystemBase {
 	@Override
 	public final void periodic() {
 		Logger.recordOutput(getLogPath() + "/CurrentCommand", getCurrentCommand().getName());
-		Logger.recordOutput(getLogPath() + "/requ", getCurrentCommand().getRequirements().toArray(new Subsystem[0]).length);
 		subsystemPeriodic();
 	}
 
