@@ -186,15 +186,15 @@ public class SwerveCommandsBuilder {
 		}
 
 		return swerve.asSubsystemCommand(
-				new SequentialCommandGroup(new InstantCommand(swerve::resetPIDControllers), pathFollowingCommand),
-				"Path to pose: " + targetPose
+			new SequentialCommandGroup(new InstantCommand(swerve::resetPIDControllers), pathFollowingCommand),
+			"Path to pose: " + targetPose
 		);
 	}
 
 	public Command pidToPose(Supplier<Pose2d> currentPose, Pose2d targetPose) {
 		return swerve.asSubsystemCommand(
-				new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
-				"PID to pose: " + targetPose
+			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
+			"PID to pose: " + targetPose
 		);
 	}
 
