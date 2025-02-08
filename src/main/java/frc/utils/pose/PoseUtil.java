@@ -33,10 +33,9 @@ public class PoseUtil {
 		Pose2d tolerances,
 		Pose2d deadbands,
 		double currentAcceleration,
-		double targetAcceleration,
-		double accelerationTolerance
+		double accelerationDeadband
 	) {
-		boolean isAtAcceleration = MathUtil.isNear(targetAcceleration, currentAcceleration, accelerationTolerance);
+		boolean isAtAcceleration = SwerveMath.isAccelerationStill(currentAcceleration, accelerationDeadband);
 		return isAtPose(currentPose, targetPose, currentSpeeds, tolerances, deadbands) && isAtAcceleration;
 	}
 

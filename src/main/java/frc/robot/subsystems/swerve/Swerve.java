@@ -53,7 +53,7 @@ public class Swerve extends GBSubsystem {
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
 	private ChassisSpeeds currentSpeeds;
-	private double accelerationMetersPerSecond;
+	private double accelerationMetersPerSecondSquared;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
@@ -73,7 +73,7 @@ public class Swerve extends GBSubsystem {
 		this.stateHandler = new SwerveStateHandler(this);
 		this.commandsBuilder = new SwerveCommandsBuilder(this);
 
-		this.accelerationMetersPerSecond = 0;
+		this.accelerationMetersPerSecondSquared = 0;
 
 		update();
 		setDefaultCommand(commandsBuilder.driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
@@ -209,7 +209,7 @@ public class Swerve extends GBSubsystem {
 		gyro.updateInputs(gyroSignals.yawSignal());
 		modules.updateInputs();
 
-		accelerationMetersPerSecond = (SwerveMath.getDriveMagnitude(kinematics.toChassisSpeeds(modules.getCurrentStates()))
+		accelerationMetersPerSecondSquared = (SwerveMath.getDriveMagnitude(kinematics.toChassisSpeeds(modules.getCurrentStates()))
 			- SwerveMath.getDriveMagnitude(currentSpeeds)) / TimeUtil.DEFAULT_CYCLE_TIME_SECONDS;
 		currentSpeeds = kinematics.toChassisSpeeds(modules.getCurrentStates());
 
@@ -267,7 +267,7 @@ public class Swerve extends GBSubsystem {
 	}
 
 	public double getRobotRelativeAcceleration() {
-		return accelerationMetersPerSecond;
+		return accelerationMetersPerSecondSquared;
 	}
 
 	public ChassisSpeeds getAllianceRelativeVelocity() {
