@@ -241,9 +241,11 @@ public class RobotCommander extends GBSubsystem {
 	private Command scoreL1(boolean isAuto) {
 		return isAuto ? autoScore(ScoreLevel.L1, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L1);
 	}
+
 	private Command scoreL2(boolean isAuto) {
 		return isAuto ? autoScore(ScoreLevel.L2, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L2);
 	}
+
 	private Command scoreL3(boolean isAuto) {
 		return isAuto ? autoScore(ScoreLevel.L3, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L3);
 	}
