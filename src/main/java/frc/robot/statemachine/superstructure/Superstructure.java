@@ -53,7 +53,7 @@ public class Superstructure extends GBSubsystem {
 			&& armStateHandler.getCurrentState() == scoreLevel.getArmPreScore();
 	}
 
-	public boolean isScoreReady(ScoreLevel scoreLevel) {
+	public boolean isReadyToScore(ScoreLevel scoreLevel) {
 		return robot.getElevator().isAtPosition(scoreLevel.getElevatorScore().getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& elevatorStateHandler.getCurrentState() == scoreLevel.getElevatorScore()
 			&& robot.getArm().isAtPosition(scoreLevel.getArmScore().getPosition(), Tolerances.ARM_POSITION)
@@ -146,7 +146,7 @@ public class Superstructure extends GBSubsystem {
 				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
 				armStateHandler.setState(scoreLevel.getArmScore()),
 				endEffectorStateHandler.setState(EndEffectorState.KEEP)
-			).until(() -> isScoreReady(scoreLevel)),
+			).until(() -> isReadyToScore(scoreLevel)),
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
 				armStateHandler.setState(scoreLevel.getArmScore()),
