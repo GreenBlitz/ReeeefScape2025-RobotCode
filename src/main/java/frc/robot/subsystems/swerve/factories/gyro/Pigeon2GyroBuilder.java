@@ -1,6 +1,10 @@
 package frc.robot.subsystems.swerve.factories.gyro;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.IDs;
 import frc.robot.RobotConstants;
 import frc.robot.hardware.interfaces.IGyro;
@@ -15,22 +19,19 @@ class Pigeon2GyroBuilder {
 
 	private static final int APPLY_CONFIG_RETRIES = 5;
 
-	private static Pigeon2Configuration buildGyroConfig() {
+	private static Pigeon2Configuration buildGyroConfig(Pigeon2Wrapper gyro) {
+		MountPoseConfigs mountPoseConfigs = new MountPoseConfigs();
+		gyro.getConfigurator().refresh(mountPoseConfigs);
 		Pigeon2Configuration gyroConfig = new Pigeon2Configuration();
-
-		gyroConfig.MountPose.MountPoseRoll = 0;
-		gyroConfig.MountPose.MountPosePitch = 0;
-		gyroConfig.MountPose.MountPoseYaw = 0;
-
+		gyroConfig.MountPose = mountPoseConfigs;
 		return gyroConfig;
 	}
 
 	static IGyro buildGyro(String logPath) {
 		Pigeon2Wrapper pigeon2Wrapper = new Pigeon2Wrapper(IDs.SWERVE_PIGEON_2);
-		if (!pigeon2Wrapper.applyConfiguration(buildGyroConfig(), APPLY_CONFIG_RETRIES).isOK()) {
+		if (!pigeon2Wrapper.applyConfiguration(buildGyroConfig(pigeon2Wrapper), APPLY_CONFIG_RETRIES).isOK()) {
 			new Alert(Alert.AlertType.ERROR, logPath + "ConfigurationFailAt").report();
 		}
-
 		return new Pigeon2Gyro(logPath, pigeon2Wrapper);
 	}
 

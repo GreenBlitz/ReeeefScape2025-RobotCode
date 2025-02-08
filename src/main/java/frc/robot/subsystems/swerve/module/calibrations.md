@@ -11,9 +11,9 @@ ModuleConstants: (real and simulation)
 
 Encoder:
 ----------------------
-- [ ] Encoder ID
-- [ ] Sensor Range (should be PlusMinusHalf)
-- [ ] Sensor Direction (should be CounterClockwise in default sds module)
+- [x] Encoder ID
+- [x] Sensor Range (should be PlusMinusHalf)
+- [x] Sensor Direction (should be CounterClockwise in default sds module)
 
 Steer:
 -----------------------
