@@ -141,17 +141,25 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command genericScore(ScoreLevel scoreLevel) {
-		return new SequentialCommandGroup(
-			new ParallelCommandGroup(
-				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-				armStateHandler.setState(scoreLevel.getArmScore()),
-				endEffectorStateHandler.setState(EndEffectorState.KEEP)
-			).until(() -> isReadyToScore(scoreLevel)),
-			new ParallelCommandGroup(
-				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-				armStateHandler.setState(scoreLevel.getArmScore()),
-				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-			).until(this::isCoralOut)
+		return asSubsystemCommand(
+				new SequentialCommandGroup(
+						new ParallelCommandGroup(
+								elevatorStateHandler.setState(scoreLevel.getElevatorPreScore()),
+								armStateHandler.setState(scoreLevel.getArmPreScore()),
+								endEffectorStateHandler.setState(EndEffectorState.KEEP)
+						).until(() -> isPreScoreReady(scoreLevel)),
+						new ParallelCommandGroup(
+								elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+								armStateHandler.setState(scoreLevel.getArmScore()),
+								endEffectorStateHandler.setState(EndEffectorState.KEEP)
+						).until(() -> isReadyToScore(scoreLevel)),
+						new ParallelCommandGroup(
+								elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+								armStateHandler.setState(scoreLevel.getArmScore()),
+								endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+						)
+				).until(this::isCoralOut),
+				scoreLevel.getSuperstructureScore()
 		);
 	}
 
