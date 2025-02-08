@@ -13,6 +13,7 @@ import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
+import frc.robot.statemachine.RobotCommander;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.factory.ArmFactory;
@@ -44,7 +45,7 @@ public class Robot {
 	private final EndEffector endEffector;
 
 	private final SimulationManager simulationManager;
-//	private final RobotCommander robotCommander;
+	private final RobotCommander robotCommander;
 
 	public Robot() {
 		BatteryUtil.scheduleLimiter();
@@ -64,8 +65,8 @@ public class Robot {
 			swerve.getGyroAbsoluteYaw()
 		);
 
-		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
-		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
+//		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
+//		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
 
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
 		BrakeStateManager.add(() -> elevator.setBrake(true), () -> elevator.setBrake(false));
@@ -76,7 +77,7 @@ public class Robot {
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
-//		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
+		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 	}
 
 	public void periodic() {
@@ -113,9 +114,9 @@ public class Robot {
 		return endEffector;
 	}
 
-//	public RobotCommander getRobotCommander() {
-//		return robotCommander;
-//	}
+	public RobotCommander getRobotCommander() {
+		return robotCommander;
+	}
 
 	public Rotation2d getArmReversedSoftLimitByElevator() {
 		return getElevator().getElevatorPositionMeters() >= ArmConstants.ELEVATOR_HEIGHT_METERS_TO_CHANGE_SOFT_LIMIT

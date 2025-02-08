@@ -77,6 +77,8 @@ public class Swerve extends GBSubsystem {
 		// Calibrate steer ks with phoenix tuner x
 		// Calibrate steer pid with phoenix tuner x
 
+		joystick.Y.onTrue(new InstantCommand(() -> setHeading(new Rotation2d())));
+
 		// Let it rotate some rotations then output will be in log under Calibrations/.
 		joystick.POV_RIGHT.whileTrue(getCommandsBuilder().wheelRadiusCalibration());
 
@@ -107,12 +109,12 @@ public class Swerve extends GBSubsystem {
 		// Use phoenix tuner x to extract the position, velocity, motorVoltage, state signals into wpilog.
 		// Then enter the wpilog into wpilib sysid app and make sure you enter all info in the correct places.
 		// (see wpilib sysid in google)
-		joystick.Y.whileTrue(getCommandsBuilder().driveCalibration(true, SysIdRoutine.Direction.kForward));
-		joystick.A.whileTrue(getCommandsBuilder().driveCalibration(true, SysIdRoutine.Direction.kReverse));
-		joystick.X.whileTrue(getCommandsBuilder().driveCalibration(false, SysIdRoutine.Direction.kForward));
-		joystick.B.whileTrue(getCommandsBuilder().driveCalibration(false, SysIdRoutine.Direction.kReverse));
-		// MAKE SURE TO PRESS IT ON THE END OF THE SYSID ROUTINE SO YOU CAN READ THE DATA FROM SIGNAL LOGGER.
-		joystick.L3.onTrue(new InstantCommand(SignalLogger::stop));
+//		joystick.Y.whileTrue(getCommandsBuilder().driveCalibration(true, SysIdRoutine.Direction.kForward));
+//		joystick.A.whileTrue(getCommandsBuilder().driveCalibration(true, SysIdRoutine.Direction.kReverse));
+//		joystick.X.whileTrue(getCommandsBuilder().driveCalibration(false, SysIdRoutine.Direction.kForward));
+//		joystick.B.whileTrue(getCommandsBuilder().driveCalibration(false, SysIdRoutine.Direction.kReverse));
+//		 MAKE SURE TO PRESS IT ON THE END OF THE SYSID ROUTINE SO YOU CAN READ THE DATA FROM SIGNAL LOGGER.
+//		joystick.L3.onTrue(new InstantCommand(SignalLogger::stop));
 
 		// Remember to test the drive pid ff calib with the POVS commands
 
@@ -212,6 +214,7 @@ public class Swerve extends GBSubsystem {
 		Logger.recordOutput(constants.velocityLogPath() + "/Magnitude", SwerveMath.getDriveMagnitude(allianceRelativeSpeeds));
 
 		Logger.recordOutput(getLogPath() + "/OdometrySamples", getNumberOfOdometrySamples());
+		Logger.recordOutput(getLogPath() + "/Heading", headingSupplier.get());
 	}
 
 

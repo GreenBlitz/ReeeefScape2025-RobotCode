@@ -1,14 +1,21 @@
 package frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
+
+import java.util.Set;
 
 public class JoysticksBindings {
 
@@ -30,11 +37,11 @@ public class JoysticksBindings {
 		fifthJoystickButtons(robot);
 		sixthJoystickButtons(robot);
 
-//		Trigger noteIn = new Trigger(robot.getRobotCommander().getSuperstructure()::isCoralIn);
-//		noteIn.onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
-//
-//		Trigger noteOut = new Trigger(robot.getRobotCommander().getSuperstructure()::isCoralOut);
-//		noteOut.onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
+		Trigger noteIn = new Trigger(robot.getRobotCommander().getSuperstructure()::isCoralIn);
+		noteIn.onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
+
+		Trigger noteOut = new Trigger(robot.getRobotCommander().getSuperstructure()::isCoralOut);
+		noteOut.onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
 	}
 
 	public static void setDriversInputsToSwerve(Swerve swerve) {
@@ -43,7 +50,7 @@ public class JoysticksBindings {
 				new ChassisPowers(
 					MAIN_JOYSTICK.getAxisValue(Axis.LEFT_Y),
 					MAIN_JOYSTICK.getAxisValue(Axis.LEFT_X),
-					MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X)
+					-MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X)
 				)
 			);
 		} else if (THIRD_JOYSTICK.isConnected()) {
@@ -51,7 +58,7 @@ public class JoysticksBindings {
 				new ChassisPowers(
 					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y),
 					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X),
-					THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X)
+					-THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X)
 				)
 			);
 		} else {
@@ -69,11 +76,45 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
+
+		usedJoystick.Y.onTrue(new InstantCommand(()-> robot.getSwerve().setHeading(new Rotation2d())));
+
+		usedJoystick.START.onTrue(robot.getRobotCommander().getSuperstructure().idle());
+
+		usedJoystick.L1.onTrue(robot.getRobotCommander().getSuperstructure().intake());
+		usedJoystick.R1.onTrue(
+				new DeferredCommand(() -> robot.getRobotCommander().getSuperstructure().score(wantedScoreLevel),
+				Set.of(
+						robot.getRobotCommander(),
+						robot.getRobotCommander().getSuperstructure(),
+						robot.getArm(),
+						robot.getElevator(),
+						robot.getEndEffector()
+				)));
 	}
+
+	static ScoreLevel wantedScoreLevel = ScoreLevel.L1;
 
 	private static void secondJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = SECOND_JOYSTICK;
 		// bindings...
+
+		usedJoystick.R1.onTrue(
+				new DeferredCommand(() -> robot.getRobotCommander().getSuperstructure().preScore(wantedScoreLevel),
+						Set.of(
+								robot.getRobotCommander(),
+								robot.getRobotCommander().getSuperstructure(),
+								robot.getArm(),
+								robot.getElevator(),
+								robot.getEndEffector()
+						)));
+
+		usedJoystick.START.onTrue(robot.getRobotCommander().getSuperstructure().idle());
+
+		usedJoystick.A.onTrue(new InstantCommand(() -> wantedScoreLevel = ScoreLevel.L1));
+		usedJoystick.B.onTrue(new InstantCommand(() -> wantedScoreLevel = ScoreLevel.L2));
+		usedJoystick.X.onTrue(new InstantCommand(() -> wantedScoreLevel = ScoreLevel.L3));
+		usedJoystick.Y.onTrue(new InstantCommand(() -> wantedScoreLevel = ScoreLevel.L4));
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {
