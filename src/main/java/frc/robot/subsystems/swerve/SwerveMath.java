@@ -63,7 +63,6 @@ public class SwerveMath {
 
 	public static boolean isAccelerationStill(double accelerationMetersPerSecondSquared, double deadband) {
 		return Math.abs(accelerationMetersPerSecondSquared) <= deadband;
-
 	}
 
 	public static double getDriveMagnitude(ChassisSpeeds chassisSpeeds) {
