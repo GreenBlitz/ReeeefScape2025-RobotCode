@@ -5,7 +5,7 @@ Modules:
 ModuleConstants: (real and simulation)
 -----------------------
 - [ ] Wheel Diameter
-- [ ] Coupling Ratio
+- [x] Coupling Ratio
 - [ ] Velocity At 12 Volts
 - [x] Modules locations (in meters)
 
@@ -18,7 +18,7 @@ Encoder:
 Steer:
 -----------------------
 - [x] Motor ID
-- [ ] Inverted
+- [x] Inverted
 - [x] Neutral Mode
 - [x] Current Limit
 - [x] Gear Ratio (should use RotorToSensorRatio)
@@ -37,7 +37,7 @@ SteerSimulation:
 Drive:
 -----------------------
 - [x] Motor ID
-- [ ] Inverted
+- [x] Inverted
 - [x] Neutral Mode
 - [ ] Current Limit
 - [x] Gear Ratio (should use RotorToSensorRatio)

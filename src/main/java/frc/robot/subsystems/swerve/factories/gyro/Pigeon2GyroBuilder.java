@@ -22,8 +22,12 @@ class Pigeon2GyroBuilder {
 	private static Pigeon2Configuration buildGyroConfig(Pigeon2Wrapper gyro) {
 		MountPoseConfigs mountPoseConfigs = new MountPoseConfigs();
 		gyro.getConfigurator().refresh(mountPoseConfigs);
+
+		mountPoseConfigs.MountPoseYaw = 180;
+
 		Pigeon2Configuration gyroConfig = new Pigeon2Configuration();
 		gyroConfig.MountPose = mountPoseConfigs;
+
 		return gyroConfig;
 	}
 
