@@ -76,7 +76,6 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
-
 	/**
 	 * Checks if elevator and arm in place and is robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
 	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
