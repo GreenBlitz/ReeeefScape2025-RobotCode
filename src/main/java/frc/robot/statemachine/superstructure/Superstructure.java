@@ -1,6 +1,11 @@
 package frc.robot.statemachine.superstructure;
 
-import edu.wpi.first.wpilibj2.command.*;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Robot;
 import frc.robot.statemachine.Tolerances;
 import frc.robot.subsystems.GBSubsystem;
@@ -111,19 +116,19 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	private Command preL1() {
+	public Command preL1() {
 		return genericPreScore(ScoreLevel.L1);
 	}
 
-	private Command preL2() {
+	public Command preL2() {
 		return genericPreScore(ScoreLevel.L2);
 	}
 
-	private Command preL3() {
+	public Command preL3() {
 		return genericPreScore(ScoreLevel.L3);
 	}
 
-	private Command preL4() {
+	public Command preL4() {
 		return genericPreScore(ScoreLevel.L4);
 	}
 
