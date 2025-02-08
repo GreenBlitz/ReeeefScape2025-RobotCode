@@ -1,13 +1,13 @@
 Modules:
 -----------------------
-- [ ] Enter modules in the order specified in ModuleUtils.ModulePosition
+- [x] Enter modules in the order specified in ModuleUtils.ModulePosition
 
 ModuleConstants: (real and simulation)
 -----------------------
 - [ ] Wheel Diameter
 - [ ] Coupling Ratio
 - [ ] Velocity At 12 Volts
-- [ ] Modules locations (in meters)
+- [x] Modules locations (in meters)
 
 Encoder:
 ----------------------
@@ -17,36 +17,36 @@ Encoder:
 
 Steer:
 -----------------------
-- [ ] Motor ID
+- [x] Motor ID
 - [ ] Inverted
-- [ ] Neutral Mode
-- [ ] Current Limit
-- [ ] Gear Ratio (should use RotorToSensorRatio)
-- [ ] Encoder Usage and ID (should use fuse)
+- [x] Neutral Mode
+- [x] Current Limit
+- [x] Gear Ratio (should use RotorToSensorRatio)
+- [x] Encoder Usage and ID (should use fuse)
 - [ ] FF (ks, kv, ka)
 - [ ] PID
-- [ ] Use ContinuousWrap
-- [ ] Control mode (motion magic, voltage, torque)
-- [ ] Enable/Disable FOC (only talonfx)
+- [x] Use ContinuousWrap
+- [x] Control mode (motion magic, voltage, torque)
+- [x] Enable/Disable FOC (only talonfx)
 
 SteerSimulation:
 -----------------------
-- [ ] Moment of inertia
-- [ ] DCMotor
+- [x] Moment of inertia
+- [x] DCMotor
 
 Drive:
 -----------------------
-- [ ] Motor ID
+- [x] Motor ID
 - [ ] Inverted
-- [ ] Neutral Mode
+- [x] Neutral Mode
 - [ ] Current Limit
-- [ ] Gear Ratio (should use RotorToSensorRatio)
+- [x] Gear Ratio (should use RotorToSensorRatio)
 - [ ] FF (ks, kv, ka)
 - [ ] PID
-- [ ] Control mode (motion magic, voltage, torque)
-- [ ] Enable/Disable FOC (only talonfx)
+- [x] Control mode (motion magic, voltage, torque)
+- [x] Enable/Disable FOC (only talonfx)
 
 DriveSimulation:
 -----------------------
- - [ ] Moment of inertia
- - [ ] DCMotor
+ - [x] Moment of inertia
+ - [x] DCMotor
