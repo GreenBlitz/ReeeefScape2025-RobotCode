@@ -81,10 +81,10 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
-		configAutonomous();
+		configPathPlanner();
 	}
 
-	public void configAutonomous() {
+	public void configPathPlanner() {
 		swerve.configPathPlanner(
 			poseEstimator::getEstimatedPose,
 			poseEstimator::resetPose,
