@@ -96,14 +96,14 @@ public class RobotCommander extends GBSubsystem {
 			case INTAKE -> intake();
 			case OUTTAKE -> outtake();
 			case ALIGN_REEF -> alignReef();
-			case PRE_L1 -> autoPreScore(ScoreLevel.L1, ScoringHelpers.targetBranch);
-			case PRE_L2 -> autoPreScore(ScoreLevel.L2, ScoringHelpers.targetBranch);
-			case PRE_L3 -> autoPreScore(ScoreLevel.L3, ScoringHelpers.targetBranch);
-			case PRE_L4 -> autoPreScore(ScoreLevel.L4, ScoringHelpers.targetBranch);
-			case L1 -> autoScore(ScoreLevel.L1, ScoringHelpers.targetBranch);
-			case L2 -> autoScore(ScoreLevel.L2, ScoringHelpers.targetBranch);
-			case L3 -> autoScore(ScoreLevel.L3, ScoringHelpers.targetBranch);
-			case L4 -> autoScore(ScoreLevel.L4, ScoringHelpers.targetBranch);
+			case PRE_L1 -> preL1(true);
+			case PRE_L2 -> preL2(true);
+			case PRE_L3 -> preL3(true);
+			case PRE_L4 -> preL4(true);
+			case L1 -> scoreL1(true);
+			case L2 -> scoreL2(true);
+			case L3 -> scoreL3(true);
+			case L4 -> scoreL4(true);
 		};
 	}
 
@@ -238,6 +238,20 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(new SequentialCommandGroup(driveToTarget, superstructure.score(scoreLevel)), scoreLevel.getRobotScore());
 	}
 
+	private Command scoreL1(boolean isAuto) {
+		return isAuto ? autoScore(ScoreLevel.L1, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L1);
+	}
+	private Command scoreL2(boolean isAuto) {
+		return isAuto ? autoScore(ScoreLevel.L2, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L2);
+	}
+	private Command scoreL3(boolean isAuto) {
+		return isAuto ? autoScore(ScoreLevel.L3, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L3);
+	}
+
+	private Command scoreL4(boolean isAuto) {
+		return isAuto ? autoScore(ScoreLevel.L4, ScoringHelpers.targetBranch) : genericScore(ScoreLevel.L4);
+	}
+
 	public Command completeAutoScore(ScoreLevel scoreLevel) {
 		return new SequentialCommandGroup(
 			autoPreScore(scoreLevel, ScoringHelpers.targetBranch),
@@ -254,10 +268,10 @@ public class RobotCommander extends GBSubsystem {
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case INTAKE, OUTTAKE, DRIVE, ALIGN_REEF -> drive();
-			case PRE_L1, L1 -> autoPreScore(ScoreLevel.L1, ScoringHelpers.targetBranch);
-			case PRE_L2, L2 -> autoPreScore(ScoreLevel.L2, ScoringHelpers.targetBranch);
-			case PRE_L3, L3 -> autoPreScore(ScoreLevel.L3, ScoringHelpers.targetBranch);
-			case PRE_L4, L4 -> autoPreScore(ScoreLevel.L4, ScoringHelpers.targetBranch);
+			case PRE_L1, L1 -> preL1(true);
+			case PRE_L2, L2 -> preL2(true);
+			case PRE_L3, L3 -> preL3(true);
+			case PRE_L4, L4 -> preL4(true);
 		};
 	}
 
