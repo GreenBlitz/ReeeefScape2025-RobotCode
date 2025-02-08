@@ -13,7 +13,6 @@ import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
-import frc.robot.statemachine.RobotCommander;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.factory.ArmFactory;
@@ -120,8 +119,8 @@ public class Robot {
 
 	public Rotation2d getArmReversedSoftLimitByElevator() {
 		return getElevator().getElevatorPositionMeters() >= ArmConstants.ELEVATOR_HEIGHT_METERS_TO_CHANGE_SOFT_LIMIT
-				? ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT
-				: ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
+			? ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT
+			: ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
 	}
 
 }
