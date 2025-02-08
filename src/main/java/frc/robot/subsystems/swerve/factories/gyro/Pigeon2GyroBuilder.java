@@ -1,10 +1,7 @@
 package frc.robot.subsystems.swerve.factories.gyro;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.IDs;
 import frc.robot.RobotConstants;
 import frc.robot.hardware.interfaces.IGyro;
