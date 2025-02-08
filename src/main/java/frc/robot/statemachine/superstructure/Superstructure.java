@@ -1,9 +1,6 @@
 package frc.robot.statemachine.superstructure;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.statemachine.Tolerances;
 import frc.robot.subsystems.GBSubsystem;
@@ -132,72 +129,43 @@ public class Superstructure extends GBSubsystem {
 		};
 	}
 
-	private Command genericMoveToScorePositions(ScoreLevel scoreLevel) {
-		return asSubsystemCommand(
+	private Command genericScore(ScoreLevel scoreLevel) {
+		return new SequentialCommandGroup(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
 				armStateHandler.setState(scoreLevel.getArmScore()),
 				endEffectorStateHandler.setState(EndEffectorState.KEEP)
-			),
-			scoreLevel.getSuperstructureScore()
+			).until(() -> isPreScoreReady(scoreLevel)),
+			new ParallelCommandGroup(
+				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
+				armStateHandler.setState(scoreLevel.getArmScore()),
+				endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+			).until(this::isCoralOut)
 		);
 	}
 
-	private Command moveToL1Positions() {
-		return genericMoveToScorePositions(ScoreLevel.L1);
+	public Command scoreL1() {
+		return genericScore(ScoreLevel.L1);
 	}
 
-	private Command moveToL2Positions() {
-		return genericMoveToScorePositions(ScoreLevel.L2);
+	public Command scoreL2() {
+		return genericScore(ScoreLevel.L2);
 	}
 
-	private Command moveToL3Positions() {
-		return genericMoveToScorePositions(ScoreLevel.L3);
+	public Command scoreL3() {
+		return genericScore(ScoreLevel.L3);
 	}
 
-	private Command moveToL4Positions() {
-		return genericMoveToScorePositions(ScoreLevel.L4);
+	public Command scoreL4() {
+		return genericScore(ScoreLevel.L4);
 	}
 
-	public Command moveToScorePositions(ScoreLevel scoreLevel) {
+	public Command score(ScoreLevel scoreLevel) {
 		return switch (scoreLevel) {
-			case L1 -> moveToL1Positions();
-			case L2 -> moveToL2Positions();
-			case L3 -> moveToL3Positions();
-			case L4 -> moveToL4Positions();
-		};
-	}
-
-	private Command genericActualScore(ScoreLevel scoreLevel) {
-		return new ParallelCommandGroup(
-			elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-			armStateHandler.setState(scoreLevel.getArmScore()),
-			endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
-		).until(this::isCoralOut);
-	}
-
-	public Command actualScoreL1() {
-		return genericActualScore(ScoreLevel.L1);
-	}
-
-	public Command actualScoreL2() {
-		return genericActualScore(ScoreLevel.L2);
-	}
-
-	public Command actualScoreL3() {
-		return genericActualScore(ScoreLevel.L3);
-	}
-
-	public Command actualScoreL4() {
-		return genericActualScore(ScoreLevel.L4);
-	}
-
-	public Command actualScore(ScoreLevel scoreLevel) {
-		return switch (scoreLevel) {
-			case L1 -> actualScoreL1();
-			case L2 -> actualScoreL2();
-			case L3 -> actualScoreL3();
-			case L4 -> actualScoreL4();
+			case L1 -> scoreL1();
+			case L2 -> scoreL2();
+			case L3 -> scoreL3();
+			case L4 -> scoreL4();
 		};
 	}
 

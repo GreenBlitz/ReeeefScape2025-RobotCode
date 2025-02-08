@@ -76,6 +76,11 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
+	private boolean isPreScoreReady(ScoreLevel level, Branch branch) {
+		return isAtPoseByDistanceFromReef(level, branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			&& superstructure.isPreScoreReady(level);
+	}
+
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -127,6 +132,26 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command genericPreScore(ScoreLevel scoreLevel) {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
+					superstructure.idle()
+						.until(
+							() -> isAtPoseByDistanceFromReef(
+								scoreLevel,
+								ScoringHelpers.targetBranch,
+								StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+							)
+						),
+					superstructure.preScore(scoreLevel)
+				),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
+			),
+			scoreLevel.getRobotPreScore()
+		);
+	}
+
 	private Command autoPreScore(ScoreLevel scoreLevel, Branch branch) {
 		Pose2d waitPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
 
@@ -139,6 +164,22 @@ public class RobotCommander extends GBSubsystem {
 			new SequentialCommandGroup(driveToWait, superstructure.preScore(scoreLevel).until(() -> superstructure.isPreScoreReady(scoreLevel))),
 			scoreLevel.getRobotPreScore()
 		);
+	}
+
+	private Command preL1(boolean isAuto) {
+		return isAuto ? autoPreScore(ScoreLevel.L1, ScoringHelpers.targetBranch) : genericPreScore(ScoreLevel.L1);
+	}
+
+	private Command preL2(boolean isAuto) {
+		return isAuto ? autoPreScore(ScoreLevel.L2, ScoringHelpers.targetBranch) : genericPreScore(ScoreLevel.L2);
+	}
+
+	private Command preL3(boolean isAuto) {
+		return isAuto ? autoPreScore(ScoreLevel.L3, ScoringHelpers.targetBranch) : genericPreScore(ScoreLevel.L3);
+	}
+
+	private Command preL4(boolean isAuto) {
+		return isAuto ? autoPreScore(ScoreLevel.L4, ScoringHelpers.targetBranch) : genericPreScore(ScoreLevel.L4);
 	}
 
 	private Command exitScore(ScoreLevel scoreLevel, Branch branch) {
@@ -155,6 +196,28 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command genericScore(ScoreLevel scoreLevel) {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
+					superstructure.preScore(scoreLevel)
+						.until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch))
+						.until(
+							() -> isAtPoseByDistanceFromReef(
+								scoreLevel,
+								ScoringHelpers.targetBranch,
+								StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+							)
+						),
+					superstructure.score(scoreLevel)
+				),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
+			).until(superstructure::isCoralOut),
+			scoreLevel.getRobotScore()
+		);
+	}
+
+
 	private Command autoScore(ScoreLevel scoreLevel, Branch branch) {
 		Pose2d targetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 
@@ -163,19 +226,7 @@ public class RobotCommander extends GBSubsystem {
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> targetPose)
 			.until(() -> isAtPoseByDistanceFromReef(scoreLevel, branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS));
 
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				new SequentialCommandGroup(
-					new SequentialCommandGroup(driveToTarget, new InstantCommand(() -> System.out.println("at target pose"))),
-					superstructure.moveToScorePositions(scoreLevel)
-				).until(() -> isAtPoseByDistanceFromReef(scoreLevel, branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)),
-				new InstantCommand(() -> System.out.println("movedToScorePositions")),
-				superstructure.actualScore(scoreLevel),
-				new InstantCommand(() -> System.out.println("scored"))
-
-			),
-			scoreLevel.getRobotScore()
-		);
+		return asSubsystemCommand(new SequentialCommandGroup(driveToTarget, superstructure.score(scoreLevel)), scoreLevel.getRobotScore());
 	}
 
 	public Command completeAutoScore(ScoreLevel scoreLevel) {
