@@ -3,7 +3,7 @@ package frc.robot.hardware.signal;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.hardware.interfaces.InputSignal;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.TimedValue;
 import org.littletonrobotics.junction.LogTable;
 
