@@ -58,7 +58,7 @@ public class RobotCommander extends GBSubsystem {
 
 		return switch (level) {
 			case L1 ->
-				PoseUtil.isAtPoseAndAcceleration(
+				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
 					reefRelativeTargetPose,
 					reefRelativeSpeeds,
@@ -68,7 +68,7 @@ public class RobotCommander extends GBSubsystem {
 					Tolerances.ACCELERATION_DEADBAND
 				);
 			case L2, L3, L4 ->
-				PoseUtil.isAtPoseAndAcceleration(
+				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
 					reefRelativeTargetPose,
 					reefRelativeSpeeds,

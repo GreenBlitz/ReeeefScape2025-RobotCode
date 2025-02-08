@@ -26,7 +26,7 @@ public class PoseUtil {
 		return isAtX && isAtY && isAtHeading && isStill;
 	}
 
-	public static boolean isAtPoseAndAcceleration(
+	public static boolean isAtPose(
 		Pose2d currentPose,
 		Pose2d targetPose,
 		ChassisSpeeds currentSpeeds,
