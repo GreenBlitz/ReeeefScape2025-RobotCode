@@ -71,8 +71,8 @@ public class Arm extends GBSubsystem {
 
 	public Rotation2d getArmReverseSoftLimit(Elevator elevator) {
 		return elevator.getElevatorPositionMeters() >= ArmConstants.ELEVATOR_HEIGHT_METERS_TO_CHANGE_SOFT_LIMIT
-				? ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT
-				: ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
+			? ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT
+			: ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class Arm extends GBSubsystem {
 		encoder.updateInputs(encoderPositionSignal);
 	}
 
-	private void log(){
+	private void log() {
 		Logger.recordOutput(getLogPath() + "/ReversedSoftLimit", reversedSoftLimit);
 		Logger.recordOutput(getLogPath() + "/TargetPose", positionRequest.getSetPoint());
 	}
