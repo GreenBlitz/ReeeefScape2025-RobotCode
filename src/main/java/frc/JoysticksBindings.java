@@ -73,12 +73,6 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		usedJoystick.A.onTrue(
-			robot.getSwerve()
-				.getCommandsBuilder()
-				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> new Pose2d(2, 2, new Rotation2d()))
-		);
-		usedJoystick.X.onTrue(robot.getRobotCommander().completeAutoScore(ScoreLevel.L4));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
