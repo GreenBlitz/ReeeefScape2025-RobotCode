@@ -65,6 +65,7 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
+		SmartDashboard.putNumber("MotorVoltage",5);
 	}
 
 	@Override

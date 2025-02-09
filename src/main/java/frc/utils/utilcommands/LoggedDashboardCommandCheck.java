@@ -14,10 +14,11 @@ public class LoggedDashboardCommandCheck extends FunctionalCommand {
 		super(onInit, onExecute, onEnd, isFinished, requirements);
 	}
 	
-	public LoggedDashboardCommandCheck(Consumer<Double> onExecute, String widgetName, Subsystem... requirements){
+	public  LoggedDashboardCommandCheck(Consumer<Double> onExecute, String widgetName, Subsystem... requirements){
 		super(
 				()->{SmartDashboard.putString("Test Ran", "AHHHHHHHHHHHHHHHHHH");},
-				()->{onExecute.accept(SmartDashboard.getNumber(widgetName,0)); SmartDashboard.putNumber("Test2",SmartDashboard.getNumber(widgetName,0));} ,
+				()->{onExecute.accept(SmartDashboard.getNumber(widgetName,0));
+					SmartDashboard.putNumber("Test2",SmartDashboard.getNumber(widgetName,0));} ,
 				(interrupted)->{},
 				()->false,
 				requirements
