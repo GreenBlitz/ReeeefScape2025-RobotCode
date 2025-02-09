@@ -44,7 +44,7 @@ public class ArmCommandsBuilder {
 		return arm.asSubsystemCommand(new LoggedDashboardCommand("Set Arm Voltage", arm::setVoltage, arm), "Set voltage via dashboard");
 	}
 	public Command loggedDashBoardSetVoltageFix(){
-		return arm.asSubsystemCommand(new LoggedDashboardCommandCheck(this::setVoltage,"MotorVoltage"), "Set voltage via dashboard");
+		return arm.asSubsystemCommand(new LoggedDashboardCommandCheck((voltage)->arm.setVoltage(voltage),"MotorVoltage"), "Set voltage via dashboard");
 	}
 
 }
