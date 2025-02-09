@@ -16,8 +16,8 @@ public class LoggedDashboardCommandCheck extends FunctionalCommand {
 	
 	public LoggedDashboardCommandCheck(Consumer<Double> onExecute, String widgetName, Subsystem... requirements){
 		super(
-				()->{},
-				()->onExecute.accept(SmartDashboard.getNumber(widgetName,0)),
+				()->{SmartDashboard.putString("Test Ran", "AHHHHHHHHHHHHHHHHHH");},
+				()->{onExecute.accept(SmartDashboard.getNumber(widgetName,0)); SmartDashboard.putNumber("Test2",SmartDashboard.getNumber(widgetName,0));} ,
 				(interrupted)->{},
 				()->false,
 				requirements
