@@ -7,19 +7,19 @@ import frc.robot.statemachine.superstructure.ScoreLevel;
 
 public class RobotTasksManager {
 
-    private final RobotCommander robotCommander;
+	private final RobotCommander robotCommander;
 
-    public RobotTasksManager(RobotCommander robotCommander){
-        this.robotCommander = robotCommander;
-    }
+	public RobotTasksManager(RobotCommander robotCommander) {
+		this.robotCommander = robotCommander;
+	}
 
-    public Command completeAutoScore(ScoreLevel scoreLevel) {
-        return new SequentialCommandGroup(
-                robotCommander.autoPreScore(scoreLevel, ScoringHelpers.targetBranch),
-                robotCommander.autoScore(scoreLevel, ScoringHelpers.targetBranch),
-                robotCommander.exitScore(scoreLevel, ScoringHelpers.targetBranch),
-                robotCommander.setState(RobotState.DRIVE)
-        );
-    }
+	public Command completeAutoScore(ScoreLevel scoreLevel) {
+		return new SequentialCommandGroup(
+			robotCommander.autoPreScore(scoreLevel, ScoringHelpers.targetBranch),
+			robotCommander.autoScore(scoreLevel, ScoringHelpers.targetBranch),
+			robotCommander.exitScore(scoreLevel, ScoringHelpers.targetBranch),
+			robotCommander.setState(RobotState.DRIVE)
+		);
+	}
 
 }
