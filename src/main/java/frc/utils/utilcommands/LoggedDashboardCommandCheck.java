@@ -1,5 +1,6 @@
 package frc.utils.utilcommands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
@@ -16,7 +17,7 @@ public class LoggedDashboardCommandCheck extends FunctionalCommand {
 	public LoggedDashboardCommandCheck(Consumer<Double> onExecute, String widgetName, Subsystem... requirements){
 		super(
 				()->{},
-				()->onExecute.accept(new LoggedDashboardNumber("MotorVoltage").get()),
+				()->onExecute.accept(SmartDashboard.getNumber(widgetName,0)),
 				(interrupted)->{},
 				()->false,
 				requirements
