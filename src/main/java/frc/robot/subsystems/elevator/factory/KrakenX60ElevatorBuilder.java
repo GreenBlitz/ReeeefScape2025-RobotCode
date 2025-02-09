@@ -68,7 +68,7 @@ public class KrakenX60ElevatorBuilder {
 	private static TalonFXConfiguration generateConfiguration(boolean inverted) {
 		TalonFXConfiguration configuration = new TalonFXConfiguration();
 		if (Robot.ROBOT_TYPE.isReal()) {
-			configuration.Slot0.kP = /*3.5*/ 2.5;
+			configuration.Slot0.kP = 4;
 			configuration.Slot0.kI = 0;
 			configuration.Slot0.kD = 0.5;
 			configuration.Slot0.kG = kG;

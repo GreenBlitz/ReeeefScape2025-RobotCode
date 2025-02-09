@@ -81,7 +81,7 @@ public class KrakenX60ArmBuilder {
 
 		switch (Robot.ROBOT_TYPE) {
 			case REAL -> {
-				config.Slot0.kP = 60;
+				config.Slot0.kP = 80;
 				config.Slot0.kI = 0;
 				config.Slot0.kD = 1.5;
 				config.Slot0.kS = 0.0715;
