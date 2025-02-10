@@ -5,14 +5,17 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.constants.MathConstants;
 import frc.constants.field.Field;
+import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
 import frc.robot.hardware.empties.EmptyGyro;
 import frc.robot.hardware.interfaces.IGyro;
@@ -30,6 +33,7 @@ import frc.utils.time.TimeUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -85,29 +89,29 @@ public class Swerve extends GBSubsystem {
 //		joystick.POV_RIGHT.whileTrue(getCommandsBuilder().wheelRadiusCalibration());
 
 		// TEST STEER PID
-		joystick.POV_RIGHT.onTrue(commandsBuilder.pointWheels(new Rotation2d(), false));
-		joystick.POV_LEFT.onTrue(commandsBuilder.pointWheels(Rotation2d.fromDegrees(90), false));
+//		joystick.POV_RIGHT.onTrue(commandsBuilder.pointWheels(new Rotation2d(), false));
+//		joystick.POV_LEFT.onTrue(commandsBuilder.pointWheels(Rotation2d.fromDegrees(90), false));
 
 		// ROBOT RELATIVE DRIVE - FOR GYRO TEST
-		joystick.POV_UP
-			.whileTrue(commandsBuilder.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withDriveRelative(DriveRelative.ROBOT_RELATIVE)));
+//		joystick.POV_UP
+//			.whileTrue(commandsBuilder.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withDriveRelative(DriveRelative.ROBOT_RELATIVE)));
 
 		// Test the swerve returns real velocities (measure distance and time in real life and compare to swerve velocity logs).
 		// REMEMBER after drive calibrations use these for pid testing
-//		joystick.POV_UP.whileTrue(
-//			getCommandsBuilder().driveByState(() -> new ChassisPowers(0.5, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))
-//		);
-//		joystick.POV_LEFT.whileTrue(
-//			getCommandsBuilder().driveByState(() -> new ChassisPowers(0.2, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))
-//		);
-//		joystick.POV_DOWN.whileTrue(
-//			getCommandsBuilder().driveByState(() -> new ChassisPowers(-0.5, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))
-//		);
+		joystick.POV_UP.whileTrue(
+			getCommandsBuilder().driveByState(() -> new ChassisPowers(0.5, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))
+		);
+		joystick.POV_LEFT.whileTrue(
+			getCommandsBuilder().driveByState(() -> new ChassisPowers(0.2, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))
+		);
+		joystick.POV_RIGHT.whileTrue(
+			getCommandsBuilder().driveByState(() -> new ChassisPowers(-0.5, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))
+		);
 
 		// Apply 12 volts on x-axis. Use it for max velocity calibrations.
 		// See what velocity the swerve log after it stops accelerating and use it as max.
 		joystick.START.whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
-			startVelocityTestTime = 0;
+			startVelocityTestTime = TimeUtil.getCurrentTimeSeconds();
 			peakVelocity = 0;
 			peakVelocityTimeDiff = 0;
 		}), getCommandsBuilder().driveByState(() -> new ChassisPowers(1, 0, 0), SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN))));
@@ -136,22 +140,22 @@ public class Swerve extends GBSubsystem {
 		joystick.L1.whileTrue(getCommandsBuilder().turnToHeading(new Rotation2d()));
 
 		// Translation pid tests
-//		joystick.getAxisAsButton(Axis.LEFT_TRIGGER)
-//			.onTrue(
-//				new DeferredCommand(
-//					() -> getCommandsBuilder()
-//						.moveToPoseByPID(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(2, 0, new Rotation2d()))),
-//					Set.of(this)
-//				)
-//			);
-//		joystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
-//			.onTrue(
-//				new DeferredCommand(
-//					() -> getCommandsBuilder()
-//						.moveToPoseByPID(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(-2, 0, new Rotation2d()))),
-//					Set.of(this)
-//				)
-//			);
+		joystick.getAxisAsButton(Axis.LEFT_TRIGGER)
+			.onTrue(
+				new DeferredCommand(
+					() -> getCommandsBuilder()
+						.moveToPoseByPID(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(2, 0, new Rotation2d()))),
+					Set.of(this)
+				)
+			);
+		joystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
+			.onTrue(
+				new DeferredCommand(
+					() -> getCommandsBuilder()
+						.moveToPoseByPID(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(-2, 0, new Rotation2d()))),
+					Set.of(this)
+				)
+			);
 	}
 
 	public String getLogPath() {
@@ -235,6 +239,8 @@ public class Swerve extends GBSubsystem {
 		}
 		Logger.recordOutput(getLogPath() + "/Calibrations/PeakVelocity", peakVelocity);
 		Logger.recordOutput(getLogPath() + "/Calibrations/TimeToReachPickVelocity", peakVelocityTimeDiff);
+		Logger.recordOutput(getLogPath() + "/Calibrations/StartTime", startVelocityTestTime);
+		Logger.recordOutput(getLogPath() + "/Calibrations/MaxACC", peakVelocity / peakVelocityTimeDiff);
 	}
 
 
