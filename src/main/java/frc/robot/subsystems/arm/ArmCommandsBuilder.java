@@ -1,6 +1,7 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.utils.utilcommands.LoggedDashboardCommand;
@@ -45,6 +46,9 @@ public class ArmCommandsBuilder {
 	}
 	public Command loggedDashBoardSetVoltageFix(){
 		return arm.asSubsystemCommand(new LoggedDashboardCommandCheck((voltage)->arm.setVoltage(voltage),"MotorVoltage"), "Set voltage via dashboard");
+	}
+	public Command loggedDashBoardArmCommandRan(){
+		return arm.asSubsystemCommand(new RunCommand(()->SmartDashboard.getNumber("Max Speed",2)), "RanVoltage");
 	}
 
 }

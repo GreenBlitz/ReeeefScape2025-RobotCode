@@ -4,6 +4,10 @@
 
 package frc;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
@@ -15,6 +19,8 @@ import frc.utils.logger.LoggerFactory;
 import org.littletonrobotics.junction.LoggedRobot;
 import frc.utils.brakestate.BrakeStateManager;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.Map;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as described in the TimedRobot
@@ -65,13 +71,19 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
-		SmartDashboard.putNumber("MotorVoltage",5);
+		ShuffleboardTab tab = Shuffleboard.getTab("Drive");
+		Shuffleboard.getTab("Drive")
+			.add("Max Speed", 1)
+			.withWidget(BuiltInWidgets.kNumberSlider)
+			.withProperties(Map.of("min", 0, "max", 1)) // specify widget properties here
+			.getEntry();
 	}
 
 	@Override
 	public void robotPeriodic() {
 		updateTimeRelatedData(); // Better to be first
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
+		SmartDashboard.putNumber();
 		robot.periodic();
 		AlertManager.reportAlerts();
 	}
