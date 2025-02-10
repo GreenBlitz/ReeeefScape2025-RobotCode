@@ -67,7 +67,7 @@ class KrakenX60DriveBuilder {
 			driveConfig.Slot0.kS = 0.1629;
 			driveConfig.Slot0.kV = 0.87762;
 			driveConfig.Slot0.kA = 0.085594;
-			driveConfig.Slot0.kP = 3;
+			driveConfig.Slot0.kP = 2.4;
 			driveConfig.Slot0.kI = 0;
 			driveConfig.Slot0.kD = 0;
 		} else {

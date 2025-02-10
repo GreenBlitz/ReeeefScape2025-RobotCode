@@ -5,14 +5,17 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.constants.MathConstants;
 import frc.constants.field.Field;
+import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
 import frc.robot.hardware.empties.EmptyGyro;
 import frc.robot.hardware.interfaces.IGyro;
@@ -30,6 +33,7 @@ import frc.utils.time.TimeUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -136,22 +140,22 @@ public class Swerve extends GBSubsystem {
 		joystick.L1.whileTrue(getCommandsBuilder().turnToHeading(new Rotation2d()));
 
 		// Translation pid tests
-//		joystick.getAxisAsButton(Axis.LEFT_TRIGGER)
-//			.onTrue(
-//				new DeferredCommand(
-//					() -> getCommandsBuilder()
-//						.pidToPose(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(2, 0, new Rotation2d()))),
-//					Set.of(this)
-//				)
-//			);
-//		joystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
-//			.onTrue(
-//				new DeferredCommand(
-//					() -> getCommandsBuilder()
-//						.pidToPose(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(-2, 0, new Rotation2d()))),
-//					Set.of(this)
-//				)
-//			);
+		joystick.getAxisAsButton(Axis.LEFT_TRIGGER)
+			.whileTrue(
+				new DeferredCommand(
+					() -> getCommandsBuilder()
+						.pidToPose(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(0, 2, new Rotation2d()))),
+					Set.of(this)
+				)
+			);
+		joystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
+			.whileTrue(
+				new DeferredCommand(
+					() -> getCommandsBuilder()
+						.pidToPose(robotPoseSupplier, robotPoseSupplier.get().plus(new Transform2d(0, -2, new Rotation2d()))),
+					Set.of(this)
+				)
+			);
 	}
 
 	public String getLogPath() {
