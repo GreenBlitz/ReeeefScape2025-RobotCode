@@ -1,7 +1,8 @@
 package frc.robot.subsystems.swerve.states;
 
 import frc.robot.Robot;
-import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.robot.subsystems.swerve.states.aimassist.EmptyAimAssist;
+import frc.robot.subsystems.swerve.states.aimassist.IAimAssist;
 import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import org.littletonrobotics.junction.Logger;
 
@@ -11,7 +12,7 @@ public class SwerveState {
 	private static final DriveSpeed DEFAULT_DRIVE_SPEED = DriveSpeed.NORMAL;
 	private static final LoopMode DEFAULT_LOOP_MODE = Robot.ROBOT_TYPE.isSimulation() ? LoopMode.OPEN : LoopMode.CLOSED;
 	private static final RotateAxis DEFAULT_ROTATE_AXIS = RotateAxis.MIDDLE_OF_CHASSIS;
-	private static final AimAssist DEFAULT_AIM_ASSIST = AimAssist.NONE;
+	private static final IAimAssist DEFAULT_AIM_ASSIST = new EmptyAimAssist();
 	private static final HeadingControl DEFAULT_HEADING_CONTROL = HeadingControl.NONE;
 
 	public static final SwerveState DEFAULT_PATH_PLANNER = new SwerveState().withDriveRelative(DriveRelative.ROBOT_RELATIVE);
@@ -22,7 +23,7 @@ public class SwerveState {
 	private DriveSpeed driveSpeed;
 	private LoopMode loopMode;
 	private RotateAxis rotateAxis;
-	private AimAssist aimAssist;
+	private IAimAssist aimAssist;
 	private HeadingControl headingControl;
 
 	public SwerveState(SwerveState swerveState) {
@@ -45,7 +46,7 @@ public class SwerveState {
 		DriveSpeed driveSpeed,
 		LoopMode loopMode,
 		RotateAxis rotateAxis,
-		AimAssist aimAssist,
+		IAimAssist aimAssist,
 		HeadingControl headingControl
 	) {
 		this.driveRelative = driveRelative;
@@ -61,7 +62,7 @@ public class SwerveState {
 		Logger.recordOutput(logPath + "/DriveSpeed", driveSpeed);
 		Logger.recordOutput(logPath + "/LoopMode", loopMode);
 		Logger.recordOutput(logPath + "/RotateAxis", rotateAxis);
-		Logger.recordOutput(logPath + "/AimAssist", aimAssist);
+		Logger.recordOutput(logPath + "/AimAssist", aimAssist.getName());
 		Logger.recordOutput(logPath + "/HeadingControl", headingControl);
 	}
 
@@ -89,7 +90,7 @@ public class SwerveState {
 		return swerveState;
 	}
 
-	public SwerveState withAimAssist(AimAssist aimAssist) {
+	public SwerveState withAimAssist(IAimAssist aimAssist) {
 		SwerveState swerveState = new SwerveState(this);
 		swerveState.aimAssist = aimAssist;
 		return swerveState;
@@ -118,7 +119,7 @@ public class SwerveState {
 		return rotateAxis;
 	}
 
-	public AimAssist getAimAssist() {
+	public IAimAssist getAimAssist() {
 		return aimAssist;
 	}
 

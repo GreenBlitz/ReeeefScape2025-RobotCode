@@ -14,16 +14,20 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
-import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.robot.subsystems.swerve.states.aimassist.BranchAimAssist;
+import frc.robot.subsystems.swerve.states.aimassist.CoralStationAimAssist;
+import frc.robot.subsystems.swerve.states.aimassist.ReefAimAssist;
 import frc.utils.pose.PoseUtil;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class RobotCommander extends GBSubsystem {
 
 	private final Robot robot;
 	private final Swerve swerve;
 	private final Superstructure superstructure;
+	private final Supplier<Pose2d> robotPoseSupplier;
 
 	private RobotState currentState;
 
@@ -35,6 +39,8 @@ public class RobotCommander extends GBSubsystem {
 		this.currentState = RobotState.DRIVE;
 
 		setDefaultCommand(new DeferredCommand(() -> endState(currentState), Set.of(this)));
+
+		robotPoseSupplier = robot.getPoseEstimator()::getEstimatedPose;
 	}
 
 	public Superstructure getSuperstructure() {
@@ -138,7 +144,8 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.intake(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
+				swerve.getCommandsBuilder()
+					.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(new CoralStationAimAssist(ScoringHelpers.targetCoralStation)))
 			).until(superstructure::isCoralIn),
 			RobotState.INTAKE
 		);
@@ -155,7 +162,8 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.idle(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				swerve.getCommandsBuilder()
+					.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(new ReefAimAssist(ScoringHelpers.targetReefSide)))
 			),
 			RobotState.ALIGN_REEF
 		);
@@ -168,7 +176,10 @@ public class RobotCommander extends GBSubsystem {
 					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.preScore(scoreLevel)
 				),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
+				swerve.getCommandsBuilder()
+					.driveByDriversInputs(
+						SwerveState.DEFAULT_DRIVE.withAimAssist(new BranchAimAssist(ScoringHelpers.targetBranch, robotPoseSupplier))
+					)
 			),
 			scoreLevel.getRobotPreScore()
 		);
@@ -198,7 +209,10 @@ public class RobotCommander extends GBSubsystem {
 					superstructure.preScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.score(scoreLevel)
 				),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
+				swerve.getCommandsBuilder()
+					.driveByDriversInputs(
+						SwerveState.DEFAULT_DRIVE.withAimAssist(new BranchAimAssist(ScoringHelpers.targetBranch, robotPoseSupplier))
+					)
 			).until(superstructure::isCoralOut),
 			scoreLevel.getRobotScore()
 		);

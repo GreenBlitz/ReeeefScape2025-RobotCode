@@ -64,7 +64,6 @@ public class Robot {
 		);
 
 		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
-		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
 
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
 		BrakeStateManager.add(() -> elevator.setBrake(true), () -> elevator.setBrake(false));

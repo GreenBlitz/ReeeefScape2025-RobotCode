@@ -7,7 +7,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.field.Field;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveMath;
-import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
 
@@ -31,6 +30,7 @@ public class AimAssistMath {
 
 	/**
 	 * @formatter:off
+	 * Assumes the speeds are alliance relative.
 	 * Returns {@link ChassisSpeeds} that aligns you to the object.
 	 * The returned chassis speeds will move you horizontally to the object so your current heading will point to it.
 	 * Example (0 is object, R is robot, > is heading):
@@ -42,23 +42,20 @@ public class AimAssistMath {
 	 * @formatter:on
 	 */
 	public static ChassisSpeeds getObjectAssistedSpeeds(
-		ChassisSpeeds speeds,
+		ChassisSpeeds allianceRelativeSpeeds,
 		Pose2d robotPose,
 		Rotation2d allianceRelativeTargetHeading,
 		Translation2d objectTranslation,
-		SwerveConstants swerveConstants,
-		SwerveState swerveState
+		SwerveConstants swerveConstants
 	) {
 		Pose2d robotPoseWithTargetHeading = new Pose2d(robotPose.getX(), robotPose.getY(), allianceRelativeTargetHeading);
 		Translation2d objectRelativeToRobot = FieldMath.getRelativeTranslation(robotPoseWithTargetHeading, objectTranslation);
 		double neededObjectHorizontalVelocityMetersPerSecond = swerveConstants.yMetersPIDController().calculate(0, objectRelativeToRobot.getY());
 
-		Rotation2d targetHeadingHingeSystemAngle = switch (swerveState.getDriveRelative()) {
-			case ALLIANCE_RELATIVE -> Field.getAllianceRelative(allianceRelativeTargetHeading);
-			case ROBOT_RELATIVE -> allianceRelativeTargetHeading.minus(robotPose.getRotation());
-		};
+		Rotation2d targetHeadingHingeSystemAngle = Field.getAllianceRelative(allianceRelativeTargetHeading);
 
-		ChassisSpeeds targetHeadingRelativeSpeeds = SwerveMath.allianceToRobotRelativeSpeeds(speeds, targetHeadingHingeSystemAngle);
+		ChassisSpeeds targetHeadingRelativeSpeeds = SwerveMath
+			.allianceToRobotRelativeSpeeds(allianceRelativeSpeeds, targetHeadingHingeSystemAngle);
 		ChassisSpeeds assistedSpeeds = new ChassisSpeeds(
 			targetHeadingRelativeSpeeds.vxMetersPerSecond,
 			neededObjectHorizontalVelocityMetersPerSecond,
