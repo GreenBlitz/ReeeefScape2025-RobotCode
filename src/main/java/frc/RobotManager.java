@@ -71,21 +71,16 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
-		ShuffleboardTab tab = Shuffleboard.getTab("Drive");
-		Shuffleboard.getTab("Drive")
-			.add("Max Speed", 1)
-			.withWidget(BuiltInWidgets.kNumberSlider)
-			.withProperties(Map.of("min", 0, "max", 1)) // specify widget properties here
-			.getEntry();
+		SmartDashboard.putNumber("VoltageSomething",5);
 	}
 
 	@Override
 	public void robotPeriodic() {
 		updateTimeRelatedData(); // Better to be first
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
-		SmartDashboard.putNumber();
 		robot.periodic();
 		AlertManager.reportAlerts();
+
 	}
 
 	private void updateTimeRelatedData() {

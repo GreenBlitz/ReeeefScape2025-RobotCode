@@ -14,5 +14,5 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 /** This class contains global configuration describing the current robot and runtime mode. */
 public final class Constants {
-	public static final boolean tuningMode = false;
+	public static final boolean tuningMode = true;
 }

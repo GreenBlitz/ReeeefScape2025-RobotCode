@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.utils.utilcommands.LoggedDashboardCommand;
 import frc.utils.utilcommands.LoggedDashboardCommandCheck;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.function.DoubleSupplier;
 
