@@ -117,8 +117,8 @@ public class Robot {
 			)
 		);
 
-//		swerve.setHeadingSupplier(headingEstimator::getEstimatedHeading);
-//		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
+		swerve.setHeadingSupplier(headingEstimator::getEstimatedHeading);
+		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
 
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
 		BrakeStateManager.add(() -> elevator.setBrake(true), () -> elevator.setBrake(false));

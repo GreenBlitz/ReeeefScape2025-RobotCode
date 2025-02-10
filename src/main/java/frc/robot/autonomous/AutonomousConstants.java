@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.subsystems.swerve.factories.constants.RealSwerveConstants;
+import frc.robot.subsystems.swerve.factories.modules.constants.RealModuleConstants;
 
 
 public class AutonomousConstants {
@@ -29,11 +30,8 @@ public class AutonomousConstants {
 	public static final RobotConfig ROBOT_CONFIG = new RobotConfig(
 		50,
 		4.6875,
-		new ModuleConfig(0.0508, 4.477, 0.96, DCMotor.getKrakenX60Foc(1), 7.13, 60, 1),
-		new Translation2d(0.3, 0.3),
-		new Translation2d(0.3, -0.3),
-		new Translation2d(-0.3, 0.3),
-		new Translation2d(-0.3, -0.3)
+		new ModuleConfig(RealModuleConstants.WHEEL_DIAMETER_METERS/2, RealSwerveConstants.VELOCITY_AT_12_VOLTS_METERS_PER_SECOND, 0.96, DCMotor.getKrakenX60Foc(1), 7.13, 60, 1),
+		RealModuleConstants.LOCATIONS
 	);
 
 	public static class LinkedWaypoints {
