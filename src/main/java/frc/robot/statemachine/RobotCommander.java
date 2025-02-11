@@ -52,7 +52,8 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isReadyToOpenSuperstructure(ScoreLevel level, Branch branch) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+		Pose2d reefRelativeTargetPose = ScoringHelpers
+			.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
 			.rotateBy(reefAngle.unaryMinus());
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
@@ -87,7 +88,8 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isPreScoreReady(ScoreLevel level, Branch branch) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+		Pose2d reefRelativeTargetPose = ScoringHelpers
+			.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
 			.rotateBy(reefAngle.unaryMinus());
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
@@ -122,7 +124,7 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isReadyToScore(ScoreLevel level, Branch branch) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
 													  .rotateBy(reefAngle.unaryMinus());
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
@@ -223,7 +225,7 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
+					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.getTargetBranch())),
 					superstructure.genericPreScore(scoreLevel)
 				),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
@@ -254,9 +256,9 @@ public class RobotCommander extends GBSubsystem {
 
 	public Command fullyScore(ScoreLevel scoreLevel) {
 		return new SequentialCommandGroup(
-			genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
-			genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
-			genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, ScoringHelpers.targetBranch)),
+			genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.getTargetBranch())),
+			genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.getTargetBranch())),
+			genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, ScoringHelpers.getTargetBranch())),
 			genericScore(scoreLevel)
 		);
 	}
