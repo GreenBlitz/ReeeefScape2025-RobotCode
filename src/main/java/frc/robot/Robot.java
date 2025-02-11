@@ -66,7 +66,7 @@ public class Robot {
 	private final EndEffector endEffector;
 
 	private final SimulationManager simulationManager;
-//	private final RobotCommander robotCommander;
+	private final RobotCommander robotCommander;
 
 	private AutonomousChooser startingPointAndWhereToScoreFirstObjectChooser;
 	private AutonomousChooser whereToIntakeSecondObjectChooser;
@@ -107,6 +107,7 @@ public class Robot {
 			true,
 			VisionConstants.VISION_SOURCES
 		);
+		multiAprilTagVisionSources.setUseRobotHeadingForPoseEstimating(true);
 
 		multiAprilTagVisionSources.applyFunctionOnAllFilters(
 			filters -> filters.and(
@@ -129,29 +130,33 @@ public class Robot {
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
-//		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
+		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
+		
 		configureAuto();
 	}
 
 	private void configureAuto() {
-		Supplier<Command> scoringCommand = InstantCommand::new;
-        Supplier<Command> intakingCommand = InstantCommand::new;
-//		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure()
-//			.scoreL4()
-//			.andThen(robotCommander.getSuperstructure().preL4().until(() -> robotCommander.getSuperstructure().isPreScoreReady(ScoreLevel.L4)))
-//			.asProxy();
-//		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure().intake().asProxy();
+//		Supplier<Command> scoringCommand = InstantCommand::new;
+//      Supplier<Command> intakingCommand = InstantCommand::new;
+		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure()
+			.scoreL4()
+				.andThen(robotCommander.getSuperstructure().preL4().until(() -> robotCommander.getSuperstructure().isPreScoreReady(ScoreLevel.L4)))
+				.asProxy();
+		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure().intake().asProxy();
 
 		swerve.configPathPlanner(
 			poseEstimator::getEstimatedPose,
-			poseEstimator::resetPose,
+				(pose) -> {
+				poseEstimator.resetPose(pose);
+				headingEstimator.reset(pose.getRotation());
+				},
 			PathPlannerUtil.getGuiRobotConfig().orElse(AutonomousConstants.ROBOT_CONFIG)
 		);
 
-		new EventTrigger("PRE_SCORE").onTrue(new InstantCommand());
-		new EventTrigger("INTAKE").onTrue(new InstantCommand());
-		new EventTrigger("IDLE").onTrue(new InstantCommand());
+		new EventTrigger("PRE_SCORE").onTrue(robotCommander.getSuperstructure().preL4());
+		new EventTrigger("INTAKE").onTrue(robotCommander.getSuperstructure().intake());
+		new EventTrigger("IDLE").onTrue(robotCommander.getSuperstructure().idle());
 
 		this.startingPointAndWhereToScoreFirstObjectChooser = new AutonomousChooser(
 			"StartingPointAndScoreFirst",
@@ -211,7 +216,10 @@ public class Robot {
 				whereToIntakeFourthObjectChooser.getChosenValue(),
 				whereToScoreFourthObjectChooser.getChosenValue()
 			)
-			.withResetPose(poseEstimator::resetPose);
+			.withResetPose((pose) -> {
+				poseEstimator.resetPose(pose);
+				headingEstimator.reset(pose.getRotation());
+			});
 	}
 
 	public IPoseEstimator getPoseEstimator() {
@@ -234,8 +242,8 @@ public class Robot {
 		return endEffector;
 	}
 
-//	public RobotCommander getRobotCommander() {
-//		return robotCommander;
-//	}
+	public RobotCommander getRobotCommander() {
+		return robotCommander;
+	}
 
 }

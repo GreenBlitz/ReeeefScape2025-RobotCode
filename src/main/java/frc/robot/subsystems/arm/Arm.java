@@ -90,7 +90,8 @@ public class Arm extends GBSubsystem {
 	}
 
 	protected void resetByEncoderPosition() {
-		motor.resetPosition(encoderPositionSignal.getLatestValue());
+		motor.resetPosition(Rotation2d.fromDegrees(-13));
+//		motor.resetPosition(encoderPositionSignal.getLatestValue());
 	}
 
 	public void setBrake(boolean brake) {

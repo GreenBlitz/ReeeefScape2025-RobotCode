@@ -160,11 +160,11 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command genericPreScore(ScoreLevel scoreLevel) {
+	public Command genericPreScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
+//					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.preScore(scoreLevel)
 				),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
@@ -189,11 +189,11 @@ public class RobotCommander extends GBSubsystem {
 		return genericPreScore(ScoreLevel.L4);
 	}
 
-	private Command genericScore(ScoreLevel scoreLevel) {
+	public Command genericScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
+//					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.preScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.score(scoreLevel)
 				),

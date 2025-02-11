@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.86225,
-        "y": 4.278499999999999
+        "x": 1.6662909836065571,
+        "y": 5.313678278688524
       },
       "isLocked": false,
       "linkedName": "A"
     },
     {
       "anchor": {
-        "x": 1.63,
-        "y": 7.34
+        "x": 0.9710040983606557,
+        "y": 7.003944672131147
       },
       "prevControl": {
-        "x": 2.3122499999999935,
-        "y": 6.9585
+        "x": 1.6532540983606485,
+        "y": 6.622444672131147
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "IDLE",
-      "waypointRelativePos": 0.11553610503282408,
+      "waypointRelativePos": 0.19532374100719266,
       "endWaypointRelativePos": null,
       "command": null
     },
@@ -46,7 +46,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

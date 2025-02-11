@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 2.4082500000000002,
-        "y": 1.4802499999999998
+        "y": 1.48025
       },
       "isLocked": false,
       "linkedName": "C"
@@ -46,7 +46,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

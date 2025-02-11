@@ -2,13 +2,21 @@ package frc;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
+import frc.robot.IDs;
 import frc.robot.Robot;
+import frc.robot.statemachine.RobotCommander;
+import frc.robot.statemachine.RobotState;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
+
+import java.util.Set;
 
 public class JoysticksBindings {
 
@@ -69,6 +77,57 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
+		
+		usedJoystick.A.onTrue(new DeferredCommand(() -> robot.getRobotCommander().getSuperstructure().preL4(),
+				Set.of(
+						robot.getRobotCommander(),
+						robot.getRobotCommander().getSuperstructure(),
+						robot.getElevator(),
+						robot.getArm(),
+						robot.getEndEffector()
+				)));
+		usedJoystick.START.onTrue(new DeferredCommand(() ->robot.getRobotCommander().getSuperstructure().idle(),
+				Set.of(
+						robot.getRobotCommander(),
+						robot.getRobotCommander().getSuperstructure(),
+						robot.getElevator(),
+						robot.getArm(),
+						robot.getEndEffector()
+				)));
+		usedJoystick.POV_UP.onTrue(new DeferredCommand(() ->robot.getRobotCommander().getSuperstructure().scoreL4(),
+				Set.of(
+						robot.getRobotCommander(),
+						robot.getRobotCommander().getSuperstructure(),
+						robot.getElevator(),
+						robot.getArm(),
+						robot.getEndEffector()
+				))
+		);
+		
+//		usedJoystick.POV_DOWN.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L1));
+//		usedJoystick.POV_RIGHT.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L2));
+//		usedJoystick.POV_LEFT.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3));
+//		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4));
+//
+//		usedJoystick.A.onTrue(new DeferredCommand(() -> robot.getRobotCommander().getSuperstructure().preScore(scoreLevel),
+//				Set.of(
+//						robot.getRobotCommander(),
+//						robot.getRobotCommander().getSuperstructure(),
+//						robot.getArm(),
+//						robot.getElevator(),
+//						robot.getEndEffector()
+//				)));
+//		usedJoystick.L1.onTrue(new DeferredCommand(() -> robot.getRobotCommander().getSuperstructure().score(scoreLevel),
+//				Set.of(
+//						robot.getRobotCommander(),
+//						robot.getRobotCommander().getSuperstructure(),
+//						robot.getArm(),
+//						robot.getElevator(),
+//						robot.getEndEffector()
+//				)));
+//		usedJoystick.R1.onTrue(robot.getRobotCommander().getSuperstructure().intake());
+//		usedJoystick.START.onTrue(robot.getRobotCommander().getSuperstructure().idle());
+		
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
