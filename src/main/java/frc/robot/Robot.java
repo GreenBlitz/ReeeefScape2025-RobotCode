@@ -136,6 +136,12 @@ public class Robot {
 
 	private void configureAuto() {
 		Supplier<Command> scoringCommand = InstantCommand::new;
+        Supplier<Command> intakingCommand = InstantCommand::new;
+//		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure()
+//			.scoreL4()
+//			.andThen(robotCommander.getSuperstructure().preL4().until(() -> robotCommander.getSuperstructure().isPreScoreReady(ScoreLevel.L4)))
+//			.asProxy();
+//		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure().intake().asProxy();
 
 		swerve.configPathPlanner(
 			poseEstimator::getEstimatedPose,
@@ -153,7 +159,7 @@ public class Robot {
 		);
 		this.whereToIntakeSecondObjectChooser = new AutonomousChooser(
 			"IntakeSecond",
-			AutosBuilder.getAllIntakingAutos(this, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 		);
 		this.whereToScoreSecondObjectChooser = new AutonomousChooser(
 			"ScoreSecond",
@@ -161,7 +167,7 @@ public class Robot {
 		);
 		this.whereToIntakeThirdObjectChooser = new AutonomousChooser(
 			"IntakeThird",
-			AutosBuilder.getAllIntakingAutos(this, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 		);
 		this.whereToScoreThirdObjectChooser = new AutonomousChooser(
 			"ScoreThird",
@@ -169,7 +175,7 @@ public class Robot {
 		);
 		this.whereToIntakeFourthObjectChooser = new AutonomousChooser(
 			"IntakeFourth",
-			AutosBuilder.getAllIntakingAutos(this, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 		);
 		this.whereToScoreFourthObjectChooser = new AutonomousChooser(
 			"ScoreFourth",
@@ -195,15 +201,17 @@ public class Robot {
 	}
 
 	public PathPlannerAutoWrapper getAuto() {
-		return PathPlannerAutoWrapper.chainAutos(
-			startingPointAndWhereToScoreFirstObjectChooser.getChosenValue(),
-			whereToIntakeSecondObjectChooser.getChosenValue(),
-			whereToScoreSecondObjectChooser.getChosenValue(),
-			whereToIntakeThirdObjectChooser.getChosenValue(),
-			whereToScoreThirdObjectChooser.getChosenValue(),
-			whereToIntakeFourthObjectChooser.getChosenValue(),
-			whereToScoreFourthObjectChooser.getChosenValue()
-		).withResetPose(poseEstimator::resetPose);
+		return PathPlannerAutoWrapper
+			.chainAutos(
+				startingPointAndWhereToScoreFirstObjectChooser.getChosenValue(),
+				whereToIntakeSecondObjectChooser.getChosenValue(),
+				whereToScoreSecondObjectChooser.getChosenValue(),
+				whereToIntakeThirdObjectChooser.getChosenValue(),
+				whereToScoreThirdObjectChooser.getChosenValue(),
+				whereToIntakeFourthObjectChooser.getChosenValue(),
+				whereToScoreFourthObjectChooser.getChosenValue()
+			)
+			.withResetPose(poseEstimator::resetPose);
 	}
 
 	public IPoseEstimator getPoseEstimator() {
