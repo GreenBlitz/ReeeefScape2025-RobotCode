@@ -37,7 +37,9 @@ public class Superstructure extends GBSubsystem {
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 
 		this.currentState = SuperstructureState.IDLE;
-		setDefaultCommand(new DeferredCommand(() -> endState(currentState), Set.of(this)));
+		setDefaultCommand(
+			new DeferredCommand(() -> endState(currentState), Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()))
+		);
 	}
 
 
@@ -165,7 +167,7 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
 					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(EndEffectorState.OUTTAKE)
+					endEffectorStateHandler.setState(scoreLevel.getEndEffectorScore())
 				)
 			).until(this::isCoralOut),
 			scoreLevel.getSuperstructureScore()
@@ -209,10 +211,6 @@ public class Superstructure extends GBSubsystem {
 			case PRE_L3, SCORE_L3 -> preL3();
 			case PRE_L4, SCORE_L4 -> preL4();
 		};
-	}
-
-	public EndEffectorStateHandler getEndEffectorStateHandler() {
-		return endEffectorStateHandler;
 	}
 
 }

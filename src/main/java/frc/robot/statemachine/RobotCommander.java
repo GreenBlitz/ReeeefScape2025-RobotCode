@@ -37,7 +37,12 @@ public class RobotCommander extends GBSubsystem {
 		this.currentState = RobotState.DRIVE;
 		this.robotTasksManager = new RobotTasksManager(this);
 
-		setDefaultCommand(new DeferredCommand(() -> endState(currentState), Set.of(this)));
+		setDefaultCommand(
+			new DeferredCommand(
+				() -> endState(currentState),
+				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+			)
+		);
 	}
 
 	public Superstructure getSuperstructure() {
