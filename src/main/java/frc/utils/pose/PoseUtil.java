@@ -26,6 +26,19 @@ public class PoseUtil {
 		return isAtX && isAtY && isAtHeading && isStill;
 	}
 
+	public static boolean isAtPose(
+		Pose2d currentPose,
+		Pose2d targetPose,
+		ChassisSpeeds currentSpeeds,
+		Pose2d tolerances,
+		Pose2d deadbands,
+		double currentAcceleration,
+		double accelerationDeadband
+	) {
+		boolean isAtAcceleration = SwerveMath.isAccelerationStill(currentAcceleration, accelerationDeadband);
+		return isAtPose(currentPose, targetPose, currentSpeeds, tolerances, deadbands) && isAtAcceleration;
+	}
+
 	public static Pose3d poseArrayToPose3D(double[] poseArray, AngleUnit angleUnit) {
 		int requiredAmount = Pose3dComponentsValue.POSE3D_COMPONENTS_AMOUNT;
 		if (poseArray.length != requiredAmount) {
