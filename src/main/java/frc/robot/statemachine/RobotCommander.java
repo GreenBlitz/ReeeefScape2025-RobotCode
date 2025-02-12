@@ -124,8 +124,9 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isReadyToScore(ScoreLevel level, Branch branch) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-													  .rotateBy(reefAngle.unaryMinus());
+		Pose2d reefRelativeTargetPose = ScoringHelpers
+			.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			.rotateBy(reefAngle.unaryMinus());
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
 		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
@@ -177,6 +178,22 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
+	public Command score(ScoreLevel scoreLevel) {
+		return new SequentialCommandGroup(
+			genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, ScoringHelpers.getTargetBranch())),
+			genericScore(scoreLevel)
+		);
+	}
+
+	public Command fullyScore(ScoreLevel scoreLevel) {
+		return new SequentialCommandGroup(
+			genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.getTargetBranch())),
+			genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.getTargetBranch())),
+			genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, ScoringHelpers.getTargetBranch())),
+			genericScore(scoreLevel)
+		);
+	}
+
 	private Command drive() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(superstructure.idle(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
@@ -204,7 +221,7 @@ public class RobotCommander extends GBSubsystem {
 	private Command alignReef() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				superstructure.idle(),
+				superstructure.genericArmPreScore(ScoringHelpers.targetScoreLevel),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 			),
 			RobotState.ALIGN_REEF
@@ -225,7 +242,8 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.getTargetBranch())),
+					superstructure.genericArmPreScore(scoreLevel)
+						.until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.getTargetBranch())),
 					superstructure.genericPreScore(scoreLevel)
 				),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
@@ -251,15 +269,6 @@ public class RobotCommander extends GBSubsystem {
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
 			),
 			scoreLevel.getRobotScore()
-		);
-	}
-
-	public Command fullyScore(ScoreLevel scoreLevel) {
-		return new SequentialCommandGroup(
-			genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.getTargetBranch())),
-			genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.getTargetBranch())),
-			genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, ScoringHelpers.getTargetBranch())),
-			genericScore(scoreLevel)
 		);
 	}
 
