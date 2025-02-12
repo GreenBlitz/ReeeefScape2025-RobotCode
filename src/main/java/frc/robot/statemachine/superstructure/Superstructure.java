@@ -119,11 +119,13 @@ public class Superstructure extends GBSubsystem {
 
 	private Command genericPreScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
+				armStateHandler.setState(ArmState.UP)
+						.until(() -> robot.getArm().isAtPosition(ArmState.UP.getPosition(),Tolerances.ARM_POSITION)).andThen(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(scoreLevel.getElevatorPreScore()),
 				armStateHandler.setState(scoreLevel.getArmPreScore()),
 				endEffectorStateHandler.setState(EndEffectorState.KEEP)
-			),
+			)),
 			scoreLevel.getSuperstructurePreScore()
 		);
 	}

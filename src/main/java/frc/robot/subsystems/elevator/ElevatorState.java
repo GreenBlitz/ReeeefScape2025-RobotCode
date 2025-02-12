@@ -8,11 +8,11 @@ public enum ElevatorState {
 	PRE_L1(0),
 	PRE_L2(0.05),
 	PRE_L3(0.39),
-	PRE_L4(1.1),
+	PRE_L4(1.15),
 	L1(0),
 	L2(0.05),
 	L3(0.39),
-	L4(1.1);
+	L4(1.15);
 
 	private final double heightMeters;
 

@@ -70,6 +70,10 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
+		
+		usedJoystick.A.onTrue(robot.getRobotCommander().getSuperstructure().intake());
+		usedJoystick.B.onTrue(robot.getRobotCommander().getSuperstructure().preL4());
+		usedJoystick.X.onTrue(robot.getRobotCommander().getSuperstructure().scoreL4());
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
