@@ -28,7 +28,7 @@ public class AutonomousConstants {
 	public static final Pose2d TARGET_POSE_TOLERANCES = new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2));
 
 	public static final RobotConfig ROBOT_CONFIG = new RobotConfig(
-		50,
+		52,
 		4.6875,
 		new ModuleConfig(RealModuleConstants.WHEEL_DIAMETER_METERS/2, RealSwerveConstants.VELOCITY_AT_12_VOLTS_METERS_PER_SECOND, 0.96, DCMotor.getKrakenX60Foc(1), 7.13, 60, 1),
 		RealModuleConstants.LOCATIONS
