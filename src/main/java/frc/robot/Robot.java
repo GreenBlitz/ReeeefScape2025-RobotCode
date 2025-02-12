@@ -8,7 +8,6 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.RobotManager;
 import frc.constants.RobotHeadingEstimatorConstants;
 import frc.constants.VisionConstants;
@@ -132,29 +131,26 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
-		
 		configureAuto();
 	}
 
 	private void configureAuto() {
-//		Supplier<Command> scoringCommand = InstantCommand::new;
-//      Supplier<Command> intakingCommand = InstantCommand::new;
 		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure()
-			.scoreL4()
-				.andThen(robotCommander.getSuperstructure().preL4().until(() -> robotCommander.getSuperstructure().isPreScoreReady(ScoreLevel.L4)))
-				.asProxy();
+			.genericScoreWithRelease(ScoreLevel.L4)
+			.andThen(
+				robotCommander.getSuperstructure()
+					.genericPreScore(ScoreLevel.L4)
+					.until(() -> robotCommander.getSuperstructure().isPreScoreReady(ScoreLevel.L4))
+			)
+			.asProxy();
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure().intake().asProxy();
 
-		swerve.configPathPlanner(
-			poseEstimator::getEstimatedPose,
-				(pose) -> {
-				poseEstimator.resetPose(pose);
-				headingEstimator.reset(pose.getRotation());
-				},
-			PathPlannerUtil.getGuiRobotConfig().orElse(AutonomousConstants.ROBOT_CONFIG)
-		);
+		swerve.configPathPlanner(poseEstimator::getEstimatedPose, (pose) -> {
+			poseEstimator.resetPose(pose);
+			headingEstimator.reset(pose.getRotation());
+		}, PathPlannerUtil.getGuiRobotConfig().orElse(AutonomousConstants.ROBOT_CONFIG));
 
-		new EventTrigger("PRE_SCORE").onTrue(robotCommander.getSuperstructure().preL4());
+		new EventTrigger("PRE_SCORE").onTrue(robotCommander.getSuperstructure().genericPreScore(ScoreLevel.L4));
 		new EventTrigger("INTAKE").onTrue(robotCommander.getSuperstructure().intake());
 		new EventTrigger("IDLE").onTrue(robotCommander.getSuperstructure().idle());
 
