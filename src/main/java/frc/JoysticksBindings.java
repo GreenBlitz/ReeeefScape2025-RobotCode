@@ -52,12 +52,12 @@ public class JoysticksBindings {
 					MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X)
 				)
 			);
-		} else if (THIRD_JOYSTICK.isConnected()) {
+		} else if (SECOND_JOYSTICK.isConnected()) {
 			swerve.setDriversPowerInputs(
 				new ChassisPowers(
-					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y),
-					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X),
-					THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X)
+						SECOND_JOYSTICK.getAxisValue(Axis.LEFT_Y),
+						SECOND_JOYSTICK.getAxisValue(Axis.LEFT_X),
+						SECOND_JOYSTICK.getAxisValue(Axis.RIGHT_X)
 				)
 			);
 		} else {
@@ -86,7 +86,7 @@ public class JoysticksBindings {
 		// bindings...
 
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.ALIGN_REEF));
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(ScoringHelpers.preScoreToChosenScoreLevel(robot));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(ScoringHelpers.fullyScoreToChosenLevel(robot));
 
 		usedJoystick.A.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L1));
 		usedJoystick.B.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L2));
@@ -97,6 +97,7 @@ public class JoysticksBindings {
 		usedJoystick.L1.onTrue(new InstantCommand(ScoringHelpers::toggleIsFarReefHalf));
 
 		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.MIDDLE)));
+		usedJoystick.POV_DOWN.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.MIDDLE)));
 		usedJoystick.POV_LEFT.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.LEFT)));
 		usedJoystick.POV_RIGHT.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.RIGHT)));
 	}
