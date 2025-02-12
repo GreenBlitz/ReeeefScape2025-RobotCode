@@ -196,7 +196,7 @@ public class Robot {
 		}
 		poseEstimator.updateOdometry(swerve.getAllOdometryData());
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
-//		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
+		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
 		BatteryUtil.logStatus();
 		BusChain.logChainsStatuses();
 		simulationManager.logPoses();

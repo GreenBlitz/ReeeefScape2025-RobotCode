@@ -17,6 +17,7 @@ import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
 
+import java.util.Set;
 
 public class RobotCommander extends GBSubsystem {
 
@@ -33,7 +34,12 @@ public class RobotCommander extends GBSubsystem {
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
 		this.currentState = RobotState.DRIVE;
 
-//		setDefaultCommand(new DeferredCommand(() -> endState(currentState), Set.of(this)));
+//		setDefaultCommand(
+//			new DeferredCommand(
+//				() -> endState(currentState),
+//				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+//			)
+//		);
 	}
 
 	public Superstructure getSuperstructure() {
@@ -160,11 +166,11 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command genericPreScore(ScoreLevel scoreLevel) {
+	private Command genericPreScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-//					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
+					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.preScore(scoreLevel)
 				),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
@@ -189,11 +195,11 @@ public class RobotCommander extends GBSubsystem {
 		return genericPreScore(ScoreLevel.L4);
 	}
 
-	public Command genericScore(ScoreLevel scoreLevel) {
+	private Command genericScore(ScoreLevel scoreLevel) {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-//					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
+					superstructure.idle().until(() -> isReadyToOpenSuperstructure(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.preScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, ScoringHelpers.targetBranch)),
 					superstructure.score(scoreLevel)
 				),
