@@ -16,6 +16,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 
@@ -81,10 +82,10 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	/**
-	 * Checks if elevator and arm in place and is robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
-	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
+	 * Check if robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is horizontal to the branch So when you
+	 * check if robot in place in y-axis its in parallel to the reef side.
 	 */
-	private boolean isPreScoreReady(ScoreLevel level, Branch branch) {
+	private boolean isAtScoringPose(ScoreLevel scoreLevel, Branch branch) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
 		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
@@ -95,7 +96,7 @@ public class RobotCommander extends GBSubsystem {
 		ChassisSpeeds reefRelativeSpeeds = SwerveMath
 			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
 
-		return superstructure.isPreScoreReady(level) && switch (level) {
+		return switch (scoreLevel) {
 			case L1 ->
 				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
@@ -113,6 +114,14 @@ public class RobotCommander extends GBSubsystem {
 					Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
 				);
 		};
+	}
+
+	private boolean isPreScoreReady(ScoreLevel scoreLevel, Branch branch) {
+		return superstructure.isPreScoreReady(scoreLevel) && isAtScoringPose(scoreLevel, branch);
+	}
+
+	private boolean isReadyToScore(ScoreLevel scoreLevel, Branch branch) {
+		return superstructure.isReadyToScore(scoreLevel) && isAtScoringPose(scoreLevel, branch);
 	}
 
 	public Command setState(RobotState state) {
@@ -211,6 +220,20 @@ public class RobotCommander extends GBSubsystem {
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
 			),
 			scoreLevel.getRobotScore()
+		);
+	}
+
+	public Command scoreSequence(ScoreLevel scoreLevel, Branch branch) {
+		return new ParallelDeadlineGroup(
+			new SequentialCommandGroup(
+				genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
+				genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
+				genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
+				genericScore(scoreLevel)
+			),
+			new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(scoreLevel, branch))),
+			new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(scoreLevel, branch))),
+			new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(scoreLevel, branch)))
 		);
 	}
 
