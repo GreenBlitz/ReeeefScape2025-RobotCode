@@ -22,6 +22,18 @@ public class Phoenix6FeedForwardRequest extends Phoenix6Request<Rotation2d> {
 		this.arbitraryFeedForward = defaultArbitraryFeedForward;
 	}
 
+	Phoenix6FeedForwardRequest(
+		Rotation2d defaultSetPoint,
+		ControlRequest controlRequest,
+		Consumer<Rotation2d> setSetPoint,
+		Consumer<Double> setFeedForward
+	) {
+		super(defaultSetPoint, controlRequest, setSetPoint);
+		this.setArbitraryFeedForward = setFeedForward;
+		this.arbitraryFeedForward = 0;
+	}
+
+
 	public Phoenix6FeedForwardRequest withArbitraryFeedForward(double newArbitraryFeedForward) {
 		setArbitraryFeedForward.accept(newArbitraryFeedForward);
 		this.arbitraryFeedForward = newArbitraryFeedForward;
