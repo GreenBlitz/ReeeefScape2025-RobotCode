@@ -9,8 +9,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.RobotManager;
-import frc.constants.RobotHeadingEstimatorConstants;
-import frc.constants.VisionConstants;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.AutosBuilder;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
