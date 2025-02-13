@@ -24,7 +24,7 @@ public class AimAssistMath {
 
 		Rotation2d angularVelocityPerSecond = applyMagnitudeCompensation(pidOutputVelocityPerSecond, SwerveMath.getDriveMagnitude(speeds));
 		Rotation2d clampedAngularVelocityPerSecond = ToleranceMath
-			.clamp(angularVelocityPerSecond, Rotation2d.fromRadians(swerveConstants.maxRotationalVelocityPerSecond().getRadians()));
+			.clamp(angularVelocityPerSecond, swerveConstants.maxRotationalVelocityPerSecond());
 
 		return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, clampedAngularVelocityPerSecond.getRadians());
 	}
