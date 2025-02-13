@@ -38,6 +38,7 @@ public class Elevator extends GBSubsystem {
 	private final ElevatorCommandsBuilder commandsBuilder;
 	private final SysIdCalibrator sysIdCalibrator;
 
+	private double forwardSoftLimitMeters;
 	private boolean hasBeenResetBySwitch;
 	private double ffCalibrationVoltage;
 	private double currentTargetPositionMeters;
@@ -66,6 +67,7 @@ public class Elevator extends GBSubsystem {
 		this.digitalInputInputs = new DigitalInputInputsAutoLogged();
 		hasBeenResetBySwitch = false;
 		this.ffCalibrationVoltage = 0;
+		this.forwardSoftLimitMeters = ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
 
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 		this.sysIdCalibrator = new SysIdCalibrator(rightMotor.getSysidConfigInfo(), this, (voltage) -> setVoltage(voltage + getKgVoltage()));
@@ -128,6 +130,10 @@ public class Elevator extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/HasBeenResetBySwitch", hasBeenResetBySwitch);
 		Logger.recordOutput(getLogPath() + "/FFCalibrationVoltage", ffCalibrationVoltage);
 		Logger.recordOutput(getLogPath() + "/TargetPositionMeters", currentTargetPositionMeters);
+	}
+
+	public void setForwardSoftLimitMeters(double newForwardSoftLimitMeters) {
+		forwardSoftLimitMeters = newForwardSoftLimitMeters;
 	}
 
 	public void resetMotors(double positionMeters) {
