@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -105,7 +106,7 @@ public class Robot {
 		swerve.setHeadingSupplier(
 			ROBOT_TYPE.isSimulation() ? poseEstimator.getEstimatedPose()::getRotation : headingEstimator::getEstimatedHeading
 		);
-		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
+		swerve.getStateHandler().setRobotPoseSupplier(() -> poseEstimator.getEstimatedPose().exp(new Twist2d(0, -0.014, 0)));
 		swerve.getStateHandler().setBranchSupplier(() -> Optional.of(ScoringHelpers.getTargetBranch()));
 		swerve.getStateHandler().setReefSideSupplier(() -> Optional.of(ScoringHelpers.getTargetReefSide()));
 		swerve.getStateHandler().setCoralStationSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStation(this)));
@@ -128,7 +129,7 @@ public class Robot {
 
 		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
 		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getRawRobotHeadings()) {
-			headingEstimator.updateVisionHeading(headingData, RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION);
+			headingEstimator.updateVisionIfNotCalibrated(headingData, RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION, RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE);
 		}
 		poseEstimator.updateOdometry(swerve.getAllOdometryData());
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());

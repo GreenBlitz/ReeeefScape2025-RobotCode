@@ -22,6 +22,6 @@ public class RobotHeadingEstimatorConstants {
 
 	public static final double MAXIMUM_STANDARD_DEVIATION_TOLERANCE = 0.001;
 
-	public static final int ESTIMATION_GYRO_PAIR_BUFFER_SIZE = 50;
+	public static final int ESTIMATION_GYRO_PAIR_BUFFER_SIZE = 80;
 
 }

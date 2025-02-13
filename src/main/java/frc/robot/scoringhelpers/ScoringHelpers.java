@@ -106,6 +106,7 @@ public class ScoringHelpers {
 		Logger.recordOutput(logPath + "/TargetReefSide", getTargetReefSide());
 		Logger.recordOutput(logPath + "/TargetCoralStation", latestWantedCoralStation);
 		Logger.recordOutput(logPath + "/TargetScoreLevel", targetScoreLevel);
+		Logger.recordOutput(logPath + "/targetBranchPose", new Pose2d(Field.getCoralPlacement(getTargetBranch()), Field.getReefSideMiddle(getTargetBranch().getReefSide()).getRotation()));
 	}
 
 

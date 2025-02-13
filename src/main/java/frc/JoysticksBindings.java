@@ -52,12 +52,12 @@ public class JoysticksBindings {
 					MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X)
 				)
 			);
-		} else if (THIRD_JOYSTICK.isConnected()) {
+		} else if (SECOND_JOYSTICK.isConnected()) {
 			swerve.setDriversPowerInputs(
 				new ChassisPowers(
-					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y),
-					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X),
-					THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X)
+					SECOND_JOYSTICK.getAxisValue(Axis.LEFT_Y),
+					SECOND_JOYSTICK.getAxisValue(Axis.LEFT_X),
+					SECOND_JOYSTICK.getAxisValue(Axis.RIGHT_X)
 				)
 			);
 		} else {
@@ -76,9 +76,7 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(ScoringHelpers.scoreToChosenScoreLevel(robot));
-		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
-		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
+
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
@@ -100,12 +98,17 @@ public class JoysticksBindings {
 		usedJoystick.POV_DOWN.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.MIDDLE)));
 		usedJoystick.POV_LEFT.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.LEFT)));
 		usedJoystick.POV_RIGHT.onTrue(new InstantCommand(() -> ScoringHelpers.setTargetSideForReef(Side.RIGHT)));
+
+		usedJoystick.START.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
-		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
+//		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
+		usedJoystick.R1.onTrue(ScoringHelpers.scoreToChosenScoreLevel(robot));
+		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
+		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {
