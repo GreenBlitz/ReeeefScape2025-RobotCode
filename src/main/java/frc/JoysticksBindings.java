@@ -7,6 +7,7 @@ import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
@@ -72,8 +73,8 @@ public class JoysticksBindings {
 		// bindings...
 
 		usedJoystick.A.onTrue(robot.getRobotCommander().getSuperstructure().intake());
-		usedJoystick.B.onTrue(robot.getRobotCommander().getSuperstructure().preL4());
-		usedJoystick.X.onTrue(robot.getRobotCommander().getSuperstructure().scoreL4());
+		usedJoystick.B.onTrue(robot.getRobotCommander().getSuperstructure().genericPreScore(ScoreLevel.L4));
+		usedJoystick.X.onTrue(robot.getRobotCommander().getSuperstructure().genericScoreWithRelease(ScoreLevel.L4));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
