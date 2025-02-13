@@ -204,32 +204,32 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command scoreSequence(ScoreLevel scoreLevel, Branch branch) {
+	public Command scoreSequence() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
-				genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
-				genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
-				genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
-				genericScore(scoreLevel)
+				armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				score()
 			),
-			new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(scoreLevel, branch))),
-			new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(scoreLevel, branch))),
-			new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(scoreLevel, branch)))
+			new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch))),
+			new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch))),
+			new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)))
 		);
 	}
 	
-	public Command scoreWithoutReleaseSequence(ScoreLevel scoreLevel, Branch branch){
+	public Command scoreWithoutReleaseSequence(){
 		return new SequentialCommandGroup(
-				genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
-				genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
-				genericScoreWithoutRelease(scoreLevel)
+				armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				scoreWithoutRelease()
 		);
 	}
 	
-	public Command scoreWithoutReleaseThanScoreSequence(ScoreLevel scoreLevel, Branch branch){
+	public Command scoreWithoutReleaseThanScoreSequence(){
 		return new SequentialCommandGroup(
-				genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
-				genericScore(scoreLevel)
+				scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				score()
 		);
 	}
 
