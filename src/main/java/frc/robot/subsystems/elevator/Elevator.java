@@ -134,6 +134,7 @@ public class Elevator extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/FFCalibrationVoltage", ffCalibrationVoltage);
 		Logger.recordOutput(getLogPath() + "/TargetPositionMeters", currentTargetPositionMeters);
 		Logger.recordOutput(getLogPath() + "/ReversedSoftLimit", reversedSoftLimitMeters);
+		Logger.recordOutput(getLogPath() + "/ForwardSoftLimit", forwardSoftLimitMeters);
 	}
 
 	public void setForwardSoftLimitMeters(double newForwardSoftLimitMeters) {
@@ -172,7 +173,7 @@ public class Elevator extends GBSubsystem {
 
 	protected void setTargetPositionMeters(double targetPositionMeters) {
 		currentTargetPositionMeters = targetPositionMeters;
-		if (reversedSoftLimitMeters <= targetPositionMeters) {
+		if (reversedSoftLimitMeters <= targetPositionMeters && forwardSoftLimitMeters >= targetPositionMeters) {
 			Rotation2d targetPosition = convertMetersToRotations(targetPositionMeters);
 			rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
 			leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
