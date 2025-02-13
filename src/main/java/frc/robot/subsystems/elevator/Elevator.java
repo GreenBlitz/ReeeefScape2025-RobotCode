@@ -15,6 +15,7 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elevator.factory.KrakenX60ElevatorBuilder;
 import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
 import frc.utils.Conversions;
+import frc.utils.alerts.Alert;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.calibration.sysid.SysIdCalibrator;
 import org.littletonrobotics.junction.Logger;
@@ -38,6 +39,8 @@ public class Elevator extends GBSubsystem {
 	private final ElevatorCommandsBuilder commandsBuilder;
 	private final SysIdCalibrator sysIdCalibrator;
 
+	private double forwardSoftLimitMeters;
+	private double reversedSoftLimitMeters;
 	private boolean hasBeenResetBySwitch;
 	private double ffCalibrationVoltage;
 	private double currentTargetPositionMeters;
@@ -66,6 +69,8 @@ public class Elevator extends GBSubsystem {
 		this.digitalInputInputs = new DigitalInputInputsAutoLogged();
 		hasBeenResetBySwitch = false;
 		this.ffCalibrationVoltage = 0;
+		this.forwardSoftLimitMeters = ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
+		this.reversedSoftLimitMeters = ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS;
 
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 		this.sysIdCalibrator = new SysIdCalibrator(rightMotor.getSysidConfigInfo(), this, (voltage) -> setVoltage(voltage + getKgVoltage()));
@@ -128,6 +133,16 @@ public class Elevator extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/HasBeenResetBySwitch", hasBeenResetBySwitch);
 		Logger.recordOutput(getLogPath() + "/FFCalibrationVoltage", ffCalibrationVoltage);
 		Logger.recordOutput(getLogPath() + "/TargetPositionMeters", currentTargetPositionMeters);
+		Logger.recordOutput(getLogPath() + "/ReversedSoftLimit", reversedSoftLimitMeters);
+		Logger.recordOutput(getLogPath() + "/ForwardSoftLimit", forwardSoftLimitMeters);
+	}
+
+	public void setForwardSoftLimitMeters(double newForwardSoftLimitMeters) {
+		forwardSoftLimitMeters = newForwardSoftLimitMeters;
+	}
+
+	public void setReversedSoftLimitMeters(double newReversedSoftLimitMeters) {
+		reversedSoftLimitMeters = newReversedSoftLimitMeters;
 	}
 
 	public void resetMotors(double positionMeters) {
@@ -157,8 +172,12 @@ public class Elevator extends GBSubsystem {
 	}
 
 	protected void setTargetPositionMeters(double targetPositionMeters) {
-		currentTargetPositionMeters = targetPositionMeters;
-		Rotation2d targetPosition = convertMetersToRotations(targetPositionMeters);
+		currentTargetPositionMeters = MathUtil.clamp(targetPositionMeters, reversedSoftLimitMeters, forwardSoftLimitMeters);
+		if (targetPositionMeters != currentTargetPositionMeters) {
+			new Alert(Alert.AlertType.WARNING, getLogPath() + "/Target Pose Under Or Above Limit").report();
+		}
+
+		Rotation2d targetPosition = convertMetersToRotations(currentTargetPositionMeters);
 		rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
 		leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
 	}

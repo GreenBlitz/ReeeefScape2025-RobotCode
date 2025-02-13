@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.subsystems.arm.ArmConstants;
 
 public class ElevatorConstants {
 
@@ -13,7 +15,6 @@ public class ElevatorConstants {
 	public final static double GEAR_RATIO = (63.0 / 17.0);
 
 	public static final double REVERSE_SOFT_LIMIT_VALUE_METERS = 0.01;
-
 	public static final double FORWARD_SOFT_LIMIT_VALUE_METERS = 1.2;
 
 	public static final double CRUISE_VELOCITY_METERS_PER_SECOND = 1;

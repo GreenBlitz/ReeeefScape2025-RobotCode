@@ -21,12 +21,9 @@ import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.poseestimator.OdometryData;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.module.Modules;
-import frc.robot.subsystems.swerve.states.DriveRelative;
-import frc.robot.subsystems.swerve.states.LoopMode;
-import frc.robot.subsystems.swerve.states.SwerveStateHandler;
+import frc.robot.subsystems.swerve.states.*;
 import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import frc.robot.subsystems.swerve.states.heading.HeadingStabilizer;
-import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.calibration.swervecalibration.maxvelocityacceleration.VelocityType;
 import org.littletonrobotics.junction.Logger;
@@ -52,6 +49,7 @@ public class Swerve extends GBSubsystem {
 	private SwerveState currentState;
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
+	private DriveSpeed driveSpeed;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
@@ -59,6 +57,7 @@ public class Swerve extends GBSubsystem {
 		this.driversPowerInputs = new ChassisPowers(0, 0, 0);
 
 		this.constants = constants;
+		this.driveSpeed = DriveSpeed.NORMAL;
 		this.driveRadiusMeters = SwerveMath.calculateDriveRadiusMeters(modules.getModulePositionsFromCenterMeters());
 		this.modules = modules;
 		this.gyro = gyro;
@@ -114,6 +113,10 @@ public class Swerve extends GBSubsystem {
 
 	public void setHeadingSupplier(Supplier<Rotation2d> headingSupplier) {
 		this.headingSupplier = headingSupplier;
+	}
+
+	public void setDriveSpeed(DriveSpeed newDriveSpeed) {
+		driveSpeed = newDriveSpeed;
 	}
 
 	public void setDriversPowerInputs(ChassisPowers powers) {
@@ -241,20 +244,21 @@ public class Swerve extends GBSubsystem {
 
 	protected void driveByState(ChassisSpeeds speeds, SwerveState swerveState) {
 		this.currentState = swerveState;
+		currentState = currentState.withDriveSpeed(driveSpeed);
 
-		speeds = stateHandler.applyAimAssistOnChassisSpeeds(speeds, swerveState);
-		speeds = handleHeadingControl(speeds, swerveState);
+		speeds = stateHandler.applyAimAssistOnChassisSpeeds(speeds, currentState);
+		speeds = handleHeadingControl(speeds, currentState);
 		if (SwerveMath.isStill(speeds, SwerveConstants.DEADBANDS)) {
 			modules.stop();
 			return;
 		}
 
-		speeds = SwerveMath.factorSpeeds(speeds, swerveState.getDriveSpeed());
+		speeds = SwerveMath.factorSpeeds(speeds, currentState.getDriveSpeed());
 		speeds = SwerveMath.applyDeadband(speeds, SwerveConstants.DEADBANDS);
-		speeds = getDriveModeRelativeSpeeds(speeds, swerveState);
+		speeds = getDriveModeRelativeSpeeds(speeds, currentState);
 		speeds = SwerveMath.discretize(speeds);
 
-		applySpeeds(speeds, swerveState);
+		applySpeeds(speeds, currentState);
 	}
 
 	private ChassisSpeeds handleHeadingControl(ChassisSpeeds speeds, SwerveState swerveState) {
@@ -283,7 +287,7 @@ public class Swerve extends GBSubsystem {
 	}
 
 	private void setTargetModuleStates(SwerveModuleState[] moduleStates, boolean isClosedLoop) {
-		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, constants.velocityAt12VoltsMetersPerSecond());
+		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, constants.maxSpeeds().vxMetersPerSecond);
 		modules.setTargetStates(moduleStates, isClosedLoop);
 	}
 
