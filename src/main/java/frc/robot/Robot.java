@@ -117,16 +117,13 @@ public class Robot {
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
-
-		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
-		swerve.getStateHandler().setBranchSupplier(() -> Optional.of(ScoringHelpers.targetBranch));
 	}
 
 	public void periodic() {
 		swerve.update();
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
 
-		headingEstimator.updateGyroAngle(new TimedValue<>(poseEstimator.getEstimatedPose().getRotation(), TimeUtil.getCurrentTimeSeconds()));
+		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
 		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getRawRobotHeadings()) {
 			headingEstimator.updateVisionHeading(headingData, RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION);
 		}
