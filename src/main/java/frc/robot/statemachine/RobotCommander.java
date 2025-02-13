@@ -225,15 +225,15 @@ public class RobotCommander extends GBSubsystem {
 
 	public Command scoreSequence(ScoreLevel scoreLevel, Branch branch) {
 		return new ParallelDeadlineGroup(
-				new SequentialCommandGroup(
-						genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
-						genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
-						genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
-						genericScore(scoreLevel)
-				),
-				new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(scoreLevel, branch))),
-				new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(scoreLevel, branch))),
-				new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(scoreLevel, branch)))
+			new SequentialCommandGroup(
+				genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
+				genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
+				genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
+				genericScore(scoreLevel)
+			),
+			new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(scoreLevel, branch))),
+			new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(scoreLevel, branch))),
+			new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(scoreLevel, branch)))
 		);
 	}
 
