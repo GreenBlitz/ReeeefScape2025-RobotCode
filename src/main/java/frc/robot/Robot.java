@@ -120,6 +120,7 @@ public class Robot {
 		swerve.update();
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
 		elevator.setReversedSoftLimitMeters(robotCommander.getSuperstructure().getElevatorReversedSoftLimitByArm());
+		elevator.setForwardSoftLimitMeters(robotCommander.getElevatorForwardLimitBySwerve());
 
 		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
 		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getRawRobotHeadings()) {

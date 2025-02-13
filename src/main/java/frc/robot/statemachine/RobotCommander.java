@@ -11,6 +11,7 @@ import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
@@ -44,6 +45,15 @@ public class RobotCommander extends GBSubsystem {
 
 	public Superstructure getSuperstructure() {
 		return superstructure;
+	}
+
+	public double getElevatorForwardLimitBySwerve(){
+		double driveMagnitudeMetersPerSecond = SwerveMath.getDriveMagnitude(swerve.getRobotRelativeVelocity());
+		double omegaRadiansPerSecond = swerve.getRobotRelativeVelocity().omegaRadiansPerSecond;
+		boolean isTooFast =
+				driveMagnitudeMetersPerSecond >= StateMachineConstants.LIMIT_ELEVATOR_MAGNITUDE_METERS_PER_SECOND ||
+				omegaRadiansPerSecond >= StateMachineConstants.LIMIT_ELEVATOR_MAGNITUDE_RADIANS_PER_SECOND.getRadians();
+		return isTooFast ? ElevatorConstants.ROBOT_FAST_FORWARD_SOFTWARE_LIMIT : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
 	}
 
 	/**
