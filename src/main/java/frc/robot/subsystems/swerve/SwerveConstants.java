@@ -5,14 +5,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.MathConstants;
 
 public record SwerveConstants(
 	String logPath,
 	String stateLogPath,
 	String velocityLogPath,
-	double velocityAt12VoltsMetersPerSecond,
-	Rotation2d maxRotationalVelocityPerSecond,
+	ChassisSpeeds maxSpeeds,
 	PIDController xMetersPIDController,
 	PIDController yMetersPIDController,
 	PIDController rotationDegreesPIDController,
@@ -30,8 +30,7 @@ public record SwerveConstants(
 			logPath,
 			logPath + "/State",
 			logPath + "/Velocity",
-			velocityAt12VoltsMetersPerSecond,
-			maxRotationalVelocityPerSecond,
+			new ChassisSpeeds(velocityAt12VoltsMetersPerSecond, velocityAt12VoltsMetersPerSecond, maxRotationalVelocityPerSecond.getRadians()),
 			new PIDController(translationMetersPIDConstants.kP, translationMetersPIDConstants.kI, translationMetersPIDConstants.kD),
 			new PIDController(translationMetersPIDConstants.kP, translationMetersPIDConstants.kI, translationMetersPIDConstants.kD),
 			new PIDController(rotationDegreesPIDConstants.kP, rotationDegreesPIDConstants.kI, rotationDegreesPIDConstants.kD),

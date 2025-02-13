@@ -52,6 +52,7 @@ public class Swerve extends GBSubsystem {
 	private SwerveState currentState;
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
+	private ChassisSpeeds maxSpeeds;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
@@ -59,6 +60,7 @@ public class Swerve extends GBSubsystem {
 		this.driversPowerInputs = new ChassisPowers(0, 0, 0);
 
 		this.constants = constants;
+		this.maxSpeeds = constants.maxSpeeds();
 		this.driveRadiusMeters = SwerveMath.calculateDriveRadiusMeters(modules.getModulePositionsFromCenterMeters());
 		this.modules = modules;
 		this.gyro = gyro;
@@ -114,6 +116,10 @@ public class Swerve extends GBSubsystem {
 
 	public void setHeadingSupplier(Supplier<Rotation2d> headingSupplier) {
 		this.headingSupplier = headingSupplier;
+	}
+
+	public void setMaxSpeeds(ChassisSpeeds newMaxSpeeds) {
+		maxSpeeds = newMaxSpeeds;
 	}
 
 	public void setDriversPowerInputs(ChassisPowers powers) {
@@ -253,6 +259,7 @@ public class Swerve extends GBSubsystem {
 		speeds = SwerveMath.applyDeadband(speeds, SwerveConstants.DEADBANDS);
 		speeds = getDriveModeRelativeSpeeds(speeds, swerveState);
 		speeds = SwerveMath.discretize(speeds);
+		speeds = SwerveMath.clamp(speeds, maxSpeeds);
 
 		applySpeeds(speeds, swerveState);
 	}
@@ -283,7 +290,7 @@ public class Swerve extends GBSubsystem {
 	}
 
 	private void setTargetModuleStates(SwerveModuleState[] moduleStates, boolean isClosedLoop) {
-		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, constants.velocityAt12VoltsMetersPerSecond());
+		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, constants.maxSpeeds().vxMetersPerSecond);
 		modules.setTargetStates(moduleStates, isClosedLoop);
 	}
 

@@ -55,6 +55,11 @@ public class RobotCommander extends GBSubsystem {
 		return isTooFast ? ElevatorConstants.ROBOT_FAST_FORWARD_SOFTWARE_LIMIT : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
 	}
 
+	public ChassisSpeeds getSwerveMaxSpeedsLimitByElevator() {
+		boolean isTooHigh = robot.getElevator().getElevatorPositionMeters() > ElevatorConstants.ROBOT_FAST_FORWARD_SOFTWARE_LIMIT;
+		return isTooHigh ? StateMachineConstants.ELEVATOR_OPEN_MAX_DRIVE_SPEEDS : swerve.getConstants().maxSpeeds();
+	}
+
 	/**
 	 * Checks if robot close enough in y and x-axis so we can open superstructure.
 	 */

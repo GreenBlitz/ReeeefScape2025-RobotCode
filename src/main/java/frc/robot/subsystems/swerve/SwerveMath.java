@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -44,6 +45,15 @@ public class SwerveMath {
 			speeds.vyMetersPerSecond * driveSpeed.getTranslationSpeedFactor(),
 			speeds.omegaRadiansPerSecond * driveSpeed.getRotationSpeedFactor()
 		);
+	}
+
+	public static ChassisSpeeds clamp(ChassisSpeeds speeds, ChassisSpeeds maxSpeeds) {
+		double xVelocityMetersPerSecond = MathUtil.clamp(speeds.vxMetersPerSecond, -maxSpeeds.vxMetersPerSecond, maxSpeeds.vxMetersPerSecond);
+		double yVelocityMetersPerSecond = MathUtil.clamp(speeds.vyMetersPerSecond, -maxSpeeds.vyMetersPerSecond, maxSpeeds.vyMetersPerSecond);
+		double rotVelocityRadiansPerSecond = MathUtil
+			.clamp(speeds.omegaRadiansPerSecond, -maxSpeeds.omegaRadiansPerSecond, maxSpeeds.omegaRadiansPerSecond);
+
+		return new ChassisSpeeds(xVelocityMetersPerSecond, yVelocityMetersPerSecond, rotVelocityRadiansPerSecond);
 	}
 
 	public static ChassisSpeeds applyDeadband(ChassisSpeeds chassisSpeeds, Pose2d deadbands) {
