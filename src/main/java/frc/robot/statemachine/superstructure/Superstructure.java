@@ -13,6 +13,7 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorState;
 import frc.robot.subsystems.elevator.ElevatorStateHandler;
 import frc.robot.subsystems.endeffector.EndEffectorState;
@@ -48,6 +49,12 @@ public class Superstructure extends GBSubsystem {
 		return robot.getElevator().getElevatorPositionMeters() >= ArmConstants.ELEVATOR_HEIGHT_METERS_TO_CHANGE_SOFT_LIMIT
 			? ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT
 			: ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
+	}
+
+	public double getElevatorReversedSoftLimitByArm() {
+		return robot.getArm().getPosition().getDegrees() >= ElevatorConstants.ARM_POSITION_TO_CHANGE_SOFT_LIMIT.getDegrees()
+			? ElevatorConstants.ARM_CLOSED_REVERSED_SOFTWARE_LIMIT
+			: ElevatorConstants.ARM_OPEN_REVERSED_SOFTWARE_LIMIT;
 	}
 
 	public boolean isCoralIn() {
