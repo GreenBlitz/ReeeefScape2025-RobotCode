@@ -39,11 +39,9 @@ public class SwerveMath {
 	}
 
 	public static ChassisSpeeds factorSpeeds(ChassisSpeeds speeds, DriveSpeed driveSpeed) {
-		double magnitude = getDriveMagnitude(speeds);
-		double factor = driveSpeed.translationSpeedFactor() / magnitude;
 		return new ChassisSpeeds(
-			speeds.vxMetersPerSecond * factor,
-			speeds.vyMetersPerSecond * factor,
+			speeds.vxMetersPerSecond * driveSpeed.translationSpeedFactor(),
+			speeds.vyMetersPerSecond * driveSpeed.translationSpeedFactor(),
 			speeds.omegaRadiansPerSecond * driveSpeed.rotationSpeedFactor()
 		);
 	}

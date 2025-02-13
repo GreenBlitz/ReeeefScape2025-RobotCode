@@ -22,7 +22,7 @@ public class StateMachineConstants {
 	public static final Rotation2d SWERVE_ROTATIONAL_SPEEDS_TO_LIMIT_ELEVATOR = Rotation2d.fromRadians(4);
 
 	public static final double SWERVE_MAGNITUDE_LIMIT_BY_ELEVATOR = 1.5;
-	public static final Rotation2d SWERVE_ROTATIONAL_LIMIT_BY_ELEVATOR = Rotation2d.fromRadians(4);
+	public static final Rotation2d SWERVE_ROTATIONAL_LIMIT_BY_ELEVATOR = Rotation2d.fromRadians(2.5);
 	public static final double ELEVATOR_HEIGHT_TO_LIMIT_SWERVE = 0.4;
 
 }

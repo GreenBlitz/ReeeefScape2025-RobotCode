@@ -50,7 +50,7 @@ public class RobotCommander extends GBSubsystem {
 
 	public double getElevatorForwardLimitBySwerve() {
 		double driveMagnitudeMetersPerSecond = SwerveMath.getDriveMagnitude(swerve.getRobotRelativeVelocity());
-		double omegaRadiansPerSecond = swerve.getRobotRelativeVelocity().omegaRadiansPerSecond;
+		double omegaRadiansPerSecond = Math.abs(swerve.getRobotRelativeVelocity().omegaRadiansPerSecond);
 		boolean isTooFast = driveMagnitudeMetersPerSecond > StateMachineConstants.SWERVE_MAGNITUDE_TO_LIMIT_ELEVATOR
 			|| omegaRadiansPerSecond > StateMachineConstants.SWERVE_ROTATIONAL_SPEEDS_TO_LIMIT_ELEVATOR.getRadians();
 		return isTooFast ? StateMachineConstants.ELEVATOR_LIMIT_BY_SWERVE : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
