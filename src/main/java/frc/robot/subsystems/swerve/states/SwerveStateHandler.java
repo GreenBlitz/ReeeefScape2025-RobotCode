@@ -9,12 +9,15 @@ import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.constants.field.enums.CoralStation;
 import frc.constants.field.enums.ReefSide;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtil;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssistMath;
 import frc.utils.alerts.Alert;
+import frc.utils.math.AngleTransform;
+import frc.utils.math.FieldMath;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -28,6 +31,7 @@ public class SwerveStateHandler {
 	private Supplier<Optional<ReefSide>> reefSideSupplier;
 	private Supplier<Optional<CoralStation>> coralStationSupplier;
 	private Supplier<Optional<Branch>> branchSupplier;
+	private Supplier<Optional<ScoreLevel>> scoreLevelSupplier;
 
 	public SwerveStateHandler(Swerve swerve) {
 		this.swerve = swerve;
@@ -37,6 +41,7 @@ public class SwerveStateHandler {
 		this.reefSideSupplier = Optional::empty;
 		this.coralStationSupplier = Optional::empty;
 		this.branchSupplier = Optional::empty;
+		this.scoreLevelSupplier = Optional::empty;
 	}
 
 	public void setRobotPoseSupplier(Supplier<Pose2d> robotPoseSupplier) {
@@ -55,6 +60,10 @@ public class SwerveStateHandler {
 		this.branchSupplier = branchSupplier;
 	}
 
+	public void setScoreLevelSupplier(Supplier<Optional<ScoreLevel>> scoreLevelSupplier) {
+		this.scoreLevelSupplier = scoreLevelSupplier;
+	}
+
 	private void reportMissingSupplier(String supplierName) {
 		new Alert(Alert.AlertType.WARNING, swerve.getLogPath() + "/AimAssist/missing " + supplierName + " supplier").report();
 	}
@@ -71,7 +80,12 @@ public class SwerveStateHandler {
 
 		if (swerveState.getAimAssist() == AimAssist.REEF) {
 			if (reefSideSupplier.get().isPresent()) {
-				return handleReefAimAssist(speeds, robotPoseSupplier.get().get().getRotation(), reefSideSupplier.get().get());
+				if (scoreLevelSupplier.get().isPresent()) {
+					return handleReefAimAssist(speeds, robotPoseSupplier.get().get().getRotation(), reefSideSupplier.get().get(), scoreLevelSupplier.get().get());
+				} else {
+					reportMissingSupplier("score level");
+					return speeds;
+				}
 			} else {
 				reportMissingSupplier("reef side");
 				return speeds;
@@ -87,7 +101,12 @@ public class SwerveStateHandler {
 		}
 		if (swerveState.getAimAssist() == AimAssist.BRANCH) {
 			if (branchSupplier.get().isPresent()) {
-				return handleBranchAimAssist(speeds, robotPoseSupplier.get().get(), branchSupplier.get().get(), swerveState);
+				if (scoreLevelSupplier.get().isPresent()) {
+					return handleBranchAimAssist(speeds, robotPoseSupplier.get().get(), branchSupplier.get().get(), swerveState, scoreLevelSupplier.get().get());
+				} else {
+					reportMissingSupplier("score level");
+					return speeds;
+				}
 			} else {
 				reportMissingSupplier("branch");
 				return speeds;
@@ -105,8 +124,10 @@ public class SwerveStateHandler {
 		return speeds;
 	}
 
-	private ChassisSpeeds handleReefAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading, ReefSide reefSide) {
-		Rotation2d headingToReefSide = Field.getReefSideMiddle(reefSide).getRotation();
+	private ChassisSpeeds handleReefAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading, ReefSide reefSide, ScoreLevel scoreLevel) {
+		Rotation2d headingToReefSide = scoreLevel == ScoreLevel.L1
+			? FieldMath.mirrorAngle(Field.getReefSideMiddle(reefSide).getRotation(), AngleTransform.INVERT)
+			: Field.getReefSideMiddle(reefSide).getRotation();
 		return AimAssistMath.getRotationAssistedSpeeds(chassisSpeeds, robotHeading, headingToReefSide, swerveConstants);
 	}
 
@@ -115,9 +136,17 @@ public class SwerveStateHandler {
 		return AimAssistMath.getRotationAssistedSpeeds(chassisSpeeds, robotHeading, headingToCoralStation, swerveConstants);
 	}
 
-	private ChassisSpeeds handleBranchAimAssist(ChassisSpeeds chassisSpeeds, Pose2d robotPose, Branch reefBranch, SwerveState swerveState) {
+	private ChassisSpeeds handleBranchAimAssist(
+		ChassisSpeeds chassisSpeeds,
+		Pose2d robotPose,
+		Branch reefBranch,
+		SwerveState swerveState,
+		ScoreLevel scoreLevel
+	) {
 		Translation2d branch = Field.getCoralPlacement(reefBranch);
-		Rotation2d headingToReefSide = Field.getReefSideMiddle(reefBranch.getReefSide()).getRotation();
+		Rotation2d headingToReefSide = scoreLevel == ScoreLevel.L1
+			? FieldMath.mirrorAngle(Field.getReefSideMiddle(reefBranch.getReefSide()).getRotation(), AngleTransform.INVERT)
+			: Field.getReefSideMiddle(reefBranch.getReefSide()).getRotation();
 
 		chassisSpeeds = AimAssistMath.getRotationAssistedSpeeds(chassisSpeeds, robotPose.getRotation(), headingToReefSide, swerveConstants);
 		return AimAssistMath.getObjectAssistedSpeeds(chassisSpeeds, robotPose, headingToReefSide, branch, swerveConstants, swerveState);
