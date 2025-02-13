@@ -9,23 +9,40 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-
 public class LoggedDashboardCommandCheck extends FunctionalCommand {
-	LoggedDashboardNumber loggedDashboardNumber = new LoggedDashboardNumber("MotorVoltage",0);
-	public LoggedDashboardCommandCheck(Runnable onInit, Runnable onExecute, Consumer<Boolean> onEnd, BooleanSupplier isFinished, Subsystem... requirements) {
-		super(onInit, onExecute, onEnd, isFinished, requirements);
-	}
-	
-	public  LoggedDashboardCommandCheck(Consumer<Double> onExecute, String widgetName, Subsystem... requirements){
+
+	public LoggedDashboardCommandCheck(Consumer<Double> onExecute, String widgetName, Subsystem... requirements) {
 		super(
-				()->{SmartDashboard.updateValues();
-					SmartDashboard.putString("Test Ran", "AHHHHHHHHHHHHHHHHHH");},
-				()->{onExecute.accept(new LoggedTunableNumber("SmartDashboard/VoltageSomething",4).get());
-					SmartDashboard.putNumber("Test2",new LoggedTunableNumber("SmartDashboard/VoltageSomething",4).get());} ,
-				(interrupted)->{},
-				()->false,
-				requirements
+			// Initialize the command
+			() -> {
+				// Perform any setup or initialization tasks if necessary
+				SmartDashboard.updateValues(); // Push updated values to Shuffleboard (outbound data)
+				SmartDashboard.putString("Test Ran", "AHHHHHHHHHHHHHHHHHH"); // Debug message
+			},
+
+			// The execute method that runs repeatedly
+			() -> {
+				// Get the latest value from the SmartDashboard (this will fetch the updated value)
+				double voltage = SmartDashboard.getNumber(widgetName, 4);
+
+				// Process the updated value with the provided consumer
+				onExecute.accept(voltage);
+
+				// Optionally update the SmartDashboard with the fetched value
+				SmartDashboard.putNumber("Test2", voltage);  // Update "Test2" on Shuffleboard with voltage
+			},
+
+			// The interrupted method (this is executed if the command is interrupted)
+			(interrupted) -> {
+				// Handle interruption if necessary (e.g., cleanup)
+			},
+
+			// The condition for when the command should end
+			() -> false, // This will run the command indefinitely, replace with actual condition if needed
+
+			// List of requirements (subsystems)
+			requirements
 		);
-		
 	}
 }
+
