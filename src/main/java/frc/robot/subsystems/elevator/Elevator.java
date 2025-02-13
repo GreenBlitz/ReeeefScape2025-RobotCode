@@ -172,7 +172,7 @@ public class Elevator extends GBSubsystem {
 	}
 
 	protected void setTargetPositionMeters(double targetPositionMeters) {
-		currentTargetPositionMeters = MathUtil.clamp(getElevatorPositionMeters(), reversedSoftLimitMeters, forwardSoftLimitMeters);
+		currentTargetPositionMeters = MathUtil.clamp(targetPositionMeters, reversedSoftLimitMeters, forwardSoftLimitMeters);
 		if (targetPositionMeters != currentTargetPositionMeters) {
 			new Alert(Alert.AlertType.WARNING, getLogPath() + "/Target Pose Under Or Above Limit").report();
 		}

@@ -33,27 +33,19 @@ public class SwerveMath {
 
 	public static ChassisSpeeds powersToSpeeds(ChassisPowers powers, SwerveConstants constants) {
 		return new ChassisSpeeds(
-			powers.xPower() * constants.velocityAt12VoltsMetersPerSecond(),
-			powers.yPower() * constants.velocityAt12VoltsMetersPerSecond(),
-			powers.rotationalPower() * constants.maxRotationalVelocityPerSecond().getRadians()
+			powers.xPower() * constants.maxSpeeds().vxMetersPerSecond,
+			powers.yPower() * constants.maxSpeeds().vyMetersPerSecond,
+			powers.rotationalPower() * constants.maxSpeeds().omegaRadiansPerSecond
 		);
 	}
 
 	public static ChassisSpeeds factorSpeeds(ChassisSpeeds speeds, DriveSpeed driveSpeed) {
+		double magnitude = getDriveMagnitude(speeds);
 		return new ChassisSpeeds(
-			speeds.vxMetersPerSecond * driveSpeed.getTranslationSpeedFactor(),
-			speeds.vyMetersPerSecond * driveSpeed.getTranslationSpeedFactor(),
+			(speeds.vxMetersPerSecond / magnitude) * driveSpeed.getTranslationSpeedFactor(),
+			(speeds.vyMetersPerSecond / magnitude) * driveSpeed.getTranslationSpeedFactor(),
 			speeds.omegaRadiansPerSecond * driveSpeed.getRotationSpeedFactor()
 		);
-	}
-
-	public static ChassisSpeeds clamp(ChassisSpeeds speeds, ChassisSpeeds maxSpeeds) {
-		double xVelocityMetersPerSecond = MathUtil.clamp(speeds.vxMetersPerSecond, -maxSpeeds.vxMetersPerSecond, maxSpeeds.vxMetersPerSecond);
-		double yVelocityMetersPerSecond = MathUtil.clamp(speeds.vyMetersPerSecond, -maxSpeeds.vyMetersPerSecond, maxSpeeds.vyMetersPerSecond);
-		double rotVelocityRadiansPerSecond = MathUtil
-			.clamp(speeds.omegaRadiansPerSecond, -maxSpeeds.omegaRadiansPerSecond, maxSpeeds.omegaRadiansPerSecond);
-
-		return new ChassisSpeeds(xVelocityMetersPerSecond, yVelocityMetersPerSecond, rotVelocityRadiansPerSecond);
 	}
 
 	public static ChassisSpeeds applyDeadband(ChassisSpeeds chassisSpeeds, Pose2d deadbands) {
