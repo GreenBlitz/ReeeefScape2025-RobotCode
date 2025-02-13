@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.707514355016899,
-        "y": 6.806669720953798
+        "x": 6.7275,
+        "y": 6.481999999999999
       },
       "isLocked": false,
       "linkedName": "AL1"
@@ -20,8 +20,8 @@
         "y": 5.25
       },
       "prevControl": {
-        "x": 5.645193268002719,
-        "y": 5.957917332309505
+        "x": 6.015750000000001,
+        "y": 6.80375
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,14 +34,14 @@
   "eventMarkers": [
     {
       "name": "PRE_SCORE",
-      "waypointRelativePos": 0.6298561151079174,
+      "waypointRelativePos": 0.8350109409190373,
       "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 4.2,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -55,7 +55,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -137.0
   },
   "useDefaultConstraints": true
 }

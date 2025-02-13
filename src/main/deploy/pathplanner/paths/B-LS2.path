@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.16,
-        "y": 4.19
+        "y": 3.86
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6662909836065571,
-        "y": 5.313678278688524
+        "x": 1.6965000000000001,
+        "y": 3.85925
       },
       "isLocked": false,
-      "linkedName": "A"
+      "linkedName": "B"
     },
     {
       "anchor": {
-        "x": 0.9710040983606557,
-        "y": 7.003944672131147
+        "x": 1.61,
+        "y": 0.7
       },
       "prevControl": {
-        "x": 1.6532540983606485,
-        "y": 6.622444672131147
+        "x": 1.90125,
+        "y": 0.8367499999999995
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "US"
+      "linkedName": "LS2"
     }
   ],
   "rotationTargets": [],
@@ -34,13 +34,13 @@
   "eventMarkers": [
     {
       "name": "IDLE",
-      "waypointRelativePos": 0.19532374100719266,
+      "waypointRelativePos": 0.16630196936542718,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
       "name": "INTAKE",
-      "waypointRelativePos": 0.6,
+      "waypointRelativePos": 0.5829321663019685,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,7 +55,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -54.0
+    "rotation": 54.0
   },
   "reversed": false,
   "folder": null,

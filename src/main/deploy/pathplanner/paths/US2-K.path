@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.95,
-        "y": 5.26
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 3.393,
-        "y": 6.3942499999999995
-      },
-      "isLocked": false,
-      "linkedName": "K"
-    },
-    {
-      "anchor": {
         "x": 0.9710040983606557,
         "y": 7.003944672131147
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.136504098360656,
+        "y": 6.329694672131146
+      },
+      "isLocked": false,
+      "linkedName": "US2"
+    },
+    {
+      "anchor": {
+        "x": 3.95,
+        "y": 5.26
+      },
       "prevControl": {
-        "x": 1.0097540983606557,
-        "y": 6.680694672131147
+        "x": 3.36375,
+        "y": 6.969499999999999
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "US"
+      "linkedName": "K"
     }
   ],
   "rotationTargets": [],
@@ -34,13 +34,13 @@
   "eventMarkers": [
     {
       "name": "IDLE",
-      "waypointRelativePos": 0.10678336980306262,
+      "waypointRelativePos": 0.2993435448577661,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "INTAKE",
-      "waypointRelativePos": 0.6249452954048148,
+      "name": "PRE_SCORE",
+      "waypointRelativePos": 0.796498905908097,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,13 +55,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -54.0
+    "rotation": -59.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }
