@@ -177,7 +177,7 @@ public class Elevator extends GBSubsystem {
 
 	protected void stayInPlace() {
 		double limitedPositionMeters = MathUtil
-			.clamp(getElevatorPositionMeters(), ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS, reversedSoftLimitMeters);
+			.clamp(getElevatorPositionMeters(), reversedSoftLimitMeters, ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS);
 		setTargetPositionMeters(limitedPositionMeters);
 	}
 
