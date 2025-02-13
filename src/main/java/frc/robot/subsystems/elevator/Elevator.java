@@ -172,20 +172,18 @@ public class Elevator extends GBSubsystem {
 	}
 
 	protected void setTargetPositionMeters(double targetPositionMeters) {
-		currentTargetPositionMeters = targetPositionMeters;
-		if (reversedSoftLimitMeters <= targetPositionMeters && forwardSoftLimitMeters >= targetPositionMeters) {
-			Rotation2d targetPosition = convertMetersToRotations(targetPositionMeters);
-			rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
-			leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
-		} else {
+		currentTargetPositionMeters = MathUtil.clamp(getElevatorPositionMeters(), reversedSoftLimitMeters, forwardSoftLimitMeters);
+		if (targetPositionMeters != currentTargetPositionMeters) {
 			new Alert(Alert.AlertType.WARNING, getLogPath() + "/Target Pose Under Or Above Limit").report();
-			stayInPlace();
 		}
+
+		Rotation2d targetPosition = convertMetersToRotations(currentTargetPositionMeters);
+		rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
+		leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
 	}
 
 	protected void stayInPlace() {
-		double limitedPositionMeters = MathUtil.clamp(getElevatorPositionMeters(), reversedSoftLimitMeters, forwardSoftLimitMeters);
-		setTargetPositionMeters(limitedPositionMeters);
+		setTargetPositionMeters(getElevatorPositionMeters());
 	}
 
 	public boolean isAtPosition(double positionMeters, double toleranceMeters) {

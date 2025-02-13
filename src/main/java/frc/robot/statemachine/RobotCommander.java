@@ -47,12 +47,11 @@ public class RobotCommander extends GBSubsystem {
 		return superstructure;
 	}
 
-	public double getElevatorForwardLimitBySwerve(){
+	public double getElevatorForwardLimitBySwerve() {
 		double driveMagnitudeMetersPerSecond = SwerveMath.getDriveMagnitude(swerve.getRobotRelativeVelocity());
 		double omegaRadiansPerSecond = swerve.getRobotRelativeVelocity().omegaRadiansPerSecond;
-		boolean isTooFast =
-				driveMagnitudeMetersPerSecond >= StateMachineConstants.LIMIT_ELEVATOR_MAGNITUDE_METERS_PER_SECOND ||
-				omegaRadiansPerSecond >= StateMachineConstants.LIMIT_ELEVATOR_MAGNITUDE_RADIANS_PER_SECOND.getRadians();
+		boolean isTooFast = driveMagnitudeMetersPerSecond >= StateMachineConstants.LIMIT_ELEVATOR_MAGNITUDE_METERS_PER_SECOND
+			|| omegaRadiansPerSecond >= StateMachineConstants.LIMIT_ELEVATOR_MAGNITUDE_RADIANS_PER_SECOND.getRadians();
 		return isTooFast ? ElevatorConstants.ROBOT_FAST_FORWARD_SOFTWARE_LIMIT : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
 	}
 

@@ -110,23 +110,18 @@ public class Arm extends GBSubsystem {
 	}
 
 	protected void setTargetPosition(Rotation2d targetPosition) {
-		if (reversedSoftLimit.getDegrees() <= targetPosition.getDegrees()) {
-			motor.applyRequest(positionRequest.withSetPoint(targetPosition));
-		} else {
+		Rotation2d limitedPosition = Rotation2d.fromDegrees(
+			MathUtil.clamp(targetPosition.getDegrees(), reversedSoftLimit.getDegrees(), ArmConstants.FORWARD_SOFTWARE_LIMIT.getDegrees())
+		);
+		if (limitedPosition.getDegrees() != targetPosition.getDegrees()) {
 			new Alert(Alert.AlertType.WARNING, getLogPath() + "/TargetPoseUnderLimit").report();
-			stayInPlace();
 		}
+
+		motor.applyRequest(positionRequest.withSetPoint(limitedPosition));
 	}
 
 	protected void stayInPlace() {
-		Rotation2d limitedPosition = Rotation2d.fromDegrees(
-			MathUtil.clamp(
-				motorPositionSignal.getLatestValue().getDegrees(),
-				reversedSoftLimit.getDegrees(),
-				ArmConstants.FORWARD_SOFTWARE_LIMIT.getDegrees()
-			)
-		);
-		setTargetPosition(limitedPosition);
+		setTargetPosition(getPosition());
 	}
 
 	public boolean isAtPosition(Rotation2d position, Rotation2d tolerance) {
