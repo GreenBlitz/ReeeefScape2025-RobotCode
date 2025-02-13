@@ -16,6 +16,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 
@@ -222,12 +223,17 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command completeCycle(ScoreLevel scoreLevel, Branch branch) {
-		return new SequentialCommandGroup(
-			genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
-			genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
-			genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
-			genericScore(scoreLevel)
+	public Command scoreSequence(ScoreLevel scoreLevel, Branch branch) {
+		return new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+						genericArmPreScore(scoreLevel).until(() -> isReadyToOpenSuperstructure(scoreLevel, branch)),
+						genericPreScore(scoreLevel).until(() -> isPreScoreReady(scoreLevel, branch)),
+						genericScoreWithoutRelease(scoreLevel).until(() -> isReadyToScore(scoreLevel, branch)),
+						genericScore(scoreLevel)
+				),
+				new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(scoreLevel, branch))),
+				new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(scoreLevel, branch))),
+				new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(scoreLevel, branch)))
 		);
 	}
 
