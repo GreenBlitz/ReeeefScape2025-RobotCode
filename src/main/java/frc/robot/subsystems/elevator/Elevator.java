@@ -15,6 +15,7 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elevator.factory.KrakenX60ElevatorBuilder;
 import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
 import frc.utils.Conversions;
+import frc.utils.alerts.Alert;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.calibration.sysid.SysIdCalibrator;
 import org.littletonrobotics.junction.Logger;
@@ -38,6 +39,7 @@ public class Elevator extends GBSubsystem {
 	private final ElevatorCommandsBuilder commandsBuilder;
 	private final SysIdCalibrator sysIdCalibrator;
 
+	private double reversedSoftLimitMeters;
 	private boolean hasBeenResetBySwitch;
 	private double ffCalibrationVoltage;
 	private double currentTargetPositionMeters;
@@ -66,6 +68,7 @@ public class Elevator extends GBSubsystem {
 		this.digitalInputInputs = new DigitalInputInputsAutoLogged();
 		hasBeenResetBySwitch = false;
 		this.ffCalibrationVoltage = 0;
+		this.reversedSoftLimitMeters = ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS;
 
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 		this.sysIdCalibrator = new SysIdCalibrator(rightMotor.getSysidConfigInfo(), this, (voltage) -> setVoltage(voltage + getKgVoltage()));
@@ -136,6 +139,10 @@ public class Elevator extends GBSubsystem {
 		leftMotor.resetPosition(convertedPosition);
 	}
 
+	public void setReversedSoftLimitMeters(double newReversedSoftLimitMeters) {
+		reversedSoftLimitMeters = newReversedSoftLimitMeters;
+	}
+
 	public void setBrake(boolean brake) {
 		rightMotor.setBrake(brake);
 		leftMotor.setBrake(brake);
@@ -158,13 +165,20 @@ public class Elevator extends GBSubsystem {
 
 	protected void setTargetPositionMeters(double targetPositionMeters) {
 		currentTargetPositionMeters = targetPositionMeters;
-		Rotation2d targetPosition = convertMetersToRotations(targetPositionMeters);
-		rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
-		leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
+		if (reversedSoftLimitMeters <= targetPositionMeters) {
+			Rotation2d targetPosition = convertMetersToRotations(targetPositionMeters);
+			rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
+			leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
+		} else {
+			new Alert(Alert.AlertType.WARNING, getLogPath() + "/TargetPoseUnderLimit").report();
+			stayInPlace();
+		}
 	}
 
 	protected void stayInPlace() {
-		setTargetPositionMeters(getElevatorPositionMeters());
+		double limitedPositionMeters = MathUtil
+			.clamp(getElevatorPositionMeters(), ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS, reversedSoftLimitMeters);
+		setTargetPositionMeters(limitedPositionMeters);
 	}
 
 	public boolean isAtPosition(double positionMeters, double toleranceMeters) {
