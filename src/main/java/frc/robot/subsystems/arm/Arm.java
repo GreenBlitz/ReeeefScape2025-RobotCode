@@ -49,7 +49,7 @@ public class Arm extends GBSubsystem {
 		this.encoderPositionSignal = encoderPositionSignal;
 		this.commandsBuilder = new ArmCommandsBuilder(this);
 		this.sysIdCalibrator = new SysIdCalibrator(motor.getSysidConfigInfo(), this, (voltage) -> setVoltage(voltage + getKgVoltage()));
-		this.reversedSoftLimit = ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
+		this.reversedSoftLimit = ArmConstants.REVERSED_SOFTWARE_LIMIT;
 
 		periodic();
 		resetByEncoderPosition();

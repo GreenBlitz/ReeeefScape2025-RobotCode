@@ -1,6 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -33,18 +32,19 @@ public class SwerveMath {
 
 	public static ChassisSpeeds powersToSpeeds(ChassisPowers powers, SwerveConstants constants) {
 		return new ChassisSpeeds(
-			powers.xPower() * constants.maxSpeeds().vxMetersPerSecond,
-			powers.yPower() * constants.maxSpeeds().vyMetersPerSecond,
-			powers.rotationalPower() * constants.maxSpeeds().omegaRadiansPerSecond
+			powers.xPower() * constants.velocityAt12VoltsMetersPerSecond(),
+			powers.yPower() * constants.velocityAt12VoltsMetersPerSecond(),
+			powers.rotationalPower() * constants.maxRotationalVelocityPerSecond().getRadians()
 		);
 	}
 
 	public static ChassisSpeeds factorSpeeds(ChassisSpeeds speeds, DriveSpeed driveSpeed) {
 		double magnitude = getDriveMagnitude(speeds);
+		double factor = driveSpeed.translationSpeedFactor() / magnitude;
 		return new ChassisSpeeds(
-			(speeds.vxMetersPerSecond / magnitude) * driveSpeed.getTranslationSpeedFactor(),
-			(speeds.vyMetersPerSecond / magnitude) * driveSpeed.getTranslationSpeedFactor(),
-			speeds.omegaRadiansPerSecond * driveSpeed.getRotationSpeedFactor()
+			speeds.vxMetersPerSecond * factor,
+			speeds.vyMetersPerSecond * factor,
+			speeds.omegaRadiansPerSecond * driveSpeed.rotationSpeedFactor()
 		);
 	}
 

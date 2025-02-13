@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ArmConstants {
 
+	public static final Rotation2d REVERSED_SOFTWARE_LIMIT = Rotation2d.fromDegrees(-13);
 	public static final Rotation2d FORWARD_SOFTWARE_LIMIT = Rotation2d.fromDegrees(220);
 	public static final Rotation2d MAXIMUM_POSITION = Rotation2d.fromDegrees(240);
 
