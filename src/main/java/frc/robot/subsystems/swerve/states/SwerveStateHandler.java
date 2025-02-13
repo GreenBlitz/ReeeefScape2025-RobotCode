@@ -80,12 +80,12 @@ public class SwerveStateHandler {
 
 		if (swerveState.getAimAssist() == AimAssist.REEF) {
 			if (reefSideSupplier.get().isPresent()) {
-				if (scoreLevelSupplier.get().isPresent()) {
+//				if (scoreLevelSupplier.get().isPresent()) {
 					return handleReefAimAssist(speeds, robotPoseSupplier.get().get().getRotation(), reefSideSupplier.get().get(), scoreLevelSupplier.get().get());
-				} else {
-					reportMissingSupplier("score level");
-					return speeds;
-				}
+//				} else {
+//					reportMissingSupplier("score level");
+//					return speeds;
+//				}
 			} else {
 				reportMissingSupplier("reef side");
 				return speeds;
@@ -101,12 +101,12 @@ public class SwerveStateHandler {
 		}
 		if (swerveState.getAimAssist() == AimAssist.BRANCH) {
 			if (branchSupplier.get().isPresent()) {
-				if (scoreLevelSupplier.get().isPresent()) {
+//				if (scoreLevelSupplier.get().isPresent()) {
 					return handleBranchAimAssist(speeds, robotPoseSupplier.get().get(), branchSupplier.get().get(), swerveState, scoreLevelSupplier.get().get());
-				} else {
-					reportMissingSupplier("score level");
-					return speeds;
-				}
+//				} else {
+//					reportMissingSupplier("score level");
+//					return speeds;
+//				}
 			} else {
 				reportMissingSupplier("branch");
 				return speeds;
