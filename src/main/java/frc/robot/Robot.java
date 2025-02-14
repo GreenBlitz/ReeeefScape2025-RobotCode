@@ -9,7 +9,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.RobotManager;
+import frc.constants.field.enums.ReefSide;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
+import frc.robot.scoringhelpers.ScoringHelpers;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.vision.VisionConstants;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
@@ -36,6 +39,8 @@ import frc.utils.TimedValue;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.time.TimeUtil;
+
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -114,6 +119,10 @@ public class Robot {
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
+
+		swerve.getStateHandler().setReefSideSupplier(() -> Optional.of(ReefSide.B));
+		swerve.getStateHandler().setScoreLevelSupplier(() -> Optional.of(ScoreLevel.L3));
+		swerve.getStateHandler().setBranchSupplier(() ->Optional.of(ScoringHelpers.targetBranch));
 	}
 
 	public void periodic() {
