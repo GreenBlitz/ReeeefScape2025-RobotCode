@@ -118,8 +118,8 @@ public class Robot {
 
 	public void periodic() {
 		swerve.update();
-		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
-		elevator.setReversedSoftLimitMeters(robotCommander.getSuperstructure().getElevatorReversedSoftLimitByArm());
+		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedLimitByElevator());
+		elevator.setReversedSoftLimitMeters(robotCommander.getSuperstructure().getElevatorReversedLimitByArm());
 		elevator.setForwardSoftLimitMeters(robotCommander.getElevatorForwardLimitBySwerve());
 		swerve.setDriveSpeedLimit(robotCommander.getSwerveSpeedLimitByElevator());
 

@@ -55,7 +55,7 @@ public class RobotCommander extends GBSubsystem {
 		boolean isFastEnoughToLimit = driveMagnitudeMetersPerSecond > StateMachineConstants.SWERVE_MAGNITUDE_TO_LIMIT_ELEVATOR_METERS_PER_SECOND
 			|| omegaRadiansPerSecond > StateMachineConstants.SWERVE_ROTATIONAL_SPEED_TO_LIMIT_ELEVATOR.getRadians();
 
-		return isFastEnoughToLimit ? StateMachineConstants.ELEVATOR_LIMIT_BY_SWERVE_METERS : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
+		return isFastEnoughToLimit ? StateMachineConstants.ELEVATOR_LIMIT_BY_SWERVE_METERS : ElevatorConstants.FORWARD_SOFTWARE_LIMIT_METERS;
 	}
 
 	public DriveSpeed getSwerveSpeedLimitByElevator() {

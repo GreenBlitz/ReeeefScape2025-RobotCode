@@ -47,16 +47,15 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-
-	public Rotation2d getArmReversedSoftLimitByElevator() {
+	public Rotation2d getArmReversedLimitByElevator() {
 		return robot.getElevator().getElevatorPositionMeters() >= StateMachineConstants.ELEVATOR_HEIGHT_TO_LIMIT_ARM_METERS
 			? StateMachineConstants.ARM_REVERSED_LIMIT_BY_ELEVATOR
 			: ArmConstants.REVERSED_SOFTWARE_LIMIT;
 	}
 
-	public double getElevatorReversedSoftLimitByArm() {
+	public double getElevatorReversedLimitByArm() {
 		return robot.getArm().getPosition().getDegrees() >= StateMachineConstants.ARM_POSITION_TO_LIMIT_ELEVATOR.getDegrees()
-			? ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS
+			? ElevatorConstants.REVERSE_SOFTWARE_LIMIT_METERS
 			: StateMachineConstants.ELEVATOR_REVERSED_LIMIT_BY_ARM_METERS;
 	}
 

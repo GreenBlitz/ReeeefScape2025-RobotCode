@@ -69,8 +69,8 @@ public class Elevator extends GBSubsystem {
 		this.digitalInputInputs = new DigitalInputInputsAutoLogged();
 		hasBeenResetBySwitch = false;
 		this.ffCalibrationVoltage = 0;
-		this.forwardSoftLimitMeters = ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
-		this.reversedSoftLimitMeters = ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS;
+		this.forwardSoftLimitMeters = ElevatorConstants.FORWARD_SOFTWARE_LIMIT_METERS;
+		this.reversedSoftLimitMeters = ElevatorConstants.REVERSE_SOFTWARE_LIMIT_METERS;
 
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 		this.sysIdCalibrator = new SysIdCalibrator(rightMotor.getSysidConfigInfo(), this, (voltage) -> setVoltage(voltage + getKgVoltage()));
