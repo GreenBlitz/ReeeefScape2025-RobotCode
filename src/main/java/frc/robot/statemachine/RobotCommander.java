@@ -205,7 +205,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command scoreSequence() {
-		return new ParallelDeadlineGroup(
+		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
 				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
