@@ -51,16 +51,16 @@ public class RobotCommander extends GBSubsystem {
 	public double getElevatorForwardLimitBySwerve() {
 		double driveMagnitudeMetersPerSecond = SwerveMath.getDriveMagnitude(swerve.getRobotRelativeVelocity());
 		double omegaRadiansPerSecond = Math.abs(swerve.getRobotRelativeVelocity().omegaRadiansPerSecond);
-		boolean isTooFast = driveMagnitudeMetersPerSecond > StateMachineConstants.SWERVE_MAGNITUDE_TO_LIMIT_ELEVATOR
-			|| omegaRadiansPerSecond > StateMachineConstants.SWERVE_ROTATIONAL_SPEEDS_TO_LIMIT_ELEVATOR.getRadians();
-		return isTooFast ? StateMachineConstants.ELEVATOR_LIMIT_BY_SWERVE : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
+		boolean isTooFast = driveMagnitudeMetersPerSecond > StateMachineConstants.SWERVE_MAGNITUDE_TO_LIMIT_ELEVATOR_METERS_PER_SECOND
+			|| omegaRadiansPerSecond > StateMachineConstants.SWERVE_ROTATIONAL_SPEED_TO_LIMIT_ELEVATOR.getRadians();
+		return isTooFast ? StateMachineConstants.ELEVATOR_LIMIT_BY_SWERVE_METERS : ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS;
 	}
 
-	public DriveSpeed getSwerveMaxSpeedsLimitByElevator() {
-		boolean isTooHigh = robot.getElevator().getElevatorPositionMeters() >= StateMachineConstants.ELEVATOR_HEIGHT_TO_LIMIT_SWERVE;
-		double magnitudeFactor = StateMachineConstants.SWERVE_MAGNITUDE_LIMIT_BY_ELEVATOR
+	public DriveSpeed getSwerveDriveSpeedLimitByElevator() {
+		boolean isTooHigh = robot.getElevator().getElevatorPositionMeters() >= StateMachineConstants.ELEVATOR_HEIGHT_TO_LIMIT_SWERVE_METERS;
+		double magnitudeFactor = StateMachineConstants.SWERVE_MAGNITUDE_LIMIT_BY_ELEVATOR_METERS_PER_SECOND
 			/ swerve.getConstants().velocityAt12VoltsMetersPerSecond();
-		double rotationalFactor = StateMachineConstants.SWERVE_ROTATIONAL_LIMIT_BY_ELEVATOR.getRadians()
+		double rotationalFactor = StateMachineConstants.SWERVE_ROTATIONAL_SPEED_LIMIT_BY_ELEVATOR.getRadians()
 			/ swerve.getConstants().maxRotationalVelocityPerSecond().getRadians();
 		return isTooHigh ? new DriveSpeed(magnitudeFactor, rotationalFactor) : DriveSpeed.NORMAL;
 	}

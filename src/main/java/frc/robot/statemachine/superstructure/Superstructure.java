@@ -57,7 +57,7 @@ public class Superstructure extends GBSubsystem {
 	public double getElevatorReversedSoftLimitByArm() {
 		return robot.getArm().getPosition().getDegrees() >= StateMachineConstants.ARM_POSITION_TO_LIMIT_ELEVATOR.getDegrees()
 			? ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS
-			: StateMachineConstants.ELEVATOR_REVERSED_LIMIT_BY_ARM;
+			: StateMachineConstants.ELEVATOR_REVERSED_LIMIT_BY_ARM_METERS;
 	}
 
 	public boolean isCoralIn() {

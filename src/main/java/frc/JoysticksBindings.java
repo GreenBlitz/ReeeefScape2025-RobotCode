@@ -72,7 +72,7 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.PRE_L4));
+		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.PRE_SCORE));
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 	}
 
