@@ -99,11 +99,11 @@ public class KrakenX60ElevatorBuilder {
 		configuration.CurrentLimits.StatorCurrentLimit = CURRENT_LIMIT;
 		configuration.CurrentLimits.StatorCurrentLimitEnable = CURRENT_LIMIT_ENABLE;
 		configuration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Elevator
-			.convertMetersToRotations(ElevatorConstants.REVERSE_SOFT_LIMIT_VALUE_METERS)
+			.convertMetersToRotations(ElevatorConstants.REVERSE_SOFTWARE_LIMIT_METERS)
 			.getRotations();
 		configuration.SoftwareLimitSwitch.ReverseSoftLimitEnable = SOFT_LIMIT_ENABLE;
 		configuration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Elevator
-			.convertMetersToRotations(ElevatorConstants.FORWARD_SOFT_LIMIT_VALUE_METERS)
+			.convertMetersToRotations(ElevatorConstants.FORWARD_SOFTWARE_LIMIT_METERS)
 			.getRotations();
 		configuration.SoftwareLimitSwitch.ForwardSoftLimitEnable = SOFT_LIMIT_ENABLE;
 		configuration.MotorOutput.Inverted = inverted ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;

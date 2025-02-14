@@ -14,6 +14,7 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorState;
 import frc.robot.subsystems.elevator.ElevatorStateHandler;
 import frc.robot.subsystems.endeffector.EndEffectorState;
@@ -46,11 +47,16 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
+	public Rotation2d getArmReversedLimitByElevator() {
+		return robot.getElevator().getElevatorPositionMeters() >= StateMachineConstants.ELEVATOR_HEIGHT_TO_LIMIT_ARM_METERS
+			? StateMachineConstants.ARM_REVERSED_LIMIT_BY_ELEVATOR
+			: ArmConstants.REVERSED_SOFTWARE_LIMIT;
+	}
 
-	public Rotation2d getArmReversedSoftLimitByElevator() {
-		return robot.getElevator().getElevatorPositionMeters() >= ArmConstants.ELEVATOR_HEIGHT_METERS_TO_CHANGE_SOFT_LIMIT
-			? ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT
-			: ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT;
+	public double getElevatorReversedLimitByArm() {
+		return robot.getArm().getPosition().getDegrees() >= StateMachineConstants.ARM_POSITION_TO_LIMIT_ELEVATOR.getDegrees()
+			? ElevatorConstants.REVERSE_SOFTWARE_LIMIT_METERS
+			: StateMachineConstants.ELEVATOR_REVERSED_LIMIT_BY_ARM_METERS;
 	}
 
 	public boolean isCoralIn() {
