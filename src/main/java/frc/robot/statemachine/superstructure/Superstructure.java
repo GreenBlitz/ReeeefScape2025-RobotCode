@@ -127,7 +127,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command armPreScore() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetLevel;
+		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.CLOSED),
@@ -139,7 +139,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command preScore() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetLevel;
+		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(scoreLevel.getElevatorPreScore()),
@@ -151,7 +151,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command scoreWithoutRelease() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetLevel;
+		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
@@ -163,7 +163,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command scoreWithRelease() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetLevel;
+		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(

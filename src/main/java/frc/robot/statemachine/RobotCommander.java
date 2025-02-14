@@ -77,7 +77,7 @@ public class RobotCommander extends GBSubsystem {
 	) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, scoringPoseDistanceFromReefMeters)
+		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotBranchScoringPose(branch, scoringPoseDistanceFromReefMeters)
 			.rotateBy(reefAngle.unaryMinus());
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
@@ -207,29 +207,40 @@ public class RobotCommander extends GBSubsystem {
 	public Command scoreSequence() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
-				armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
-				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
-				scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
+				armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+				scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
 				score()
 			),
-			new RunCommand(() -> Logger.recordOutput("Test/isReadyToOpen", isReadyToOpenSuperstructure(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch))),
-			new RunCommand(() -> Logger.recordOutput("Test/isPreScoreReady", isPreScoreReady(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch))),
-			new RunCommand(() -> Logger.recordOutput("Test/isReadyToScore", isReadyToScore(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)))
+			new RunCommand(
+				() -> Logger.recordOutput(
+					"Test/isReadyToOpen",
+					isReadyToOpenSuperstructure(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())
+				)
+			),
+			new RunCommand(
+				() -> Logger
+					.recordOutput("Test/isPreScoreReady", isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch()))
+			),
+			new RunCommand(
+				() -> Logger
+					.recordOutput("Test/isReadyToScore", isReadyToScore(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch()))
+			)
 		);
 	}
-	
-	public Command scoreWithoutReleaseSequence(){
+
+	public Command scoreWithoutReleaseSequence() {
 		return new SequentialCommandGroup(
-				armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
-				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
-				scoreWithoutRelease()
+			armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+			preScore().until(() -> isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+			scoreWithoutRelease()
 		);
 	}
-	
-	public Command scoreWithoutReleaseThanScoreSequence(){
+
+	public Command scoreWithoutReleaseThanScoreSequence() {
 		return new SequentialCommandGroup(
-				scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch)),
-				score()
+			scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+			score()
 		);
 	}
 

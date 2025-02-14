@@ -31,4 +31,15 @@ public enum Branch {
 		return reefSide;
 	}
 
+	public static Branch getBranchByReefSideAndSide(ReefSide reefSide, boolean isLeft) {
+		return switch (reefSide) {
+			case A -> isLeft ? A : B;
+			case B -> isLeft ? C : D;
+			case C -> isLeft ? F : E;
+			case D -> isLeft ? H : G;
+			case E -> isLeft ? J : I;
+			case F -> isLeft ? K : L;
+		};
+	}
+
 }

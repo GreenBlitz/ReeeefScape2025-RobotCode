@@ -1,5 +1,7 @@
 package frc.constants.field.enums;
 
+import frc.utils.pose.Side;
+
 public enum ReefSide {
 
 	A(0),
@@ -17,6 +19,14 @@ public enum ReefSide {
 
 	public int getIndex() {
 		return index;
+	}
+
+	public static ReefSide getReefSideBySideAndFar(Side side, boolean isFar) {
+		return switch (side) {
+			case LEFT -> isFar ? E : F;
+			case MIDDLE -> isFar ? D : A;
+			case RIGHT -> isFar ? C : B;
+		};
 	}
 
 }
