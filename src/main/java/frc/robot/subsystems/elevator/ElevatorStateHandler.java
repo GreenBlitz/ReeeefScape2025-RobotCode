@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
+import java.util.function.Supplier;
+
 public class ElevatorStateHandler {
 
 	private final Elevator elevator;
@@ -22,6 +24,10 @@ public class ElevatorStateHandler {
 			new InstantCommand(() -> currentState = state),
 			elevator.getCommandsBuilder().setTargetPositionMeters(state.getHeightMeters())
 		);
+	}
+
+	public Command setState(Supplier<ElevatorState> stateSupplier){
+		return setState(stateSupplier.get());
 	}
 
 }

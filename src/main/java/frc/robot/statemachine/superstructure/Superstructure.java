@@ -21,6 +21,7 @@ import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class Superstructure extends GBSubsystem {
 
@@ -127,11 +128,11 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command armPreScore() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
+		Supplier<ScoreLevel> scoreLevel = ScoringHelpers::getTargetScoreLevel;
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.CLOSED),
-				armStateHandler.setState(scoreLevel.getArmPreScore()),
+				armStateHandler.setState(scoreLevel.get().getArmPreScore()),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 			),
 			SuperstructureState.ARM_PRE_SCORE
@@ -139,11 +140,11 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command preScore() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
+		Supplier<ScoreLevel> scoreLevel = ScoringHelpers::getTargetScoreLevel;
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				elevatorStateHandler.setState(scoreLevel.getElevatorPreScore()),
-				armStateHandler.setState(scoreLevel.getArmPreScore()),
+				elevatorStateHandler.setState(scoreLevel.get().getElevatorPreScore()),
+				armStateHandler.setState(scoreLevel.get().getArmPreScore()),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 			),
 			SuperstructureState.PRE_SCORE
@@ -151,11 +152,10 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command scoreWithoutRelease() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-				armStateHandler.setState(scoreLevel.getArmScore()),
+				elevatorStateHandler.setState(() -> ScoringHelpers.getTargetScoreLevel().getElevatorScore()),
+				armStateHandler.setState(() -> ScoringHelpers.getTargetScoreLevel().getArmScore()),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 			),
 			SuperstructureState.SCORE_WITHOUT_RELEASE
@@ -163,18 +163,18 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command scoreWithRelease() {
-		ScoreLevel scoreLevel = ScoringHelpers.targetScoreLevel;
+		Supplier<ScoreLevel> scoreLevel = ScoringHelpers::getTargetScoreLevel;
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(scoreLevel.getEndEffectorScore())
+					elevatorStateHandler.setState(scoreLevel.get().getElevatorScore()),
+					armStateHandler.setState(scoreLevel.get().getArmScore()),
+					endEffectorStateHandler.setState(scoreLevel.get().getEndEffectorScore())
 				).until(this::isCoralOut),
 				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.getElevatorScore()),
-					armStateHandler.setState(scoreLevel.getArmScore()),
-					endEffectorStateHandler.setState(scoreLevel.getEndEffectorScore())
+					elevatorStateHandler.setState(scoreLevel.get().getElevatorScore()),
+					armStateHandler.setState(scoreLevel.get().getArmScore()),
+					endEffectorStateHandler.setState(scoreLevel.get().getEndEffectorScore())
 				).withTimeout(StateMachineConstants.SCORE_OUTTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
 			),
 			SuperstructureState.SCORE

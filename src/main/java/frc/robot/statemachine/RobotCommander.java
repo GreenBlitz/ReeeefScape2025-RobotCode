@@ -187,7 +187,7 @@ public class RobotCommander extends GBSubsystem {
 	private Command scoreWithoutRelease() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				superstructure.scoreWithoutRelease(),
+				superstructure.scoreWithoutRelease().asProxy(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
 			),
 			RobotState.SCORE_WITHOUT_RELEASE

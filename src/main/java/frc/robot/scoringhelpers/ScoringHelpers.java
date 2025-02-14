@@ -34,6 +34,10 @@ public class ScoringHelpers {
 		return Branch.getBranchByReefSideAndSide(getTargetReefSide(), isLeftBranch);
 	}
 
+	public static ScoreLevel getTargetScoreLevel() {
+		return targetScoreLevel;
+	}
+
 	public static CoralStation getTargetCoralStation(Robot robot) {
 		Translation2d robotTranslation = robot.getPoseEstimator().getEstimatedPose().getTranslation();
 		if (robotTranslation.getDistance(LEFT_CORAL_STATION_TRANSLATION) < robotTranslation.getDistance(RIGHT_CORAL_STATION_TRANSLATION)) {
