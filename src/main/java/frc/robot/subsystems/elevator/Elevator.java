@@ -129,12 +129,15 @@ public class Elevator extends GBSubsystem {
 
 	private void log() {
 		Logger.recordOutput(getLogPath() + "/PositionMeters", getElevatorPositionMeters());
-		Logger.recordOutput(getLogPath() + "/IsAtBackwardsLimit", isAtBackwardsLimit());
-		Logger.recordOutput(getLogPath() + "/HasBeenResetBySwitch", hasBeenResetBySwitch);
-		Logger.recordOutput(getLogPath() + "/FFCalibrationVoltage", ffCalibrationVoltage);
 		Logger.recordOutput(getLogPath() + "/TargetPositionMeters", currentTargetPositionMeters);
+
 		Logger.recordOutput(getLogPath() + "/ReversedSoftLimit", reversedSoftLimitMeters);
 		Logger.recordOutput(getLogPath() + "/ForwardSoftLimit", forwardSoftLimitMeters);
+
+		Logger.recordOutput(getLogPath() + "/IsAtBackwardsLimit", isAtBackwardsLimit());
+		Logger.recordOutput(getLogPath() + "/HasBeenResetBySwitch", hasBeenResetBySwitch);
+
+		Logger.recordOutput(getLogPath() + "/FFCalibrationVoltage", ffCalibrationVoltage);
 	}
 
 	public void setForwardSoftLimitMeters(double newForwardSoftLimitMeters) {
@@ -176,7 +179,6 @@ public class Elevator extends GBSubsystem {
 		if (targetPositionMeters != currentTargetPositionMeters) {
 			new Alert(Alert.AlertType.WARNING, getLogPath() + "/Target Pose Under Or Above Limit").report();
 		}
-
 		Rotation2d targetPosition = convertMetersToRotations(currentTargetPositionMeters);
 		rightMotor.applyRequest(positionRequest.withSetPoint(targetPosition));
 		leftMotor.applyRequest(positionRequest.withSetPoint(targetPosition));

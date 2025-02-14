@@ -116,7 +116,6 @@ public class Arm extends GBSubsystem {
 		if (limitedPosition.getDegrees() != targetPosition.getDegrees()) {
 			new Alert(Alert.AlertType.WARNING, getLogPath() + "/TargetPoseUnderLimit").report();
 		}
-
 		motor.applyRequest(positionRequest.withSetPoint(limitedPosition));
 	}
 
