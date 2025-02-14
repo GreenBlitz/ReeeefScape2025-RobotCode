@@ -244,6 +244,14 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public Command scoreWithoutReleaseThanScoreSequenceTest() {
+		return new DeferredCommand(() ->
+			new SequentialCommandGroup(scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetScoreLevel,
+				ScoringHelpers.getTargetBranch())), score()),
+			Set.of(this, superstructure, swerve, robot.getArm(), robot.getElevator(), robot.getEndEffector())
+		);
+	}
+
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}

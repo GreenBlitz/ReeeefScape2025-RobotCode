@@ -105,7 +105,7 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
 //		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
-		usedJoystick.R1.onTrue(robot.getRobotCommander().scoreWithoutReleaseThanScoreSequence());
+		usedJoystick.R1.onTrue(robot.getRobotCommander().scoreWithoutReleaseThanScoreSequenceTest());
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 	}
