@@ -57,9 +57,9 @@ public class SwerveState {
 	}
 
 	public void log(String logPath) {
-		Logger.recordOutput(logPath + "/DriveMode", driveRelative);
-		Logger.recordOutput(logPath + "/DriveSpeed/MagnitudeFactor", driveSpeedLimit.magnitudeSpeedFactor());
-		Logger.recordOutput(logPath + "/DriveSpeed/RotationalFactor", driveSpeedLimit.rotationSpeedFactor());
+		Logger.recordOutput(logPath + "/DriveRelative", driveRelative);
+		Logger.recordOutput(logPath + "/DriveSpeedLimit/MagnitudeFactor", driveSpeedLimit.magnitudeSpeedFactor());
+		Logger.recordOutput(logPath + "/DriveSpeedLimit/RotationalFactor", driveSpeedLimit.rotationSpeedFactor());
 		Logger.recordOutput(logPath + "/LoopMode", loopMode);
 		Logger.recordOutput(logPath + "/RotateAxis", rotateAxis);
 		Logger.recordOutput(logPath + "/AimAssist", aimAssist);
