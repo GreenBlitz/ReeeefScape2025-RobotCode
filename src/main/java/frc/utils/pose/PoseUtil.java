@@ -15,14 +15,19 @@ import frc.robot.vision.data.VisionData;
 import frc.utils.alerts.Alert;
 import frc.utils.math.AngleUnit;
 import frc.utils.math.ToleranceMath;
+import org.littletonrobotics.junction.Logger;
 
 public class PoseUtil {
 
 	public static boolean isAtPose(Pose2d currentPose, Pose2d targetPose, ChassisSpeeds currentSpeeds, Pose2d tolerances, Pose2d deadbands) {
 		boolean isAtX = MathUtil.isNear(targetPose.getX(), currentPose.getX(), tolerances.getX());
+		Logger.recordOutput("isAtX", isAtX);
 		boolean isAtY = MathUtil.isNear(targetPose.getY(), currentPose.getY(), tolerances.getY());
+		Logger.recordOutput("isAtY", isAtY);
 		boolean isAtHeading = ToleranceMath.isNearWrapped(targetPose.getRotation(), currentPose.getRotation(), tolerances.getRotation());
+		Logger.recordOutput("isAtHeading", isAtHeading);
 		boolean isStill = SwerveMath.isStill(currentSpeeds, deadbands);
+		Logger.recordOutput("isStill", isStill);
 		return isAtX && isAtY && isAtHeading && isStill;
 	}
 

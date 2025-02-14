@@ -5,7 +5,9 @@
 package frc;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.constants.field.Field;
 import frc.robot.Robot;
+import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtil;
@@ -72,6 +74,8 @@ public class RobotManager extends LoggedRobot {
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
 		robot.periodic();
 		AlertManager.reportAlerts();
+
+		Logger.recordOutput("distance from branch", Field.getCoralPlacement(ScoringHelpers.getTargetBranch()).getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation()));
 	}
 
 	private void updateTimeRelatedData() {
