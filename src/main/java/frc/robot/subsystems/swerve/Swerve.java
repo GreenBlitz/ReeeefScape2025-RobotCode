@@ -244,7 +244,8 @@ public class Swerve extends GBSubsystem {
 
 	protected void driveByState(ChassisSpeeds speeds, SwerveState swerveState) {
 		this.currentState = swerveState;
-		currentState = currentState.withDriveSpeed(driveSpeedLimit);
+		DriveSpeed wantedSpeedLimit = driveSpeedLimit.combine(swerveState.getDriveSpeed());
+		currentState = currentState.withDriveSpeed(wantedSpeedLimit);
 
 		speeds = stateHandler.applyAimAssistOnChassisSpeeds(speeds, currentState);
 		speeds = handleHeadingControl(speeds, currentState);
