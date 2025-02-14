@@ -21,7 +21,6 @@ import frc.robot.subsystems.endeffector.EndEffectorStateHandler;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class Superstructure extends GBSubsystem {
 
@@ -128,24 +127,28 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public Command armPreScore() {
-		Supplier<ScoreLevel> scoreLevel = ScoringHelpers::getTargetScoreLevel;
 		return asSubsystemCommand(
-			new ParallelCommandGroup(
-				elevatorStateHandler.setState(ElevatorState.CLOSED),
-				armStateHandler.setState(scoreLevel.get().getArmPreScore()),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+			new DeferredCommand(
+				() -> new ParallelCommandGroup(
+					elevatorStateHandler.setState(ElevatorState.CLOSED),
+					armStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getArmPreScore()),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				),
+				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			),
 			SuperstructureState.ARM_PRE_SCORE
 		);
 	}
 
 	public Command preScore() {
-		Supplier<ScoreLevel> scoreLevel = ScoringHelpers::getTargetScoreLevel;
 		return asSubsystemCommand(
-			new ParallelCommandGroup(
-				elevatorStateHandler.setState(scoreLevel.get().getElevatorPreScore()),
-				armStateHandler.setState(scoreLevel.get().getArmPreScore()),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+			new DeferredCommand(
+				() -> new ParallelCommandGroup(
+					elevatorStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getElevatorPreScore()),
+					armStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getArmPreScore()),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				),
+				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			),
 			SuperstructureState.PRE_SCORE
 		);
@@ -153,29 +156,34 @@ public class Superstructure extends GBSubsystem {
 
 	public Command scoreWithoutRelease() {
 		return asSubsystemCommand(
-			new ParallelCommandGroup(
-				elevatorStateHandler.setState(() -> ScoringHelpers.getTargetScoreLevel().getElevatorScore()),
-				armStateHandler.setState(() -> ScoringHelpers.getTargetScoreLevel().getArmScore()),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+			new DeferredCommand(
+				() -> new ParallelCommandGroup(
+					elevatorStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getElevatorScore()),
+					armStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getArmScore()),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				),
+				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			),
 			SuperstructureState.SCORE_WITHOUT_RELEASE
 		);
 	}
 
 	public Command scoreWithRelease() {
-		Supplier<ScoreLevel> scoreLevel = ScoringHelpers::getTargetScoreLevel;
 		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.get().getElevatorScore()),
-					armStateHandler.setState(scoreLevel.get().getArmScore()),
-					endEffectorStateHandler.setState(scoreLevel.get().getEndEffectorScore())
-				).until(this::isCoralOut),
-				new ParallelCommandGroup(
-					elevatorStateHandler.setState(scoreLevel.get().getElevatorScore()),
-					armStateHandler.setState(scoreLevel.get().getArmScore()),
-					endEffectorStateHandler.setState(scoreLevel.get().getEndEffectorScore())
-				).withTimeout(StateMachineConstants.SCORE_OUTTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+			new DeferredCommand(
+				() -> new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						elevatorStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getElevatorScore()),
+						armStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getArmScore()),
+						endEffectorStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getEndEffectorScore())
+					).until(this::isCoralOut),
+					new ParallelCommandGroup(
+						elevatorStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getElevatorScore()),
+						armStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getArmScore()),
+						endEffectorStateHandler.setState(ScoringHelpers.getTargetScoreLevel().getEndEffectorScore())
+					).withTimeout(StateMachineConstants.SCORE_OUTTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+				),
+				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			),
 			SuperstructureState.SCORE
 		);
