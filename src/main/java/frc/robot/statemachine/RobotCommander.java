@@ -2,6 +2,7 @@ package frc.robot.statemachine;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
@@ -81,6 +82,9 @@ public class RobotCommander extends GBSubsystem {
                 .rotateBy(reefAngle.unaryMinus());
         Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
+        Logger.recordOutput("ReefRelativeRobot", reefRelativeRobotPose);
+        Logger.recordOutput("ReefRelativeTarget", reefRelativeTargetPose);
+
         ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
         ChassisSpeeds reefRelativeSpeeds = SwerveMath
                 .robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
@@ -93,7 +97,7 @@ public class RobotCommander extends GBSubsystem {
         };
     }
 
-    private boolean isPreScoreReady(ScoreLevel scoreLevel, Branch branch) {
+    public boolean isPreScoreReady(ScoreLevel scoreLevel, Branch branch) {
         return superstructure.isPreScoreReady(scoreLevel)
                 && isAtScoringPose(
                 scoreLevel,
@@ -106,7 +110,7 @@ public class RobotCommander extends GBSubsystem {
         );
     }
 
-    private boolean isReadyToScore(ScoreLevel scoreLevel, Branch branch) {
+    public boolean isReadyToScore(ScoreLevel scoreLevel, Branch branch) {
         return superstructure.isReadyToScore(scoreLevel)
                 && isAtScoringPose(
                 scoreLevel,
@@ -189,7 +193,7 @@ public class RobotCommander extends GBSubsystem {
     private Command scoreWithoutRelease() {
         return asSubsystemCommand(
                 new ParallelCommandGroup(
-                        superstructure.scoreWithoutRelease().asProxy(),
+                        superstructure.scoreWithoutRelease(),
                         swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
                 ),
                 RobotState.SCORE_WITHOUT_RELEASE
@@ -250,8 +254,9 @@ public class RobotCommander extends GBSubsystem {
         return new DeferredCommand(() ->
                 new SequentialCommandGroup(
                         armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch())),
-                        scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetScoreLevel,
-                        ScoringHelpers.getTargetBranch())), score()
+                        scoreWithoutRelease()
+                                .until(() -> isReadyToScore(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch())),
+                        score()
                 ),
                 Set.of(this, superstructure, swerve, robot.getArm(), robot.getElevator(), robot.getEndEffector())
         );
