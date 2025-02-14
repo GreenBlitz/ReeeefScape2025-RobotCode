@@ -14,7 +14,7 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
-import frc.robot.subsystems.swerve.states.DriveSpeed;
+import frc.robot.subsystems.swerve.states.DriveSpeedLimit;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
@@ -58,19 +58,19 @@ public class RobotCommander extends GBSubsystem {
 		return isFastEnoughToLimit ? StateMachineConstants.ELEVATOR_LIMIT_BY_SWERVE_METERS : ElevatorConstants.FORWARD_SOFTWARE_LIMIT_METERS;
 	}
 
-	public DriveSpeed getSwerveSpeedLimitByElevator() {
+	public DriveSpeedLimit getSwerveSpeedLimitByElevator() {
 		boolean isElevatorHighEnoughToLimit = robot.getElevator().getElevatorPositionMeters()
 			>= StateMachineConstants.ELEVATOR_HEIGHT_TO_LIMIT_SWERVE_METERS;
 
 		if (!isElevatorHighEnoughToLimit) {
-			return DriveSpeed.NORMAL;
+			return DriveSpeedLimit.NORMAL;
 		}
 
 		double magnitudeFactor = StateMachineConstants.SWERVE_MAGNITUDE_LIMIT_BY_ELEVATOR_METERS_PER_SECOND
 			/ swerve.getConstants().velocityAt12VoltsMetersPerSecond();
 		double rotationalFactor = StateMachineConstants.SWERVE_ROTATIONAL_SPEED_LIMIT_BY_ELEVATOR.getRadians()
 			/ swerve.getConstants().maxRotationalVelocityPerSecond().getRadians();
-		return new DriveSpeed(magnitudeFactor, rotationalFactor);
+		return new DriveSpeedLimit(magnitudeFactor, rotationalFactor);
 	}
 
 	/**

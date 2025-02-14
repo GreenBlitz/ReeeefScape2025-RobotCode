@@ -49,7 +49,7 @@ public class Swerve extends GBSubsystem {
 	private SwerveState currentState;
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
-	private DriveSpeed driveSpeedLimit;
+	private DriveSpeedLimit driveSpeedLimit;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
@@ -57,7 +57,7 @@ public class Swerve extends GBSubsystem {
 		this.driversPowerInputs = new ChassisPowers(0, 0, 0);
 
 		this.constants = constants;
-		this.driveSpeedLimit = DriveSpeed.NORMAL;
+		this.driveSpeedLimit = DriveSpeedLimit.NORMAL;
 		this.driveRadiusMeters = SwerveMath.calculateDriveRadiusMeters(modules.getModulePositionsFromCenterMeters());
 		this.modules = modules;
 		this.gyro = gyro;
@@ -115,8 +115,8 @@ public class Swerve extends GBSubsystem {
 		this.headingSupplier = headingSupplier;
 	}
 
-	public void setDriveSpeedLimit(DriveSpeed newDriveSpeedLimit) {
-		driveSpeedLimit = newDriveSpeedLimit;
+	public void setDriveSpeedLimit(DriveSpeedLimit newDriveSpeedLimitLimit) {
+		driveSpeedLimit = newDriveSpeedLimitLimit;
 	}
 
 	public void setDriversPowerInputs(ChassisPowers powers) {
@@ -244,7 +244,7 @@ public class Swerve extends GBSubsystem {
 
 	protected void driveByState(ChassisSpeeds speeds, SwerveState swerveState) {
 		this.currentState = swerveState;
-		DriveSpeed wantedSpeedLimit = driveSpeedLimit.combine(swerveState.getDriveSpeed());
+		DriveSpeedLimit wantedSpeedLimit = driveSpeedLimit.combine(swerveState.getDriveSpeed());
 		currentState = currentState.withDriveSpeed(wantedSpeedLimit);
 
 		speeds = stateHandler.applyAimAssistOnChassisSpeeds(speeds, currentState);

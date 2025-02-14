@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.subsystems.swerve.states.DriveSpeed;
+import frc.robot.subsystems.swerve.states.DriveSpeedLimit;
 import frc.utils.math.ToleranceMath;
 import frc.utils.time.TimeUtil;
 
@@ -38,11 +38,11 @@ public class SwerveMath {
 		);
 	}
 
-	public static ChassisSpeeds factorSpeeds(ChassisSpeeds speeds, DriveSpeed driveSpeed) {
+	public static ChassisSpeeds factorSpeeds(ChassisSpeeds speeds, DriveSpeedLimit driveSpeedLimit) {
 		return new ChassisSpeeds(
-			speeds.vxMetersPerSecond * driveSpeed.magnitudeSpeedFactor(),
-			speeds.vyMetersPerSecond * driveSpeed.magnitudeSpeedFactor(),
-			speeds.omegaRadiansPerSecond * driveSpeed.rotationSpeedFactor()
+			speeds.vxMetersPerSecond * driveSpeedLimit.magnitudeSpeedFactor(),
+			speeds.vyMetersPerSecond * driveSpeedLimit.magnitudeSpeedFactor(),
+			speeds.omegaRadiansPerSecond * driveSpeedLimit.rotationSpeedFactor()
 		);
 	}
 

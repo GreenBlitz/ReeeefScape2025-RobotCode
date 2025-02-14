@@ -8,7 +8,7 @@ import org.littletonrobotics.junction.Logger;
 public class SwerveState {
 
 	private static final DriveRelative DEFAULT_DRIVE_RELATIVE = DriveRelative.ALLIANCE_RELATIVE;
-	private static final DriveSpeed DEFAULT_DRIVE_SPEED = DriveSpeed.NORMAL;
+	private static final DriveSpeedLimit DEFAULT_DRIVE_SPEED = DriveSpeedLimit.NORMAL;
 	private static final LoopMode DEFAULT_LOOP_MODE = Robot.ROBOT_TYPE.isSimulation() ? LoopMode.OPEN : LoopMode.CLOSED;
 	private static final RotateAxis DEFAULT_ROTATE_AXIS = RotateAxis.MIDDLE_OF_CHASSIS;
 	private static final AimAssist DEFAULT_AIM_ASSIST = AimAssist.NONE;
@@ -19,7 +19,7 @@ public class SwerveState {
 
 
 	private DriveRelative driveRelative;
-	private DriveSpeed driveSpeed;
+	private DriveSpeedLimit driveSpeedLimit;
 	private LoopMode loopMode;
 	private RotateAxis rotateAxis;
 	private AimAssist aimAssist;
@@ -28,7 +28,7 @@ public class SwerveState {
 	public SwerveState(SwerveState swerveState) {
 		this(
 			swerveState.driveRelative,
-			swerveState.driveSpeed,
+			swerveState.driveSpeedLimit,
 			swerveState.loopMode,
 			swerveState.rotateAxis,
 			swerveState.aimAssist,
@@ -42,14 +42,14 @@ public class SwerveState {
 
 	private SwerveState(
 		DriveRelative driveRelative,
-		DriveSpeed driveSpeed,
+		DriveSpeedLimit driveSpeedLimit,
 		LoopMode loopMode,
 		RotateAxis rotateAxis,
 		AimAssist aimAssist,
 		HeadingControl headingControl
 	) {
 		this.driveRelative = driveRelative;
-		this.driveSpeed = driveSpeed;
+		this.driveSpeedLimit = driveSpeedLimit;
 		this.loopMode = loopMode;
 		this.rotateAxis = rotateAxis;
 		this.aimAssist = aimAssist;
@@ -58,8 +58,8 @@ public class SwerveState {
 
 	public void log(String logPath) {
 		Logger.recordOutput(logPath + "/DriveMode", driveRelative);
-		Logger.recordOutput(logPath + "/DriveSpeed/MagnitudeFactor", driveSpeed.magnitudeSpeedFactor());
-		Logger.recordOutput(logPath + "/DriveSpeed/RotationalFactor", driveSpeed.rotationSpeedFactor());
+		Logger.recordOutput(logPath + "/DriveSpeed/MagnitudeFactor", driveSpeedLimit.magnitudeSpeedFactor());
+		Logger.recordOutput(logPath + "/DriveSpeed/RotationalFactor", driveSpeedLimit.rotationSpeedFactor());
 		Logger.recordOutput(logPath + "/LoopMode", loopMode);
 		Logger.recordOutput(logPath + "/RotateAxis", rotateAxis);
 		Logger.recordOutput(logPath + "/AimAssist", aimAssist);
@@ -72,9 +72,9 @@ public class SwerveState {
 		return swerveState;
 	}
 
-	public SwerveState withDriveSpeed(DriveSpeed driveSpeed) {
+	public SwerveState withDriveSpeed(DriveSpeedLimit driveSpeedLimit) {
 		SwerveState swerveState = new SwerveState(this);
-		swerveState.driveSpeed = driveSpeed;
+		swerveState.driveSpeedLimit = driveSpeedLimit;
 		return swerveState;
 	}
 
@@ -107,8 +107,8 @@ public class SwerveState {
 		return driveRelative;
 	}
 
-	public DriveSpeed getDriveSpeed() {
-		return driveSpeed;
+	public DriveSpeedLimit getDriveSpeed() {
+		return driveSpeedLimit;
 	}
 
 	public LoopMode getLoopMode() {
