@@ -21,6 +21,8 @@ public class PoseUtil {
 
 	public static boolean isAtPose(Pose2d currentPose, Pose2d targetPose, ChassisSpeeds currentSpeeds, Pose2d tolerances, Pose2d deadbands) {
 		boolean isAtX = MathUtil.isNear(targetPose.getX(), currentPose.getX(), tolerances.getX());
+		Logger.recordOutput("target x", targetPose.getX());
+		Logger.recordOutput("current x", currentPose.getX());
 		Logger.recordOutput("isAtX", isAtX);
 		boolean isAtY = MathUtil.isNear(targetPose.getY(), currentPose.getY(), tolerances.getY());
 		Logger.recordOutput("isAtY", isAtY);

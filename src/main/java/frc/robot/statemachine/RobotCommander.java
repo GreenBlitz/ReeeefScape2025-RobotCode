@@ -253,7 +253,8 @@ public class RobotCommander extends GBSubsystem {
     public Command scoreWithoutReleaseThanScoreSequenceTest() {
         return new DeferredCommand(() ->
                 new SequentialCommandGroup(
-                        armPreScore().until(() -> isReadyToOpenSuperstructure(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch())),
+                        armPreScore()
+                                .until(() -> isReadyToOpenSuperstructure(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch())),
                         scoreWithoutRelease()
                                 .until(() -> isReadyToScore(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch())),
                         score()
