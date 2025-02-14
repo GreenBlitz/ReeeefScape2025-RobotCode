@@ -75,7 +75,10 @@ public class RobotManager extends LoggedRobot {
 		robot.periodic();
 		AlertManager.reportAlerts();
 
-		Logger.recordOutput("distance from branch", Field.getCoralPlacement(ScoringHelpers.getTargetBranch()).getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation()));
+		Logger.recordOutput(
+			"distance from branch",
+			Field.getCoralPlacement(ScoringHelpers.getTargetBranch()).getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation())
+		);
 	}
 
 	private void updateTimeRelatedData() {

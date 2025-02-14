@@ -134,7 +134,11 @@ public class Robot {
 
 		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
 		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getRawRobotHeadings()) {
-			headingEstimator.updateVisionIfNotCalibrated(headingData, RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION, RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE);
+			headingEstimator.updateVisionIfNotCalibrated(
+				headingData,
+				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+				RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
+			);
 		}
 		poseEstimator.updateOdometry(swerve.getAllOdometryData());
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
@@ -145,8 +149,14 @@ public class Robot {
 		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
 		ScoringHelpers.log("Scoring");
-		Logger.recordOutput("isReadyToScore", robotCommander.isReadyToScore(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch()));
-		Logger.recordOutput("isSuperStructureReadyToScore", robotCommander.getSuperstructure().isReadyToScore(ScoringHelpers.getTargetScoreLevel()));
+		Logger.recordOutput(
+			"isReadyToScore",
+			robotCommander.isReadyToScore(ScoringHelpers.getTargetScoreLevel(), ScoringHelpers.getTargetBranch())
+		);
+		Logger.recordOutput(
+			"isSuperStructureReadyToScore",
+			robotCommander.getSuperstructure().isReadyToScore(ScoringHelpers.getTargetScoreLevel())
+		);
 
 		CommandScheduler.getInstance().run(); // Should be last
 	}

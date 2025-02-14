@@ -26,7 +26,7 @@ public class ElevatorStateHandler {
 		);
 	}
 
-	public Command setState(Supplier<ElevatorState> stateSupplier){
+	public Command setState(Supplier<ElevatorState> stateSupplier) {
 		return setState(stateSupplier.get());
 	}
 

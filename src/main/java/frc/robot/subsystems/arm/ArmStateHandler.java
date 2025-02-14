@@ -26,7 +26,7 @@ public class ArmStateHandler {
 		);
 	}
 
-	public Command setState(Supplier<ArmState> stateSupplier){
+	public Command setState(Supplier<ArmState> stateSupplier) {
 		return setState(stateSupplier.get());
 	}
 
