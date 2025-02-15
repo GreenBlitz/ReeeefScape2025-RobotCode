@@ -35,7 +35,8 @@ public class PoseUtil {
 		double currentAccelerationMetersPerSecondSquared,
 		double accelerationDeadbandMetersPerSecondSquared
 	) {
-		boolean isAtAcceleration = SwerveMath.isNotAccelerating(currentAccelerationMetersPerSecondSquared, accelerationDeadbandMetersPerSecondSquared);
+		boolean isAtAcceleration = SwerveMath
+			.isNotAccelerating(currentAccelerationMetersPerSecondSquared, accelerationDeadbandMetersPerSecondSquared);
 		return isAtPose(currentPose, targetPose, currentSpeeds, tolerances, deadbands) && isAtAcceleration;
 	}
 
