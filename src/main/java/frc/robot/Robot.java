@@ -7,14 +7,19 @@ package frc.robot;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.RobotManager;
+import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
+import frc.robot.vision.VisionConstants;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
+import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
+import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimator;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.factory.ArmFactory;
@@ -27,8 +32,14 @@ import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
 import frc.utils.auto.PathPlannerUtil;
+import frc.robot.vision.VisionFilters;
+import frc.robot.vision.data.VisionData;
+import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
+import frc.utils.Filter;
+import frc.utils.TimedValue;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.battery.BatteryUtil;
+import frc.utils.time.TimeUtil;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -39,7 +50,9 @@ public class Robot {
 
 	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
 
-	private final WPILibPoseEstimatorWrapper poseEstimator;
+	private final IPoseEstimator poseEstimator;
+	private final RobotHeadingEstimator headingEstimator;
+	private final MultiAprilTagVisionSources multiAprilTagVisionSources;
 
 	private final Swerve swerve;
 	private final Elevator elevator;
@@ -67,7 +80,32 @@ public class Robot {
 			swerve.getGyroAbsoluteYaw()
 		);
 
-		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
+		this.headingEstimator = new RobotHeadingEstimator(
+			RobotHeadingEstimatorConstants.DEFAULT_HEADING_ESTIMATOR_LOGPATH,
+			new Rotation2d(),
+			new Rotation2d(),
+			RobotHeadingEstimatorConstants.DEFAULT_GYRO_STANDARD_DEVIATION
+		);
+
+		this.multiAprilTagVisionSources = new MultiAprilTagVisionSources(
+			VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
+			headingEstimator::getEstimatedHeading,
+			true,
+			VisionConstants.VISION_SOURCES
+		);
+
+		multiAprilTagVisionSources.applyFunctionOnAllFilters(
+			filters -> filters.and(
+				new Filter<>(
+					data -> VisionFilters.isYawAtAngle(headingEstimator::getEstimatedHeading, VisionConstants.ANGLE_FILTERS_TOLERANCES)
+						.apply((VisionData) data)
+				)
+			)
+		);
+
+		swerve.setHeadingSupplier(
+			() -> ROBOT_TYPE.isSimulation() ? poseEstimator.getEstimatedPose().getRotation() : headingEstimator.getEstimatedHeading()
+		);
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
 
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
@@ -95,11 +133,21 @@ public class Robot {
 
 	public void periodic() {
 		swerve.update();
-		poseEstimator.updateOdometry(swerve.getAllOdometryObservations());
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
+
+		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
+		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getRawRobotHeadings()) {
+			headingEstimator.updateVisionHeading(headingData, RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION);
+		}
+		poseEstimator.updateOdometry(swerve.getAllOdometryData());
+		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
+		multiAprilTagVisionSources.log();
+		headingEstimator.log();
+
 		BatteryUtil.logStatus();
 		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
+
 		CommandScheduler.getInstance().run(); // Should be last
 	}
 
@@ -107,7 +155,7 @@ public class Robot {
 		return new InstantCommand();
 	}
 
-	public WPILibPoseEstimatorWrapper getPoseEstimator() {
+	public IPoseEstimator getPoseEstimator() {
 		return poseEstimator;
 	}
 

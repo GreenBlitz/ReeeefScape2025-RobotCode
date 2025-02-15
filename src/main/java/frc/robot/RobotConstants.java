@@ -6,4 +6,6 @@ public class RobotConstants {
 
 	public static final String SUBSYSTEM_LOGPATH_PREFIX = "Subsystems";
 
+	public static final boolean isScoringAuto = true;
+
 }
