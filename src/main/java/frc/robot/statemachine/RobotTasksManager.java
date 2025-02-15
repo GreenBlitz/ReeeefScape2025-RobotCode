@@ -2,7 +2,6 @@ package frc.robot.statemachine;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.statemachine.superstructure.ScoreLevel;
 
 public class RobotTasksManager {
 
@@ -12,7 +11,7 @@ public class RobotTasksManager {
 		this.robotCommander = robotCommander;
 	}
 
-	public Command completeAutoScore(ScoreLevel scoreLevel) {
+	public Command completeAutoScore() {
 		return new SequentialCommandGroup(
 			robotCommander.preScore(),
 			robotCommander.score(),

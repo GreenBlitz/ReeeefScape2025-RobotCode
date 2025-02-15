@@ -77,7 +77,7 @@ public class RobotCommander extends GBSubsystem {
 					Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 					Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
 					swerve.getRobotRelativeAcceleration(),
-					Tolerances.ACCELERATION_DEADBAND
+					Tolerances.ACCELERATION_DEADBAND_METERS_PER_SECOND_SQUARED
 				);
 			case L2, L3, L4 ->
 				PoseUtil.isAtPose(
@@ -87,7 +87,7 @@ public class RobotCommander extends GBSubsystem {
 					Tolerances.REEF_RELATIVE_SCORING_POSITION,
 					Tolerances.REEF_RELATIVE_SCORING_DEADBANDS,
 					swerve.getRobotRelativeAcceleration(),
-					Tolerances.ACCELERATION_DEADBAND
+					Tolerances.ACCELERATION_DEADBAND_METERS_PER_SECOND_SQUARED
 				);
 		};
 	}
@@ -96,44 +96,12 @@ public class RobotCommander extends GBSubsystem {
 		return isAtPoseByDistanceFromReef(level, branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 	}
 
-	private boolean isAtOpenSuperstructureDistanceFromReef(ScoreLevel level, Branch branch) {
-		return isAtPoseByDistanceFromReef(level, branch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
-	}
-
-	/**
-	 * Checks if elevator and arm in place and is robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
-	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
-	 */
-
-	private boolean isPreScoreReady(ScoreLevel level, Branch branch) {
-		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
-
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-			.rotateBy(reefAngle.unaryMinus());
-		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
-
-		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
-		ChassisSpeeds reefRelativeSpeeds = SwerveMath
-			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
-
-		return superstructure.isPreScoreReady(level) && switch (level) {
-			case L1 ->
-				PoseUtil.isAtPose(
-					reefRelativeRobotPose,
-					reefRelativeTargetPose,
-					reefRelativeSpeeds,
-					Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
-					Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS
-				);
-			case L2, L3, L4 ->
-				PoseUtil.isAtPose(
-					reefRelativeRobotPose,
-					reefRelativeTargetPose,
-					reefRelativeSpeeds,
-					Tolerances.REEF_RELATIVE_SCORING_POSITION,
-					Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
-				);
-		};
+	private boolean isAtOpenSuperstructureDistanceFromReef() {
+		return isAtPoseByDistanceFromReef(
+			ScoringHelpers.targetLevel,
+			ScoringHelpers.targetBranch,
+			StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS
+		);
 	}
 
 	public Command setState(RobotState state) {
@@ -210,9 +178,15 @@ public class RobotCommander extends GBSubsystem {
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
-			.until(() -> isAtOpenSuperstructureDistanceFromReef(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch));
+			.until(this::isAtOpenSuperstructureDistanceFromReef);
 
-		return asSubsystemCommand(new SequentialCommandGroup(driveToWait, superstructure.preScore()), ScoringHelpers.targetLevel.name());
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				driveToWait,
+				superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetLevel))
+			),
+			ScoringHelpers.targetLevel.name()
+		);
 	}
 
 	protected Command preScore() {
@@ -226,7 +200,7 @@ public class RobotCommander extends GBSubsystem {
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
-			.until(() -> isAtOpenSuperstructureDistanceFromReef(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch));
+			.until(this::isAtOpenSuperstructureDistanceFromReef);
 
 		return asSubsystemCommand(
 			new SequentialCommandGroup(

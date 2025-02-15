@@ -61,7 +61,7 @@ public class SwerveMath {
 			&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= deadbands.getRotation().getRadians();
 	}
 
-	public static boolean isAccelerationStill(double accelerationMetersPerSecondSquared, double deadband) {
+	public static boolean isNotAccelerating(double accelerationMetersPerSecondSquared, double deadband) {
 		return Math.abs(accelerationMetersPerSecondSquared) <= deadband;
 	}
 
