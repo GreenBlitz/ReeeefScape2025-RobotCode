@@ -1,5 +1,6 @@
 package frc;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -76,9 +77,9 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(robot.getRobotCommander().getRobotTaskManager().scoreForButton());
-		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
-		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
+		usedJoystick.A.onTrue(robot.getRobotCommander().getRobotTaskManager().completeAutoScore());
+		usedJoystick.B.onTrue(robot.getSwerve().getCommandsBuilder().driveToPose(robot.getPoseEstimator()::getEstimatedPose, Pose2d::new));
+		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

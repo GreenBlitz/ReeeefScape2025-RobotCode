@@ -22,17 +22,15 @@ public class RobotTasksManager {
 	}
 
 	public Command scoreForButton() {
-		return new SequentialCommandGroup(
-				robotCommander.scoreWithoutRelease().until(() -> robotCommander.isReadyToScore(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
-				robotCommander.score()
-		);
+		return new SequentialCommandGroup(robotCommander.scoreWithoutRelease().until(robotCommander::isReadyToScore), robotCommander.score());
 	}
 
 	public Command fullyPreScore() {
 		return new SequentialCommandGroup(
-				robotCommander.armPreScore().until(robotCommander::isAtOpenSuperstructureDistanceFromReef),
-				robotCommander.preScore().until(() -> robotCommander.isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
-				robotCommander.scoreWithoutRelease()
+			robotCommander.armPreScore().until(robotCommander::isAtOpenSuperstructureDistanceFromReef),
+			robotCommander.preScore()
+				.until(() -> robotCommander.isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+			robotCommander.scoreWithoutRelease()
 		);
 	}
 
