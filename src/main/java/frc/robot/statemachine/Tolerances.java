@@ -8,9 +8,9 @@ public class Tolerances {
 
 	public static final double ELEVATOR_HEIGHT_METERS = 0.05;
 
-	public static final Rotation2d ARM_POSITION = Rotation2d.fromDegrees(3);
+	public static final Rotation2d ARM_POSITION = Rotation2d.fromDegrees(6);
 
-	public static final Pose2d REEF_RELATIVE_SCORING_POSITION = new Pose2d(0.1, 0.1, Rotation2d.fromDegrees(10));
+	public static final Pose2d REEF_RELATIVE_SCORING_POSITION = new Pose2d(0.04, 0.04, Rotation2d.fromDegrees(10));
 	public static final Pose2d REEF_RELATIVE_SCORING_DEADBANDS = new Pose2d(0.5, 0.5, Rotation2d.fromRadians(2));
 
 	public static final Pose2d REEF_RELATIVE_L1_SCORING_POSITION = new Pose2d(

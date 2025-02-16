@@ -18,6 +18,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 
 public class RobotCommander extends GBSubsystem {
@@ -309,15 +310,16 @@ public class RobotCommander extends GBSubsystem {
 
 		Pose2d scoringPoseTarget = ScoringHelpers
 			.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
-
+		
 		Command driveToScore = swerve.getCommandsBuilder()
 			.driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), () -> scoringPoseTarget)
 			.until(this::isAtScoringDistanceFromReef);
 
 		return new SequentialCommandGroup(
+				new InstantCommand(() -> Logger.recordOutput("target branch branch", scoringPoseTarget)),
 			superstructure.armPreScore().until(() -> robot.getArm().isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)),
-			driveToWait,
-			new ParallelCommandGroup(superstructure.preScore().until(superstructure::isPreScoreReady), driveToScore),
+			superstructure.armPreScore().raceWith(driveToWait),
+			superstructure.preScore().raceWith(driveToScore),
 			superstructure.scoreWithRelease(),
 			exitScore(),
 			setState(RobotState.DRIVE)
