@@ -113,11 +113,11 @@ public class RobotCommander extends GBSubsystem {
 	 */
 
 	public boolean isPreScoreReady(ScoreLevel level, Branch branch) {
-		return isAtOpenSuperstructureDistanceFromReef() && superstructure.isPreScoreReady(level);
+		return isAtOpenSuperstructureDistanceFromReef() && superstructure.isPreScoreReady();
 	}
 
 	public boolean isReadyToScore() {
-		return isAtScoringDistanceFromReef() && superstructure.isReadyToScore(ScoringHelpers.targetScoreLevel);
+		return isAtScoringDistanceFromReef() && superstructure.isReadyToScore();
 	}
 
 	public Command setState(RobotState state) {
@@ -216,8 +216,8 @@ public class RobotCommander extends GBSubsystem {
 												.isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)
 								),
 
-						superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel))
-				).until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel)),
+						superstructure.preScore().until(superstructure::isPreScoreReady)
+				).until(superstructure::isPreScoreReady),
 				ScoringHelpers.targetScoreLevel.name()
 		);
 	}
@@ -237,7 +237,7 @@ public class RobotCommander extends GBSubsystem {
 
 		return asSubsystemCommand(
 				new SequentialCommandGroup(
-						superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel)),
+						superstructure.preScore().until(superstructure::isPreScoreReady),
 						driveToWait
 				),
 				ScoringHelpers.targetScoreLevel.name()
