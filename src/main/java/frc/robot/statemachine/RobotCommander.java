@@ -315,7 +315,7 @@ public class RobotCommander extends GBSubsystem {
 			.until(this::isAtScoringDistanceFromReef);
 
 		return new SequentialCommandGroup(
-			superstructure.armPreScore().until(() -> robot.getArm().isAtPosition(ArmState.PRE.getPosition(), Tolerances.ARM_POSITION)),
+			superstructure.armPreScore().until(() -> robot.getArm().isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)),
 			driveToWait,
 			new ParallelCommandGroup(superstructure.preScore().until(superstructure::isPreScoreReady), driveToScore),
 			superstructure.scoreWithRelease(),
