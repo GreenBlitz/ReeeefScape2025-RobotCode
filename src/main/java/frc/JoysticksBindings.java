@@ -82,7 +82,6 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.B.onTrue(robot.getRobotCommander().getRobotTaskManager().completeAutoScore());
 		usedJoystick.X.onTrue(robot.getSwerve().getCommandsBuilder().driveToPose(robot.getPoseEstimator()::getEstimatedPose, Pose2d::new));
-
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
