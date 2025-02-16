@@ -13,10 +13,7 @@ public class RobotTasksManager {
 	}
 
 	public Command completeAutoScore() {
-		return new SequentialCommandGroup(
-			robotCommander.preScore(),
-			robotCommander.score()
-		);
+		return new SequentialCommandGroup(robotCommander.preScore(), robotCommander.score());
 	}
 
 	public Command scoreForButton() {
