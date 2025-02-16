@@ -20,6 +20,8 @@ import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Set;
+
 
 public class RobotCommander extends GBSubsystem {
 
@@ -301,27 +303,29 @@ public class RobotCommander extends GBSubsystem {
 		 * pre-arm score drive to wait open superstructure drive to target score
 		 */
 
-		Pose2d waitPoseTarget = ScoringHelpers
-			.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
-
-		Command driveToWait = swerve.getCommandsBuilder()
-			.driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), () -> waitPoseTarget)
-			.until(this::isAtOpenSuperstructureDistanceFromReef);
-
-		Pose2d scoringPoseTarget = ScoringHelpers
-			.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
+		Command driveToWait = new DeferredCommand( () -> swerve.getCommandsBuilder()
+			.driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(),
+					() -> ScoringHelpers
+							.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS)
+					)
+			.until(this::isAtOpenSuperstructureDistanceFromReef), Set.of(swerve));
 		
-		Command driveToScore = swerve.getCommandsBuilder()
-			.driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(), () -> scoringPoseTarget)
-			.until(this::isAtScoringDistanceFromReef);
+		Command driveToScore =new DeferredCommand( () ->swerve.getCommandsBuilder()
+			.driveToPose(() -> robot.getPoseEstimator().getEstimatedPose(),
+					() -> ScoringHelpers
+							.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			)
+			.until(this::isAtScoringDistanceFromReef), Set.of(swerve));
 
 		return new SequentialCommandGroup(
-				new InstantCommand(() -> Logger.recordOutput("target branch branch", scoringPoseTarget)),
+				new InstantCommand(() -> Logger.recordOutput("target branch branch", ScoringHelpers
+						.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+				)),
 			superstructure.armPreScore().until(() -> robot.getArm().isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)),
 			superstructure.armPreScore().raceWith(driveToWait),
 			superstructure.preScore().raceWith(driveToScore),
 			superstructure.scoreWithRelease(),
-			exitScore(),
+				exitScore(),
 			setState(RobotState.DRIVE)
 		);
 	}
