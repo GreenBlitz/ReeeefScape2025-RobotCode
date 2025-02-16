@@ -2,6 +2,7 @@ package frc.robot.statemachine;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.scoringhelpers.ScoringHelpers;
 
 public class RobotTasksManager {
 
@@ -17,6 +18,21 @@ public class RobotTasksManager {
 			robotCommander.score(),
 			robotCommander.exitScore(),
 			robotCommander.setState(RobotState.DRIVE)
+		);
+	}
+
+	public Command scoreForButton() {
+		return new SequentialCommandGroup(
+				robotCommander.scoreWithoutRelease().until(() -> robotCommander.isReadyToScore(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+				robotCommander.score()
+		);
+	}
+
+	public Command fullyPreScore() {
+		return new SequentialCommandGroup(
+				robotCommander.armPreScore().until(robotCommander::isAtOpenSuperstructureDistanceFromReef),
+				robotCommander.preScore().until(() -> robotCommander.isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+				robotCommander.scoreWithoutRelease()
 		);
 	}
 

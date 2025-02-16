@@ -61,7 +61,10 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isAtPoseByDistanceFromReef(ScoreLevel level, Branch branch, double distanceMeters) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotScoringPose(branch, distanceMeters).rotateBy(reefAngle.unaryMinus());
+		Pose2d reefRelativeTargetPose = ScoringHelpers
+			.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			.rotateBy(reefAngle.unaryMinus());
+
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
 
 		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
@@ -96,12 +99,25 @@ public class RobotCommander extends GBSubsystem {
 		return isAtPoseByDistanceFromReef(level, branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 	}
 
-	private boolean isAtOpenSuperstructureDistanceFromReef() {
+	protected boolean isAtOpenSuperstructureDistanceFromReef() {
 		return isAtPoseByDistanceFromReef(
-			ScoringHelpers.targetLevel,
-			ScoringHelpers.targetBranch,
+			ScoringHelpers.targetScoreLevel,
+			ScoringHelpers.getTargetBranch(),
 			StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS
 		);
+	}
+
+	/**
+	 * Checks if elevator and arm in place and is robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
+	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
+	 */
+
+	public boolean isPreScoreReady(ScoreLevel level, Branch branch) {
+		return isAtOpenSuperstructureDistanceFromReef() && superstructure.isPreScoreReady(level);
+	}
+
+	public boolean isReadyToScore(ScoreLevel level, Branch branch) {
+		return isAtScoringDistanceFromReef(level, branch) && superstructure.isReadyToScore(level);
 	}
 
 	public Command setState(RobotState state) {
@@ -115,6 +131,17 @@ public class RobotCommander extends GBSubsystem {
 			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
 			case SCORE -> score();
 		};
+	}
+
+	public Command fullyScore() {
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				armPreScore().until(this::isAtOpenSuperstructureDistanceFromReef),
+				preScore().until(() -> isPreScoreReady(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+				scoreWithoutRelease().until(() -> isReadyToScore(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch())),
+				score()
+			)
+		);
 	}
 
 	private Command drive() {
@@ -151,7 +178,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command armPreScore() {
+	protected Command armPreScore() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.armPreScore(),
@@ -173,7 +200,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command autoPreScore() {
 		Pose2d waitPose = ScoringHelpers
-			.getRobotScoringPose(ScoringHelpers.targetBranch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
+			.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
 
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
@@ -183,9 +210,9 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				driveToWait,
-				superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetLevel))
+				superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel))
 			),
-			ScoringHelpers.targetLevel.name()
+			ScoringHelpers.targetScoreLevel.name()
 		);
 	}
 
@@ -195,7 +222,7 @@ public class RobotCommander extends GBSubsystem {
 
 	protected Command exitScore() {
 		Pose2d waitPose = ScoringHelpers
-			.getRobotScoringPose(ScoringHelpers.targetBranch, StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
+			.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
 
 		Command driveToWait = robot.getSwerve()
 			.getCommandsBuilder()
@@ -204,14 +231,14 @@ public class RobotCommander extends GBSubsystem {
 
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetLevel)),
+				superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel)),
 				driveToWait
 			),
-			ScoringHelpers.targetLevel.name()
+			ScoringHelpers.targetScoreLevel.name()
 		);
 	}
 
-	private Command scoreWithoutRelease() {
+	protected Command scoreWithoutRelease() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.scoreWithoutRelease(),
@@ -233,16 +260,16 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command autoScore() {
 		Pose2d targetPose = ScoringHelpers
-			.getRobotScoringPose(ScoringHelpers.targetBranch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
+			.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 
 		Command driveToTarget = robot.getSwerve()
 			.getCommandsBuilder()
 			.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> targetPose)
-			.until(() -> isAtScoringDistanceFromReef(ScoringHelpers.targetLevel, ScoringHelpers.targetBranch));
+			.until(() -> isAtScoringDistanceFromReef(ScoringHelpers.targetScoreLevel, ScoringHelpers.getTargetBranch()));
 
 		return asSubsystemCommand(
 			new SequentialCommandGroup(driveToTarget, superstructure.scoreWithRelease()),
-			ScoringHelpers.targetLevel.name()
+			ScoringHelpers.targetScoreLevel.name()
 		);
 	}
 
