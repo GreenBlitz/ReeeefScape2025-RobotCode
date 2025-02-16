@@ -211,9 +211,12 @@ public class RobotCommander extends GBSubsystem {
 
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				driveToWait,
-				armPreScore().until(
-					() -> robot.getArm().isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)
+				new ParallelCommandGroup(
+					driveToWait,
+					superstructure.armPreScore().until(
+						() -> robot.getArm()
+							.isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)
+					)
 				),
 				superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel))
 			),
