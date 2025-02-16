@@ -21,14 +21,14 @@ import frc.utils.pose.PoseUtil;
 import java.util.Set;
 
 public class RobotCommander extends GBSubsystem {
-	
+
 	private final Robot robot;
 	private final Swerve swerve;
 	private final Superstructure superstructure;
 	private final RobotTasksManager robotTasksManager;
-	
+
 	private RobotState currentState;
-	
+
 	public RobotCommander(String logPath, Robot robot) {
 		super(logPath);
 		this.robot = robot;
@@ -36,7 +36,7 @@ public class RobotCommander extends GBSubsystem {
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
 		this.robotTasksManager = new RobotTasksManager(this);
 		this.currentState = RobotState.DRIVE;
-		
+
 		setDefaultCommand(
 				new DeferredCommand(
 						() -> endState(currentState),
@@ -44,31 +44,31 @@ public class RobotCommander extends GBSubsystem {
 				)
 		);
 	}
-	
+
 	public Superstructure getSuperstructure() {
 		return superstructure;
 	}
-	
+
 	public RobotTasksManager getRobotTaskManager() {
 		return robotTasksManager;
 	}
-	
+
 	/**
 	 * Checks if robot is at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is horizontal to the branch So when you
 	 * check if robot in place in y-axis its in parallel to the reef side.
-	 */
-	
+*/
+
 	private boolean isAtPoseByDistanceFromReef(ScoreLevel level, Branch branch, double distanceMeters) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
-		
+
 		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotBranchScoringPose(branch, distanceMeters).rotateBy(reefAngle.unaryMinus());
-		
+
 		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
-		
+
 		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
 		ChassisSpeeds reefRelativeSpeeds = SwerveMath
 				.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
-		
+
 		return switch (level) {
 			case L1 -> PoseUtil.isAtPose(
 					reefRelativeRobotPose,
@@ -90,7 +90,7 @@ public class RobotCommander extends GBSubsystem {
 			);
 		};
 	}
-	
+
 	private boolean isAtScoringDistanceFromReef() {
 		return isAtPoseByDistanceFromReef(
 				ScoringHelpers.targetScoreLevel,
@@ -98,7 +98,7 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
 		);
 	}
-	
+
 	protected boolean isAtOpenSuperstructureDistanceFromReef() {
 		return isAtPoseByDistanceFromReef(
 				ScoringHelpers.targetScoreLevel,
@@ -106,20 +106,20 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS
 		);
 	}
-	
+
 	/**
 	 * Checks if elevator and arm in place and is robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is
 	 * horizontal to the branch So when you check if robot in place in y-axis its in parallel to the reef side.
 	 */
-	
+
 	public boolean isPreScoreReady(ScoreLevel level, Branch branch) {
 		return isAtOpenSuperstructureDistanceFromReef() && superstructure.isPreScoreReady(level);
 	}
-	
+
 	public boolean isReadyToScore() {
 		return isAtScoringDistanceFromReef() && superstructure.isReadyToScore(ScoringHelpers.targetScoreLevel);
 	}
-	
+
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -132,7 +132,7 @@ public class RobotCommander extends GBSubsystem {
 			case SCORE -> score();
 		};
 	}
-	
+
 	public Command fullyScore() {
 		return new ParallelCommandGroup(
 				new SequentialCommandGroup(
@@ -143,14 +143,14 @@ public class RobotCommander extends GBSubsystem {
 				)
 		);
 	}
-	
+
 	private Command drive() {
 		return asSubsystemCommand(
 				new ParallelCommandGroup(superstructure.idle(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 				RobotState.DRIVE
 		);
 	}
-	
+
 	private Command intake() {
 		return asSubsystemCommand(
 				new ParallelDeadlineGroup(
@@ -160,14 +160,14 @@ public class RobotCommander extends GBSubsystem {
 				RobotState.INTAKE
 		);
 	}
-	
+
 	private Command outtake() {
 		return asSubsystemCommand(
 				new ParallelCommandGroup(superstructure.outtake(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 				RobotState.OUTTAKE
 		);
 	}
-	
+
 	private Command alignReef() {
 		return asSubsystemCommand(
 				new ParallelCommandGroup(
@@ -177,7 +177,7 @@ public class RobotCommander extends GBSubsystem {
 				RobotState.ALIGN_REEF
 		);
 	}
-	
+
 	protected Command armPreScore() {
 		return asSubsystemCommand(
 				new ParallelCommandGroup(
@@ -187,7 +187,7 @@ public class RobotCommander extends GBSubsystem {
 				RobotState.ARM_PRE_SCORE
 		);
 	}
-	
+
 	private Command regularPreScore() {
 		return asSubsystemCommand(
 				new ParallelCommandGroup(
@@ -197,16 +197,16 @@ public class RobotCommander extends GBSubsystem {
 				RobotState.PRE_SCORE
 		);
 	}
-	
+
 	private Command autoPreScore() {
 		Pose2d waitPose = ScoringHelpers
 				.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
-		
+
 		Command driveToWait = robot.getSwerve()
 				.getCommandsBuilder()
 				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
 				.until(this::isAtOpenSuperstructureDistanceFromReef);
-		
+
 		return asSubsystemCommand(
 				new SequentialCommandGroup(
 						driveToWait,
@@ -215,26 +215,26 @@ public class RobotCommander extends GBSubsystem {
 										() -> robot.getArm()
 												.isAtPosition(ScoringHelpers.targetScoreLevel.getArmPreScore().getPosition(), Tolerances.ARM_POSITION)
 								),
-						
+
 						superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel))
 				).until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel)),
 				ScoringHelpers.targetScoreLevel.name()
 		);
 	}
-	
+
 	protected Command preScore() {
 		return RobotConstants.isScoringAuto ? autoPreScore() : regularPreScore();
 	}
-	
+
 	protected Command exitScore() {
 		Pose2d waitPose = ScoringHelpers
 				.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS);
-		
+
 		Command driveToWait = robot.getSwerve()
 				.getCommandsBuilder()
 				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> waitPose)
 				.until(this::isAtOpenSuperstructureDistanceFromReef);
-		
+
 		return asSubsystemCommand(
 				new SequentialCommandGroup(
 						superstructure.preScore().until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel)),
@@ -243,7 +243,7 @@ public class RobotCommander extends GBSubsystem {
 				ScoringHelpers.targetScoreLevel.name()
 		);
 	}
-	
+
 	protected Command scoreWithoutRelease() {
 		return asSubsystemCommand(
 				new ParallelCommandGroup(
@@ -253,7 +253,7 @@ public class RobotCommander extends GBSubsystem {
 				RobotState.SCORE_WITHOUT_RELEASE
 		);
 	}
-	
+
 	private Command scoreWithRelease() {
 		return asSubsystemCommand(
 				new ParallelDeadlineGroup(
@@ -263,31 +263,31 @@ public class RobotCommander extends GBSubsystem {
 				RobotState.SCORE
 		);
 	}
-	
+
 	private Command autoScore() {
 		Pose2d targetPose = ScoringHelpers
 				.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
-		
+
 		Command driveToTarget = robot.getSwerve()
 				.getCommandsBuilder()
 				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> targetPose)
 				.until(this::isAtScoringDistanceFromReef);
-		
+
 		return asSubsystemCommand(
 				new SequentialCommandGroup(driveToTarget, superstructure.scoreWithRelease()),
 				ScoringHelpers.targetScoreLevel.name()
 		);
 	}
-	
+
 	public Command score() {
 		return RobotConstants.isScoringAuto ? autoScore() : scoreWithRelease();
 	}
-	
-	
+
+
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
-	
+
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case INTAKE, OUTTAKE, DRIVE, ALIGN_REEF -> drive();
@@ -295,5 +295,5 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> preScore();
 		};
 	}
-	
+
 }
