@@ -41,9 +41,9 @@ public class Superstructure extends GBSubsystem {
 
 		this.currentState = SuperstructureState.IDLE;
 		this.driverIsObjectInOverride = false;
-		setDefaultCommand(
-			new DeferredCommand(() -> endState(currentState), Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()))
-		);
+//		setDefaultCommand(
+//			new DeferredCommand(() -> endState(currentState), Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()))
+//		);
 	}
 
 

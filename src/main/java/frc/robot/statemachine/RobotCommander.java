@@ -12,6 +12,7 @@ import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
+import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
@@ -37,12 +38,12 @@ public class RobotCommander extends GBSubsystem {
 		this.robotTasksManager = new RobotTasksManager(this);
 		this.currentState = RobotState.DRIVE;
 		
-		setDefaultCommand(
-				new DeferredCommand(
-						() -> endState(currentState),
-						Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
-				)
-		);
+//		setDefaultCommand(
+//				new DeferredCommand(
+//						() -> endState(currentState),
+//						Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+//				)
+//		);
 	}
 	
 	public Superstructure getSuperstructure() {
@@ -295,5 +296,53 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> preScore();
 		};
 	}
+	
+	public Command completeAutoScore(){
+		
+		/*
+		pre-arm score
+		drive to wait
+		open superstructure
+		drive to target
+		score
+		 */
+		
+		Pose2d waitPoseTarget = ScoringHelpers.getRobotBranchScoringPose(
+				ScoringHelpers.getTargetBranch(),
+				StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS
+		);
+		
+		Command driveToWait = swerve.getCommandsBuilder().driveToPose(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				() -> waitPoseTarget
+		).until(this::isAtOpenSuperstructureDistanceFromReef);
+		
+		Pose2d scoringPoseTarget = ScoringHelpers.getRobotBranchScoringPose(
+				ScoringHelpers.getTargetBranch(),
+				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+		);
+		
+		Command driveToScore = swerve.getCommandsBuilder().driveToPose(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				() -> scoringPoseTarget
+		).until(this::isAtScoringDistanceFromReef);
+		
+		return new SequentialCommandGroup(
+				superstructure.armPreScore()
+						.until(() -> robot.getArm().isAtPosition(ArmState.PRE.getPosition(), Tolerances.ARM_POSITION)),
+				driveToWait,
+				superstructure.preScore()
+						.until(() -> superstructure.isPreScoreReady(ScoringHelpers.targetScoreLevel)),
+				driveToScore,
+				superstructure.scoreWithRelease()
+		);
+		
+		
+		
+	}
+	
+	
+	
+	
 	
 }
