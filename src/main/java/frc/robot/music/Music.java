@@ -1,14 +1,13 @@
-package frc.robot;
+package frc.robot.music;
 
 import com.ctre.phoenix6.Orchestra;
-import com.ctre.phoenix6.StatusCode;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 
-public class SingingRobot {
+public class Music {
 
     private final Orchestra orchestra;
 
-    public SingingRobot(){
+    public Music(){
         this.orchestra = new Orchestra();
     }
 
