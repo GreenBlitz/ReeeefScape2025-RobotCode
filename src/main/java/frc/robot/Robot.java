@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.RobotManager;
+import frc.robot.music.Music;
+import frc.robot.music.MusicConstants;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
 import frc.robot.scoringhelpers.ButtonDriverHelper;
 import frc.robot.vision.VisionConstants;
@@ -58,6 +60,7 @@ public class Robot {
 	private final Elevator elevator;
 	private final Arm arm;
 	private final EndEffector endEffector;
+	private final Music robotMusic;
 
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
@@ -118,6 +121,11 @@ public class Robot {
 		BrakeStateManager.add(() -> arm.setBrake(true), () -> arm.setBrake(false));
 
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
+
+		this.robotMusic = new Music("Music");
+		robotMusic.addSwerve(swerve);
+		robotMusic.addTrack(MusicConstants.MARIO_64_FILE_PATH);
+		robotMusic.loadTrack(MusicConstants.MARIO_64_TRACK_NUMBER);
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);

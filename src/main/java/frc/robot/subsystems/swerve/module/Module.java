@@ -8,6 +8,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.constants.MathConstants;
 import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.hardware.interfaces.IAngleEncoder;
+import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
+import frc.robot.hardware.rev.motors.BrushlessSparkMAXMotor;
 import frc.robot.subsystems.swerve.module.extrainputs.DriveCouplingInputsAutoLogged;
 import frc.robot.subsystems.swerve.module.extrainputs.DriveInputsAutoLogged;
 import frc.robot.subsystems.swerve.module.extrainputs.ModuleInputsAutoLogged;
@@ -80,6 +82,14 @@ public class Module {
 
 		updateInputs();
 		resetSteerByEncoder();
+	}
+
+	public TalonFXMotor getDrive() {
+		return ((TalonFXMotor) drive);
+	}
+
+	public TalonFXMotor getSteer() {
+		return ((TalonFXMotor) steer);
 	}
 
 	public SysIdCalibrator.SysIdConfigInfo getSteerSysIdConfigInfo() {
