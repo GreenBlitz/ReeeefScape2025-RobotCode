@@ -1,11 +1,7 @@
 package frc.robot.statemachine.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.StateMachineConstants;
@@ -80,6 +76,7 @@ public class Superstructure extends GBSubsystem {
 	@Override
 	protected void subsystemPeriodic() {
 		log();
+		Logger.recordOutput("isAtPosition", robot.getArm().isAtPosition(ArmState.CLOSED.getPosition(), Tolerances.ARM_POSITION));
 	}
 
 	private void log() {
@@ -189,6 +186,18 @@ public class Superstructure extends GBSubsystem {
 			),
 			SuperstructureState.SCORE
 		);
+	}
+
+	public Command closeL4AfterScore() {
+		return new ParallelCommandGroup(
+			armStateHandler.setState(ArmState.CLOSED),
+			new SequentialCommandGroup(
+				elevatorStateHandler.setState(ElevatorState.PRE_L4)
+					.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR_L4)),
+				elevatorStateHandler.setState(ElevatorState.CLOSED)
+			),
+			endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+		).until(() -> robot.getElevator().isAtPosition(ElevatorState.CLOSED.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS));
 	}
 
 	private Command asSubsystemCommand(Command command, SuperstructureState state) {
