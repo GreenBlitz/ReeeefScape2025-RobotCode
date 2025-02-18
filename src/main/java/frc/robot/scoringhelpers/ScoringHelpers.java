@@ -15,14 +15,25 @@ import org.littletonrobotics.junction.Logger;
 
 public class ScoringHelpers {
 
-	public static CoralStationSlot targetcoralStationSlot = CoralStationSlot.L4;
-
 	public static final Translation2d END_EFFECTOR_OFFSET_FROM_MID_ROBOT = new Translation2d(0, 0.014);
 	private static final Translation2d LEFT_CORAL_STATION_TRANSLATION = Field.getCoralStationMiddle(CoralStation.LEFT).getTranslation();
 	private static final Translation2d RIGHT_CORAL_STATION_TRANSLATION = Field.getCoralStationMiddle(CoralStation.RIGHT).getTranslation();
+	private static final Translation2d LEFT_SLOT_OF_RIGHT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.R2)
+		.getTranslation();
+	private static final Translation2d MIDDLE_SLOT_OF_RIGHT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.R5)
+		.getTranslation();
+	private static final Translation2d RIGHT_SLOT_OF_RIGHT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.R8)
+		.getTranslation();
+	private static final Translation2d LEFT_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.L2)
+		.getTranslation();
+	private static final Translation2d MIDDLE_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.L5)
+		.getTranslation();
+	private static final Translation2d RIGHT_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.L8)
+		.getTranslation();
 
 	public static ScoreLevel targetScoreLevel = ScoreLevel.L2;
 	public static Branch targetBranch = Branch.C;
+	public static CoralStationSlot targetcoralStationSlot = CoralStationSlot.L5;
 
 	private static boolean isFarReefHalf = false;
 	private static Side targetSideForReef = Side.MIDDLE;
@@ -47,6 +58,37 @@ public class ScoringHelpers {
 		return latestWantedCoralStation;
 	}
 
+	public static CoralStationSlot getTargetCoralStationSlot(Robot robot) {
+		Translation2d robotTranslation = robot.getPoseEstimator().getEstimatedPose().getTranslation();
+		targetcoralStationSlot = switch (getTargetCoralStation(robot)) {
+			case RIGHT -> {
+				double distanceFromLeftSlot = robotTranslation.getDistance(LEFT_SLOT_OF_RIGHT_CORAL_STATION_TRANSLATION);
+				double distanceFromMiddleSlot = robotTranslation.getDistance(MIDDLE_SLOT_OF_RIGHT_CORAL_STATION_TRANSLATION);
+				double distanceFromRightSlot = robotTranslation.getDistance(RIGHT_SLOT_OF_RIGHT_CORAL_STATION_TRANSLATION);
+				if (distanceFromLeftSlot < distanceFromMiddleSlot && distanceFromLeftSlot < distanceFromRightSlot) {
+					yield CoralStationSlot.R2;
+				}
+				if (distanceFromMiddleSlot < distanceFromRightSlot) {
+					yield CoralStationSlot.R5;
+				}
+				yield CoralStationSlot.R8;
+			}
+			case LEFT -> {
+				double distanceFromLeftSlot = robotTranslation.getDistance(LEFT_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION);
+				double distanceFromMiddleSlot = robotTranslation.getDistance(MIDDLE_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION);
+				double distanceFromRightSlot = robotTranslation.getDistance(RIGHT_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION);
+				if (distanceFromLeftSlot < distanceFromMiddleSlot && distanceFromLeftSlot < distanceFromRightSlot) {
+					yield CoralStationSlot.L2;
+				}
+				if (distanceFromMiddleSlot < distanceFromRightSlot) {
+					yield CoralStationSlot.L5;
+				}
+				yield CoralStationSlot.L8;
+			}
+		};
+
+		return targetcoralStationSlot;
+	}
 
 	public static void toggleIsFarReefHalf() {
 		isFarReefHalf = !isFarReefHalf;

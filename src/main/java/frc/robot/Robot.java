@@ -128,7 +128,7 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
-		swerve.getStateHandler().setCoralStationSlotSupplier(() -> Optional.of(ScoringHelpers.targetcoralStationSlot));
+		swerve.getStateHandler().setCoralStationSlotSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStationSlot(this)));
 
 		configPathPlanner();
 	}
