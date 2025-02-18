@@ -30,6 +30,7 @@ public class ScoringHelpers {
 		.getTranslation();
 	private static final Translation2d RIGHT_SLOT_OF_LEFT_CORAL_STATION_TRANSLATION = Field.getCoralStationSlotsPose2d(CoralStationSlot.L8)
 		.getTranslation();
+	int check = 0;
 
 	public static ScoreLevel targetScoreLevel = ScoreLevel.L2;
 	public static Branch targetBranch = Branch.C;
