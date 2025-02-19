@@ -19,6 +19,7 @@ public class Solenoid extends GBSubsystem {
 		this.commandsBuilder = new SolenoidCommandsBuilder(this);
 
 		updateInputs();
+		setDefaultCommand(commandsBuilder.stop());
 	}
 
 	public SolenoidCommandsBuilder getCommandsBuilder() {

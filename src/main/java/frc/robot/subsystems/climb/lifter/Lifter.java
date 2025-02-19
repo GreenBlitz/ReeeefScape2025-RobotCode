@@ -38,6 +38,7 @@ public class Lifter extends GBSubsystem {
 
 		motor.resetPosition(new Rotation2d());
 		updateInputs();
+		setDefaultCommand(lifterCommandsBuilder.stop());
 	}
 
 	protected void setPower(double power) {

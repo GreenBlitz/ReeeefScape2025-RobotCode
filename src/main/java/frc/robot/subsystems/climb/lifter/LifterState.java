@@ -8,16 +8,16 @@ public enum LifterState {
 	CLIMB(0.05, -0.9),
 	DEPLOY(0.4, 0.9);
 
-	private final double targetPosition;
+	private final double targetPositionMeters;
 	private final double power;
 
-	LifterState(double targetPosition, double power) {
-		this.targetPosition = targetPosition;
+	LifterState(double targetPositionMeters, double power) {
+		this.targetPositionMeters = targetPositionMeters;
 		this.power = power;
 	}
 
-	public double getTargetPosition() {
-		return targetPosition;
+	public double getTargetPositionMeters() {
+		return targetPositionMeters;
 	}
 
 	public double getPower() {
