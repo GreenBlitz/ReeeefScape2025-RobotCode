@@ -69,8 +69,8 @@ public class Robot {
 	private final Elevator elevator;
 	private final Arm arm;
 	private final EndEffector endEffector;
-	private final Lifter lifter;
 	private final Solenoid solenoid;
+	private final Lifter lifter;
 
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
@@ -131,9 +131,9 @@ public class Robot {
 
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
 
-		this.lifter = LifterFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Lifter");
-
 		this.solenoid = SolenoidFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Solenoid");
+
+		this.lifter = LifterFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Lifter");
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
@@ -199,12 +199,12 @@ public class Robot {
 		return endEffector;
 	}
 
-	public Lifter getLifter() {
-		return lifter;
-	}
-
 	public Solenoid getSolenoid() {
 		return solenoid;
+	}
+
+	public Lifter getLifter() {
+		return lifter;
 	}
 
 	public RobotCommander getRobotCommander() {

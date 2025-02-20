@@ -1,23 +1,25 @@
 package frc.robot.subsystems.climb.lifter;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public enum LifterState {
 
-	HOLD(0, 0),
-	FORWARD(0, 0.2),
-	BACKWARD(0, -0.2),
-	CLIMB(0.05, -0.9),
-	DEPLOY(0.4, 0.9);
+	HOLD(Rotation2d.fromDegrees(0), 0),
+	FORWARD(Rotation2d.fromDegrees(0), 0.2),
+	BACKWARD(Rotation2d.fromDegrees(0), -0.2),
+	CLIMB(Rotation2d.fromDegrees(0), -0.9),
+	DEPLOY(Rotation2d.fromDegrees(100), 0.4);
 
-	private final double targetPositionMeters;
+	private final Rotation2d targetPosition;
 	private final double power;
 
-	LifterState(double targetPositionMeters, double power) {
-		this.targetPositionMeters = targetPositionMeters;
+	LifterState(Rotation2d targetPosition, double power) {
+		this.targetPosition = targetPosition;
 		this.power = power;
 	}
 
-	public double getTargetPositionMeters() {
-		return targetPositionMeters;
+	public Rotation2d getTargetPosition() {
+		return targetPosition;
 	}
 
 	public double getPower() {
