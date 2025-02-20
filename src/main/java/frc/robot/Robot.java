@@ -6,12 +6,15 @@ package frc.robot;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.RobotManager;
+import frc.robot.autonomous.AutonomousConstants;
+import frc.robot.autonomous.AutosBuilder;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
 import frc.robot.scoringhelpers.ButtonDriverHelper;
 import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
@@ -26,6 +29,7 @@ import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimator;
 import frc.robot.statemachine.RobotCommander;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.factory.ArmFactory;
 import frc.robot.subsystems.elevator.Elevator;
@@ -38,6 +42,8 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
+import frc.utils.auto.AutonomousChooser;
+import frc.utils.auto.PathPlannerUtil;
 import frc.robot.vision.VisionFilters;
 import frc.robot.vision.data.VisionData;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
@@ -45,10 +51,12 @@ import frc.utils.Filter;
 import frc.utils.TimedValue;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.brakestate.BrakeStateManager;
+import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.time.TimeUtil;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -71,6 +79,14 @@ public class Robot {
 
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
+
+	private AutonomousChooser startingPointAndWhereToScoreFirstObjectChooser;
+	private AutonomousChooser whereToIntakeSecondObjectChooser;
+	private AutonomousChooser whereToScoreSecondObjectChooser;
+	private AutonomousChooser whereToIntakeThirdObjectChooser;
+	private AutonomousChooser whereToScoreThirdObjectChooser;
+	private AutonomousChooser whereToIntakeFourthObjectChooser;
+	private AutonomousChooser whereToScoreFourthObjectChooser;
 
 	public Robot() {
 		BatteryUtil.scheduleLimiter();
@@ -135,14 +151,60 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
-		configPathPlanner();
+		configureAuto();
 	}
 
-	public void configPathPlanner() {
+	private void configureAuto() {
+		Supplier<Command> scoringCommand = () -> new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4)
+			.andThen(
+				robotCommander.getSuperstructure()
+					.scoreWithRelease()
+					.andThen(robotCommander.getSuperstructure().preScore().until(() -> robotCommander.getSuperstructure().isPreScoreReady()))
+			)
+			.asProxy();
+		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure().intake().asProxy();
+
 		swerve.configPathPlanner(
 			poseEstimator::getEstimatedPose,
 			poseEstimator::resetPose,
 			PathPlannerUtil.getGuiRobotConfig().orElse(getRobotConfig())
+		);
+
+		new EventTrigger("PRE_SCORE").onTrue(
+			new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4).andThen(robotCommander.getSuperstructure().preScore())
+		);
+		new EventTrigger("INTAKE").onTrue(robotCommander.getSuperstructure().intake());
+		new EventTrigger("ARM_PRE_SCORE").onTrue(
+			new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4).andThen(robotCommander.getSuperstructure().armPreScore())
+		);
+
+		this.startingPointAndWhereToScoreFirstObjectChooser = new AutonomousChooser(
+			"StartingPointAndScoreFirst",
+			AutosBuilder.getAllStartingAndScoringFirstObjectAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+		this.whereToIntakeSecondObjectChooser = new AutonomousChooser(
+			"IntakeSecond",
+			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+		this.whereToScoreSecondObjectChooser = new AutonomousChooser(
+			"ScoreSecond",
+			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+		this.whereToIntakeThirdObjectChooser = new AutonomousChooser(
+			"IntakeThird",
+			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+		this.whereToScoreThirdObjectChooser = new AutonomousChooser(
+			"ScoreThird",
+			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+		this.whereToIntakeFourthObjectChooser = new AutonomousChooser(
+			"IntakeFourth",
+			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+		this.whereToScoreFourthObjectChooser = new AutonomousChooser(
+			"ScoreFourth",
+			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 		);
 	}
 
@@ -172,8 +234,18 @@ public class Robot {
 		CommandScheduler.getInstance().run(); // Should be last
 	}
 
-	public Command getAutonomousCommand() {
-		return new InstantCommand();
+	public PathPlannerAutoWrapper getAuto() {
+		return PathPlannerAutoWrapper
+			.chainAutos(
+				startingPointAndWhereToScoreFirstObjectChooser.getChosenValue(),
+				whereToIntakeSecondObjectChooser.getChosenValue(),
+				whereToScoreSecondObjectChooser.getChosenValue(),
+				whereToIntakeThirdObjectChooser.getChosenValue(),
+				whereToScoreThirdObjectChooser.getChosenValue(),
+				whereToIntakeFourthObjectChooser.getChosenValue(),
+				whereToScoreFourthObjectChooser.getChosenValue()
+			)
+			.withResetPose(poseEstimator::resetPose);
 	}
 
 	public IPoseEstimator getPoseEstimator() {

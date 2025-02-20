@@ -4,8 +4,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.constants.field.Field;
+import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
@@ -77,6 +83,30 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
+	private boolean isAtReefScoringPose(
+		Branch targetBranch,
+		double scoringPoseDistanceFromReefMeters,
+		Pose2d l1Tolerances,
+		Pose2d l1Deadbands,
+		Pose2d tolerances,
+		Pose2d deadbands
+	) {
+		Rotation2d reefAngle = Field.getReefSideMiddle(targetBranch.getReefSide()).getRotation();
+
+		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotBranchScoringPose(targetBranch, scoringPoseDistanceFromReefMeters)
+			.rotateBy(reefAngle.unaryMinus());
+		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
+
+		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
+		ChassisSpeeds reefRelativeSpeeds = SwerveMath
+			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
+
+		return switch (ScoringHelpers.targetScoreLevel) {
+			case L1 -> PoseUtil.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, l1Tolerances, l1Deadbands);
+			case L2, L3, L4 -> PoseUtil.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, tolerances, deadbands);
+		};
+	}
+
 	private boolean isReadyToOpenSuperstructure() {
 		return isAtReefScoringPose(
 			StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
@@ -122,6 +152,17 @@ public class RobotCommander extends GBSubsystem {
 				Tolerances.REEF_RELATIVE_SCORING_POSITION,
 				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
 			);
+	}
+
+	public boolean isAtBranchScoringPose(Branch branch) {
+		return isAtReefScoringPose(
+			branch,
+			StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
+			Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
+			Tolerances.REEF_RELATIVE_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+		);
 	}
 
 	public Command setState(RobotState state) {
