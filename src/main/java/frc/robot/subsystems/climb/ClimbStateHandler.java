@@ -8,11 +8,13 @@ import frc.robot.subsystems.climb.lifter.LifterState;
 import frc.robot.subsystems.climb.lifter.LifterStateHandler;
 import frc.robot.subsystems.climb.solenoid.SolenoidState;
 import frc.robot.subsystems.climb.solenoid.SolenoidStateHandler;
+import frc.robot.subsystems.endeffector.EndEffectorState;
 
 public class ClimbStateHandler {
 
 	private final SolenoidStateHandler solenoidStateHandler;
 	private final LifterStateHandler lifterStateHandler;
+	private ClimbState currentState;
 
 	public ClimbStateHandler(SolenoidStateHandler solenoidStateHandler, LifterStateHandler lifterStateHandler) {
 		this.solenoidStateHandler = solenoidStateHandler;
@@ -21,10 +23,20 @@ public class ClimbStateHandler {
 
 	public Command setState(ClimbState state) {
 		return switch (state) {
-			case STOP -> stop();
-			case EXTEND -> extend();
-			case RETRACT -> retract();
+			case STOP:
+				currentState = ClimbState.STOP;
+				yield stop();
+			case EXTEND:
+				currentState = ClimbState.EXTEND;
+				yield extend();
+			case RETRACT:
+				currentState = ClimbState.RETRACT;
+				yield retract();
 		};
+	}
+
+	public ClimbState getCurrentState() {
+		return currentState;
 	}
 
 	private Command stop() {
