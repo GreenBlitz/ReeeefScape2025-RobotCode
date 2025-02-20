@@ -11,11 +11,6 @@ import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
-import frc.robot.subsystems.climb.ClimbState;
-import frc.robot.subsystems.climb.ClimbStateHandler;
-import frc.robot.subsystems.climb.lifter.LifterState;
-import frc.robot.subsystems.climb.lifter.LifterStateHandler;
-import frc.robot.subsystems.climb.solenoid.SolenoidStateHandler;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.pose.Side;
@@ -81,26 +76,14 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-//		usedJoystick.R1.onTrue(robot.getRobotCommander().scoreForButton());
-//		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
-//		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
-
-		SolenoidStateHandler solenoidStateHandler = new SolenoidStateHandler(robot.getSolenoid());
-		LifterStateHandler lifterStateHandler = new LifterStateHandler(robot.getLifter());
-		ClimbStateHandler climbStateHandler = new ClimbStateHandler(solenoidStateHandler, lifterStateHandler);
-//		usedJoystick.A.onTrue(climbStateHandler.setState(ClimbState.STOP));
-//		usedJoystick.B.onTrue(climbStateHandler.setState(ClimbState.EXTEND));
-//		usedJoystick.X.onTrue(climbStateHandler.setState(ClimbState.RETRACT));
-		usedJoystick.A.onTrue(lifterStateHandler.setState(LifterState.DEPLOY));
+		usedJoystick.R1.onTrue(robot.getRobotCommander().autoScore());
+		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
+		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = SECOND_JOYSTICK;
 		// bindings...
-
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.ALIGN_REEF));
-//		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getRobotCommander().fullyPreScore());
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getRobotCommander().fullyScore());
 
 		usedJoystick.A.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L1));
 		usedJoystick.B.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L2));

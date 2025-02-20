@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
+import frc.robot.scoringhelpers.ScoringPathsHelper;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
@@ -17,6 +18,7 @@ import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class RobotCommander extends GBSubsystem {
 
@@ -32,17 +34,19 @@ public class RobotCommander extends GBSubsystem {
 		this.swerve = robot.getSwerve();
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
 		this.currentState = RobotState.DRIVE;
+	}
 
+	public Superstructure getSuperstructure() {
+		return superstructure;
+	}
+
+	public void initializeDefaultCommand() {
 		setDefaultCommand(
 			new DeferredCommand(
 				() -> endState(currentState),
 				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			)
 		);
-	}
-
-	public Superstructure getSuperstructure() {
-		return superstructure;
 	}
 
 	/**
@@ -133,6 +137,31 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_CLIMB -> preClimb();
 			case CLIMB -> climb();
 		};
+	}
+
+	public Command autoScore() {
+		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
+			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
+			superstructure.preScore().until(superstructure::isPreScoreReady),
+			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
+			superstructure.scoreWithRelease()
+		);
+
+		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
+			.driveToPath(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
+				ScoringHelpers
+					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			);
+
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
+				Set.of(superstructure, this, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+			),
+			RobotState.SCORE
+		);
 	}
 
 	public Command fullyScore() {

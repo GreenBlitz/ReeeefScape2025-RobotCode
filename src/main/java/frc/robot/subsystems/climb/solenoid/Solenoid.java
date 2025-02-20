@@ -19,7 +19,6 @@ public class Solenoid extends GBSubsystem {
 		this.commandsBuilder = new SolenoidCommandsBuilder(this);
 
 		updateInputs();
-		setDefaultCommand(commandsBuilder.stop());
 	}
 
 	public SolenoidCommandsBuilder getCommandsBuilder() {
@@ -27,13 +26,13 @@ public class Solenoid extends GBSubsystem {
 	}
 
 	public void updateInputs() {
+		motor.updateSimulation();
 		motor.updateInputs(voltageSignal, powerSignal);
 	}
 
 	@Override
 	protected void subsystemPeriodic() {
 		updateInputs();
-		motor.updateSimulation();
 	}
 
 	protected void stop() {
