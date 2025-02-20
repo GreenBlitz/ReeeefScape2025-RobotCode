@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public enum ArmState {
 
 	CLOSED(Rotation2d.fromDegrees(185)),
-	INTAKE(Rotation2d.fromDegrees(185)),
+	INTAKE(Rotation2d.fromDegrees(182)),
 	OUTTAKE(Rotation2d.fromDegrees(13)),
 	PRE_L1(Rotation2d.fromDegrees(185)),
 	L1(Rotation2d.fromDegrees(185)),
