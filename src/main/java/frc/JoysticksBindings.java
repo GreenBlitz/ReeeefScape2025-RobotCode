@@ -10,6 +10,7 @@ import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
+import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
@@ -75,16 +76,25 @@ public class JoysticksBindings {
 		).withTimeout(NOTE_IN_RUMBLE_TIME_SECONDS);
 	}
 
+	private static Command algaeHandler(Robot robot) {
+		RobotCommander robotCommander = robot.getRobotCommander();
+		return new DeferredCommand(
+			() -> robotCommander.getSuperstructure().isCoralIn() ? robotCommander.autoScore() : robotCommander.removeAlgaeThenClose(),
+			Set.of(
+				robot.getRobotCommander(),
+				robot.getRobotCommander().getSuperstructure(),
+				robot.getElevator(),
+				robot.getArm(),
+				robot.getEndEffector()
+			)
+		);
+	}
+
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(new DeferredCommand(() ->
-				robot.getRobotCommander().getSuperstructure().isCoralIn()
-						? robot.getRobotCommander().autoScore()
-						: robot.getRobotCommander().removeAlgaeThenClose(),
-				Set.of(robot.getRobotCommander(), robot.getRobotCommander().getSuperstructure(), robot.getElevator(), robot.getArm(), robot.getEndEffector())));
-
+		usedJoystick.R1.onTrue(algaeHandler(robot));
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
