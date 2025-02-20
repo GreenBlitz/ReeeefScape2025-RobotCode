@@ -47,13 +47,13 @@ public class ScoringHelpers {
 	public static AlgaeRemoveLevel getAlgaeRemoveLevel() {
 		if (isFarReefHalf) {
 			return switch (targetSideForReef) {
-				case LEFT, RIGHT -> AlgaeRemoveLevel.LOW;
-				case MIDDLE -> AlgaeRemoveLevel.HIGH;
+				case LEFT, RIGHT -> AlgaeRemoveLevel.HIGH;
+				case MIDDLE -> AlgaeRemoveLevel.LOW;
 			};
 		} else {
 			return switch (targetSideForReef) {
-				case LEFT, RIGHT -> AlgaeRemoveLevel.HIGH;
-				case MIDDLE -> AlgaeRemoveLevel.LOW;
+				case LEFT, RIGHT -> AlgaeRemoveLevel.LOW;
+				case MIDDLE -> AlgaeRemoveLevel.HIGH;
 			};
 		}
 	}
@@ -72,8 +72,16 @@ public class ScoringHelpers {
 
 
 	public static Pose2d getRobotBranchScoringPose(Branch branch, double distanceFromBranchMeters) {
-		Translation2d branchTranslation = Field.getCoralPlacement(branch);
-		Rotation2d targetRobotAngle = Field.getReefSideMiddle(branch.getReefSide()).getRotation();
+		Translation2d branchTranslation = Field.getCoralPlacement(branch, true);
+		Rotation2d targetRobotAngle = Field.getReefSideMiddle(branch.getReefSide(), true).getRotation();
+		Translation2d differenceTranslation = new Translation2d(distanceFromBranchMeters, targetRobotAngle);
+		Translation2d endeffectorOffsetDifference = END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(targetRobotAngle);
+		return new Pose2d(branchTranslation.minus(differenceTranslation).minus(endeffectorOffsetDifference), targetRobotAngle);
+	}
+
+	public static Pose2d getRobotBranchScoringPose(Branch branch, double distanceFromBranchMeters, boolean allRel) {
+		Translation2d branchTranslation = Field.getCoralPlacement(branch, allRel);
+		Rotation2d targetRobotAngle = Field.getReefSideMiddle(branch.getReefSide(), allRel).getRotation();
 		Translation2d differenceTranslation = new Translation2d(distanceFromBranchMeters, targetRobotAngle);
 		Translation2d endeffectorOffsetDifference = END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(targetRobotAngle);
 		return new Pose2d(branchTranslation.minus(differenceTranslation).minus(endeffectorOffsetDifference), targetRobotAngle);

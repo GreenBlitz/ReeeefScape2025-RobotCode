@@ -192,7 +192,7 @@ public class RobotCommander extends GBSubsystem {
 		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
 			.driveToPath(
 				() -> robot.getPoseEstimator().getEstimatedPose(),
-				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
+				ScoringPathsHelper.generatePathToTargetBranch(ScoringHelpers.getTargetBranch()),
 				ScoringHelpers
 					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
 			);

@@ -73,8 +73,18 @@ public class Field {
 		return getAllianceRelative(REEF_MIDDLE, true, false);
 	}
 
+	public static Pose2d getReefSideMiddle(ReefSide side, boolean allRel) {
+		return allRel
+			? getAllianceRelative(REEF_SIDE_MIDDLES[side.getIndex()], true, true, AngleTransform.INVERT)
+			: REEF_SIDE_MIDDLES[side.getIndex()];
+	}
+
 	public static Pose2d getReefSideMiddle(ReefSide side) {
 		return getAllianceRelative(REEF_SIDE_MIDDLES[side.getIndex()], true, true, AngleTransform.INVERT);
+	}
+
+	public static Translation2d getCoralPlacement(Branch branch, boolean allRel) {
+		return allRel ? getAllianceRelative(CORAL_BRANCHES[branch.getIndex()], true, true) : CORAL_BRANCHES[branch.getIndex()];
 	}
 
 	public static Translation2d getCoralPlacement(Branch branch) {
