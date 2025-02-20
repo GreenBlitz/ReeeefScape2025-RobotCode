@@ -10,7 +10,6 @@ import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
-import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
@@ -79,8 +78,8 @@ public class JoysticksBindings {
 	private static Command algaeHandler(Robot robot) {
 		return new DeferredCommand(
 			() -> robot.getRobotCommander().getSuperstructure().isCoralIn()
-					? robot.getRobotCommander().autoScore()
-					: robot.getRobotCommander().removeAlgaeThenClose(),
+				? robot.getRobotCommander().autoScore()
+				: robot.getRobotCommander().removeAlgaeThenClose(),
 			Set.of(
 				robot.getRobotCommander(),
 				robot.getRobotCommander().getSuperstructure(),
