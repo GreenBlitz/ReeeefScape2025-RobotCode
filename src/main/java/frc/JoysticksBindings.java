@@ -100,17 +100,16 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
 
-//		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.ARM_PRE_NET));
-//		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PRE_NET));
-//		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.NET_WITH_RELEASE));
+		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().fullyPreNet());
+		usedJoystick.POV_RIGHT.onTrue(robot.getRobotCommander().setState(RobotState.NET_WITH_RELEASE));
 
-		usedJoystick.POV_UP.onTrue(
-			new InstantCommand(
-				() -> robot.getRobotCommander()
-					.getSuperstructure().driverIsAlgaeInOverride = !robot.getRobotCommander().getSuperstructure().driverIsAlgaeInOverride
-
-			)
-		);
+//		usedJoystick.POV_UP.onTrue(
+//			new InstantCommand(
+//				() -> robot.getRobotCommander()
+//					.getSuperstructure().driverIsAlgaeInOverride = !robot.getRobotCommander().getSuperstructure().driverIsAlgaeInOverride
+//
+//			)
+//		);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

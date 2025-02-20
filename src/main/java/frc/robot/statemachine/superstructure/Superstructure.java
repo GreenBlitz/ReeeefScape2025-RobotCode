@@ -283,7 +283,7 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(elevatorStateHandler.setState(ElevatorState.CLOSED), armStateHandler.setState(ArmState.CLOSED))
 					.until(this::isReadyToOuttakeAlgae),
 				endEffectorStateHandler.setState(EndEffectorState.ALGAE_OUTTAKE)
-			).until(() -> !isAlgaeIn()),
+			),//.until(() -> !isAlgaeIn()),
 			SuperstructureState.ALGAE_OUTTAKE.name()
 		);
 	}
@@ -318,7 +318,7 @@ public class Superstructure extends GBSubsystem {
 				elevatorStateHandler.setState(ElevatorState.NET),
 				armStateHandler.setState(ArmState.NET),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
-			).until(() -> !isAlgaeIn()),
+			),//.until(() -> !isAlgaeIn()),
 			SuperstructureState.NET_WITHOUT_RELEASE.name()
 		);
 	}
@@ -330,7 +330,7 @@ public class Superstructure extends GBSubsystem {
 				elevatorStateHandler.setState(ElevatorState.NET),
 				armStateHandler.setState(ArmState.NET),
 				endEffectorStateHandler.setState(EndEffectorState.NET_OUTTAKE)
-			).until(() -> !isAlgaeIn()),
+			),//.until(() -> !isAlgaeIn()),
 			SuperstructureState.NET_WITH_RELEASE.name()
 		);
 	}

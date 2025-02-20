@@ -137,7 +137,6 @@ public class SwerveStateHandler {
 
 	private ChassisSpeeds handleNetAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
 		Rotation2d headingToBarge = Field.getAllianceRelative(Rotation2d.fromDegrees(0));
-
 		return AimAssistMath.getRotationAssistedSpeeds(chassisSpeeds, robotHeading, headingToBarge, swerveConstants);
 	}
 
