@@ -79,7 +79,7 @@ public class JoysticksBindings {
 		return new DeferredCommand(
 			() -> robot.getRobotCommander().getSuperstructure().isCoralIn()
 				? robot.getRobotCommander().autoScore()
-				: robot.getRobotCommander().removeAlgaeThenClose(),
+				: robot.getRobotCommander().removeAlgaeAndThenClose(),
 			Set.of(
 				robot.getRobotCommander(),
 				robot.getRobotCommander().getSuperstructure(),
@@ -99,6 +99,10 @@ public class JoysticksBindings {
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
+
+//		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.ARM_PRE_NET));
+//		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PRE_NET));
+//		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.NET_WITH_RELEASE));
 
 		usedJoystick.POV_UP.onTrue(
 			new InstantCommand(
