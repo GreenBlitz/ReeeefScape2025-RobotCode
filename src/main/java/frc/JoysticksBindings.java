@@ -83,6 +83,7 @@ public class JoysticksBindings {
 			Set.of(
 				robot.getRobotCommander(),
 				robot.getRobotCommander().getSuperstructure(),
+				robot.getSwerve(),
 				robot.getElevator(),
 				robot.getArm(),
 				robot.getEndEffector()
