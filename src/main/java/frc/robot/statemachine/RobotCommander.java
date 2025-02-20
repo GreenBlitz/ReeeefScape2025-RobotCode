@@ -164,10 +164,9 @@ public class RobotCommander extends GBSubsystem {
 			Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
 		);
 	}
-	
+
 	public boolean isCloseNet() {
-		double distanceFromMidXAxis = Math.abs(
-				robot.getPoseEstimator().getEstimatedPose().getTranslation().getX() - (Field.LENGTH_METERS / 2));
+		double distanceFromMidXAxis = Math.abs(robot.getPoseEstimator().getEstimatedPose().getTranslation().getX() - (Field.LENGTH_METERS / 2));
 		return distanceFromMidXAxis < 2;
 	}
 
@@ -240,12 +239,9 @@ public class RobotCommander extends GBSubsystem {
 			scoreWithoutRelease()
 		);
 	}
-	
+
 	public Command fullyPreNet() {
-		return new SequentialCommandGroup(
-			armPreNet().until(this::isCloseNet),
-			netWithoutRelease()
-		);
+		return new SequentialCommandGroup(armPreNet().until(this::isCloseNet), netWithoutRelease());
 	}
 
 	private Command drive() {
@@ -371,8 +367,9 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command algaeOuttake() {
 		return asSubsystemCommand(
-			new ParallelCommandGroup(superstructure.algaeOuttake(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
-				// .until((() -> !superstructure.isAlgaeIn())),
+			new ParallelCommandGroup(superstructure.algaeOuttake(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)), // .until((()
+																																					// ->
+																																					// !superstructure.isAlgaeIn())),
 			RobotState.ALGAE_OUTTAKE
 		);
 	}
@@ -409,7 +406,7 @@ public class RobotCommander extends GBSubsystem {
 			new ParallelCommandGroup(
 				superstructure.netWithRelease(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
-			),//.until(() -> !superstructure.isAlgaeIn()),
+			), // .until(() -> !superstructure.isAlgaeIn()),
 			RobotState.NET_WITH_RELEASE.name()
 		);
 	}
