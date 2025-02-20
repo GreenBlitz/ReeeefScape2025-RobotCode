@@ -2,6 +2,7 @@ package frc;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.joysticks.Axis;
@@ -15,6 +16,8 @@ import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.pose.Side;
 import frc.utils.utilcommands.ExecuteEndCommand;
+
+import java.util.Set;
 
 public class JoysticksBindings {
 
@@ -76,10 +79,14 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(robot.getRobotCommander().autoScore());
+		usedJoystick.R1.onTrue(new DeferredCommand(() ->
+				robot.getRobotCommander().getSuperstructure().isCoralIn()
+						? robot.getRobotCommander().autoScore()
+						: robot.getRobotCommander().removeAlgaeThenClose(),
+				Set.of(robot.getRobotCommander(), robot.getRobotCommander().getSuperstructure(), robot.getElevator(), robot.getArm(), robot.getEndEffector())));
+
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
-		usedJoystick.B.onTrue(robot.getRobotCommander().removeAlgaeThenClose());
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
 
 		usedJoystick.POV_UP.onTrue(
