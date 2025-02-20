@@ -16,6 +16,8 @@ import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
 import frc.robot.subsystems.climb.ClimbState;
 import frc.robot.subsystems.climb.ClimbStateHandler;
+import frc.robot.subsystems.climb.lifter.LifterStateHandler;
+import frc.robot.subsystems.climb.solenoid.SolenoidStateHandler;
 import frc.robot.subsystems.elevator.ElevatorState;
 import frc.robot.subsystems.elevator.ElevatorStateHandler;
 import frc.robot.subsystems.endeffector.EndEffectorState;
@@ -41,7 +43,10 @@ public class Superstructure extends GBSubsystem {
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
 		this.armStateHandler = new ArmStateHandler(robot.getArm());
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
-		this.climbStateHandler = new ClimbStateHandler(new SolenoidStateHandler(robot.getSolenoid()), new LifterStateHandler(robot.getLifter()));
+		this.climbStateHandler = new ClimbStateHandler(
+				new SolenoidStateHandler(robot.getSolenoid()),
+				new LifterStateHandler(robot.getLifter())
+		);
 
 		this.currentState = SuperstructureState.IDLE;
 		this.driverIsObjectInOverride = false;

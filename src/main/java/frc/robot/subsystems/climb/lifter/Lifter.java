@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climb.lifter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
 import frc.robot.hardware.digitalinput.IDigitalInput;
@@ -59,6 +60,10 @@ public class Lifter extends GBSubsystem {
 
 	protected boolean isLower(double expectedPositionMeters) {
 		return !isHigher(expectedPositionMeters);
+	}
+
+	public boolean isAtPosition(double positionMeters, double toleranceMeters) {
+		return MathUtil.isNear(positionMeters, getPositionMeters(), toleranceMeters);
 	}
 
 	public LifterCommandsBuilder getCommandsBuilder() {

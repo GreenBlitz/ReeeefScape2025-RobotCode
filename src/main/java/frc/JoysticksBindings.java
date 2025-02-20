@@ -11,6 +11,10 @@ import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
+import frc.robot.subsystems.climb.ClimbState;
+import frc.robot.subsystems.climb.ClimbStateHandler;
+import frc.robot.subsystems.climb.lifter.LifterStateHandler;
+import frc.robot.subsystems.climb.solenoid.SolenoidStateHandler;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.pose.Side;
@@ -76,9 +80,14 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(robot.getRobotCommander().scoreForButton());
-		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
-		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
+//		usedJoystick.R1.onTrue(robot.getRobotCommander().scoreForButton());
+//		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
+//		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
+
+		ClimbStateHandler climbStateHandler = new ClimbStateHandler(new SolenoidStateHandler(robot.getSolenoid()), new LifterStateHandler(robot.getLifter()));
+		usedJoystick.A.onTrue(climbStateHandler.setState(ClimbState.STOP));
+		usedJoystick.B.onTrue(climbStateHandler.setState(ClimbState.EXTEND));
+		usedJoystick.X.onTrue(climbStateHandler.setState(ClimbState.RETRACT));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
