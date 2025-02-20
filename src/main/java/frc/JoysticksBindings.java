@@ -13,6 +13,7 @@ import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.climb.ClimbState;
 import frc.robot.subsystems.climb.ClimbStateHandler;
+import frc.robot.subsystems.climb.lifter.LifterState;
 import frc.robot.subsystems.climb.lifter.LifterStateHandler;
 import frc.robot.subsystems.climb.solenoid.SolenoidStateHandler;
 import frc.robot.subsystems.swerve.ChassisPowers;
@@ -84,10 +85,13 @@ public class JoysticksBindings {
 //		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 //		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 
-		ClimbStateHandler climbStateHandler = new ClimbStateHandler(new SolenoidStateHandler(robot.getSolenoid()), new LifterStateHandler(robot.getLifter()));
-		usedJoystick.A.onTrue(climbStateHandler.setState(ClimbState.STOP));
-		usedJoystick.B.onTrue(climbStateHandler.setState(ClimbState.EXTEND));
-		usedJoystick.X.onTrue(climbStateHandler.setState(ClimbState.RETRACT));
+		SolenoidStateHandler solenoidStateHandler = new SolenoidStateHandler(robot.getSolenoid());
+		LifterStateHandler lifterStateHandler = new LifterStateHandler(robot.getLifter());
+		ClimbStateHandler climbStateHandler = new ClimbStateHandler(solenoidStateHandler, lifterStateHandler);
+//		usedJoystick.A.onTrue(climbStateHandler.setState(ClimbState.STOP));
+//		usedJoystick.B.onTrue(climbStateHandler.setState(ClimbState.EXTEND));
+//		usedJoystick.X.onTrue(climbStateHandler.setState(ClimbState.RETRACT));
+		usedJoystick.A.onTrue(lifterStateHandler.setState(LifterState.DEPLOY));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
