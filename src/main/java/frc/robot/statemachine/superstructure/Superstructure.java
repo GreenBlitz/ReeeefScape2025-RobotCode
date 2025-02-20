@@ -229,7 +229,10 @@ public class Superstructure extends GBSubsystem {
 
 	public Command closeL4AfterScore() {
 		return new ParallelCommandGroup(
-			armStateHandler.setState(ArmState.CLOSED),
+			new SequentialCommandGroup(
+				armStateHandler.setState(ArmState.MID_WAY_CLOSE).until(() -> !robot.getElevator().isPastPosition(0.1)),
+				armStateHandler.setState(ArmState.CLOSED)
+			),
 			new SequentialCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.PRE_L4)
 					.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR_L4)),
