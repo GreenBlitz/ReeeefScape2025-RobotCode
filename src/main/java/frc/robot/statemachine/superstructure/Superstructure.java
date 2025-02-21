@@ -103,14 +103,6 @@ public class Superstructure extends GBSubsystem {
 			&& armStateHandler.getCurrentState() == targetRemoveLevel.getPreArmState();
 	}
 
-	public boolean isReadyToExitReef() {
-		L4AlgaeRemoveLevel targetRemoveLevel = ScoringHelpers.getAlgaeRemoveLevelL4();
-		return robot.getElevator().isAtPosition(targetRemoveLevel.getPostElevatorState().getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == targetRemoveLevel.getPostElevatorState()
-			&& robot.getArm().isAtPosition(targetRemoveLevel.getPostArmState().getPosition(), Tolerances.ARM_POSITION)
-			&& armStateHandler.getCurrentState() == targetRemoveLevel.getPostArmState();
-	}
-
 	@Override
 	protected void subsystemPeriodic() {
 		log();
