@@ -150,6 +150,14 @@ public class RobotCommander extends GBSubsystem {
 		return distanceFromMidXAxis < StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_NET_METERS;
 	}
 
+	public boolean isReadyToActivateCoralStationAimAssist() {
+		Translation2d robotPoseTranslation = robot.getPoseEstimator().getEstimatedPose().getTranslation();
+		Translation2d coralStationPoseTranslation =
+			Field.getCoralStationSlots(ScoringHelpers.getTargetCoralStationSlot(robot)).getTranslation();
+		return robotPoseTranslation.getDistance(coralStationPoseTranslation)
+			<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_AIM_ASSIST_METERS;
+	}
+
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -235,7 +243,12 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelDeadlineGroup(
 				superstructure.intake(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
+				new SequentialCommandGroup(
+					swerve.getCommandsBuilder()
+						.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
+						.until(this::isReadyToActivateCoralStationAimAssist),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
+				)
 			),
 			RobotState.INTAKE
 		);
