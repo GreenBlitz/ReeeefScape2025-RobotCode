@@ -282,6 +282,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command afterScore() {
+		return new DeferredCommand(() ->
+			switch (ScoringHelpers.targetScoreLevel) {
+				case L3, L2, L1 -> closeAfterScore();
+				case L4 -> ScoringHelpers.isTakingAlgae ? l4AlgaeRemove() : closeAfterScore();
+			},
+			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+		);
+	}
+
 	private Command closeAfterScore() {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
@@ -295,7 +305,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command l4AlgaeRemove() {
+	private Command l4AlgaeRemove() {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -380,7 +390,7 @@ public class RobotCommander extends GBSubsystem {
 			case INTAKE, CORAL_OUTTAKE, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE -> drive();
 			case ARM_PRE_SCORE -> armPreScore();
 			case PRE_SCORE -> preScore();
-			case SCORE, SCORE_WITHOUT_RELEASE -> closeAfterScore();
+			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case ALGAE_REMOVE -> closeAfterAlgaeRemove();
 			case L4_ALGAE_REMOVE -> closeAfterL4AlgaeRemove();
 		};

@@ -19,6 +19,7 @@ public class ScoringHelpers {
 	public static final Translation2d END_EFFECTOR_OFFSET_FROM_MID_ROBOT = new Translation2d(0, 0.014);
 
 	public static ScoreLevel targetScoreLevel = ScoreLevel.L4;
+	public static boolean isTakingAlgae = false;
 
 	private static boolean isFarReefHalf = false;
 	private static Side targetSideForReef = Side.MIDDLE;
