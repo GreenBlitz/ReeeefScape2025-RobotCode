@@ -152,8 +152,7 @@ public class RobotCommander extends GBSubsystem {
 
 	public boolean isReadyToActivateCoralStationAimAssist() {
 		Translation2d robotPoseTranslation = robot.getPoseEstimator().getEstimatedPose().getTranslation();
-		Translation2d coralStationPoseTranslation =
-			Field.getCoralStationSlots(ScoringHelpers.getTargetCoralStationSlot(robot)).getTranslation();
+		Translation2d coralStationPoseTranslation = Field.getCoralStationSlots(ScoringHelpers.getTargetCoralStationSlot(robot)).getTranslation();
 		return robotPoseTranslation.getDistance(coralStationPoseTranslation)
 			<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_AIM_ASSIST_METERS;
 	}
