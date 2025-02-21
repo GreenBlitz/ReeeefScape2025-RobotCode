@@ -293,7 +293,7 @@ public class Superstructure extends GBSubsystem {
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.WHILE_DRIVE_NET),
 				armStateHandler.setState(ArmState.PRE_PRE_NET),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				endEffectorStateHandler.setState(EndEffectorState.ALGAE_HOLD)
 			),
 			SuperstructureState.ARM_PRE_NET.name()
 		);
@@ -305,7 +305,7 @@ public class Superstructure extends GBSubsystem {
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.PRE_NET),
 				armStateHandler.setState(ArmState.PRE_NET),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				endEffectorStateHandler.setState(EndEffectorState.ALGAE_HOLD)
 			),
 			SuperstructureState.PRE_NET.name()
 		);
@@ -317,7 +317,7 @@ public class Superstructure extends GBSubsystem {
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.NET),
 				armStateHandler.setState(ArmState.NET),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				endEffectorStateHandler.setState(EndEffectorState.ALGAE_HOLD)
 			), // .until(() -> !isAlgaeIn()),
 			SuperstructureState.NET_WITHOUT_RELEASE.name()
 		);

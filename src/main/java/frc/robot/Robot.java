@@ -244,11 +244,11 @@ public class Robot {
 				whereToScoreThirdObjectChooser.getChosenValue(),
 				whereToIntakeFourthObjectChooser.getChosenValue(),
 				whereToScoreFourthObjectChooser.getChosenValue()
-			)
-			.withResetPose((pose) -> {
-				poseEstimator.resetPose(pose);
+			);
+//			.withResetPose((pose) -> {
+//				poseEstimator.resetPose(pose);
 //				headingEstimator.reset(pose.getRotation());
-			});
+//			});
 	}
 
 	public IPoseEstimator getPoseEstimator() {

@@ -100,8 +100,8 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
 
-		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().fullyPreNet());
-		usedJoystick.POV_RIGHT.onTrue(robot.getRobotCommander().setState(RobotState.NET_WITH_RELEASE));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().fullyPreNet());
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.NET_WITH_RELEASE));
 
 //		usedJoystick.POV_UP.onTrue(
 //			new InstantCommand(
