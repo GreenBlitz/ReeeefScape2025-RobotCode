@@ -292,7 +292,7 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.WHILE_DRIVE_NET),
-				armStateHandler.setState(ArmState.PRE_NET),
+				armStateHandler.setState(ArmState.PRE_PRE_NET),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 			),
 			SuperstructureState.ARM_PRE_NET.name()

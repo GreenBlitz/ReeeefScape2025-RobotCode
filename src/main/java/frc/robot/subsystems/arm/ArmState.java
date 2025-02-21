@@ -21,6 +21,7 @@ public enum ArmState {
 	PRE_HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(1)),
 	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(1)),
 	PRE_NET(Rotation2d.fromDegrees(45)),
+	PRE_PRE_NET(Rotation2d.fromDegrees(100)),
 	NET(Rotation2d.fromDegrees(45));
 
 
