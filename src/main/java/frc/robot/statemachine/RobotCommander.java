@@ -281,6 +281,27 @@ public class RobotCommander extends GBSubsystem {
 		}, Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
 	}
 
+	public Command closeAfterScoreWithAlgae() {
+		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
+			case L4 ->
+				new SequentialCommandGroup(
+					new ParallelDeadlineGroup(
+						superstructure.closeL4AfterScore(),
+						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+					),
+					drive()
+				);
+			case L1, L2, L3 ->
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						superstructure.preScore(),
+						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+					).until(this::isReadyToCloseSuperstructure),
+					drive()
+				);
+		}, Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
+	}
+
 	private Command algaeRemove() {
 		return asSubsystemCommand(
 			new ParallelDeadlineGroup(

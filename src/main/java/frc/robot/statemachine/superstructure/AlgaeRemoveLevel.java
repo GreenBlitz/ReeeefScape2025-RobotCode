@@ -1,4 +1,4 @@
-package frc.constants.field.enums;
+package frc.robot.statemachine.superstructure;
 
 import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.elevator.ElevatorState;

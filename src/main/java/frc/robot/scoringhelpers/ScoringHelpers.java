@@ -4,11 +4,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.constants.field.Field;
-import frc.constants.field.enums.AlgaeRemoveLevel;
+import frc.robot.statemachine.superstructure.AlgaeRemoveLevel;
 import frc.constants.field.enums.Branch;
 import frc.constants.field.enums.CoralStation;
 import frc.constants.field.enums.ReefSide;
 import frc.robot.Robot;
+import frc.robot.statemachine.superstructure.L4AlgaeRemoveLevel;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.utils.pose.Side;
 import org.littletonrobotics.junction.Logger;
@@ -54,6 +55,20 @@ public class ScoringHelpers {
 			return switch (targetSideForReef) {
 				case LEFT, RIGHT -> AlgaeRemoveLevel.LOW;
 				case MIDDLE -> AlgaeRemoveLevel.HIGH;
+			};
+		}
+	}
+
+	public static L4AlgaeRemoveLevel getAlgaeRemoveLevelL4() {
+		if (isFarReefHalf) {
+			return switch (targetSideForReef) {
+				case LEFT, RIGHT -> L4AlgaeRemoveLevel.HIGH;
+				case MIDDLE -> L4AlgaeRemoveLevel.LOW;
+			};
+		} else {
+			return switch (targetSideForReef) {
+				case LEFT, RIGHT -> L4AlgaeRemoveLevel.LOW;
+				case MIDDLE -> L4AlgaeRemoveLevel.HIGH;
 			};
 		}
 	}
