@@ -283,13 +283,10 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private Command afterScore() {
-		return new DeferredCommand(() ->
-			switch (ScoringHelpers.targetScoreLevel) {
-				case L3, L2, L1 -> closeAfterScore();
-				case L4 -> ScoringHelpers.isTakingAlgae ? l4AlgaeRemove() : closeAfterScore();
-			},
-			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
-		);
+		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
+			case L3, L2, L1 -> closeAfterScore();
+			case L4 -> ScoringHelpers.isTakingAlgae ? l4AlgaeRemove() : closeAfterScore();
+		}, Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
 	}
 
 	private Command closeAfterScore() {
@@ -306,32 +303,35 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private Command l4AlgaeRemove() {
-		return new DeferredCommand(
-			() -> new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					superstructure.preScore(),
-					swerve.getCommandsBuilder()
-						.pidToPose(
-							() -> robot.getPoseEstimator().getEstimatedPose(),
-							ScoringHelpers.getRobotAlgaeRemovePose(
-								ScoringHelpers.getTargetReefSide(),
-								StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						superstructure.preScore(),
+						swerve.getCommandsBuilder()
+							.pidToPose(
+								() -> robot.getPoseEstimator().getEstimatedPose(),
+								ScoringHelpers.getRobotAlgaeRemovePose(
+									ScoringHelpers.getTargetReefSide(),
+									StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+								)
 							)
-						)
-				).until(this::isReadyToRemoveAlgaeFromL4),
-				new ParallelDeadlineGroup(
-					superstructure.l4AlgaeRemove(),
-					swerve.getCommandsBuilder()
-						.pidToPose(
-							() -> robot.getPoseEstimator().getEstimatedPose(),
-							ScoringHelpers.getRobotAlgaeRemovePose(
-								ScoringHelpers.getTargetReefSide(),
-								StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+					).until(this::isReadyToRemoveAlgaeFromL4),
+					new ParallelDeadlineGroup(
+						superstructure.l4AlgaeRemove(),
+						swerve.getCommandsBuilder()
+							.pidToPose(
+								() -> robot.getPoseEstimator().getEstimatedPose(),
+								ScoringHelpers.getRobotAlgaeRemovePose(
+									ScoringHelpers.getTargetReefSide(),
+									StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+								)
 							)
-						)
-				)
+					)
+				),
+				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			),
-			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+			RobotState.L4_ALGAE_REMOVE
 		);
 	}
 

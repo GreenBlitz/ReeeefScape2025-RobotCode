@@ -112,6 +112,7 @@ public class ScoringHelpers {
 		Logger.recordOutput(logPath + "/TargetReefSide", getTargetReefSide());
 		Logger.recordOutput(logPath + "/TargetCoralStation", latestWantedCoralStation);
 		Logger.recordOutput(logPath + "/TargetScoreLevel", targetScoreLevel);
+		Logger.recordOutput(logPath + "/IsTakingAlgae", isTakingAlgae);
 	}
 
 }
