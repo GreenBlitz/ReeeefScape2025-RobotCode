@@ -9,6 +9,7 @@ public class StateMachineConstants {
 	public static final double ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS = 0.53;
 	public static final double OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS = 0.7;
 	public static final double DISTANCE_TO_BRANCH_FOR_STARTING_PATH = 0.7;
+	public static final double OPEN_SUPERSTRUCTURE_DISTANCE_FROM_NET_METERS = 2;
 
 	public static final Translation2d CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH = new Translation2d(0.79, 1.03);
 

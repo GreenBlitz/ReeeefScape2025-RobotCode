@@ -124,7 +124,6 @@ public class RobotCommander extends GBSubsystem {
 			);
 	}
 
-
 	private boolean isReadyToRemoveAlgaeFromL4() {
 		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
 
@@ -146,6 +145,11 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public boolean isCloseToNet() {
+		double distanceFromMidXAxis = Math.abs(robot.getPoseEstimator().getEstimatedPose().getTranslation().getX() - (Field.LENGTH_METERS / 2));
+		return distanceFromMidXAxis < StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_NET_METERS;
+	}
+
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -159,6 +163,10 @@ public class RobotCommander extends GBSubsystem {
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case L4_ALGAE_REMOVE -> l4AlgaeRemove();
+			case ARM_PRE_NET -> armPreNet();
+			case PRE_NET -> preNet();
+			case NET_WITHOUT_RELEASE -> netWithoutRelease();
+			case NET_WITH_RELEASE -> netWithRelease();
 		};
 	}
 
@@ -205,6 +213,14 @@ public class RobotCommander extends GBSubsystem {
 			armPreScore().until(this::isReadyToOpenSuperstructure),
 			preScore().until(this::isPreScoreReady),
 			scoreWithoutRelease()
+		);
+	}
+
+	public Command fullyPreNet() {
+		return new SequentialCommandGroup(
+			armPreNet().until(this::isCloseToNet),
+			netWithoutRelease().until(superstructure::isReadyToNet),
+			netWithRelease()
 		);
 	}
 
@@ -381,6 +397,46 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command armPreNet() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.armPreNet(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
+			),
+			RobotState.ARM_PRE_NET.name()
+		);
+	}
+
+	private Command preNet() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.preNet(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
+			),
+			RobotState.PRE_NET.name()
+		);
+	}
+
+	private Command netWithoutRelease() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.netWithoutRelease(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
+			),
+			RobotState.NET_WITHOUT_RELEASE.name()
+		);
+	}
+
+	private Command netWithRelease() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.netWithRelease(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
+			).until(() -> !superstructure.isAlgaeIn()),
+			RobotState.NET_WITH_RELEASE.name()
+		);
+	}
+
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
@@ -393,6 +449,8 @@ public class RobotCommander extends GBSubsystem {
 			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case ALGAE_REMOVE -> closeAfterAlgaeRemove();
 			case L4_ALGAE_REMOVE -> closeAfterL4AlgaeRemove();
+			case ARM_PRE_NET -> armPreNet();
+			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
 		};
 	}
 
