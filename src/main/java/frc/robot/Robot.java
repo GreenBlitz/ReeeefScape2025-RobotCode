@@ -137,6 +137,7 @@ public class Robot {
 		swerve.getStateHandler().setBranchSupplier(() -> Optional.of(ScoringHelpers.getTargetBranch()));
 		swerve.getStateHandler().setReefSideSupplier(() -> Optional.of(ScoringHelpers.getTargetReefSide()));
 		swerve.getStateHandler().setCoralStationSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStation(this)));
+		swerve.getStateHandler().setCoralStationSlotSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStationSlot(this)));
 
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
 		BrakeStateManager.add(() -> elevator.setBrake(true), () -> elevator.setBrake(false));
@@ -228,23 +229,22 @@ public class Robot {
 		BatteryUtil.logStatus();
 		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
-		ScoringHelpers.log("Scoring");
+		ScoringHelpers.log("Scoring", this);
 		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
 
 		CommandScheduler.getInstance().run(); // Should be last
 	}
 
 	public PathPlannerAutoWrapper getAuto() {
-		return PathPlannerAutoWrapper
-			.chainAutos(
-				startingPointAndWhereToScoreFirstObjectChooser.getChosenValue(),
-				whereToIntakeSecondObjectChooser.getChosenValue(),
-				whereToScoreSecondObjectChooser.getChosenValue(),
-				whereToIntakeThirdObjectChooser.getChosenValue(),
-				whereToScoreThirdObjectChooser.getChosenValue(),
-				whereToIntakeFourthObjectChooser.getChosenValue(),
-				whereToScoreFourthObjectChooser.getChosenValue()
-			);
+		return PathPlannerAutoWrapper.chainAutos(
+			startingPointAndWhereToScoreFirstObjectChooser.getChosenValue(),
+			whereToIntakeSecondObjectChooser.getChosenValue(),
+			whereToScoreSecondObjectChooser.getChosenValue(),
+			whereToIntakeThirdObjectChooser.getChosenValue(),
+			whereToScoreThirdObjectChooser.getChosenValue(),
+			whereToIntakeFourthObjectChooser.getChosenValue(),
+			whereToScoreFourthObjectChooser.getChosenValue()
+		);
 //			.withResetPose((pose) -> {
 //				poseEstimator.resetPose(pose);
 //				headingEstimator.reset(pose.getRotation());
