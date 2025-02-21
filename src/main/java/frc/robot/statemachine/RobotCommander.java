@@ -41,12 +41,12 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public void initializeDefaultCommand() {
-//		setDefaultCommand(
-//			new DeferredCommand(
-//				() -> endState(currentState),
-//				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
-//			)
-//		);
+		setDefaultCommand(
+			new DeferredCommand(
+				() -> endState(currentState),
+				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+			)
+		);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 
-	private boolean isReafdyToRlaeAlgae() {
+	private boolean isReadyToRemoveAlgaeFromL4() {
 		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
 
 		Pose2d reefRelativeTargetPose = ScoringHelpers
@@ -156,9 +156,9 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE -> preScore();
 			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
 			case SCORE -> score();
-			case POST_ALGAE_REMOVE -> closeAfterAlgaeRemove();
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
+			case L4_ALGAE_REMOVE -> l4AlgaeRemove();
 		};
 	}
 
@@ -295,7 +295,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command takeAlgaeAfterL4() {
+	public Command l4AlgaeRemove() {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -308,23 +308,30 @@ public class RobotCommander extends GBSubsystem {
 								StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
 							)
 						)
-				).until(this::isReafdyToRlaeAlgae),
+				).until(this::isReadyToRemoveAlgaeFromL4),
 				new ParallelDeadlineGroup(
-					new SequentialCommandGroup(
-						swerve.getCommandsBuilder()
-							.pidToPose(
-								() -> robot.getPoseEstimator().getEstimatedPose(),
-								ScoringHelpers.getRobotAlgaeRemovePose(
-									ScoringHelpers.getTargetReefSide(),
-									StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
-								)
+					superstructure.l4AlgaeRemove(),
+					swerve.getCommandsBuilder()
+						.pidToPose(
+							() -> robot.getPoseEstimator().getEstimatedPose(),
+							ScoringHelpers.getRobotAlgaeRemovePose(
+								ScoringHelpers.getTargetReefSide(),
+								StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
 							)
-							.until(superstructure::isReadyToExitReef),
-						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE).until(this::isReadyToCloseSuperstructure)
+						)
+				)
+			),
+			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+		);
+	}
 
-					),
-					superstructure.closeL4AfterScoreWithAlgae()
-				),
+	private Command closeAfterL4AlgaeRemove() {
+		return new DeferredCommand(
+			() -> new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					superstructure.postL4AlgaeRemove(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				).until(this::isReadyToCloseSuperstructure),
 				drive()
 			),
 			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
@@ -342,18 +349,15 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private Command closeAfterAlgaeRemove() {
-		return asSubsystemCommand(
-			new DeferredCommand(
-				() -> new SequentialCommandGroup(
-					new ParallelCommandGroup(
-						superstructure.postAlgaeRemove(),
-						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-					).until(this::isReadyToCloseSuperstructure),
-					drive()
-				),
-				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+		return new DeferredCommand(
+			() -> new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					superstructure.postAlgaeRemove(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				).until(this::isReadyToCloseSuperstructure),
+				drive()
 			),
-			RobotState.POST_ALGAE_REMOVE
+			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 		);
 	}
 
@@ -373,11 +377,12 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command endState(RobotState state) {
 		return switch (state) {
-			case INTAKE, CORAL_OUTTAKE, DRIVE, ALIGN_REEF, POST_ALGAE_REMOVE, ALGAE_OUTTAKE -> drive();
+			case INTAKE, CORAL_OUTTAKE, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE -> drive();
 			case ARM_PRE_SCORE -> armPreScore();
 			case PRE_SCORE -> preScore();
 			case SCORE, SCORE_WITHOUT_RELEASE -> closeAfterScore();
 			case ALGAE_REMOVE -> closeAfterAlgaeRemove();
+			case L4_ALGAE_REMOVE -> closeAfterL4AlgaeRemove();
 		};
 	}
 
