@@ -9,7 +9,7 @@ public enum L4AlgaeRemoveLevel {
 	LOW(
 		ElevatorState.LOW_ALGAE_REMOVE_FROM_L4,
 		ElevatorState.LOW_ALGAE_REMOVE_FROM_L4,
-		ElevatorState.LOW_ALGAE_REMOVE_FROM_L4,
+		ElevatorState.POST_LOW_ALGAE_REMOVE_FROM_L4,
 		ArmState.ALGAE_REMOVE_FROM_L4,
 		ArmState.ALGAE_REMOVE_FROM_L4,
 		ArmState.ALGAE_REMOVE_FROM_L4,
@@ -18,7 +18,7 @@ public enum L4AlgaeRemoveLevel {
 	HIGH(
 		ElevatorState.HIGH_ALGAE_REMOVE_FROM_L4,
 		ElevatorState.HIGH_ALGAE_REMOVE_FROM_L4,
-		ElevatorState.HIGH_ALGAE_REMOVE_FROM_L4,
+		ElevatorState.POST_HIGH_ALGAE_REMOVE_FROM_L4,
 		ArmState.ALGAE_REMOVE_FROM_L4,
 		ArmState.ALGAE_REMOVE_FROM_L4,
 		ArmState.ALGAE_REMOVE_FROM_L4,

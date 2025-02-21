@@ -98,11 +98,12 @@ public class ScoringHelpers {
 		return getRobotBranchScoringPose(branch, distanceFromBranchMeters, true);
 	}
 
-	public static Pose2d getRobotRelativeAlgaeRemovePose(ReefSide side, double distanceFromReefMeters) {
+	public static Pose2d getRobotAlgaeRemovePose(ReefSide side, double distanceFromReefMeters) {
 		Translation2d reefMiddleTranslation = Field.getReefSideMiddle(side).getTranslation();
 		Rotation2d targetRobotAngle = Field.getReefSideMiddle(side).getRotation();
 		Translation2d differenceTranslation = new Translation2d(distanceFromReefMeters, targetRobotAngle);
-		return new Pose2d(reefMiddleTranslation.minus(differenceTranslation), targetRobotAngle);
+		Translation2d endeffectorOffsetDifference = END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(targetRobotAngle);
+		return new Pose2d(reefMiddleTranslation.minus(differenceTranslation).minus(endeffectorOffsetDifference), targetRobotAngle);
 	}
 
 	public static void log(String logPath) {

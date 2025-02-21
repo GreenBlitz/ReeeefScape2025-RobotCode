@@ -41,12 +41,12 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public void initializeDefaultCommand() {
-		setDefaultCommand(
-			new DeferredCommand(
-				() -> endState(currentState),
-				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
-			)
-		);
+//		setDefaultCommand(
+//			new DeferredCommand(
+//				() -> endState(currentState),
+//				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+//			)
+//		);
 	}
 
 	/**
@@ -122,6 +122,28 @@ public class RobotCommander extends GBSubsystem {
 				Tolerances.REEF_RELATIVE_SCORING_POSITION,
 				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
 			);
+	}
+
+
+	private boolean isReafdyToRlaeAlgae() {
+		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
+
+		Pose2d reefRelativeTargetPose = ScoringHelpers
+			.getRobotAlgaeRemovePose(ScoringHelpers.getTargetReefSide(), StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS)
+			.rotateBy(reefAngle.unaryMinus());
+		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
+
+		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
+		ChassisSpeeds reefRelativeSpeeds = SwerveMath
+			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
+
+		return PoseUtil.isAtPose(
+			reefRelativeRobotPose,
+			reefRelativeTargetPose,
+			reefRelativeSpeeds,
+			Tolerances.REEF_RELATIVE_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+		);
 	}
 
 	public Command setState(RobotState state) {
@@ -273,25 +295,40 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command closeAfterScoreWithAlgae() {
-		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
-			case L4 ->
-				new SequentialCommandGroup(
-					new ParallelDeadlineGroup(
-						superstructure.closeL4AfterScore(),
-						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+	public Command takeAlgaeAfterL4() {
+		return new DeferredCommand(
+			() -> new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					superstructure.preScore(),
+					swerve.getCommandsBuilder()
+						.pidToPose(
+							() -> robot.getPoseEstimator().getEstimatedPose(),
+							ScoringHelpers.getRobotAlgaeRemovePose(
+								ScoringHelpers.getTargetReefSide(),
+								StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+							)
+						)
+				).until(this::isReafdyToRlaeAlgae),
+				new ParallelDeadlineGroup(
+					new SequentialCommandGroup(
+						swerve.getCommandsBuilder()
+							.pidToPose(
+								() -> robot.getPoseEstimator().getEstimatedPose(),
+								ScoringHelpers.getRobotAlgaeRemovePose(
+									ScoringHelpers.getTargetReefSide(),
+									StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+								)
+							)
+							.until(superstructure::isReadyToExitReef),
+						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE).until(this::isReadyToCloseSuperstructure)
+
 					),
-					drive()
-				);
-			case L1, L2, L3 ->
-				new SequentialCommandGroup(
-					new ParallelCommandGroup(
-						superstructure.preScore(),
-						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-					).until(this::isReadyToCloseSuperstructure),
-					drive()
-				);
-		}, Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
+					superstructure.closeL4AfterScoreWithAlgae()
+				),
+				drive()
+			),
+			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+		);
 	}
 
 	private Command algaeRemove() {
