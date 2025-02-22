@@ -60,10 +60,12 @@ public class VisionConstants {
 
 	public static double ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS = 0.3;
 
-	public static final Filter<VisionData> DEFAULT_VISION_FILTER = VisionFilters.isInField(ROBOT_POSITION_IN_FIELD_TOLERANCE_METERS)
-		.and(VisionFilters.isRollAtAngle(Rotation2d.fromDegrees(0), ROLL_FILTER_TOLERANCE))
-		.and(VisionFilters.isPitchAtAngle(Rotation2d.fromDegrees(0), PITCH_FILTER_TOLERANCE))
+	public static final Filter<VisionData> BASE_VISION_FILTER = VisionFilters.isInField(ROBOT_POSITION_IN_FIELD_TOLERANCE_METERS)
 		.and(VisionFilters.isOnGround(ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS));
+
+	public static final Filter<VisionData> INDAPENDENT_HEADING_VISION_FILTER = BASE_VISION_FILTER
+		.and(VisionFilters.isRollAtAngle(Rotation2d.fromDegrees(0), ROLL_FILTER_TOLERANCE))
+		.and(VisionFilters.isPitchAtAngle(Rotation2d.fromDegrees(0), PITCH_FILTER_TOLERANCE));
 
 	public static final Pose3d LIMELIGHT_LEFT_CAMERA_ROBOT_POSE = new Pose3d(
 		new Translation3d(0.22989, -0.11998, 0.48927),
@@ -80,7 +82,8 @@ public class VisionConstants {
 		"limelight-left",
 		VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
 		"limelight4-front",
-		VisionConstants.DEFAULT_VISION_FILTER,
+		VisionConstants.BASE_VISION_FILTER,
+		VisionConstants.INDAPENDENT_HEADING_VISION_FILTER,
 		LIMELIGHT_LEFT_CAMERA_ROBOT_POSE
 	);
 
@@ -89,7 +92,8 @@ public class VisionConstants {
 		"limelight-right",
 		VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
 		"limelight3gb-front",
-		VisionConstants.DEFAULT_VISION_FILTER,
+		VisionConstants.BASE_VISION_FILTER,
+		VisionConstants.INDAPENDENT_HEADING_VISION_FILTER,
 		LIMELIGHT_RIGHT_CAMERA_ROBOT_POSE
 	);
 
