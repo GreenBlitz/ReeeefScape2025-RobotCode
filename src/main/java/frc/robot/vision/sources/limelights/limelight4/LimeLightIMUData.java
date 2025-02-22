@@ -1,6 +1,6 @@
 package frc.robot.vision.sources.limelights.limelight4;
 
-public enum IMUDataLimelight {
+public enum LimeLightIMUData {
 
 	ROBOT_YAW(0),
 	ROLL(1),
@@ -14,9 +14,9 @@ public enum IMUDataLimelight {
 	ACCELERATION_Z(9);
 
 	private final int index;
-	private final static int length = 10;
+	public final static int length = values().length;
 
-	IMUDataLimelight(int index) {
+	LimeLightIMUData(int index) {
 		this.index = index;
 	}
 

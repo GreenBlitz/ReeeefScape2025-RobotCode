@@ -5,7 +5,7 @@ import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.robot.vision.sources.IndpendentHeadingVisionSource;
 import frc.robot.vision.sources.RobotHeadingRequiringVisionSource;
-import frc.robot.vision.sources.limelights.limelight4.IMUMode;
+import frc.robot.vision.sources.limelights.limelight4.LimelightIMUMode;
 import frc.robot.vision.sources.limelights.limelight4.LimeLight4;
 import frc.utils.Filter;
 
@@ -60,7 +60,7 @@ public class LimelightFactory {
 			filter,
 			cameraPoseOffset,
 			poseEstimationMethod,
-			IMUMode.USE_INTERNAL_ASSIST_MEGATAG_1,
+			LimelightIMUMode.USE_INTERNAL_ASSIST_MEGATAG_1,
 			VisionConstants.DEFAULT_SKIPPED_FRAMES_LIMELIGHT_4,
 			VisionConstants.DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4
 		);

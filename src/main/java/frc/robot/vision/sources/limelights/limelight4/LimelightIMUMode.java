@@ -1,6 +1,6 @@
 package frc.robot.vision.sources.limelights.limelight4;
 
-public enum IMUMode {
+public enum LimelightIMUMode {
 
 	USE_EXTERNAL(0),
 	USE_EXTERNAL_ASSIST_INTERNAL(1),
@@ -10,7 +10,7 @@ public enum IMUMode {
 
 	private final int apiValue;
 
-	private IMUMode(int apiValue) {
+	private LimelightIMUMode(int apiValue) {
 		this.apiValue = apiValue;
 	}
 

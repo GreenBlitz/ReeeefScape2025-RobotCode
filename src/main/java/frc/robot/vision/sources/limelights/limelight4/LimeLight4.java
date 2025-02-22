@@ -22,8 +22,8 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 	private final NetworkTableEntry mutableFramesToSkipEntry;
 	private final NetworkTableEntry mutableInternalIMURelianceEntry;
 
-	private IMUMode imuMode;
-	private double[] imuData;
+	private LimelightIMUMode limelightImuMode;
+	private double[] imuDataArray;
 
 	public LimeLight4(
 		String cameraNetworkTablesName,
@@ -32,7 +32,7 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 		Filter<? super AprilTagVisionData> filter,
 		Pose3d cameraPoseOffset,
 		LimelightPoseEstimationMethod poseEstimationMethod,
-		IMUMode defaultIMUMode,
+		LimelightIMUMode defaultLimelightIMUMode,
 		int defaultSkippedFramesCount,
 		double defaultRatioBetweenIMUAndSource
 	) {
@@ -41,18 +41,18 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 		this.mutableIMUModeEntry = getLimelightNetworkTableEntry("imumode_set");
 		this.mutableFramesToSkipEntry = getLimelightNetworkTableEntry("throttle_set");
 		this.mutableInternalIMURelianceEntry = getLimelightNetworkTableEntry("imuassistalpha_set");
-		setIMUMode(defaultIMUMode);
+		setIMUMode(defaultLimelightIMUMode);
 		setSkippedFramesProcessing(defaultSkippedFramesCount);
 		setInternalIMUReliance(defaultRatioBetweenIMUAndSource);
 	}
 
-	public void setIMUMode(IMUMode imuMode) {
-		this.imuMode = imuMode;
-		mutableIMUModeEntry.setInteger(imuMode.getAPIValue());
+	public void setIMUMode(LimelightIMUMode limelightImuMode) {
+		this.limelightImuMode = limelightImuMode;
+		mutableIMUModeEntry.setInteger(limelightImuMode.getAPIValue());
 	}
 
-	public IMUMode getIMMode() {
-		return imuMode;
+	public LimelightIMUMode getIMMode() {
+		return limelightImuMode;
 	}
 
 	public void setSkippedFramesProcessing(int framesCount) {
@@ -74,57 +74,58 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 	@Override
 	public void update() {
 		super.update();
-		imuData = mutableIMUDataEntry.getDoubleArray(new double[IMUDataLimelight.values().length]);
+		imuDataArray = mutableIMUDataEntry.getDoubleArray(new double[LimeLightIMUData.length]);
 	}
 
 	@Override
 	public Optional<TimedValue<Rotation2d>> getRawHeadingData() {
-		return imuMode.isIndependent()
-			? Optional
-				.of(new TimedValue<>(Rotation2d.fromRadians(imuData[IMUDataLimelight.ROBOT_YAW.getIndex()]), TimeUtil.getCurrentTimeSeconds()))
+		return limelightImuMode.isIndependent()
+			? Optional.of(
+				new TimedValue<>(Rotation2d.fromRadians(imuDataArray[LimeLightIMUData.ROBOT_YAW.getIndex()]), TimeUtil.getCurrentTimeSeconds())
+			)
 			: Optional.empty();
 	}
 
 	public double getAccelerationX() {
-		return imuData[IMUDataLimelight.ACCELERATION_X.getIndex()];
+		return imuDataArray[LimeLightIMUData.ACCELERATION_X.getIndex()];
 	}
 
 	public double getAccelerationY() {
-		return imuData[IMUDataLimelight.ACCELERATION_Y.getIndex()];
+		return imuDataArray[LimeLightIMUData.ACCELERATION_Y.getIndex()];
 	}
 
 	public double getAccelerationZ() {
-		return imuData[IMUDataLimelight.ACCELERATION_Z.getIndex()];
+		return imuDataArray[LimeLightIMUData.ACCELERATION_Z.getIndex()];
 	}
 
 	public double getYaw() {
-		return imuData[IMUDataLimelight.YAW.getIndex()];
+		return imuDataArray[LimeLightIMUData.YAW.getIndex()];
 	}
 
 	public double getPitch() {
-		return imuData[IMUDataLimelight.PITCH.getIndex()];
+		return imuDataArray[LimeLightIMUData.PITCH.getIndex()];
 	}
 
 	public double getRoll() {
-		return imuData[IMUDataLimelight.ROLL.getIndex()];
+		return imuDataArray[LimeLightIMUData.ROLL.getIndex()];
 	}
 
 	public double getGyroX() {
-		return imuData[IMUDataLimelight.GYRO_X.getIndex()];
+		return imuDataArray[LimeLightIMUData.GYRO_X.getIndex()];
 	}
 
 	public double getGyroY() {
-		return imuData[IMUDataLimelight.GYRO_Y.getIndex()];
+		return imuDataArray[LimeLightIMUData.GYRO_Y.getIndex()];
 	}
 
 	public double getGyroZ() {
-		return imuData[IMUDataLimelight.GYRO_Z.getIndex()];
+		return imuDataArray[LimeLightIMUData.GYRO_Z.getIndex()];
 	}
 
 	@Override
 	public void log() {
 		super.log();
-		Logger.recordOutput(logPath + "IMUMode", imuMode);
+		Logger.recordOutput(logPath + "IMUMode", limelightImuMode);
 
 		Logger.recordOutput(logPath + "acceleration/x", getAccelerationX());
 		Logger.recordOutput(logPath + "acceleration/y", getAccelerationY());

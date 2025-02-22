@@ -4,6 +4,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import frc.robot.vision.VisionConstants;
+import frc.robot.vision.sources.limelights.limelight4.LimelightIMUMode;
+import frc.robot.vision.sources.limelights.limelight4.LimeLight4;
 import frc.utils.TimedValue;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.robot.vision.sources.IndpendentHeadingVisionSource;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Extended MultiVisionSources that supplies methods that takes care of using, updating and extracting data from special interfaces related
@@ -125,6 +128,23 @@ public class MultiAprilTagVisionSources extends MultiVisionSources<AprilTagVisio
 	public ArrayList<AprilTagVisionData> getUnfilteredVisionData() {
 		updateAngleInHeadingRequiringSources(robotHeadingSupplier.get());
 		return super.getUnfilteredVisionData();
+	}
+
+	public void changeSkippingFramesInLimelight4(int framesCountToSkip) {
+		getLimelight4s().forEach(limeLight4 -> limeLight4.setSkippedFramesProcessing(framesCountToSkip));
+	}
+
+	public void changeIMUModeInLimelight4(LimelightIMUMode imuMode) {
+		getLimelight4s().forEach(limeLight4 -> limeLight4.setIMUMode(imuMode));
+	}
+
+	private Stream<LimeLight4> getLimelight4s() {
+		return visionSources.stream().flatMap((source -> {
+			if (source instanceof LimeLight4 limeLight4) {
+				return Stream.of(limeLight4);
+			}
+			return Stream.of();
+		}));
 	}
 
 	private void logMegaTagMethod() {
