@@ -2,7 +2,6 @@ package frc.robot.vision.sources.limelights;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N2;
 import frc.robot.vision.VisionConstants;
 import frc.utils.TimedValue;
 import frc.robot.vision.RobotAngleValues;
@@ -29,8 +28,8 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 		String cameraNetworkTablesName,
 		String parentLogPath,
 		String sourceName,
+		Filter<? super AprilTagVisionData> indapdendentHeadingLimelightLimelightFilter,
 		Filter<? super AprilTagVisionData> headingRequiringLimelightLimelightFilter,
-		Filter<? super AprilTagVisionData> indapdendentLimelightLimelightFilter,
 		Pose3d cameraPoseOffset
 	) {
 		this.useGyroForPoseEstimating = defaultUseGyroForPoseEstimating;
@@ -38,7 +37,7 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 			cameraNetworkTablesName,
 			parentLogPath,
 			sourceName + "/" + VisionConstants.DYNAMIC_LIMELIGHT_MEGATAG1_SOURCE_NAME,
-			indapdendentLimelightLimelightFilter,
+			indapdendentHeadingLimelightLimelightFilter,
 			cameraPoseOffset
 		);
 		this.headingRequiringLimelight = LimelightFactory.createRobotHeadingRequiringLimelight(
@@ -74,6 +73,7 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 
 	/**
 	 * set the filter for both of the LimeLight.
+	 *
 	 * @param newFilter: the new filter to be used in both LimeLight.
 	 */
 	@Override
@@ -81,8 +81,11 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 		setFilter(newFilter, newFilter);
 	}
 
-	public void setFilter(Filter<? super AprilTagVisionData> indapendentLimelightFilter, Filter<? super AprilTagVisionData> headingRequiringLimelightLimelightFilter) {
-		independentPoseEstimatingLimelight.setFilter(indapendentLimelightFilter);
+	public void setFilter(
+		Filter<? super AprilTagVisionData> indapendentHeadingLimelightFilter,
+		Filter<? super AprilTagVisionData> headingRequiringLimelightLimelightFilter
+	) {
+		independentPoseEstimatingLimelight.setFilter(indapendentHeadingLimelightFilter);
 		headingRequiringLimelight.setFilter(headingRequiringLimelightLimelightFilter);
 	}
 
@@ -91,7 +94,9 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 	 */
 	@Override
 	public Filter<? super AprilTagVisionData> getFilter() {
-		return new Filter<AprilTagVisionData>((value) -> independentPoseEstimatingLimelight.getFilter().apply(value) && headingRequiringLimelight.getFilter().apply(value));
+		return new Filter<>(
+			(value) -> independentPoseEstimatingLimelight.getFilter().apply(value) && headingRequiringLimelight.getFilter().apply(value)
+		);
 	}
 
 	public Filter<? super AprilTagVisionData> getIndapdendentLimelightLimelightFilter() {
