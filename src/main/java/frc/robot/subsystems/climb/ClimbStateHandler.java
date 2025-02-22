@@ -32,13 +32,28 @@ public class ClimbStateHandler {
 		return new SequentialCommandGroup(
 			lifterStateHandler.setState(LifterState.BACKWARD).withTimeout(ClimbConstants.SOLENOID_RELEASE_TIME_SECONDS),
 			solenoidStateHandler.setState(SolenoidState.INITIAL_FREE).withTimeout(ClimbConstants.SOLENOID_RETRACTING_UNTIL_HOLDING_TIME_SECONDS),
-			new ParallelDeadlineGroup(lifterStateHandler.setState(LifterState.DEPLOY), solenoidStateHandler.setState(SolenoidState.HOLD_FREE)),
-			solenoidStateHandler.setState(SolenoidState.LOCKED)
+			new ParallelCommandGroup(
+				lifterStateHandler.setState(LifterState.DEPLOY),
+				solenoidStateHandler.setState(SolenoidState.HOLD_FREE)
+			).until(() -> lifterStateHandler.isHigher(LifterState.DEPLOY.getTargetPosition())),
+			new ParallelCommandGroup(
+					solenoidStateHandler.setState(SolenoidState.LOCKED),
+					lifterStateHandler.setState(LifterState.HOLD)
+			)
 		);
 	}
 
 	private Command climb() {
-		return new ParallelCommandGroup(lifterStateHandler.setState(LifterState.CLIMB), solenoidStateHandler.setState(SolenoidState.LOCKED));
+		return new SequentialCommandGroup(
+				new ParallelCommandGroup(
+						lifterStateHandler.setState(LifterState.CLIMB),
+						solenoidStateHandler.setState(SolenoidState.LOCKED)
+				).until(() -> lifterStateHandler.isLower(LifterState.CLIMB.getTargetPosition())),
+				new ParallelCommandGroup(
+						lifterStateHandler.setState(LifterState.HOLD),
+						solenoidStateHandler.setState(SolenoidState.LOCKED)
+				)
+		);
 	}
 
 }

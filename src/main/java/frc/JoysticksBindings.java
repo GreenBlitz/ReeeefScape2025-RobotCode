@@ -139,19 +139,17 @@ public class JoysticksBindings {
 		usedJoystick.POV_RIGHT.onTrue(solenoidStateHandler.setState(SolenoidState.HOLD_FREE));
 		usedJoystick.POV_LEFT.onTrue(solenoidStateHandler.setState(SolenoidState.LOCKED));
 
-		usedJoystick.L1.onTrue(lifterStateHandler.setState(LifterState.FORWARD));
+		usedJoystick.L1.onTrue(lifterStateHandler.setState(LifterState.DEPLOY));
 		usedJoystick.R1.onTrue(lifterStateHandler.setState(LifterState.CLIMB));
 		usedJoystick.Y.onTrue(lifterStateHandler.setState(LifterState.HOLD));
 
 		// Climb aim assist testing
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER)
-			.onTrue(robot.getSwerve().getCommandsBuilder().driveByDriversInputs(
-					SwerveState.DEFAULT_DRIVE));
-		
+			.onTrue(robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
+
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
-			.onTrue(robot.getSwerve().getCommandsBuilder().driveByDriversInputs(
-					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CAGE)));
-		
+			.onTrue(robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CAGE)));
+
 		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> ScoringHelpers.targetCage = Cage.FIELD_WALL));
 		usedJoystick.BACK.onTrue(new InstantCommand(() -> ScoringHelpers.targetCage = Cage.MIDDLE));
 		usedJoystick.START.onTrue(new InstantCommand(() -> ScoringHelpers.targetCage = Cage.FIELD_CENTER));
