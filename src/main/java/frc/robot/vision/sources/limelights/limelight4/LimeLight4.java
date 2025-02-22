@@ -25,7 +25,7 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 	private IMUMode imuMode;
 	private double[] imuData;
 
-	protected LimeLight4(
+	public LimeLight4(
 		String cameraNetworkTablesName,
 		String parentLogPath,
 		String sourceName,
@@ -60,7 +60,7 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 	}
 
 	public int getSkippedFramesProcessing() {
-		mutableFramesToSkipEntry.getInteger(-1);
+		return (int) mutableFramesToSkipEntry.getInteger(-1);
 	}
 
 	public void setInternalIMUReliance(double ratioBetweenIMUAndSource) {

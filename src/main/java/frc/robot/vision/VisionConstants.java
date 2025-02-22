@@ -63,7 +63,7 @@ public class VisionConstants {
 	public static double DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4 = 0.001;
 
 	// solves heating issues on limelight 4. According to the official docs, 50-100 should resolve any heating issues.
-	public static double DEFAULT_SKIPPED_FRAMES_LIMELIGHT_4 = 2;
+	public static int DEFAULT_SKIPPED_FRAMES_LIMELIGHT_4 = 2;
 
 	public static final Filter<VisionData> DEFAULT_VISION_FILTER = VisionFilters.isInField(ROBOT_POSITION_IN_FIELD_TOLERANCE_METERS)
 		.and(VisionFilters.isRollAtAngle(Rotation2d.fromDegrees(0), ROLL_FILTER_TOLERANCE))

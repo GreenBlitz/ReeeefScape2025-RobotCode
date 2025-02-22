@@ -1,9 +1,12 @@
 package frc.robot.vision.sources.limelights;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.robot.vision.sources.IndpendentHeadingVisionSource;
 import frc.robot.vision.sources.RobotHeadingRequiringVisionSource;
+import frc.robot.vision.sources.limelights.limelight4.IMUMode;
+import frc.robot.vision.sources.limelights.limelight4.LimeLight4;
 import frc.utils.Filter;
 
 public class LimelightFactory {
@@ -39,6 +42,27 @@ public class LimelightFactory {
 			filter,
 			cameraPoseOffset,
 			LimelightPoseEstimationMethod.MEGATAG_1
+		);
+	}
+
+	public static LimeLight4 createLimeLight4(
+		String cameraNetworkTablesName,
+		String parentLogPath,
+		String sourceName,
+		Filter<? super AprilTagVisionData> filter,
+		Pose3d cameraPoseOffset,
+		LimelightPoseEstimationMethod poseEstimationMethod
+	) {
+		return new LimeLight4(
+			cameraNetworkTablesName,
+			parentLogPath,
+			sourceName,
+			filter,
+			cameraPoseOffset,
+			poseEstimationMethod,
+			IMUMode.USE_INTERNAL_ASSIST_MEGATAG_1,
+			VisionConstants.DEFAULT_SKIPPED_FRAMES_LIMELIGHT_4,
+			VisionConstants.DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4
 		);
 	}
 
