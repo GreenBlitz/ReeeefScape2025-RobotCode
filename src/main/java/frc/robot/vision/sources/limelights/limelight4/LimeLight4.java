@@ -17,10 +17,10 @@ import java.util.Optional;
 
 public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisionSource, RobotHeadingRequiringVisionSource {
 
-	private final NetworkTableEntry imuDataEntry;
-	private final NetworkTableEntry immutableIMUModeEntry;
-	private final NetworkTableEntry immutableFramesToSkipEntry;
-	private final NetworkTableEntry immutableInternalIMURelianceEntry;
+	private final NetworkTableEntry mutableIMUDataEntry;
+	private final NetworkTableEntry mutableIMUModeEntry;
+	private final NetworkTableEntry mutableFramesToSkipEntry;
+	private final NetworkTableEntry mutableInternalIMURelianceEntry;
 
 	private IMUMode imuMode;
 	private double[] imuData;
@@ -37,10 +37,10 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 		double defaultRatioBetweenIMUAndSource
 	) {
 		super(cameraNetworkTablesName, parentLogPath, sourceName, filter, cameraPoseOffset, poseEstimationMethod);
-		this.imuDataEntry = getLimelightNetworkTableEntry("imu");
-		this.immutableIMUModeEntry = getLimelightNetworkTableEntry("imumode_set");
-		this.immutableFramesToSkipEntry = getLimelightNetworkTableEntry("throttle_set");
-		this.immutableInternalIMURelianceEntry = getLimelightNetworkTableEntry("imuassistalpha_set");
+		this.mutableIMUDataEntry = getLimelightNetworkTableEntry("imu");
+		this.mutableIMUModeEntry = getLimelightNetworkTableEntry("imumode_set");
+		this.mutableFramesToSkipEntry = getLimelightNetworkTableEntry("throttle_set");
+		this.mutableInternalIMURelianceEntry = getLimelightNetworkTableEntry("imuassistalpha_set");
 		setIMUMode(defaultIMUMode);
 		setSkippedFramesProcessing(defaultSkippedFramesCount);
 		setInternalIMUReliance(defaultRatioBetweenIMUAndSource);
@@ -48,21 +48,33 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 
 	public void setIMUMode(IMUMode imuMode) {
 		this.imuMode = imuMode;
-		immutableIMUModeEntry.setInteger(imuMode.getAPIValue());
+		mutableIMUModeEntry.setInteger(imuMode.getAPIValue());
+	}
+
+	public IMUMode getIMMode() {
+		return imuMode;
 	}
 
 	public void setSkippedFramesProcessing(int framesCount) {
-		immutableFramesToSkipEntry.setInteger(framesCount);
+		mutableFramesToSkipEntry.setInteger(framesCount);
+	}
+
+	public int getSkippedFramesProcessing() {
+		mutableFramesToSkipEntry.getInteger(-1);
 	}
 
 	public void setInternalIMUReliance(double ratioBetweenIMUAndSource) {
-		immutableInternalIMURelianceEntry.setDouble(ratioBetweenIMUAndSource);
+		mutableInternalIMURelianceEntry.setDouble(ratioBetweenIMUAndSource);
+	}
+
+	public double getInternalIMUReliance() {
+		return mutableInternalIMURelianceEntry.getDouble(-1);
 	}
 
 	@Override
 	public void update() {
 		super.update();
-		imuData = imuDataEntry.getDoubleArray(new double[IMUDataLimelight.values().length]);
+		imuData = mutableIMUDataEntry.getDoubleArray(new double[IMUDataLimelight.values().length]);
 	}
 
 	@Override
