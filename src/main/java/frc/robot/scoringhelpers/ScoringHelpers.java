@@ -9,6 +9,7 @@ import frc.constants.field.enums.Branch;
 import frc.constants.field.enums.CoralStationSlot;
 import frc.constants.field.enums.CoralStation;
 import frc.constants.field.enums.ReefSide;
+import frc.constants.field.enums.*;
 import frc.robot.Robot;
 import frc.robot.statemachine.superstructure.L4AlgaeRemoveLevel;
 import frc.robot.statemachine.superstructure.ScoreLevel;
@@ -21,6 +22,7 @@ public class ScoringHelpers {
 
 	public static ScoreLevel targetScoreLevel = ScoreLevel.L4;
 	public static boolean isTakingAlgae = false;
+	public static Cage targetCage = Cage.MIDDLE;
 
 	private static boolean isFarReefHalf = false;
 	private static Side targetSideForReef = Side.MIDDLE;

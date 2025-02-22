@@ -166,6 +166,7 @@ public class RobotCommander extends GBSubsystem {
 
 	public Command setState(RobotState state) {
 		return switch (state) {
+			case CLIMB -> climb();
 			case DRIVE -> drive();
 			case INTAKE -> intake();
 			case CORAL_OUTTAKE -> coralOuttake();
@@ -245,9 +246,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command outtake() {
+		return asSubsystemCommand(
+				new ParallelCommandGroup(superstructure.idle(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+				RobotState.DRIVE
+		);
+	}
+
 	private Command climb() {
 		return asSubsystemCommand(
-				new ParallelCommandGroup(superstructure.climb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+				new ParallelCommandGroup(superstructure.climb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CAGE))),
 				RobotState.CLIMB
 		);
 	}

@@ -125,7 +125,7 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.CLOSED),
-				armStateHandler.setState(ArmState.MID_WAY_CLOSE),
+				armStateHandler.setState(ArmState.CLOSED),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 			),
 			SuperstructureState.IDLE
