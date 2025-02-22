@@ -8,6 +8,9 @@ import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Acceleration;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 public class Phoenix6RequestBuilder {
 
@@ -62,8 +65,8 @@ public class Phoenix6RequestBuilder {
 	public static DynamicPhoenix6Request build(
 			DynamicMotionMagicVoltage dynamicMotionMagicVoltage,
 			double defaultArbitraryFeedForward,
-			double velocity,
-			double acceleration,
+			AngularVelocity velocity,
+			AngularAcceleration acceleration,
 			boolean enableFOC
 	) {
 		return new DynamicPhoenix6Request(
