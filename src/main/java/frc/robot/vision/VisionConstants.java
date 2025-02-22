@@ -60,6 +60,10 @@ public class VisionConstants {
 
 	public static double ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS = 0.3;
 
+	public static double DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4 = 0.001;
+
+	public static double DEFAULT_SKIPPED_FRAMES = 2;
+
 	public static final Filter<VisionData> DEFAULT_VISION_FILTER = VisionFilters.isInField(ROBOT_POSITION_IN_FIELD_TOLERANCE_METERS)
 		.and(VisionFilters.isRollAtAngle(Rotation2d.fromDegrees(0), ROLL_FILTER_TOLERANCE))
 		.and(VisionFilters.isPitchAtAngle(Rotation2d.fromDegrees(0), PITCH_FILTER_TOLERANCE))
