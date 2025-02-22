@@ -126,6 +126,10 @@ public class JoysticksBindings {
 		SolenoidStateHandler solenoidStateHandler = new SolenoidStateHandler(robot.getSolenoid());
 		LifterStateHandler lifterStateHandler = new LifterStateHandler(robot.getLifter());
 
+		//RobotCommander - FULL CLIMB testing
+		usedJoystick.L3.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB));
+		usedJoystick.R3.onTrue(robot.getRobotCommander().setState(RobotState.CLIMB));
+		
 		// Climb State Testing
 
 		ClimbStateHandler climbStateHandler = new ClimbStateHandler(solenoidStateHandler, lifterStateHandler);
