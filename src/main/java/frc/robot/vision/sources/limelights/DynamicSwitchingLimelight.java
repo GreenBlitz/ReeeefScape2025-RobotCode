@@ -78,15 +78,20 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 	 */
 	@Override
 	public void setFilter(Filter<? super AprilTagVisionData> newFilter) {
-		setFilter(newFilter, newFilter);
+		setFilterForHeadingRequiringSource(newFilter);
+		setFilterForHeadingRequiringSource(newFilter);
 	}
 
-	public void setFilter(
-		Filter<? super AprilTagVisionData> indapendentHeadingLimelightFilter,
-		Filter<? super AprilTagVisionData> headingRequiringLimelightLimelightFilter
+	public void setFilterForHeadingRequiringSource(
+		Filter<? super AprilTagVisionData> newFilter
 	) {
-		independentPoseEstimatingLimelight.setFilter(indapendentHeadingLimelightFilter);
-		headingRequiringLimelight.setFilter(headingRequiringLimelightLimelightFilter);
+		headingRequiringLimelight.setFilter(newFilter);
+	}
+
+	public void setFilterForIndependentSource(
+		Filter<? super AprilTagVisionData> newFilter
+	) {
+		independentPoseEstimatingLimelight.setFilter(newFilter);
 	}
 
 	/**
