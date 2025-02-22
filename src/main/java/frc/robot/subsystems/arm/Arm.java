@@ -53,7 +53,7 @@ public class Arm extends GBSubsystem {
 
 		periodic();
 		resetByEncoderPosition();
-		setDefaultCommand(getCommandsBuilder().stayInPlace());
+//		setDefaultCommand(getCommandsBuilder().stayInPlace());
 	}
 
 	public ArmCommandsBuilder getCommandsBuilder() {
@@ -91,6 +91,7 @@ public class Arm extends GBSubsystem {
 
 	protected void resetByEncoderPosition() {
 		motor.resetPosition(encoderPositionSignal.getLatestValue());
+		motor.resetPosition(Rotation2d.fromDegrees(-36));
 	}
 
 	public void setBrake(boolean brake) {

@@ -16,6 +16,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -34,6 +35,12 @@ public class RobotCommander extends GBSubsystem {
 		this.swerve = robot.getSwerve();
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
 		this.currentState = RobotState.DRIVE;
+	}
+
+	@Override
+	protected void subsystemPeriodic() {
+		Logger.recordOutput(getLogPath() + "/isAlgaeIn", superstructure.isAlgaeIn());
+		Logger.recordOutput(getLogPath() + "/isCoralIn", superstructure.isCoralIn());
 	}
 
 	public Superstructure getSuperstructure() {
@@ -235,6 +242,13 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(superstructure.idle(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			RobotState.DRIVE
+		);
+	}
+
+	private Command climb() {
+		return asSubsystemCommand(
+				new ParallelCommandGroup(superstructure.climb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+				RobotState.CLIMB
 		);
 	}
 
@@ -463,6 +477,7 @@ public class RobotCommander extends GBSubsystem {
 			case L4_ALGAE_REMOVE -> closeAfterL4AlgaeRemove();
 			case ARM_PRE_NET -> armPreNet();
 			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
+			case CLIMB -> climb();
 		};
 	}
 

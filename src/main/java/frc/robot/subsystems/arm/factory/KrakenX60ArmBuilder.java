@@ -129,11 +129,11 @@ public class KrakenX60ArmBuilder {
 		config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT.getRotations();
 		config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
-		config.Feedback.RotorToSensorRatio = GEAR_RATIO;
-		config.Feedback.SensorToMechanismRatio = 1;
+		config.Feedback.RotorToSensorRatio = 1;//GEAR_RATIO;
+		config.Feedback.SensorToMechanismRatio = GEAR_RATIO;//1;
 
-		config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-		config.Feedback.FeedbackRemoteSensorID = IDs.CANCodersIDs.ARM.id();
+		config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+//		config.Feedback.FeedbackRemoteSensorID = IDs.CANCodersIDs.ARM.id();
 
 		return config;
 	}

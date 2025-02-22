@@ -6,7 +6,7 @@ public enum ArmState {
 
 	CLOSED(Rotation2d.fromDegrees(185)),
 	MID_WAY_CLOSE(Rotation2d.fromDegrees(150)),
-	INTAKE(Rotation2d.fromDegrees(185)),
+	INTAKE(Rotation2d.fromDegrees(200)),
 	OUTTAKE(Rotation2d.fromDegrees(13)),
 	PRE_L1(Rotation2d.fromDegrees(185)),
 	L1(Rotation2d.fromDegrees(185)),
@@ -15,12 +15,13 @@ public enum ArmState {
 	PRE_L3(Rotation2d.fromDegrees(10)),
 	L3(Rotation2d.fromDegrees(10)),
 	PRE_L4(Rotation2d.fromDegrees(37)),
-	L4(Rotation2d.fromDegrees(-25)),
+	L4(Rotation2d.fromDegrees(-27)),
 	POST_LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-30)),
 	LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-30)),
 	PRE_HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(1)),
 	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(1)),
-	ALGAE_REMOVE_FROM_L4(Rotation2d.fromDegrees(-25)),
+	HIGH_ALGAE_REMOVE_FROM_L4(Rotation2d.fromDegrees(-50)),
+	LOW_ALGAE_REMOVE_FROM_L4(Rotation2d.fromDegrees(-33)),
 	PRE_NET(Rotation2d.fromDegrees(37)),
 	NET(Rotation2d.fromDegrees(37));
 

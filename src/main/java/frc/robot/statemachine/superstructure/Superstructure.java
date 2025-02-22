@@ -38,7 +38,7 @@ public class Superstructure extends GBSubsystem {
 		this.robot = robot;
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
 		this.armStateHandler = new ArmStateHandler(robot.getArm());
-		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
+		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector(), this);
 
 		this.currentState = SuperstructureState.IDLE;
 		this.driverIsCoralInOverride = false;
@@ -125,10 +125,21 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.CLOSED),
-				armStateHandler.setState(ArmState.CLOSED),
+				armStateHandler.setState(ArmState.MID_WAY_CLOSE),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 			),
 			SuperstructureState.IDLE
+		);
+	}
+
+	public Command climb() {
+		return asSubsystemCommand(
+				new ParallelCommandGroup(
+						elevatorStateHandler.setState(ElevatorState.CLOSED),
+						armStateHandler.setState(ArmState.L2),
+						endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				),
+				SuperstructureState.CLIMB
 		);
 	}
 
@@ -288,8 +299,8 @@ public class Superstructure extends GBSubsystem {
 						armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevelL4().getArmState()),
 						elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevelL4().getElevatorState()),
 						endEffectorStateHandler.setState(EndEffectorState.ALGAE_INTAKE)
-					).until(this::isAlgaeIn)
-				),
+					)
+				).until(this::isAlgaeIn),
 				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector())
 			),
 			SuperstructureState.ALGAE_REMOVE_L4
@@ -424,6 +435,7 @@ public class Superstructure extends GBSubsystem {
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case ARM_PRE_NET -> armPreNet();
 			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
+			case CLIMB -> climb();
 		};
 	}
 
