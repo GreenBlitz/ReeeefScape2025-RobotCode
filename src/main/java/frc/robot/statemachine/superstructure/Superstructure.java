@@ -16,6 +16,7 @@ import frc.robot.subsystems.arm.ArmState;
 import frc.robot.subsystems.arm.ArmStateHandler;
 import frc.robot.subsystems.climb.ClimbState;
 import frc.robot.subsystems.climb.ClimbStateHandler;
+import frc.robot.subsystems.climb.lifter.LifterStateHandler;
 import frc.robot.subsystems.climb.solenoid.SolenoidStateHandler;
 import frc.robot.subsystems.elevator.ElevatorState;
 import frc.robot.subsystems.elevator.ElevatorStateHandler;
@@ -324,7 +325,7 @@ public class Superstructure extends GBSubsystem {
 				elevatorStateHandler.setState(ElevatorState.CLOSED),
 				armStateHandler.setState(ArmState.CLIMB),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-				climbStateHandler.setState(ClimbState.EXTEND)
+				climbStateHandler.setState(ClimbState.DEPLOY)
 			),
 			SuperstructureState.PRE_CLIMB
 		);
@@ -336,7 +337,7 @@ public class Superstructure extends GBSubsystem {
 				elevatorStateHandler.setState(ElevatorState.CLOSED),
 				armStateHandler.setState(ArmState.CLIMB),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-				climbStateHandler.setState(ClimbState.RETRACT)
+				climbStateHandler.setState(ClimbState.CLIMB)
 			),
 			SuperstructureState.CLIMB
 		);

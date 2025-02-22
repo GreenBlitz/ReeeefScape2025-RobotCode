@@ -19,8 +19,8 @@ public class ClimbStateHandler {
 	public Command setState(ClimbState state) {
 		return switch (state) {
 			case STOP -> stop();
-			case EXTEND -> extend();
-			case RETRACT -> retract();
+			case DEPLOY -> deploy();
+			case CLIMB -> climb();
 		};
 	}
 
@@ -28,17 +28,17 @@ public class ClimbStateHandler {
 		return new ParallelCommandGroup(lifterStateHandler.setState(LifterState.HOLD), solenoidStateHandler.setState(SolenoidState.LOCKED));
 	}
 
-	private Command extend() {
+	private Command deploy() {
 		return new SequentialCommandGroup(
 			lifterStateHandler.setState(LifterState.BACKWARD).withTimeout(ClimbConstants.SOLENOID_RELEASE_TIME_SECONDS),
 			solenoidStateHandler.setState(SolenoidState.INITIAL_FREE).withTimeout(ClimbConstants.SOLENOID_RETRACTING_UNTIL_HOLDING_TIME_SECONDS),
-			new ParallelDeadlineGroup(lifterStateHandler.setState(LifterState.EXTENDED), solenoidStateHandler.setState(SolenoidState.HOLD_FREE)),
+			new ParallelDeadlineGroup(lifterStateHandler.setState(LifterState.DEPLOY), solenoidStateHandler.setState(SolenoidState.HOLD_FREE)),
 			solenoidStateHandler.setState(SolenoidState.LOCKED)
 		);
 	}
 
-	private Command retract() {
-		return new ParallelCommandGroup(lifterStateHandler.setState(LifterState.RETRACTED), solenoidStateHandler.setState(SolenoidState.LOCKED));
+	private Command climb() {
+		return new ParallelCommandGroup(lifterStateHandler.setState(LifterState.CLIMB), solenoidStateHandler.setState(SolenoidState.LOCKED));
 	}
 
 }
