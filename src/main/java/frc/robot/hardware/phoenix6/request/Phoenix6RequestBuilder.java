@@ -59,6 +59,26 @@ public class Phoenix6RequestBuilder {
 		);
 	}
 
+	public static DynamicPhoenix6Request build(
+			DynamicMotionMagicVoltage dynamicMotionMagicVoltage,
+			double defaultArbitraryFeedForward,
+			double velocity,
+			double acceleration,
+			boolean enableFOC
+	) {
+		return new DynamicPhoenix6Request(
+				Rotation2d.fromRotations(dynamicMotionMagicVoltage.Position),
+				dynamicMotionMagicVoltage.withEnableFOC(enableFOC),
+				setPoint -> dynamicMotionMagicVoltage.withPosition(setPoint.getRotations()),
+				dynamicMotionMagicVoltage::withFeedForward,
+				defaultArbitraryFeedForward,
+				dynamicMotionMagicVoltage::withVelocity,
+				velocity,
+				dynamicMotionMagicVoltage::withAcceleration,
+				acceleration
+		);
+	}
+
 	public static Phoenix6Request<Double> build(VoltageOut voltageOut, boolean enableFOC) {
 		return new Phoenix6Request<>(voltageOut.Output, voltageOut.withEnableFOC(enableFOC), voltageOut::withOutput);
 	}
