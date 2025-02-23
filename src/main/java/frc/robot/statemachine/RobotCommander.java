@@ -198,7 +198,8 @@ public class RobotCommander extends GBSubsystem {
 				case NET_WITHOUT_RELEASE -> superstructure.netWithoutRelease();
 				case NET_WITH_RELEASE -> superstructure.netWithRelease();
 				case PROCESSOR_SCORE -> superstructure.processorScore();
-			}, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
+			});
+//			, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
 		}
 	}
 

@@ -97,14 +97,14 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(reefActionChooser(robot));
+		usedJoystick.A.onTrue(reefActionChooser(robot));
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 
-		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
+		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
-		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+//		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
 
-		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
+//		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 
 		usedJoystick.POV_UP.onTrue(
 			new InstantCommand(
@@ -122,6 +122,9 @@ public class JoysticksBindings {
 
 			)
 		);
+
+		usedJoystick.Y.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4));
+
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

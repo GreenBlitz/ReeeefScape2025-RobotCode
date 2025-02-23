@@ -158,7 +158,9 @@ public class Superstructure extends GBSubsystem {
 	public Command outtake() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				elevatorStateHandler.setState(ElevatorState.STAY_IN_PLACE),
+					new InstantCommand(() -> System.out.println("aaa")),
+
+					elevatorStateHandler.setState(ElevatorState.STAY_IN_PLACE),
 				armStateHandler.setState(ArmState.STAY_IN_PLACE),
 				endEffectorStateHandler.setState(EndEffectorState.CORAL_OUTTAKE)
 			).until(() -> !isCoralIn()),
@@ -350,7 +352,7 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 				).until(this::isReadyToOuttakeAlgae),
 				new ParallelCommandGroup(
-					elevatorStateHandler.setState(ElevatorState.ALGAE_OUTTAKE),
+						elevatorStateHandler.setState(ElevatorState.ALGAE_OUTTAKE),
 					armStateHandler.setState(ArmState.ALGAE_OUTTAKE),
 					endEffectorStateHandler.setState(EndEffectorState.ALGAE_OUTTAKE)
 				)
