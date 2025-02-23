@@ -62,7 +62,8 @@ public class LimelightFactory {
 			poseEstimationMethod,
 			LimelightIMUMode.USE_INTERNAL_ASSIST_MEGATAG_1,
 			VisionConstants.DEFAULT_SKIPPED_FRAMES_LIMELIGHT_4,
-			VisionConstants.DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4
+			VisionConstants.DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4,
+			VisionConstants.REGULATE_TEMPERATURE_IN_LIMELIGHT_4
 		);
 	}
 

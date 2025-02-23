@@ -3,6 +3,7 @@ package frc.robot.vision.sources.limelights.limelight4;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.robot.vision.sources.IndpendentHeadingVisionSource;
 import frc.robot.vision.sources.RobotHeadingRequiringVisionSource;
@@ -15,13 +16,17 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
 
+import static frc.robot.vision.VisionConstants.FALLBACK_SKIPPED_FRAMES_LIMELIGHT_4;
+
 public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisionSource, RobotHeadingRequiringVisionSource {
 
 	private final NetworkTableEntry mutableIMUDataEntry;
 	private final NetworkTableEntry mutableIMUModeEntry;
 	private final NetworkTableEntry mutableFramesToSkipEntry;
 	private final NetworkTableEntry mutableInternalIMURelianceEntry;
+	private final boolean regulateTemperature;
 
+	private int lastManuallySetSkippedFrames;
 	private LimelightIMUMode limelightImuMode;
 	private double[] imuDataArray;
 
@@ -34,13 +39,15 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 		LimelightPoseEstimationMethod poseEstimationMethod,
 		LimelightIMUMode defaultLimelightIMUMode,
 		int defaultSkippedFramesCount,
-		double defaultRatioBetweenIMUAndSource
+		double defaultRatioBetweenIMUAndSource,
+		boolean regulateTemperature
 	) {
 		super(cameraNetworkTablesName, parentLogPath, sourceName, filter, cameraPoseOffset, poseEstimationMethod);
 		this.mutableIMUDataEntry = getLimelightNetworkTableEntry("imu");
 		this.mutableIMUModeEntry = getLimelightNetworkTableEntry("imumode_set");
 		this.mutableFramesToSkipEntry = getLimelightNetworkTableEntry("throttle_set");
 		this.mutableInternalIMURelianceEntry = getLimelightNetworkTableEntry("imuassistalpha_set");
+		this.regulateTemperature = regulateTemperature;
 		setIMUMode(defaultLimelightIMUMode);
 		setSkippedFramesProcessing(defaultSkippedFramesCount);
 		setInternalIMUReliance(defaultRatioBetweenIMUAndSource);
@@ -57,6 +64,7 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 
 	public void setSkippedFramesProcessing(int framesCount) {
 		mutableFramesToSkipEntry.setInteger(framesCount);
+		this.lastManuallySetSkippedFrames = framesCount;
 	}
 
 	public int getSkippedFramesProcessing() {
@@ -74,6 +82,9 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 	@Override
 	public void update() {
 		super.update();
+		if (regulateTemperature) {
+			regulateTemperature();
+		}
 		imuDataArray = mutableIMUDataEntry.getDoubleArray(new double[LimeLightIMUData.length]);
 	}
 
@@ -84,6 +95,19 @@ public class LimeLight4 extends LimeLightSource implements IndpendentHeadingVisi
 				new TimedValue<>(Rotation2d.fromRadians(imuDataArray[LimeLightIMUData.ROBOT_YAW.getIndex()]), TimeUtil.getCurrentTimeSeconds())
 			)
 			: Optional.empty();
+	}
+
+	public void regulateTemperature() {
+		if (
+			getLimeLightTemperature() > VisionConstants.LIMELIGHT_4_MAXIMUM_LIMELIGHT_TEMPERATURE_CELSIUS
+				|| getCPUTemperature() > VisionConstants.LIMELIGHT_4_MAXIMUM_CPU_TEMPERATURE_CELSIUS
+		) {
+			mutableFramesToSkipEntry.setInteger(FALLBACK_SKIPPED_FRAMES_LIMELIGHT_4);
+			Logger.recordOutput(logPath + "temperatureRegulation", "high");
+		} else {
+			mutableFramesToSkipEntry.setInteger(lastManuallySetSkippedFrames);
+			Logger.recordOutput(logPath + "temperatureRegulation", "fine");
+		}
 	}
 
 	public double getAccelerationX() {
