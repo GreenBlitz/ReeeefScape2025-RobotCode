@@ -143,6 +143,28 @@ public class RobotCommander extends GBSubsystem {
 			);
 	}
 
+
+	private boolean isReadyToRemoveAlgaeFromL4() {
+		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
+
+		Pose2d reefRelativeTargetPose = ScoringHelpers
+			.getRobotAlgaeRemovePose(ScoringHelpers.getTargetReefSide(), StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS)
+			.rotateBy(reefAngle.unaryMinus());
+		Pose2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus());
+
+		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
+		ChassisSpeeds reefRelativeSpeeds = SwerveMath
+			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
+
+		return PoseUtil.isAtPose(
+			reefRelativeRobotPose,
+			reefRelativeTargetPose,
+			reefRelativeSpeeds,
+			Tolerances.REEF_RELATIVE_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+		);
+	}
+
 	public boolean isReadyToActivateCoralStationAimAssist() {
 		Translation2d robotTranslation = robot.getPoseEstimator().getEstimatedPose().getTranslation();
 		Translation2d coralStationSlotTranslation = Field.getCoralStationSlot(ScoringHelpers.getTargetCoralStationSlot(robot)).getTranslation();
@@ -176,6 +198,7 @@ public class RobotCommander extends GBSubsystem {
 			case SCORE -> score();
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
+			case L4_ALGAE_REMOVE -> l4AlgaeRemove();
 			case PRE_NET -> preNet();
 			case NET_WITHOUT_RELEASE -> netWithoutRelease();
 			case NET_WITH_RELEASE -> netWithRelease();
@@ -335,11 +358,64 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command afterScore() {
+		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
+			case L3, L2, L1 -> closeAfterScore();
+			case L4 -> ScoringHelpers.isTakingAlgae ? l4AlgaeRemove() : closeAfterScore();
+		}, Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
+	}
+
 	private Command closeAfterScore() {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					superstructure.afterScore(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				).until(this::isReadyToCloseSuperstructure),
+				drive()
+			),
+			Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+		);
+	}
+
+	private Command l4AlgaeRemove() {
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						superstructure.preScore(),
+						swerve.getCommandsBuilder()
+							.pidToPose(
+								() -> robot.getPoseEstimator().getEstimatedPose(),
+								ScoringHelpers.getRobotAlgaeRemovePose(
+									ScoringHelpers.getTargetReefSide(),
+									StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+								)
+							)
+					).until(this::isReadyToRemoveAlgaeFromL4),
+					new ParallelDeadlineGroup(
+						superstructure.l4AlgaeRemove(),
+						swerve.getCommandsBuilder()
+							.pidToPose(
+								() -> robot.getPoseEstimator().getEstimatedPose(),
+								ScoringHelpers.getRobotAlgaeRemovePose(
+									ScoringHelpers.getTargetReefSide(),
+									StateMachineConstants.ROBOT_ALGAE_DISTANCE_FROM_REEF_METERS
+								)
+							)
+					)
+				),
+				Set.of(this, superstructure, swerve, robot.getElevator(), robot.getArm(), robot.getEndEffector())
+			),
+			RobotState.L4_ALGAE_REMOVE
+		);
+	}
+
+	private Command closeAfterL4AlgaeRemove() {
+		return new DeferredCommand(
+			() -> new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					superstructure.postL4AlgaeRemove(),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 				).until(this::isReadyToCloseSuperstructure),
 				drive()
@@ -421,8 +497,9 @@ public class RobotCommander extends GBSubsystem {
 			case INTAKE, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE -> drive();
 			case ARM_PRE_SCORE -> armPreScore();
 			case PRE_SCORE -> preScore();
-			case SCORE, SCORE_WITHOUT_RELEASE -> closeAfterScore();
+			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case ALGAE_REMOVE -> closeAfterAlgaeRemove();
+			case L4_ALGAE_REMOVE -> closeAfterL4AlgaeRemove();
 			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
 		};
 	}
