@@ -78,7 +78,9 @@ public class JoysticksBindings {
 	private static Command reefActionChooser(Robot robot) {
 		return new DeferredCommand(
 			() -> robot.getRobotCommander().getSuperstructure().isCoralIn()
-				? robot.getRobotCommander().getSuperstructure().driverSwerveAimAssistOverride ? robot.getRobotCommander().fullyPreScore() : robot.getRobotCommander().autoScore()
+				? robot.getRobotCommander().getSuperstructure().driverSwerveAimAssistOverride
+					? robot.getRobotCommander().fullyPreScore()
+					: robot.getRobotCommander().autoScore()
 				: robot.getRobotCommander().setState(RobotState.ALGAE_REMOVE),
 			Set.of(
 				robot.getRobotCommander(),
@@ -100,6 +102,7 @@ public class JoysticksBindings {
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
+		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
 
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 
@@ -112,11 +115,12 @@ public class JoysticksBindings {
 		);
 
 		usedJoystick.POV_DOWN.onTrue(
-				new InstantCommand(
-						() -> robot.getRobotCommander()
-								.getSuperstructure().driverSwerveAimAssistOverride = !robot.getRobotCommander().getSuperstructure().driverSwerveAimAssistOverride
+			new InstantCommand(
+				() -> robot.getRobotCommander()
+					.getSuperstructure().driverSwerveAimAssistOverride = !robot.getRobotCommander()
+						.getSuperstructure().driverSwerveAimAssistOverride
 
-				)
+			)
 		);
 	}
 
