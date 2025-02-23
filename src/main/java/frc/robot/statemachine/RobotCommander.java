@@ -138,22 +138,40 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command setState(RobotState state) {
-		return switch (state) {
-			case DRIVE -> drive();
-			case STAY_IN_PLACE -> stayInPlace();
-			case INTAKE -> intake();
-			case CORAL_OUTTAKE -> coralOuttake();
-			case ALIGN_REEF -> alignReef();
-			case ARM_PRE_SCORE -> armPreScore();
-			case PRE_SCORE -> preScore();
-			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
-			case SCORE -> score();
-			case ALGAE_REMOVE -> algaeRemove();
-			case ALGAE_OUTTAKE -> algaeOuttake();
-			case PRE_NET -> preNet();
-			case NET_WITHOUT_RELEASE -> netWithoutRelease();
-			case NET_WITH_RELEASE -> netWithRelease();
-		};
+		if (!superstructure.driverSwerveAimAssistOverride) {
+			return switch (state) {
+				case DRIVE -> drive();
+				case STAY_IN_PLACE -> stayInPlace();
+				case INTAKE -> intake();
+				case CORAL_OUTTAKE -> coralOuttake();
+				case ALIGN_REEF -> alignReef();
+				case ARM_PRE_SCORE -> armPreScore();
+				case PRE_SCORE -> preScore();
+				case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
+				case SCORE -> score();
+				case ALGAE_REMOVE -> algaeRemove();
+				case ALGAE_OUTTAKE -> algaeOuttake();
+				case PRE_NET -> preNet();
+				case NET_WITHOUT_RELEASE -> netWithoutRelease();
+				case NET_WITH_RELEASE -> netWithRelease();
+			};
+		} else {
+			return new ParallelCommandGroup(switch (state) {
+				case DRIVE, ALIGN_REEF -> superstructure.idle();
+				case STAY_IN_PLACE -> superstructure.stayInPlace();
+				case INTAKE -> superstructure.intake();
+				case CORAL_OUTTAKE -> superstructure.outtake();
+				case ARM_PRE_SCORE -> superstructure.armPreScore();
+				case PRE_SCORE -> superstructure.preScore();
+				case SCORE_WITHOUT_RELEASE -> superstructure.scoreWithoutRelease();
+				case SCORE -> superstructure.scoreWithRelease();
+				case ALGAE_REMOVE -> superstructure.algaeRemove();
+				case ALGAE_OUTTAKE -> superstructure.algaeOuttake();
+				case PRE_NET -> superstructure.preNet();
+				case NET_WITHOUT_RELEASE -> superstructure.netWithoutRelease();
+				case NET_WITH_RELEASE -> superstructure.netWithRelease();
+			}, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
+		}
 	}
 
 	public Command autoScore() {

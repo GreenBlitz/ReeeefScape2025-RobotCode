@@ -32,6 +32,7 @@ public class Superstructure extends GBSubsystem {
 	private SuperstructureState currentState;
 	public boolean driverIsCoralInOverride;
 	public boolean driverIsAlgaeInOverride;
+	public boolean driverSwerveAimAssistOverride;
 
 	public Superstructure(String logPath, Robot robot) {
 		super(logPath);
@@ -43,6 +44,7 @@ public class Superstructure extends GBSubsystem {
 		this.currentState = SuperstructureState.IDLE;
 		this.driverIsCoralInOverride = false;
 		this.driverIsAlgaeInOverride = false;
+		this.driverSwerveAimAssistOverride = true;
 		setDefaultCommand(
 			new DeferredCommand(() -> endState(currentState), Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()))
 		);
@@ -214,6 +216,13 @@ public class Superstructure extends GBSubsystem {
 		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
 			case L4 -> l4PreScore();
 			case L1, L2, L3 -> genericPreScore();
+		}, Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
+	}
+
+	public Command fullyPreScore(){
+		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
+			case L4 -> l4PreScore().until(this::isPreScoreReady).andThen(scoreWithoutRelease());
+			case L1, L2, L3 -> genericPreScore().until(this::isPreScoreReady).andThen(scoreWithoutRelease());
 		}, Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()));
 	}
 
