@@ -96,7 +96,6 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-
 		usedJoystick.R1.onTrue(reefActionChooser(robot));
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE));
 
@@ -108,20 +107,10 @@ public class JoysticksBindings {
 
 		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 
-		usedJoystick.POV_UP.onTrue(
-			new InstantCommand(
-				() -> robot.getRobotCommander()
-					.getSuperstructure().driverIsAlgaeInOverride = !robot.getRobotCommander().getSuperstructure().driverIsAlgaeInOverride
-
-			)
-		);
-
-		usedJoystick.POV_DOWN.onTrue(
-			new InstantCommand(
-				() -> robot.getRobotCommander().driverSwerveAimAssistOverride = !robot.getRobotCommander().driverSwerveAimAssistOverride
-
-			)
-		);
+		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));
+		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));
+		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().setState(RobotState.CLIMB));
+		usedJoystick.POV_RIGHT.onTrue(robot.getRobotCommander().setState(RobotState.STOP_CLIMB));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
