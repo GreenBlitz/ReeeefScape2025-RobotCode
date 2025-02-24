@@ -32,7 +32,6 @@ public class Superstructure extends GBSubsystem {
 	private SuperstructureState currentState;
 	public boolean driverIsCoralInOverride;
 	public boolean driverIsAlgaeInOverride;
-	public boolean driverSwerveAimAssistOverride;
 
 	public Superstructure(String logPath, Robot robot) {
 		super(logPath);
@@ -44,7 +43,6 @@ public class Superstructure extends GBSubsystem {
 		this.currentState = SuperstructureState.IDLE;
 		this.driverIsCoralInOverride = false;
 		this.driverIsAlgaeInOverride = false;
-		this.driverSwerveAimAssistOverride = false;
 		setDefaultCommand(
 			new DeferredCommand(() -> endState(currentState), Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector()))
 		);

@@ -28,12 +28,15 @@ public class RobotCommander extends GBSubsystem {
 
 	private RobotState currentState;
 
+	public boolean driverSwerveAimAssistOverride;
+
 	public RobotCommander(String logPath, Robot robot) {
 		super(logPath);
 		this.robot = robot;
 		this.swerve = robot.getSwerve();
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
 		this.currentState = RobotState.DRIVE;
+		this.driverSwerveAimAssistOverride = false;
 	}
 
 	public Superstructure getSuperstructure() {
@@ -164,7 +167,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command setState(RobotState state) {
-		if (!superstructure.driverSwerveAimAssistOverride) {
+		if (!driverSwerveAimAssistOverride) {
 			return switch (state) {
 				case DRIVE -> drive();
 				case STAY_IN_PLACE -> stayInPlace();
