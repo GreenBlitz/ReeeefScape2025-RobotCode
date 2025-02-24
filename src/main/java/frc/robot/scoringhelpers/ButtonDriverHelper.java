@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.constants.field.enums.ReefSide;
-import frc.robot.statemachine.superstructure.AlgaeRemoveLevel;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.utils.math.AngleTransform;
 import frc.utils.math.FieldMath;
@@ -16,20 +15,10 @@ public class ButtonDriverHelper {
 	private enum LeftRightTogglePlacements {
 
 		LEFT_TOGGLE_BRANCH_PLACEMENT(
-			Field.getAllianceRelative(
-				new Pose2d(TOGGLE_X_AXIS, 4.55, Rotation2d.fromDegrees(0)),
-				true,
-				true,
-				AngleTransform.INVERT
-			)
+			Field.getAllianceRelative(new Pose2d(TOGGLE_X_AXIS, 4.55, Rotation2d.fromDegrees(0)), true, true, AngleTransform.INVERT)
 		),
 		RIGHT_TOGGLE_BRANCH_PLACEMENT(
-			Field.getAllianceRelative(
-				new Pose2d(TOGGLE_X_AXIS, 3.55, Rotation2d.fromDegrees(0)),
-				true,
-				true,
-				AngleTransform.INVERT
-			)
+			Field.getAllianceRelative(new Pose2d(TOGGLE_X_AXIS, 3.55, Rotation2d.fromDegrees(0)), true, true, AngleTransform.INVERT)
 		),
 		HIDDEN_PLACEMENT(new Pose2d(-10, -10, Rotation2d.fromDegrees(0)));
 
@@ -42,6 +31,7 @@ public class ButtonDriverHelper {
 	}
 
 	private enum IsRemovingAlgaeTogglePlacements {
+
 		ALGAE_TOGGLE_PLACEMENT(new Pose2d(TOGGLE_X_AXIS, 1.5, Rotation2d.fromDegrees(0))),
 		HIDDEN_PLACEMENT(new Pose2d(-10, -10, Rotation2d.fromDegrees(90)));
 
@@ -50,6 +40,7 @@ public class ButtonDriverHelper {
 		IsRemovingAlgaeTogglePlacements(Pose2d placement) {
 			this.placement = placement;
 		}
+
 	}
 
 	private static final double DISTANCE_FROM_REEF_FOR_SIDE_HIGHLIGHTING_METERS = 0.45;
@@ -126,11 +117,10 @@ public class ButtonDriverHelper {
 	}
 
 	private static void updateAlgaeRemovingToggleIndexes() {
-		if (ScoringHelpers.isTakingAlgae){
+		if (ScoringHelpers.isTakingAlgae) {
 			algaeRemovingIndex = IsRemovingAlgaeTogglePlacements.ALGAE_TOGGLE_PLACEMENT.ordinal();
 			darkAlgaeRemovingToggleIndex = IsRemovingAlgaeTogglePlacements.HIDDEN_PLACEMENT.ordinal();
-		}
-		else {
+		} else {
 			algaeRemovingIndex = IsRemovingAlgaeTogglePlacements.HIDDEN_PLACEMENT.ordinal();
 			darkAlgaeRemovingToggleIndex = IsRemovingAlgaeTogglePlacements.ALGAE_TOGGLE_PLACEMENT.ordinal();
 		}
