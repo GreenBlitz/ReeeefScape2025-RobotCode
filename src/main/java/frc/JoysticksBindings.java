@@ -122,7 +122,7 @@ public class JoysticksBindings {
 		usedJoystick.X.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L3));
 		usedJoystick.Y.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4));
 
-		usedJoystick.START.onTrue(new InstantCommand(() -> ScoringHelpers.isTakingAlgae = !ScoringHelpers.isTakingAlgae));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(new InstantCommand(() -> ScoringHelpers.isTakingAlgae = !ScoringHelpers.isTakingAlgae));
 
 		usedJoystick.R1.onTrue(new InstantCommand(ScoringHelpers::toggleIsLeftBranch));
 		usedJoystick.L1.onTrue(new InstantCommand(ScoringHelpers::toggleIsFarReefHalf));
