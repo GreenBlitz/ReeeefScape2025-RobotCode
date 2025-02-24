@@ -79,7 +79,7 @@ public class JoysticksBindings {
 		return new DeferredCommand(
 			() -> robot.getRobotCommander().getSuperstructure().isCoralIn()
 				? robot.getRobotCommander().driverSwerveAimAssistOverride
-					? robot.getRobotCommander().fullyPreScore()
+					? robot.getRobotCommander().fullyPreScoreWithoutAimAssist()
 					: robot.getRobotCommander().autoScore()
 				: robot.getRobotCommander().setState(RobotState.ALGAE_REMOVE),
 			Set.of(

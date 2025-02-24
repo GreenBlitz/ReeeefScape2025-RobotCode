@@ -243,7 +243,15 @@ public class RobotCommander extends GBSubsystem {
 		return new SequentialCommandGroup(scoreWithoutRelease().until(this::isReadyToScore), score());
 	}
 
-	public Command fullyPreScore() {
+	public Command fullyPreScoreWithAimAssist() {
+		return new SequentialCommandGroup(
+				armPreScore().until(this::isReadyToOpenSuperstructure),
+				preScore().until(this::isPreScoreReady),
+				scoreWithoutRelease()
+		);
+	}
+
+	public Command fullyPreScoreWithoutAimAssist() {
 		return new ParallelCommandGroup(
 			superstructure.fullyPreScore(),
 			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
