@@ -28,11 +28,14 @@ public class RobotCommander extends GBSubsystem {
 
 	private RobotState currentState;
 
+	public boolean driverSwerveAimAssistOverride;
+
 	public RobotCommander(String logPath, Robot robot) {
 		super(logPath);
 		this.robot = robot;
 		this.swerve = robot.getSwerve();
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
+		this.driverSwerveAimAssistOverride = false;
 		this.currentState = RobotState.STAY_IN_PLACE;
 	}
 
@@ -164,28 +167,51 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command setState(RobotState state) {
-		return switch (state) {
-			case DRIVE -> drive();
-			case STAY_IN_PLACE -> stayInPlace();
-			case INTAKE -> intake();
-			case CORAL_OUTTAKE -> coralOuttake();
-			case ALIGN_REEF -> alignReef();
-			case ARM_PRE_SCORE -> armPreScore();
-			case PRE_SCORE -> preScore();
-			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
-			case SCORE -> score();
-			case ALGAE_REMOVE -> algaeRemove();
-			case ALGAE_OUTTAKE -> algaeOuttake();
-			case PRE_NET -> preNet();
-			case NET_WITHOUT_RELEASE -> netWithoutRelease();
-			case NET_WITH_RELEASE -> netWithRelease();
-			case PROCESSOR_SCORE -> fullyProcessorScore();
-			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
-			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB -> climb();
-			case STOP_CLIMB -> climbStop();
-			case CLOSE_CLIMB -> closeClimb();
-		};
+		if (!driverSwerveAimAssistOverride) {
+			return switch (state) {
+				case DRIVE -> drive();
+				case STAY_IN_PLACE -> stayInPlace();
+				case INTAKE -> intake();
+				case CORAL_OUTTAKE -> coralOuttake();
+				case ALIGN_REEF -> alignReef();
+				case ARM_PRE_SCORE -> armPreScore();
+				case PRE_SCORE -> preScore();
+				case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
+				case SCORE -> score();
+				case ALGAE_REMOVE -> algaeRemove();
+				case ALGAE_OUTTAKE -> algaeOuttake();
+				case PRE_NET -> preNet();
+				case NET_WITHOUT_RELEASE -> netWithoutRelease();
+				case NET_WITH_RELEASE -> netWithRelease();
+				case PROCESSOR_SCORE -> fullyProcessorScore();
+				case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
+				case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
+				case CLIMB -> climb();
+				case STOP_CLIMB -> climbStop();
+				case CLOSE_CLIMB -> closeClimb();
+			};
+		} else {
+			return asSubsystemCommand(new ParallelDeadlineGroup(switch (state) {
+				case DRIVE, ALIGN_REEF -> superstructure.idle();
+				case STAY_IN_PLACE -> superstructure.stayInPlace();
+				case INTAKE -> superstructure.intake();
+				case CORAL_OUTTAKE -> superstructure.outtake();
+				case ARM_PRE_SCORE -> superstructure.armPreScore();
+				case PRE_SCORE -> superstructure.preScore();
+				case SCORE_WITHOUT_RELEASE -> superstructure.scoreWithoutRelease();
+				case SCORE -> superstructure.scoreWithRelease();
+				case ALGAE_REMOVE -> superstructure.algaeRemove();
+				case ALGAE_OUTTAKE -> superstructure.algaeOuttake();
+				case PRE_NET -> superstructure.preNet();
+				case NET_WITHOUT_RELEASE -> superstructure.netWithoutRelease();
+				case NET_WITH_RELEASE -> superstructure.netWithRelease();
+				case PROCESSOR_SCORE -> superstructure.processorScore();
+				case PRE_CLIMB_WITH_AIM_ASSIST, PRE_CLIMB_WITHOUT_AIM_ASSIST -> superstructure.preClimb();
+				case CLIMB -> superstructure.climb();
+				case STOP_CLIMB -> superstructure.climbStop();
+				case CLOSE_CLIMB -> superstructure.closeClimb();
+			}, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)), state);
+		}
 	}
 
 	public Command autoScore() {
@@ -226,11 +252,18 @@ public class RobotCommander extends GBSubsystem {
 		return new SequentialCommandGroup(scoreWithoutRelease().until(this::isReadyToScore), score());
 	}
 
-	public Command fullyPreScore() {
+	public Command fullyPreScoreWithAimAssist() {
 		return new SequentialCommandGroup(
 			armPreScore().until(this::isReadyToOpenSuperstructure),
 			preScore().until(this::isPreScoreReady),
 			scoreWithoutRelease()
+		);
+	}
+
+	public Command fullyPreScoreWithoutAimAssist() {
+		return new ParallelCommandGroup(
+			superstructure.fullyPreScore(),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
