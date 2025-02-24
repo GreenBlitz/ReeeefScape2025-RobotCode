@@ -124,8 +124,6 @@ public class JoysticksBindings {
 
 			)
 		);
-
-		usedJoystick.Y.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
