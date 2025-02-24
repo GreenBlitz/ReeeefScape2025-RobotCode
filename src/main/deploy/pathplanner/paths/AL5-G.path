@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "ARM_PRE_SCORE",
+      "name": "PULL_OUT_ARM",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null
