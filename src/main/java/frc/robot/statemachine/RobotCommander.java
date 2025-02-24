@@ -245,9 +245,9 @@ public class RobotCommander extends GBSubsystem {
 
 	public Command fullyPreScoreWithAimAssist() {
 		return new SequentialCommandGroup(
-				armPreScore().until(this::isReadyToOpenSuperstructure),
-				preScore().until(this::isPreScoreReady),
-				scoreWithoutRelease()
+			armPreScore().until(this::isReadyToOpenSuperstructure),
+			preScore().until(this::isPreScoreReady),
+			scoreWithoutRelease()
 		);
 	}
 
