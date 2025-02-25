@@ -83,6 +83,7 @@ public class Robot {
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
 
+	private AutonomousChooser preBuiltAutosChooser;
 	private AutonomousChooser startingPointAndWhereToScoreFirstObjectChooser;
 	private AutonomousChooser whereToIntakeSecondObjectChooser;
 	private AutonomousChooser whereToScoreSecondObjectChooser;
@@ -195,6 +196,10 @@ public class Robot {
 			new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4).andThen(robotCommander.getSuperstructure().armPreScore())
 		);
 
+		this.preBuiltAutosChooser = new AutonomousChooser(
+			"PreBuiltAutos",
+			AutosBuilder.getPreBuiltAutos(this, scoringCommand, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
 		this.startingPointAndWhereToScoreFirstObjectChooser = new AutonomousChooser(
 			"StartingPointAndScoreFirst",
 			AutosBuilder.getAllStartingAndScoringFirstObjectAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
