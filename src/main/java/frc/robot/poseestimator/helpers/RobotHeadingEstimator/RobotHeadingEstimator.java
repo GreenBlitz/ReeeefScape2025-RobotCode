@@ -8,6 +8,7 @@ import frc.utils.math.PoseEstimationMath;
 import frc.utils.buffers.RingBuffer.RingBuffer;
 import frc.utils.TimedValue;
 import frc.utils.math.AngleMath;
+import frc.utils.time.TimeUtil;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -16,6 +17,7 @@ public class RobotHeadingEstimator {
 
 	private final String logPath;
 	private final TimeInterpolatableBuffer<Rotation2d> unOffsetedGyroAngleInterpolator;
+	private final TimeInterpolatableBuffer<Rotation2d> estimatedHeadingInterpolator;
 	private final double gyroStandardDeviation;
 	private final RingBuffer<Pair<Rotation2d, Rotation2d>> estimationAndGyroBuffer;
 	private Rotation2d lastGyroAngle;
@@ -25,6 +27,7 @@ public class RobotHeadingEstimator {
 	public RobotHeadingEstimator(String logPath, Rotation2d initialGyroAngle, Rotation2d initialHeading, double gyroStandardDeviation) {
 		this.logPath = logPath;
 		this.unOffsetedGyroAngleInterpolator = TimeInterpolatableBuffer.createBuffer(RobotHeadingEstimatorConstants.POSE_BUFFER_SIZE_SECONDS);
+		this.estimatedHeadingInterpolator = TimeInterpolatableBuffer.createBuffer(RobotHeadingEstimatorConstants.POSE_BUFFER_SIZE_SECONDS);
 		this.gyroStandardDeviation = gyroStandardDeviation;
 		this.estimationAndGyroBuffer = new RingBuffer<>(RobotHeadingEstimatorConstants.ESTIMATION_GYRO_PAIR_BUFFER_SIZE);
 		this.lastGyroAngle = initialGyroAngle;
@@ -50,6 +53,10 @@ public class RobotHeadingEstimator {
 
 	public Rotation2d getEstimatedHeading() {
 		return estimatedHeading;
+	}
+
+	public Optional<Rotation2d> getEstimatedHeadingAtTimestamp(double timestamp) {
+		return estimatedHeadingInterpolator.getSample(timestamp);
 	}
 
 	public boolean isGyroOffsetCalibrated(double maximumStandardDeviationTolerance) {
@@ -78,7 +85,6 @@ public class RobotHeadingEstimator {
 			estimationAndGyroBuffer.insert(Pair.of(estimatedHeading, lastGyroAngle));
 		}
 	}
-
 
 	public void updateVisionHeading(TimedValue<Rotation2d> visionHeadingData, double visionStandardDeviation) {
 		if (!hasFirstVisionUpdateArrived) {
@@ -120,6 +126,10 @@ public class RobotHeadingEstimator {
 			logPath + RobotHeadingEstimatorConstants.ESTIMATED_HEADING_DIFFERENCE_FROM_GYRO_YAW_LOGPATH_ADDITION,
 			AngleMath.getAngleDifference(estimatedHeading, lastGyroAngle)
 		);
+	}
+
+	public void periodic() {
+		estimatedHeadingInterpolator.addSample(TimeUtil.getCurrentTimeSeconds(), estimatedHeading);
 	}
 
 }
