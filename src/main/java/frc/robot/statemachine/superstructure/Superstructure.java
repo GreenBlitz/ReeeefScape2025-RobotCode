@@ -185,23 +185,43 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	public Command intake() {
+	public Command intakeClose() {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					elevatorStateHandler.setState(ElevatorState.INTAKE),
-					armStateHandler.setState(ArmState.INTAKE),
+					elevatorStateHandler.setState(ElevatorState.INTAKE_CLOSE),
+					armStateHandler.setState(ArmState.INTAKE_CLOSE),
 					endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP)
 				).until(this::isCoralIn),
 				new ParallelCommandGroup(
-					elevatorStateHandler.setState(ElevatorState.INTAKE),
-					armStateHandler.setState(ArmState.INTAKE),
+					elevatorStateHandler.setState(ElevatorState.INTAKE_CLOSE),
+					armStateHandler.setState(ArmState.INTAKE_CLOSE),
 					endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP)
 				).withTimeout(StateMachineConstants.INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
 			),
-			SuperstructureState.INTAKE
+			SuperstructureState.INTAKE_CLOSE
+		);
+	}
+
+	public Command intakeFar(){
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+					new ParallelCommandGroup(
+							elevatorStateHandler.setState(ElevatorState.INTAKE_FAR),
+							armStateHandler.setState(ArmState.INTAKE_FAR),
+							endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE),
+							climbStateHandler.setState(ClimbState.STOP)
+					).until(this::isCoralIn),
+					new ParallelCommandGroup(
+							elevatorStateHandler.setState(ElevatorState.INTAKE_FAR),
+							armStateHandler.setState(ArmState.INTAKE_FAR),
+							endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE),
+							climbStateHandler.setState(ClimbState.STOP)
+					).withTimeout(StateMachineConstants.INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+			),
+				SuperstructureState.INTAKE_FAR
 		);
 	}
 
@@ -526,7 +546,7 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
+			case INTAKE_CLOSE, INTAKE_FAR, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
 			case ALGAE_REMOVE -> postAlgaeRemove();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();

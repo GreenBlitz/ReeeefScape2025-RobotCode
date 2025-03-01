@@ -153,7 +153,7 @@ public class Arm extends GBSubsystem {
 
 		// Calibrate PID using phoenix tuner and these bindings:
 		joystick.POV_UP.onTrue(commandsBuilder.moveToPosition(ArmState.L4.getPosition()));
-		joystick.POV_DOWN.onTrue(commandsBuilder.moveToPosition(ArmState.INTAKE.getPosition()));
+		joystick.POV_DOWN.onTrue(commandsBuilder.moveToPosition(ArmState.INTAKE_CLOSE.getPosition()));
 		joystick.POV_LEFT.onTrue(commandsBuilder.moveToPosition(ArmState.L1.getPosition()));
 		joystick.POV_RIGHT.onTrue(commandsBuilder.moveToPosition(ArmState.L2.getPosition()));
 
