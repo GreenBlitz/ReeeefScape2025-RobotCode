@@ -1,11 +1,7 @@
 package frc.robot.statemachine.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.StateMachineConstants;
@@ -97,6 +93,13 @@ public class Superstructure extends GBSubsystem {
 			&& elevatorStateHandler.getCurrentState() == ElevatorState.CLOSED
 			&& robot.getArm().isAtPosition(ArmState.CLOSED.getPosition(), Tolerances.ARM_POSITION)
 			&& armStateHandler.getCurrentState() == ArmState.CLOSED;
+	}
+
+	public boolean isL1Ready() {
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& elevatorStateHandler.getCurrentState() == ElevatorState.L1
+			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)
+			&& armStateHandler.getCurrentState() == ArmState.L1;
 	}
 
 	public boolean isPreScoreReady() {
@@ -308,6 +311,21 @@ public class Superstructure extends GBSubsystem {
 				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector(), robot.getLifter(), robot.getSolenoid())
 			),
 			SuperstructureState.SCORE
+		);
+	}
+
+	public Command l1() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(this::isL1Ready),
+					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn())
+				),
+				elevatorStateHandler.setState(ElevatorState.L1),
+				armStateHandler.setState(ArmState.L1),
+				climbStateHandler.setState(ClimbState.STOP)
+			),
+			SuperstructureState.L1
 		);
 	}
 
@@ -526,7 +544,7 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
+			case L1, INTAKE, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
 			case ALGAE_REMOVE -> postAlgaeRemove();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();

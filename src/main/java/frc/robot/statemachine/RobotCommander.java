@@ -68,11 +68,7 @@ public class RobotCommander extends GBSubsystem {
 	 * Check if robot at pose but relative to target branch. Y-axis is vertical to the branch. X-axis is horizontal to the branch So when you
 	 * check if robot in place in y-axis its in parallel to the reef side.
 	 */
-	private boolean isAtReefScoringPose(
-		double scoringPoseDistanceFromReefMeters,
-		Pose2d tolerances,
-		Pose2d deadbands
-	) {
+	private boolean isAtReefScoringPose(double scoringPoseDistanceFromReefMeters, Pose2d tolerances, Pose2d deadbands) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
 
 		Pose2d reefRelativeTargetPose = ScoringHelpers
@@ -87,12 +83,7 @@ public class RobotCommander extends GBSubsystem {
 		return PoseUtil.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, tolerances, deadbands);
 	}
 
-	private boolean isAtBranchScoringPose(
-		Branch targetBranch,
-		double scoringPoseDistanceFromReefMeters,
-		Pose2d tolerances,
-		Pose2d deadbands
-	) {
+	private boolean isAtBranchScoringPose(Branch targetBranch, double scoringPoseDistanceFromReefMeters, Pose2d tolerances, Pose2d deadbands) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(targetBranch.getReefSide()).getRotation();
 
 		Pose2d reefRelativeTargetPose = ScoringHelpers.getRobotBranchScoringPose(targetBranch, scoringPoseDistanceFromReefMeters)
@@ -208,6 +199,7 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE -> preScore();
 			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
 			case SCORE -> score();
+			case L1 -> l1();
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case PRE_NET -> preNet();
@@ -436,6 +428,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command l1() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				superstructure.l1(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
+			RobotState.L1
+		);
+	}
+
 	private Command algaeRemove() {
 		return asSubsystemCommand(
 			new ParallelDeadlineGroup(
@@ -588,6 +590,7 @@ public class RobotCommander extends GBSubsystem {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
 			case
+				L1,
 				INTAKE_WITH_AIM_ASSIST,
 				INTAKE_WITHOUT_AIM_ASSIST,
 				DRIVE,

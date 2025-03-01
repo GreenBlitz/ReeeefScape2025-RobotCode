@@ -6,7 +6,6 @@ public enum ElevatorState {
 	CLOSED(0.02),
 	INTAKE(0.06),
 	ALGAE_OUTTAKE(0.02),
-	PRE_L1(0),
 	L1(0.02),
 	PRE_L2(0.02),
 	L2(0.02),

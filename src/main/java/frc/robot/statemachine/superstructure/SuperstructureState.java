@@ -11,6 +11,7 @@ public enum SuperstructureState {
 	PRE_SCORE,
 	SCORE_WITHOUT_RELEASE,
 	SCORE,
+	L1,
 	CLOSE_L4,
 	POST_ALGAE_REMOVE,
 	ALGAE_REMOVE,

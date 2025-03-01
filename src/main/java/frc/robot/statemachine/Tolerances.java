@@ -2,7 +2,6 @@ package frc.robot.statemachine;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.constants.field.Field;
 
 public class Tolerances {
 
