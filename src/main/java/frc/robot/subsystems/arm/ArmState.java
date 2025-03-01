@@ -12,7 +12,7 @@ public enum ArmState {
 	MID_WAY_CLOSE(Rotation2d.fromDegrees(130)),
 	INTAKE(Rotation2d.fromDegrees(186)),
 	ALGAE_OUTTAKE(Rotation2d.fromDegrees(185)),
-	L1(Rotation2d.fromDegrees(193)),
+	L1(Rotation2d.fromDegrees(207)),
 	PRE_L2(Rotation2d.fromDegrees(-13)),
 	L2(Rotation2d.fromDegrees(-13)),
 	PRE_L3(Rotation2d.fromDegrees(10)),
