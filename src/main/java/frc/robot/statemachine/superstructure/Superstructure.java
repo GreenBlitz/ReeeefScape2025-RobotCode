@@ -269,7 +269,7 @@ public class Superstructure extends GBSubsystem {
 	public Command preScore() {
 		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
 			case L4 -> l4PreScore();
-			case L1, L2, L3 -> genericPreScore();
+			case L2, L3 -> genericPreScore();
 		}, Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector(), robot.getLifter(), robot.getSolenoid()));
 	}
 
