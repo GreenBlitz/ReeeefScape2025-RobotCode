@@ -331,7 +331,6 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE)
 
 			).until(() -> !isCoralIn()),
-
 			SuperstructureState.L1
 		);
 	}
