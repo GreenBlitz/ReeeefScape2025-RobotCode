@@ -579,6 +579,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command closeAfterL1() {
+		return new SequentialCommandGroup(
+			new ParallelCommandGroup(
+				superstructure.closeL1AfterScore(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			).until(this::isReadyToCloseSuperstructure),
+			drive()
+		);
+	}
+
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
@@ -587,7 +597,6 @@ public class RobotCommander extends GBSubsystem {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
 			case
-				L1,
 				INTAKE_WITH_AIM_ASSIST,
 				INTAKE_WITHOUT_AIM_ASSIST,
 				DRIVE,
@@ -600,6 +609,7 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE -> preScore();
 			case SCORE, SCORE_WITHOUT_RELEASE -> closeAfterScore();
 			case ALGAE_REMOVE -> closeAfterAlgaeRemove();
+			case L1 -> closeAfterL1();
 			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
