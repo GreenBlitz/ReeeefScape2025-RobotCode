@@ -14,4 +14,14 @@ public class PoseMath {
 		return getRelativeTranslation(relativeTo.getTranslation(), toRelative).rotateBy(relativeTo.getRotation().unaryMinus());
 	}
 
+	public static double calculateTranslationDistanceFromLine(Translation2d translation, double lineSlope, double lineIntercept) {
+		// Convert the line equation to standard form Ax + By + C = 0
+		double A = -lineSlope;
+		double B = 1;
+		double C = -lineIntercept;
+
+		// Distance formula: |Ax0 + By0 + C| / sqrt(A^2 + B^2)
+		return Math.abs(A * translation.getX() + B * translation.getY() + C) / Math.sqrt(A * A + B * B);
+	}
+
 }

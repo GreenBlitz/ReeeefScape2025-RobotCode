@@ -21,7 +21,9 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.utils.math.PoseMath;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -214,16 +216,8 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public boolean shouldIntakeClose() {
-		return robot.getPoseEstimator()
-			.getEstimatedPose()
-			.getTranslation()
-			.getDistance(
-				ScoringHelpers.getClosestPointToCoralStation(
-					ScoringHelpers.getTargetCoralStation(robot),
-					robot.getPoseEstimator().getEstimatedPose().getTranslation()
-				)
-			)
-			<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
+
+		return PoseMath. <= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
 	}
 
 	public Command setState(RobotState state) {
@@ -424,6 +418,33 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.intakeFar(),
 			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
+	}
+
+	@Override
+	protected void subsystemPeriodic() {
+		double distanceFromCoralStation = switch (ScoringHelpers.getTargetCoralStation(robot)) {
+			case RIGHT -> {
+				if (Field.isFieldConventionAlliance()) {
+					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
+							* Field.rightBlueCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+				} else {
+					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
+							* Field.rightRedCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+				}
+			}
+			case LEFT ->{
+				if (Field.isFieldConventionAlliance()) {
+					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
+							* Field.leftBlueCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+				} else {
+					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
+							* Field.leftRedCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+				}
+			}
+		};
+		Logger.recordOutput(getLogPath() + "/dis", distanceFromCoralStation);
+
+		Logger.recordOutput(getLogPath() + "/shoud", shouldIntakeClose());
 	}
 
 	private Command intakeWithAimAssist() {

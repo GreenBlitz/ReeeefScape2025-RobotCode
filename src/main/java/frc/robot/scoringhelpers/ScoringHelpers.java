@@ -187,28 +187,6 @@ public class ScoringHelpers {
 		return cages[closestSlotIndex];
 	}
 
-	private static Translation2d getClosestPointToFeeder(Translation2d robotTranslation, double m, double b) {
-		double x = (robotTranslation.getX() + m * (robotTranslation.getY() - b)) / (Math.pow(m, 2) + 1);
-		double y = m * x + b;
-		return new Translation2d(x, y);
-	}
-
-	public static Translation2d getClosestPointToCoralStation(CoralStation coralStation, Translation2d robotTranslation) {
-		Translation2d rightFeederPoint1 = new Translation2d(0.17073, 1.12145);
-		Translation2d rightFeederPoint2 = new Translation2d(1.148606, 0.16621);
-		Translation2d leftFeederPoint1 = new Translation2d(0.16013, 6.91814);
-		Translation2d leftFeederPoint2 = new Translation2d(1.150115, 7.89204);
-		double rightFeederM = (rightFeederPoint1.getY() - rightFeederPoint2.getY()) / (rightFeederPoint1.getX() - rightFeederPoint2.getX());
-		double leftFeederM = (leftFeederPoint1.getY() - leftFeederPoint2.getY()) / (leftFeederPoint1.getX() - leftFeederPoint2.getX());
-		double rightFeederB = -rightFeederM * rightFeederPoint1.getX() + rightFeederPoint1.getY();
-		double leftFeederB = -leftFeederM * leftFeederPoint1.getX() + leftFeederPoint1.getY();
-
-		return switch (coralStation) {
-			case RIGHT -> getClosestPointToFeeder(robotTranslation, rightFeederM, rightFeederB);
-			case LEFT -> getClosestPointToFeeder(robotTranslation, leftFeederM, leftFeederB);
-		};
-	}
-
 	public static void reset() {
 		isFarReefHalf = false;
 		isLeftBranch = false;
