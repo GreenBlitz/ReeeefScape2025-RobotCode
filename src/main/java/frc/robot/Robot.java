@@ -124,6 +124,7 @@ public class Robot {
 		multiAprilTagVisionSources.applyFunctionOnAllFilters(
 			filters -> filters.and(
 				data -> VisionFilters.isYawAtAngleForMegaTag2(headingEstimator::getEstimatedHeading, VisionConstants.YAW_FILTER_TOLERANCE)
+					.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
 					.apply(data)
 			)
 		);
@@ -236,8 +237,8 @@ public class Robot {
 				RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
 			);
 		}
-		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
-//		multiAprilTagVisionSources.log();
+		// poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
+		// multiAprilTagVisionSources.log();
 		headingEstimator.log();
 
 		BatteryUtil.logStatus();
