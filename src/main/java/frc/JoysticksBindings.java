@@ -14,7 +14,6 @@ import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.StateMachineConstants;
 import frc.robot.statemachine.superstructure.ScoreLevel;
-import frc.robot.statemachine.superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
@@ -115,24 +114,6 @@ public class JoysticksBindings {
 		);
 	}
 
-	private static Command driveActionChooser(Robot robot) {
-		return new DeferredCommand(
-			() -> robot.getRobotCommander().getSuperstructure().getCurrentState() == SuperstructureState.ALGAE_REMOVE
-				? robot.getRobotCommander().setState(RobotState.DRIVE_AFTER_ALGAE_REMOVE)
-				: robot.getRobotCommander().setState(RobotState.DRIVE),
-			Set.of(
-				robot.getRobotCommander(),
-				robot.getRobotCommander().getSuperstructure(),
-				robot.getSwerve(),
-				robot.getElevator(),
-				robot.getArm(),
-				robot.getEndEffector(),
-				robot.getLifter(),
-				robot.getSolenoid()
-			)
-		);
-	}
-
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
@@ -143,7 +124,7 @@ public class JoysticksBindings {
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITH_AIM_ASSIST));
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
 
-		usedJoystick.A.onTrue(driveActionChooser(robot));
+		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.L1));
