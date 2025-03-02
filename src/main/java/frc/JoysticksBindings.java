@@ -81,9 +81,12 @@ public class JoysticksBindings {
 	private static Command reefActionChooser(Robot robot) {
 		return new DeferredCommand(
 			() -> robot.getRobotCommander().getSuperstructure().isCoralIn()
-				? robot.getRobotCommander().autoScore()
+				? robot.getRobotCommander().driverSwerveAimAssistOverride
+					? robot.getRobotCommander().fullyPreScoreWithoutAimAssist()
+					: robot.getRobotCommander().autoScore()
 				: new InstantCommand(() -> ScoringHelpers.setClosetReefSideTarget(robot.getPoseEstimator().getEstimatedPose()))
 					.andThen(robot.getRobotCommander().setState(RobotState.ALGAE_REMOVE)),
+
 			Set.of(
 				robot.getRobotCommander(),
 				robot.getRobotCommander().getSuperstructure(),
