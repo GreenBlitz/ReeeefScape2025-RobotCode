@@ -336,7 +336,7 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	public Command closeL1AfterScore() {
+	public Command postL1() {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -344,7 +344,7 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 					climbStateHandler.setState(ClimbState.STOP),
 					elevatorStateHandler.setState(ElevatorState.L1)
-				).until(() -> !robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR_L1)),
+				).until(() -> !robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_POST_L1)),
 				elevatorStateHandler.setState(ElevatorState.CLOSED)
 			).until(this::isClosed),
 			SuperstructureState.CLOSE_L1
@@ -566,7 +566,7 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case L1 -> closeL1AfterScore();
+			case L1 -> postL1();
 			case CLOSE_L1, INTAKE, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
 			case ALGAE_REMOVE -> postAlgaeRemove();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
