@@ -22,6 +22,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -137,11 +138,10 @@ public class RobotCommander extends GBSubsystem {
 	 * Checks if the robot is out of the safe zone to close the superstructure
 	 */
 	public boolean isReadyToCloseSuperstructure() {
-		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide()).getRotation();
+		Pose2d reef = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide());
+		Rotation2d reefAngle = reef.getRotation();
 
-		Translation2d reefRelativeReefSideMiddle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide())
-			.rotateBy(reefAngle.unaryMinus())
-			.getTranslation();
+		Translation2d reefRelativeReefSideMiddle = reef.rotateBy(reefAngle.unaryMinus()).getTranslation();
 		Translation2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
 
 		return !PoseUtil
@@ -581,10 +581,10 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command closeAfterL1() {
 		return new SequentialCommandGroup(
-			new ParallelCommandGroup(
+			new ParallelDeadlineGroup(
 				superstructure.postL1(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-			).until(this::isReadyToCloseSuperstructure),
+			),
 			drive()
 		);
 	}
