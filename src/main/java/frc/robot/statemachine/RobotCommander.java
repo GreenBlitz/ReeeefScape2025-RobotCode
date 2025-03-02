@@ -430,10 +430,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command l1() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				superstructure.l1(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-			),
+			new ParallelDeadlineGroup(superstructure.l1(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			RobotState.L1
 		);
 	}

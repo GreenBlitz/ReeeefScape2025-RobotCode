@@ -316,16 +316,34 @@ public class Superstructure extends GBSubsystem {
 
 	public Command l1() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				new SequentialCommandGroup(
-					endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(this::isL1Ready),
-					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn())
-				),
-				elevatorStateHandler.setState(ElevatorState.L1),
-				armStateHandler.setState(ArmState.L1),
-				climbStateHandler.setState(ClimbState.STOP)
-			),
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(climbStateHandler.setState(ClimbState.STOP), elevatorStateHandler.setState(ElevatorState.L1))
+					.until(() -> robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)),
+				new ParallelCommandGroup(
+					new SequentialCommandGroup(
+						endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(this::isL1Ready),
+						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE)
+					),
+					armStateHandler.setState(ArmState.L1)
+				)
+
+			).until(() -> !isCoralIn()),
+
 			SuperstructureState.L1
+		);
+	}
+
+	public Command closeL1AfterScore() {
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					armStateHandler.setState(ArmState.CLOSED),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					climbStateHandler.setState(ClimbState.STOP)
+				).until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR_L4)),
+				elevatorStateHandler.setState(ElevatorState.CLOSED)
+			).until(this::isClosed),
+			SuperstructureState.CLOSE_L1
 		);
 	}
 
@@ -544,7 +562,8 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case L1, INTAKE, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
+			case L1 -> closeL1AfterScore();
+			case CLOSE_L1, INTAKE, IDLE, IDLE_AFTER_ALGAE_REMOVE, POST_ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
 			case ALGAE_REMOVE -> postAlgaeRemove();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
