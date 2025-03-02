@@ -1,5 +1,6 @@
 package frc.robot.statemachine;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,6 +23,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -217,10 +219,28 @@ public class RobotCommander extends GBSubsystem {
 		return isCloseToNet(StateMachineConstants.SCORE_DISTANCE_FROM_NET_METERS) && superstructure.isReadyForNet();
 	}
 
+	public Translation2d getClosestPointToFeeder(Translation2d robotTranslation, double m, double b){
+		double x = (robotTranslation.getX() + m * (robotTranslation.getY() - b)) / (Math.pow(m, 2) + 1);
+		double y = m * x + b;
+		return new Translation2d(x, y);
+	}
+
 	public boolean shouldIntakeClose(){
-		Translation2d rotatedRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot)).getRotation()).getTranslation();
-		Translation2d relativeCoralStationTranslation = new Translation2d(rotatedRobotPose.getX(), 0);
-		return rotatedRobotPose.getDistance(relativeCoralStationTranslation) <= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
+		Translation2d feeder1Point1 = new Translation2d(0.17073, 1.12145);
+		Translation2d feeder1Point2 = new Translation2d(1.148606, 0.16621);
+		Translation2d feeder2Point1 = new Translation2d(0.16013, 6.91814);
+		Translation2d feeder2Point2 = new Translation2d(1.150115, 7.89204);
+		double feeder1M = (feeder1Point1.getY() - feeder1Point2.getY()) / (feeder1Point1.getX() - feeder1Point2.getX());
+		double feeder2M = (feeder2Point1.getY() - feeder2Point2.getY()) / (feeder2Point1.getX() - feeder2Point2.getX());
+		double feeder1B = -feeder1M * feeder1Point1.getX() + feeder1Point1.getY();
+		double feeder2B = -feeder2M * feeder2Point1.getX() + feeder2Point1.getY();
+
+		Translation2d closestPointToFeeder = switch (ScoringHelpers.getTargetCoralStation(robot)){
+			case RIGHT -> getClosestPointToFeeder(robot.getPoseEstimator().getEstimatedPose().getTranslation(), feeder1M, feeder1B);
+			case LEFT -> getClosestPointToFeeder(robot.getPoseEstimator().getEstimatedPose().getTranslation(), feeder2M, feeder2B);
+		};
+
+		return robot.getPoseEstimator().getEstimatedPose().getTranslation().getDistance(closestPointToFeeder) <= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
 	}
 
 	public Command setState(RobotState state) {
@@ -415,6 +435,17 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command intakeFarWithoutAimAssist(){
 		return new ParallelDeadlineGroup(superstructure.intakeFar(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
+	}
+
+	@Override
+	protected void subsystemPeriodic() {
+		Translation2d closestPointToFeeder = switch (ScoringHelpers.getTargetCoralStation(robot)){
+			case RIGHT -> getClosestPointToFeeder(robot.getPoseEstimator().getEstimatedPose().getTranslation(), -0.7262360016, 0.99745972772);
+			case LEFT -> getClosestPointToFeeder(robot.getPoseEstimator().getEstimatedPose().getTranslation(), 1.376958620, 1.280657616);
+		};
+
+		Logger.recordOutput(getLogPath() + "/coral", new Pose2d(closestPointToFeeder, new Rotation2d()));
+		Logger.recordOutput(getLogPath() + "/distance", robot.getPoseEstimator().getEstimatedPose().getTranslation().getDistance(closestPointToFeeder));
 	}
 
 	private Command intakeWithAimAssist() {
