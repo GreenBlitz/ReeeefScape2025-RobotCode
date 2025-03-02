@@ -324,7 +324,7 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 					climbStateHandler.setState(ClimbState.STOP),
-					armStateHandler.setState(ArmState.MID_WAY_CLOSE),
+					armStateHandler.setState(ArmState.INTAKE),
 					elevatorStateHandler.setState(ElevatorState.L1)
 				).until(this::isElevatorL1Ready),
 				armStateHandler.setState(ArmState.L1).until(this::isL1Ready),
