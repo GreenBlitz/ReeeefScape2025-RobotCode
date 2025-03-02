@@ -162,7 +162,12 @@ public class Robot {
 		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure().scoreWithRelease().asProxy();
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
 			.closeL4AfterScore()
-			.andThen(robotCommander.getSuperstructure().intakeClose())
+			.andThen(
+				robotCommander.getSuperstructure()
+					.intakeFar()
+					.until(robotCommander::shouldIntakeClose)
+					.andThen(robotCommander.getSuperstructure().intakeClose())
+			)
 			.asProxy();
 
 		swerve.configPathPlanner(
