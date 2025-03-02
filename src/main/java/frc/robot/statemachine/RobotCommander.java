@@ -22,7 +22,6 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -581,10 +580,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command closeAfterL1() {
 		return new SequentialCommandGroup(
-			new ParallelDeadlineGroup(
-				superstructure.postL1(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-			),
+			new ParallelDeadlineGroup(superstructure.postL1(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			drive()
 		);
 	}

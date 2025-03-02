@@ -96,14 +96,10 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public boolean isL1Ready() {
-		return isElevatorL1Ready()
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& elevatorStateHandler.getCurrentState() == ElevatorState.L1
 			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)
 			&& armStateHandler.getCurrentState() == ArmState.L1;
-	}
-
-	public boolean isElevatorL1Ready() {
-		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == ElevatorState.L1;
 	}
 
 	public boolean isPreScoreReady() {
@@ -320,32 +316,38 @@ public class Superstructure extends GBSubsystem {
 
 	public Command l1() {
 		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-					climbStateHandler.setState(ClimbState.STOP),
-					armStateHandler.setState(ArmState.INTAKE),
-					elevatorStateHandler.setState(ElevatorState.L1)
-				).until(this::isElevatorL1Ready),
-				armStateHandler.setState(ArmState.L1).until(this::isL1Ready),
-				endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE)
-
-			).until(() -> !isCoralIn()),
+			new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+						armStateHandler.setState(ArmState.INTAKE)
+					).until(() -> robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_TO_OPEN_ARM_L1)),
+					new ParallelCommandGroup(endEffectorStateHandler.setState(EndEffectorState.DEFAULT), armStateHandler.setState(ArmState.L1))
+						.until(this::isL1Ready),
+					new ParallelCommandGroup(
+						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
+						armStateHandler.setState(ArmState.L1)
+					).until(() -> !isCoralIn())
+				),
+				climbStateHandler.setState(ClimbState.STOP),
+				elevatorStateHandler.setState(ElevatorState.L1)
+			),
 			SuperstructureState.L1
 		);
 	}
 
 	public Command postL1() {
 		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				new ParallelCommandGroup(
-					armStateHandler.setState(ArmState.CLOSED),
-					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-					climbStateHandler.setState(ClimbState.STOP),
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.L1)
-				).until(() -> !robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_POST_L1)),
-				elevatorStateHandler.setState(ElevatorState.CLOSED)
-			).until(this::isClosed),
+						.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_POST_L1)),
+					elevatorStateHandler.setState(ElevatorState.CLOSED)
+				).until(this::isClosed),
+				armStateHandler.setState(ArmState.CLOSED),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+				climbStateHandler.setState(ClimbState.STOP)
+			),
 			SuperstructureState.CLOSE_L1
 		);
 	}
