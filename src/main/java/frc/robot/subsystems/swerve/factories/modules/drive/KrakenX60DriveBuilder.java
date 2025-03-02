@@ -22,6 +22,7 @@ import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6DoubleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6LatencySignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
+import frc.robot.subsystems.swerve.module.ModuleUtil;
 import frc.robot.subsystems.swerve.module.records.DriveRequests;
 import frc.robot.subsystems.swerve.module.records.DriveSignals;
 import frc.utils.math.AngleUnit;
@@ -32,12 +33,12 @@ public class KrakenX60DriveBuilder {
 	public static final double GEAR_RATIO = 7.13;
 	private static final double MOMENT_OF_INERTIA_METERS_SQUARED = 0.001;
 
-	private static SysIdRoutine.Config buildSysidConfig() {
+	private static SysIdRoutine.Config buildSysidConfig(int id) {
 		return new SysIdRoutine.Config(
 			Units.Volts.of(1).per(Units.Second),
 			Units.Volts.of(7),
 			null,
-			state -> SignalLogger.writeString("state", state.toString())
+			state -> SignalLogger.writeString(id + "/state", state.toString())
 		);
 	}
 
@@ -65,8 +66,8 @@ public class KrakenX60DriveBuilder {
 
 		if (Robot.ROBOT_TYPE.isReal()) {
 			driveConfig.Slot0.kS = 0.15916;
-			driveConfig.Slot0.kV = 0.90548;
-			driveConfig.Slot0.kA = 0.079923;
+			driveConfig.Slot0.kV = 0.88433;
+			driveConfig.Slot0.kA = 0.061997;
 			driveConfig.Slot0.kP = 3;
 			driveConfig.Slot0.kI = 0;
 			driveConfig.Slot0.kD = 0;
@@ -83,7 +84,7 @@ public class KrakenX60DriveBuilder {
 	}
 
 	static ControllableMotor buildDrive(String logPath, Phoenix6DeviceID deviceID, boolean inverted) {
-		TalonFXMotor drive = new TalonFXMotor(logPath, deviceID, buildSysidConfig(), buildMechanismSimulation());
+		TalonFXMotor drive = new TalonFXMotor(logPath, deviceID, buildSysidConfig(deviceID.id()), buildMechanismSimulation());
 		drive.applyConfiguration(buildMotorConfig(inverted));
 		return drive;
 	}
