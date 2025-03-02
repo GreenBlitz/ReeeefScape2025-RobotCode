@@ -96,10 +96,14 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public boolean isL1Ready() {
-		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == ElevatorState.L1
+		return isElevatorL1Ready()
 			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)
 			&& armStateHandler.getCurrentState() == ArmState.L1;
+	}
+
+	public boolean isElevatorL1Ready() {
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& elevatorStateHandler.getCurrentState() == ElevatorState.L1;
 	}
 
 	public boolean isPreScoreReady() {
@@ -317,15 +321,14 @@ public class Superstructure extends GBSubsystem {
 	public Command l1() {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				new ParallelCommandGroup(climbStateHandler.setState(ClimbState.STOP), elevatorStateHandler.setState(ElevatorState.L1))
-					.until(() -> robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)),
 				new ParallelCommandGroup(
-					new SequentialCommandGroup(
-						endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(this::isL1Ready),
-						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE)
-					),
-					armStateHandler.setState(ArmState.L1)
-				)
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					climbStateHandler.setState(ClimbState.STOP),
+					armStateHandler.setState(ArmState.MID_WAY_CLOSE),
+					elevatorStateHandler.setState(ElevatorState.L1)
+				).until(this::isElevatorL1Ready),
+				armStateHandler.setState(ArmState.L1).until(this::isL1Ready),
+				endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE)
 
 			).until(() -> !isCoralIn()),
 
@@ -339,8 +342,9 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(
 					armStateHandler.setState(ArmState.CLOSED),
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-					climbStateHandler.setState(ClimbState.STOP)
-				).until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR_L4)),
+					climbStateHandler.setState(ClimbState.STOP),
+					elevatorStateHandler.setState(ElevatorState.L1)
+				).until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR)),
 				elevatorStateHandler.setState(ElevatorState.CLOSED)
 			).until(this::isClosed),
 			SuperstructureState.CLOSE_L1
@@ -357,7 +361,7 @@ public class Superstructure extends GBSubsystem {
 				),
 				new SequentialCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.PRE_L4)
-						.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR_L4)),
+						.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_CLOSE_ELEVATOR)),
 					elevatorStateHandler.setState(ElevatorState.CLOSED)
 				),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
