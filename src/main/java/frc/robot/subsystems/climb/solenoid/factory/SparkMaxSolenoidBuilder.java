@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.IDs;
 import frc.robot.RobotType;
 import frc.robot.hardware.digitalinput.IDigitalInput;
-import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
 import frc.robot.hardware.digitalinput.chooser.ChooserDigitalInput;
 import frc.robot.hardware.digitalinput.supplied.SuppliedDigitalInput;
 import frc.robot.hardware.mechanisms.wpilib.SimpleMotorSimulation;
@@ -53,11 +52,14 @@ public class SparkMaxSolenoidBuilder {
 		return motor;
 	}
 
-	private static IDigitalInput generateLimitSwitch(BrushedSparkMAXMotor motor, String name){
-		if (RobotType.determineRobotType().isReal()){
-			return new SuppliedDigitalInput(motor.getSparkMaxWrapper().getForwardLimitSwitch()::isPressed, new Debouncer(0.02), ClimbConstants.IS_LIMIT_SWITCH_INVERTED);
-		}
-		else {
+	private static IDigitalInput generateLimitSwitch(BrushedSparkMAXMotor motor, String name) {
+		if (RobotType.determineRobotType().isReal()) {
+			return new SuppliedDigitalInput(
+				motor.getSparkMaxWrapper().getForwardLimitSwitch()::isPressed,
+				new Debouncer(0.02),
+				ClimbConstants.IS_LIMIT_SWITCH_INVERTED
+			);
+		} else {
 			return new ChooserDigitalInput(name);
 		}
 	}

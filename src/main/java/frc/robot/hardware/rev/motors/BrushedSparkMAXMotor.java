@@ -22,4 +22,5 @@ public class BrushedSparkMAXMotor extends SparkMaxMotor {
 	public SparkMaxWrapper getSparkMaxWrapper() {
 		return sparkMaxWrapper;
 	}
+
 }

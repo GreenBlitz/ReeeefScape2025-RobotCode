@@ -16,7 +16,13 @@ public class Solenoid extends GBSubsystem {
 	private final DigitalInputInputsAutoLogged limitSwitchInputs;
 	private final SolenoidCommandsBuilder commandsBuilder;
 
-	public Solenoid(String logPath, IMotor motor, InputSignal<Double> voltageSignal, InputSignal<Double> powerSignal, IDigitalInput limitSwitch) {
+	public Solenoid(
+		String logPath,
+		IMotor motor,
+		InputSignal<Double> voltageSignal,
+		InputSignal<Double> powerSignal,
+		IDigitalInput limitSwitch
+	) {
 		super(logPath);
 		this.motor = motor;
 		this.voltageSignal = voltageSignal;
@@ -28,7 +34,7 @@ public class Solenoid extends GBSubsystem {
 		updateInputs();
 	}
 
-	public boolean isAtSwitch(){
+	public boolean isAtSwitch() {
 		return limitSwitchInputs.debouncedValue;
 	}
 
