@@ -50,7 +50,7 @@ public class Solenoid extends GBSubsystem {
 		limitSwitch.updateInputs(limitSwitchInputs);
 	}
 
-	public void log(){
+	public void log() {
 		Logger.recordOutput(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Climber/IsAtSwitch", isAtSwitch());
 	}
 
