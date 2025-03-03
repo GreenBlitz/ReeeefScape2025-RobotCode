@@ -4,8 +4,10 @@
 
 package frc;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtil;
@@ -23,7 +25,7 @@ import org.littletonrobotics.junction.Logger;
 public class RobotManager extends LoggedRobot {
 
 	private final Robot robot;
-	private Command auto;
+	private PathPlannerAutoWrapper auto;
 	private int roborioCycles;
 
 	public RobotManager() {
@@ -33,6 +35,7 @@ public class RobotManager extends LoggedRobot {
 		this.roborioCycles = 0;
 		this.robot = new Robot();
 
+		createAutoReadyForConstructionChooser();
 		JoysticksBindings.configureBindings(robot);
 	}
 
@@ -52,7 +55,9 @@ public class RobotManager extends LoggedRobot {
 	public void autonomousInit() {
 		robot.getRobotCommander().removeDefaultCommand();
 
-		this.auto = robot.getAuto();
+		if (auto == null) {
+			this.auto = robot.getAuto();
+		}
 		auto.schedule();
 	}
 
@@ -70,6 +75,18 @@ public class RobotManager extends LoggedRobot {
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
 		robot.periodic();
 		AlertManager.reportAlerts();
+	}
+
+	private void createAutoReadyForConstructionChooser() {
+		SendableChooser<Boolean> autoReadyForConstructionSendableChooser = new SendableChooser<>();
+		autoReadyForConstructionSendableChooser.setDefaultOption("false", false);
+		autoReadyForConstructionSendableChooser.addOption("true", true);
+		autoReadyForConstructionSendableChooser.onChange(isReady -> {
+			if (isReady) {
+				auto = robot.getAuto();
+			}
+		});
+		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
 	}
 
 	private void updateTimeRelatedData() {
