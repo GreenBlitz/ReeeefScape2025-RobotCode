@@ -13,6 +13,7 @@ import frc.utils.calibration.sysid.SysIdCalibrator;
 public class BrushlessSparkMAXMotor extends SparkMaxMotor implements ControllableMotor {
 
 	private final SysIdCalibrator.SysIdConfigInfo sysIdConfigInfo;
+	private final SparkMaxWrapper sparkMaxWrapper;
 
 	public BrushlessSparkMAXMotor(
 		String logPath,
@@ -25,6 +26,7 @@ public class BrushlessSparkMAXMotor extends SparkMaxMotor implements Controllabl
 			throw new IllegalArgumentException("inserted BrushedSparkMAXMotor to BrushlessSparkMAXMotor!");
 		}
 		this.sysIdConfigInfo = new SysIdCalibrator.SysIdConfigInfo(sysidConfig, false);
+		this.sparkMaxWrapper = motor;
 	}
 
 	public BrushlessSparkMAXMotor(String logPath, SparkMaxWrapper motor, SysIdRoutine.Config sysidConfig) {
@@ -34,6 +36,10 @@ public class BrushlessSparkMAXMotor extends SparkMaxMotor implements Controllabl
 	@Override
 	public SysIdCalibrator.SysIdConfigInfo getSysidConfigInfo() {
 		return sysIdConfigInfo;
+	}
+
+	public SparkMaxWrapper getSparkMaxWrapper() {
+		return sparkMaxWrapper;
 	}
 
 	@Override

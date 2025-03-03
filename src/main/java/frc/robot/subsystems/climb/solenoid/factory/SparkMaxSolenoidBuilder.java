@@ -1,13 +1,20 @@
 package frc.robot.subsystems.climb.solenoid.factory;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.IDs;
+import frc.robot.RobotType;
+import frc.robot.hardware.digitalinput.IDigitalInput;
+import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
+import frc.robot.hardware.digitalinput.chooser.ChooserDigitalInput;
+import frc.robot.hardware.digitalinput.supplied.SuppliedDigitalInput;
 import frc.robot.hardware.mechanisms.wpilib.SimpleMotorSimulation;
 import frc.robot.hardware.rev.motors.*;
 import frc.robot.hardware.signal.supplied.SuppliedDoubleSignal;
+import frc.robot.subsystems.climb.ClimbConstants;
 import frc.robot.subsystems.climb.solenoid.Solenoid;
 
 public class SparkMaxSolenoidBuilder {
@@ -46,6 +53,15 @@ public class SparkMaxSolenoidBuilder {
 		return motor;
 	}
 
+	private static IDigitalInput generateLimitSwitch(BrushedSparkMAXMotor motor, String name){
+		if (RobotType.determineRobotType().isReal()){
+			return new SuppliedDigitalInput(motor.getSparkMaxWrapper().getForwardLimitSwitch()::isPressed, new Debouncer(0.02), ClimbConstants.IS_LIMIT_SWITCH_INVERTED);
+		}
+		else {
+			return new ChooserDigitalInput(name);
+		}
+	}
+
 	public static Solenoid createSolenoid(String logPath) {
 		SparkMaxWrapper sparkMaxWrapper = new SparkMaxWrapper(IDs.SparkMAXIDs.SOLENOID);
 
@@ -54,7 +70,9 @@ public class SparkMaxSolenoidBuilder {
 
 		BrushedSparkMAXMotor motor = generateMotor(logPath, sparkMaxWrapper);
 
-		return new Solenoid(logPath, motor, voltageSignal, powerSignal);
+		IDigitalInput limitSwitch = generateLimitSwitch(motor, "Climb limit switch");
+
+		return new Solenoid(logPath, motor, voltageSignal, powerSignal, limitSwitch);
 	}
 
 }
