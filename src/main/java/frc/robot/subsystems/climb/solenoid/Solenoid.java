@@ -1,11 +1,13 @@
 package frc.robot.subsystems.climb.solenoid;
 
 import frc.joysticks.SmartJoystick;
+import frc.robot.RobotConstants;
 import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
 import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.interfaces.IMotor;
 import frc.robot.hardware.interfaces.InputSignal;
 import frc.robot.subsystems.GBSubsystem;
+import org.littletonrobotics.junction.Logger;
 
 public class Solenoid extends GBSubsystem {
 
@@ -48,9 +50,14 @@ public class Solenoid extends GBSubsystem {
 		limitSwitch.updateInputs(limitSwitchInputs);
 	}
 
+	public void log(){
+		Logger.recordOutput(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Climber/IsAtSwitch", isAtSwitch());
+	}
+
 	@Override
 	protected void subsystemPeriodic() {
 		updateInputs();
+		log();
 	}
 
 	protected void stop() {

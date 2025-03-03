@@ -145,9 +145,9 @@ public class Robot {
 
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
 
-		this.solenoid = SolenoidFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Solenoid");
+		this.solenoid = SolenoidFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Climber/Solenoid");
 
-		this.lifter = LifterFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Lifter");
+		this.lifter = LifterFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Climber/Lifter");
 		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
 
 		this.simulationManager = new SimulationManager("SimulationManager", this);
