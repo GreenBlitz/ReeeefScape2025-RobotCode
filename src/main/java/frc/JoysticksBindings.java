@@ -139,7 +139,7 @@ public class JoysticksBindings {
 		// bindings...
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(closeReefActionChooser(robot));
 
-		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITH_AIM_ASSIST));
+		usedJoystick.R1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITH_AIM_ASSIST));
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
 
 		usedJoystick.R1.onTrue(robot.getRobotCommander().fullyNet());
@@ -151,7 +151,7 @@ public class JoysticksBindings {
 		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));
 		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));
 		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().setState(RobotState.CLIMB));
-		usedJoystick.B.onTrue(driveActionChooser(robot));
+		usedJoystick.A.onTrue(driveActionChooser(robot));
 
 		Command climbUp = robot.getLifter().getCommandsBuilder().setPower(StateMachineConstants.POWER_FOR_MANUAL_CLIMB);
 		climbUp.addRequirements(robot.getRobotCommander(), robot.getRobotCommander().getSuperstructure());
