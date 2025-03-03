@@ -4,12 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
@@ -426,14 +421,22 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command intakeWithAimAssist() {
 		return asSubsystemCommand(
-			new SequentialCommandGroup(intakeFarWithAimAssist().until(this::shouldIntakeClose), intakeCloseWithAimAssist()),
+			new ConditionalCommand(
+				intakeCloseWithAimAssist().until(() -> !shouldIntakeClose()),
+				intakeFarWithAimAssist().until(this::shouldIntakeClose),
+				this::shouldIntakeClose
+			).repeatedly(),
 			RobotState.INTAKE_WITH_AIM_ASSIST
 		);
 	}
 
 	private Command intakeWithoutAimAssist() {
 		return asSubsystemCommand(
-			new SequentialCommandGroup(intakeFarWithoutAimAssist().until(this::shouldIntakeClose), intakeCloseWithoutAimAssist()),
+			new ConditionalCommand(
+				intakeCloseWithoutAimAssist().until(() -> !shouldIntakeClose()),
+				intakeFarWithoutAimAssist().until(this::shouldIntakeClose),
+				this::shouldIntakeClose
+			).repeatedly(),
 			RobotState.INTAKE_WITHOUT_AIM_ASSIST
 		);
 	}
