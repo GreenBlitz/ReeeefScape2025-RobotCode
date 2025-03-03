@@ -1,11 +1,7 @@
 package frc.robot.statemachine.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.StateMachineConstants;
@@ -97,6 +93,13 @@ public class Superstructure extends GBSubsystem {
 			&& elevatorStateHandler.getCurrentState() == ElevatorState.CLOSED
 			&& robot.getArm().isAtPosition(ArmState.CLOSED.getPosition(), Tolerances.ARM_POSITION)
 			&& armStateHandler.getCurrentState() == ArmState.CLOSED;
+	}
+
+	public boolean isL1Ready() {
+		return robot.getElevator().isAtPosition(ElevatorState.L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& elevatorStateHandler.getCurrentState() == ElevatorState.L1
+			&& robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)
+			&& armStateHandler.getCurrentState() == ArmState.L1;
 	}
 
 	public boolean isPreScoreReady() {
@@ -251,7 +254,7 @@ public class Superstructure extends GBSubsystem {
 	public Command preScore() {
 		return new DeferredCommand(() -> switch (ScoringHelpers.targetScoreLevel) {
 			case L4 -> l4PreScore();
-			case L1, L2, L3 -> genericPreScore();
+			case L2, L3 -> genericPreScore();
 		}, Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector(), robot.getLifter(), robot.getSolenoid()));
 	}
 
@@ -290,6 +293,44 @@ public class Superstructure extends GBSubsystem {
 				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector(), robot.getLifter(), robot.getSolenoid())
 			),
 			SuperstructureState.SCORE
+		);
+	}
+
+	public Command l1() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+						armStateHandler.setState(ArmState.INTAKE)
+					).until(() -> robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_TO_OPEN_ARM_L1)),
+					new ParallelCommandGroup(endEffectorStateHandler.setState(EndEffectorState.DEFAULT), armStateHandler.setState(ArmState.L1))
+						.until(this::isL1Ready),
+					new ParallelCommandGroup(
+						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
+						armStateHandler.setState(ArmState.L1)
+					).until(() -> !isCoralIn())
+				),
+				climbStateHandler.setState(ClimbState.STOP),
+				elevatorStateHandler.setState(ElevatorState.L1)
+			),
+			SuperstructureState.L1
+		);
+	}
+
+	public Command closeL1() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+					elevatorStateHandler.setState(ElevatorState.L1)
+						.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_POST_L1)),
+					elevatorStateHandler.setState(ElevatorState.CLOSED)
+				).until(this::isClosed),
+				armStateHandler.setState(ArmState.CLOSED),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+				climbStateHandler.setState(ClimbState.STOP)
+			),
+			SuperstructureState.CLOSE_L1
 		);
 	}
 
@@ -493,7 +534,8 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
+			case L1 -> closeL1();
+			case CLOSE_L1, INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE -> idle();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
