@@ -395,7 +395,14 @@ public class RobotCommander extends GBSubsystem {
 						.until(this::isReadyToActivateCoralStationAimAssist),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
 				)
-			),
+			).until(superstructure::isCoralIn)
+				.andThen(
+					new ConditionalCommand(
+						superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+						superstructure.intakeFar().until(this::shouldIntakeClose),
+						this::shouldIntakeClose
+					).withTimeout(StateMachineConstants.INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+				),
 			RobotState.INTAKE_WITH_AIM_ASSIST
 		);
 	}
@@ -409,7 +416,14 @@ public class RobotCommander extends GBSubsystem {
 					this::shouldIntakeClose
 				).repeatedly(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-			),
+			).until(superstructure::isCoralIn)
+				.andThen(
+					new ConditionalCommand(
+						superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+						superstructure.intakeFar().until(this::shouldIntakeClose),
+						this::shouldIntakeClose
+					).withTimeout(StateMachineConstants.INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+				),
 			RobotState.INTAKE_WITHOUT_AIM_ASSIST
 		);
 	}
