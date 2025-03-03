@@ -381,62 +381,35 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command intakeCloseWithAimAssist() {
-		return new ParallelDeadlineGroup(
-			superstructure.intakeClose(),
-			new SequentialCommandGroup(
-				swerve.getCommandsBuilder()
-					.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
-					.until(this::isReadyToActivateCoralStationAimAssist),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
-			)
-		);
-	}
-
-	private Command intakeCloseWithoutAimAssist() {
-		return new ParallelDeadlineGroup(
-			superstructure.intakeClose(),
-			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-		);
-	}
-
-	private Command intakeFarWithAimAssist() {
-		return new ParallelDeadlineGroup(
-			superstructure.intakeFar(),
-			new SequentialCommandGroup(
-				swerve.getCommandsBuilder()
-					.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
-					.until(this::isReadyToActivateCoralStationAimAssist),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
-			)
-		);
-	}
-
-	private Command intakeFarWithoutAimAssist() {
-		return new ParallelDeadlineGroup(
-			superstructure.intakeFar(),
-			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-		);
-	}
-
 	private Command intakeWithAimAssist() {
 		return asSubsystemCommand(
-			new ConditionalCommand(
-				intakeCloseWithAimAssist().until(() -> !shouldIntakeClose()),
-				intakeFarWithAimAssist().until(this::shouldIntakeClose),
-				this::shouldIntakeClose
-			).repeatedly(),
+			new ParallelCommandGroup(
+				new ConditionalCommand(
+					superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+					superstructure.intakeFar().until(this::shouldIntakeClose),
+					this::shouldIntakeClose
+				).repeatedly(),
+				new SequentialCommandGroup(
+					swerve.getCommandsBuilder()
+						.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
+						.until(this::isReadyToActivateCoralStationAimAssist),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
+				)
+			),
 			RobotState.INTAKE_WITH_AIM_ASSIST
 		);
 	}
 
 	private Command intakeWithoutAimAssist() {
 		return asSubsystemCommand(
-			new ConditionalCommand(
-				intakeCloseWithoutAimAssist().until(() -> !shouldIntakeClose()),
-				intakeFarWithoutAimAssist().until(this::shouldIntakeClose),
-				this::shouldIntakeClose
-			).repeatedly(),
+			new ParallelCommandGroup(
+				new ConditionalCommand(
+					superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+					superstructure.intakeFar().until(this::shouldIntakeClose),
+					this::shouldIntakeClose
+				).repeatedly(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
 			RobotState.INTAKE_WITHOUT_AIM_ASSIST
 		);
 	}
