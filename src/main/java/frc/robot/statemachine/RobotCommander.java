@@ -216,8 +216,22 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public boolean shouldIntakeClose() {
+		Translation2d rightFeederPoint1 = new Translation2d(0.17073, 1.12145);
+		Translation2d rightFeederPoint2 = new Translation2d(1.148606, 0.16621);
+		Translation2d leftFeederPoint1 = new Translation2d(0.16013, 6.91814);
+		Translation2d leftFeederPoint2 = new Translation2d(1.150115, 7.89204);
 
-		return PoseMath. <= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
+		double[] rightFeederFunction = PoseMath.calculateLineEquation(rightFeederPoint1, rightFeederPoint2);
+		double[] leftFeederFunction = PoseMath.calculateLineEquation(leftFeederPoint1, leftFeederPoint2);
+
+
+		return PoseMath.calculateTranslationDistanceFromLine(
+			robot.getPoseEstimator().getEstimatedPose().getTranslation(),
+			switch (ScoringHelpers.getTargetCoralStation(robot)) {
+				case LEFT -> leftFeederFunction;
+				case RIGHT -> rightFeederFunction;
+			}
+		) <= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
 	}
 
 	public Command setState(RobotState state) {
@@ -426,19 +440,19 @@ public class RobotCommander extends GBSubsystem {
 			case RIGHT -> {
 				if (Field.isFieldConventionAlliance()) {
 					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
-							* Field.rightBlueCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+						* Field.rightBlueCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
 				} else {
 					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
-							* Field.rightRedCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+						* Field.rightRedCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
 				}
 			}
-			case LEFT ->{
+			case LEFT -> {
 				if (Field.isFieldConventionAlliance()) {
 					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
-							* Field.leftBlueCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+						* Field.leftBlueCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
 				} else {
 					yield Math.sin(Rotation2d.fromDegrees(54).getRadians())
-							* Field.leftRedCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
+						* Field.leftRedCoralStationFunction.apply(robot.getPoseEstimator().getEstimatedPose().getX());
 				}
 			}
 		};
