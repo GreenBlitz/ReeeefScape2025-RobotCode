@@ -1,5 +1,6 @@
 package frc.constants.field;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -82,6 +83,10 @@ public class Field {
 		new Translation2d(1.33596, 1.1278 - Y_DIFFERENCE_BETWEEN_STATION_SLOTS_MIDDLES * 7),
 		new Translation2d(1.50038, 1.1278 - Y_DIFFERENCE_BETWEEN_STATION_SLOTS_MIDDLES * 8)};
 
+	private static final Pair<Translation2d, Translation2d>[] CORAL_STATION_POINTS = new Pair[] {
+		new Pair<>(new Translation2d(0.17073, 1.12145), new Translation2d(1.148606, 0.16621)),
+		new Pair<>(new Translation2d(0.16013, 6.91814), new Translation2d(1.150115, 7.89204))};
+
 	public static Translation2d getReefMiddle() {
 		return getAllianceRelative(REEF_MIDDLE, true, false);
 	}
@@ -126,6 +131,13 @@ public class Field {
 		}
 
 		return getAllianceRelative(coralStationSlotPose, true, true, AngleTransform.INVERT);
+	}
+
+	public static Pair<Translation2d, Translation2d> getCoralStationLine(CoralStation coralStation) {
+		return new Pair<>(
+			getAllianceRelative(CORAL_STATION_POINTS[coralStation.getIndex()].getFirst(), true, true),
+			getAllianceRelative(CORAL_STATION_POINTS[coralStation.getIndex()].getSecond(), true, true)
+		);
 	}
 
 	public static Pose2d getAllianceRelative(Pose2d pose, boolean mirrorX, boolean mirrorY, AngleTransform angleTransform) {
