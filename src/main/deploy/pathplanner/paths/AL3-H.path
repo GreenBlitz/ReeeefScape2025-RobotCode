@@ -61,7 +61,7 @@
   "folder": "from auto line",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -137.7900169915545
+    "rotation": -137.0
   },
   "useDefaultConstraints": true
 }
