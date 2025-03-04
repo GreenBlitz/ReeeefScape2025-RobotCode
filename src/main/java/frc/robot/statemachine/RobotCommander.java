@@ -1,5 +1,7 @@
 package frc.robot.statemachine;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
+import frc.robot.autonomous.AutosBuilder;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
 import frc.robot.statemachine.superstructure.Superstructure;
@@ -274,7 +277,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	public Command autoScoreForAutonomous() {
+	public Command autoScoreForAutonomous(PathPlannerPath path) {
 		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
 			superstructure.elevatorOpening(),
 			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
@@ -283,13 +286,7 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease()
 		);
 
-		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
-			.driveToPath(
-				() -> robot.getPoseEstimator().getEstimatedPose(),
-				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
-				ScoringHelpers
-					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-			);
+		Supplier<Command> driveToPath = () -> AutoBuilder.followPath(path);
 
 		return asSubsystemCommand(
 			new DeferredCommand(

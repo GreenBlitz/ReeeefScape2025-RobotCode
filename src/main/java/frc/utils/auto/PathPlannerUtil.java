@@ -110,6 +110,13 @@ public class PathPlannerUtil {
 		path.preventFlipping = true;
 		return PathFollowingCommandsBuilder.followPath(path);
 	}
+	
+	public static PathPlannerPath cccreatePathDuringRuntime(Pose2d currentPose, Pose2d targetPose, PathConstraints constraints) {
+		List<Waypoint> bezierPoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose);
+		PathPlannerPath path = new PathPlannerPath(bezierPoints, constraints, null, new GoalEndState(0, targetPose.getRotation()));
+		path.preventFlipping = true;
+		return path;
+	}
 
 	public static void setDynamicObstacles(List<Pair<Translation2d, Translation2d>> obstacles, Pose2d currentPose) {
 		dynamicObstacles = obstacles;

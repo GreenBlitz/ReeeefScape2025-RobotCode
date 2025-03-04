@@ -54,19 +54,20 @@ public class AutosBuilder {
 		Robot robot,
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		PathPlannerPath path
 	) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
-		autos.add(() -> preBuiltLeftAuto(robot, intakingCommand, scoringCommand, tolerance));
-		autos.add(() -> preBuiltCenterAuto(robot));
-		autos.add(() -> preBuiltRightAuto(robot, intakingCommand, scoringCommand, tolerance));
+		autos.add(() -> preBuiltLeftAuto(robot, intakingCommand, scoringCommand, tolerance, path));
+		autos.add(() -> preBuiltCenterAuto(robot, path));
+		autos.add(() -> preBuiltRightAuto(robot, intakingCommand, scoringCommand, tolerance, path));
 		return autos;
 	}
 
-	public static List<Supplier<PathPlannerAutoWrapper>> getAllAutoScoringAutos(Robot robot) {
+	public static List<Supplier<PathPlannerAutoWrapper>> getAllAutoScoringAutos(Robot robot, PathPlannerPath path) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
 		for (Branch branch : Branch.values()) {
-			autos.add(() -> autoScoreToBranch(branch, robot));
+			autos.add(() -> autoScoreToBranch(branch, robot, path));
 		}
 		return autos;
 	}
@@ -99,13 +100,13 @@ public class AutosBuilder {
 		return autos;
 	}
 
-	public static PathPlannerAutoWrapper autoScoreToBranch(Branch branch, Robot robot) {
+	public static PathPlannerAutoWrapper autoScoreToBranch(Branch branch, Robot robot, PathPlannerPath path) {
 		return new PathPlannerAutoWrapper(new InstantCommand(() -> {
 			ScoringHelpers.targetScoreLevel = ScoreLevel.L4;
 			ScoringHelpers.isLeftBranch = branch.isLeft();
 			ScoringHelpers.isFarReefHalf = branch.getReefSide().isFar();
 			ScoringHelpers.setTargetSideForReef(branch.getReefSide().getSide());
-		}).andThen(robot.getRobotCommander().autoScoreForAutonomous()), Pose2d.kZero, branch.name() + " Auto Score", true);
+		}).andThen(robot.getRobotCommander().autoScoreForAutonomous(path)), Pose2d.kZero, branch.name() + " Auto Score", true);
 	}
 
 	public static PathPlannerAutoWrapper createAutoFromAutoPath(AutoPath path, Function<PathPlannerPath, Command> pathFollowingCommand) {
@@ -123,10 +124,11 @@ public class AutosBuilder {
 		Robot robot,
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		PathPlannerPath path
 	) {
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
-			autoScoreToBranch(Branch.F, robot),
+			autoScoreToBranch(Branch.F, robot, path),
 			PathPlannerAutoWrapper
 				.chainAutos(
 					createAutoFromAutoPath(
@@ -196,8 +198,8 @@ public class AutosBuilder {
 		return auto;
 	}
 
-	private static PathPlannerAutoWrapper preBuiltCenterAuto(Robot robot) {
-		PathPlannerAutoWrapper auto = autoScoreToBranch(Branch.H, robot);
+	private static PathPlannerAutoWrapper preBuiltCenterAuto(Robot robot, PathPlannerPath path) {
+		PathPlannerAutoWrapper auto = autoScoreToBranch(Branch.H, robot, path);
 		auto.setName("center");
 		return auto;
 	}
@@ -206,10 +208,11 @@ public class AutosBuilder {
 		Robot robot,
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		PathPlannerPath path
 	) {
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
-			autoScoreToBranch(Branch.I, robot),
+			autoScoreToBranch(Branch.I, robot, path),
 			PathPlannerAutoWrapper
 				.chainAutos(
 					createAutoFromAutoPath(
