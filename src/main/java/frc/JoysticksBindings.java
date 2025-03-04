@@ -153,7 +153,20 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
 
-		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
+		usedJoystick.R1.onTrue(robot.getRobotCommander().getSuperstructure().netWithoutRelease());
+
+		usedJoystick.Y.onTrue(robot.getRobotCommander().getSuperstructure().outtake());
+		usedJoystick.X.onTrue(robot.getRobotCommander().getSuperstructure().algaeOuttake());
+//		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+
+		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().getSuperstructure().preClimb());
+		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().getSuperstructure().climb());
+		usedJoystick.A.onTrue(robot.getRobotCommander().getSuperstructure().idle());
+
+		Command climbUp = robot.getLifter().getCommandsBuilder().setPower(StateMachineConstants.POWER_FOR_MANUAL_CLIMB);
+		climbUp.addRequirements(robot.getRobotCommander(), robot.getRobotCommander().getSuperstructure());
+
+		usedJoystick.START.whileTrue(climbUp);
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {
