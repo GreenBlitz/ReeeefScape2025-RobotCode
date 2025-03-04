@@ -7,10 +7,13 @@ package frc.robot;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.RobotManager;
+import frc.constants.field.enums.Branch;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.AutosBuilder;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
@@ -178,12 +181,15 @@ public class Robot {
 				.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
 		);
 		new EventTrigger("ARM_PRE_SCORE").onTrue(robotCommander.getSuperstructure().armPreScore());
-
+		
+		PathPlannerPath path =
+		PathPlannerUtil.cccreatePathDuringRuntime(new Pose2d(7.07, 5.69, Rotation2d.fromDegrees(-153.6)), ScoringHelpers.getRobotBranchScoringPose(Branch.J, 0.54), AutonomousConstants.getRealTimeConstraints(swerve));
+		
 		this.preBuiltAutosChooser = new AutonomousChooser(
 			"PreBuiltAutos",
-			AutosBuilder.getAllPreBuiltAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllPreBuiltAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES, path)
 		);
-		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
+		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this, path));
 		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
 			"IntakeSecond",
 			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
