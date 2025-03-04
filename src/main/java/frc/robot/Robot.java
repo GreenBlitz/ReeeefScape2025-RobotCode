@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.*;
 import frc.RobotManager;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.AutosBuilder;
+import frc.robot.hardware.phoenix6.leds.CANdleWrapper;
+import frc.robot.led.LEDStateHandler;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
 import frc.robot.scoringhelpers.ButtonDriverHelper;
 import frc.robot.subsystems.climb.lifter.Lifter;
@@ -86,6 +88,9 @@ public class Robot {
 	private AutonomousChooser fourthObjectIntakingLocationChooser;
 	private AutonomousChooser fourthObjectScoringLocationChooser;
 
+	private CANdleWrapper caNdleWrapper;
+	private LEDStateHandler ledStateHandler;
+
 	public Robot() {
 		BatteryUtil.scheduleLimiter();
 
@@ -153,6 +158,8 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
+		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, RobotConstants.NUMBER_OF_LEDS, "candle");
+		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 		configureAuto();
 	}
 
@@ -309,6 +316,14 @@ public class Robot {
 			),
 			swerve.getModules().getModulePositionsFromCenterMeters()
 		);
+	}
+
+	public CANdleWrapper getCaNdleWrapper() {
+		return caNdleWrapper;
+	}
+
+	public LEDStateHandler getLedStateHandler() {
+		return ledStateHandler;
 	}
 
 

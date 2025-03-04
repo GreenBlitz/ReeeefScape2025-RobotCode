@@ -10,6 +10,7 @@ import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
+import frc.robot.led.LEDState;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.StateMachineConstants;
@@ -154,6 +155,11 @@ public class JoysticksBindings {
 		// bindings...
 
 		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
+
+		usedJoystick.A.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
+		usedJoystick.X.onTrue(new InstantCommand(() -> robot.getRobotCommander().getSuperstructure().driverIsCoralInOverride = true));
+
+		usedJoystick.POV_DOWN.onTrue(robot.getLedStateHandler().setState(LEDState.HAS_CORAL));
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {

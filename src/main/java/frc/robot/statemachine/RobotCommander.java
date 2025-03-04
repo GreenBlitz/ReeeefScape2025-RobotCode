@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
+import frc.robot.led.LEDState;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
 import frc.robot.statemachine.superstructure.Superstructure;
@@ -241,9 +242,13 @@ public class RobotCommander extends GBSubsystem {
 
 	public Command autoScore() {
 		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
+			robot.getLedStateHandler().setState(LEDState.START_AIM_ASSIST),
 			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
+			robot.getLedStateHandler().setState(LEDState.IS_IN_POSITION_TO_OPEN_ELEVATOR),
 			superstructure.preScore().until(superstructure::isPreScoreReady),
+			robot.getLedStateHandler().setState(LEDState.SUPERSTRUCTURE_IN_POSITION),
 			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
+			robot.getLedStateHandler().setState(LEDState.IN_POSITION_TO_SCORE),
 			superstructure.scoreWithRelease(),
 			new InstantCommand(ScoringHelpers::reset)
 		);
