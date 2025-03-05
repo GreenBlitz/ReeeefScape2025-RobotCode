@@ -244,6 +244,9 @@ public class Robot {
 
 	public PathPlannerAutoWrapper getAuto() {
 		if (preBuiltAutosChooser.isDefaultOptionChosen()) {
+			if (firstObjectScoringLocationChooser.isDefaultOptionChosen()) {
+				return AutosBuilder.createDefaultAuto(this);
+			}
 			return getMultiChoosersAuto();
 		}
 		return preBuiltAutosChooser.getChosenValue();

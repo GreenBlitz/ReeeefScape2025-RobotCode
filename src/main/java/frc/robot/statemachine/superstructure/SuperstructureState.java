@@ -21,6 +21,7 @@ public enum SuperstructureState {
 	PRE_CLIMB,
 	CLIMB,
 	STOP_CLIMB,
-	CLOSE_CLIMB;
+	CLOSE_CLIMB,
+	ELEVATOR_OPENING;
 
 }
