@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.utils.math.PoseMath;
 import frc.utils.pose.PoseUtil;
 
 import java.util.Set;
@@ -213,6 +215,16 @@ public class RobotCommander extends GBSubsystem {
 		return isCloseToNet(StateMachineConstants.SCORE_DISTANCE_FROM_NET_METERS) && superstructure.isReadyForNet();
 	}
 
+	public boolean shouldIntakeClose() {
+		return PoseMath
+			.getClosestPointBetweenPointAndLine(
+				robot.getPoseEstimator().getEstimatedPose().getTranslation(),
+				Field.getCoralStationLine(ScoringHelpers.getTargetCoralStation(robot))
+			)
+			.getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation())
+			<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_CLOSE_INTAKE_METERS;
+	}
+
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -366,22 +378,47 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command intakeWithAimAssist() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				superstructure.intake(),
+			new ParallelCommandGroup(
+				new ConditionalCommand(
+					superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+					superstructure.intakeFar().until(this::shouldIntakeClose),
+					this::shouldIntakeClose
+				).repeatedly(),
 				new SequentialCommandGroup(
 					swerve.getCommandsBuilder()
 						.driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION))
 						.until(this::isReadyToActivateCoralStationAimAssist),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CORAL_STATION_SLOT))
 				)
-			),
+			).until(superstructure::isCoralIn)
+				.andThen(
+					new ConditionalCommand(
+						superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+						superstructure.intakeFar().until(this::shouldIntakeClose),
+						this::shouldIntakeClose
+					).withTimeout(StateMachineConstants.INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+				),
 			RobotState.INTAKE_WITH_AIM_ASSIST
 		);
 	}
 
 	private Command intakeWithoutAimAssist() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(superstructure.intake(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			new ParallelCommandGroup(
+				new ConditionalCommand(
+					superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+					superstructure.intakeFar().until(this::shouldIntakeClose),
+					this::shouldIntakeClose
+				).repeatedly(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			).until(superstructure::isCoralIn)
+				.andThen(
+					new ConditionalCommand(
+						superstructure.intakeClose().until(() -> !shouldIntakeClose()),
+						superstructure.intakeFar().until(this::shouldIntakeClose),
+						this::shouldIntakeClose
+					).withTimeout(StateMachineConstants.INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+				),
 			RobotState.INTAKE_WITHOUT_AIM_ASSIST
 		);
 	}

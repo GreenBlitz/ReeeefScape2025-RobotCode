@@ -4,7 +4,8 @@ public enum SuperstructureState {
 
 	STAY_IN_PLACE,
 	IDLE,
-	INTAKE,
+	INTAKE_CLOSE,
+	INTAKE_FAR,
 	OUTTAKE,
 	ARM_PRE_SCORE,
 	PRE_SCORE,
