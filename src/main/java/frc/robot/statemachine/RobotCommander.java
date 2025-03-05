@@ -22,6 +22,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -160,15 +161,20 @@ public class RobotCommander extends GBSubsystem {
 	 * Checks if the robot is out of the safe zone to close the superstructure
 	 */
 	public boolean isReadyToCloseSuperstructure() {
-		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide()).getRotation();
-
-		Translation2d reefRelativeReefSideMiddle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide())
-			.rotateBy(reefAngle.unaryMinus())
-			.getTranslation();
-		Translation2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
-
-		return !PoseUtil
-			.isAtTranslation(reefRelativeRobotPose, reefRelativeReefSideMiddle, StateMachineConstants.CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH);
+//		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide()).getRotation();
+//
+//		Translation2d reefRelativeReefSideMiddle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide())
+//			.rotateBy(reefAngle.unaryMinus())
+//			.getTranslation();
+//		Translation2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
+//
+//		boolean code = !PoseUtil
+//			.isAtTranslation(reefRelativeRobotPose, reefRelativeReefSideMiddle, StateMachineConstants.CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH);
+//		Logger.recordOutput("Tets/check", code);
+//		return code;
+		Pose2d robotPose = robot.getPoseEstimator().getEstimatedPose();
+		Pose2d targetPose = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide());
+		return robotPose.getTranslation().getDistance(targetPose.getTranslation()) > 0.5;
 	}
 
 	public boolean isReadyToScore() {

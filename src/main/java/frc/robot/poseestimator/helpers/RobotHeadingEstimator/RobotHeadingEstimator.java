@@ -52,6 +52,11 @@ public class RobotHeadingEstimator {
 		return estimatedHeading;
 	}
 
+	public Optional<Rotation2d> getEstimatedHeadingAtTimestamp(double timestamp) {
+		Optional<Rotation2d> gyroAtTimestamp = unOffsetedGyroAngleInterpolator.getSample(timestamp);
+		return gyroAtTimestamp.map(gyroAngleAtTimestamp -> estimatedHeading.minus(lastGyroAngle).plus(gyroAngleAtTimestamp));
+	}
+
 	public boolean isGyroOffsetCalibrated(double maximumStandardDeviationTolerance) {
 		double calculatedVisionNoiseStandardDeviation = StatisticsMath.calculateStandardDeviations(
 			estimationAndGyroBuffer,

@@ -150,7 +150,7 @@ public class ScoringHelpers {
 	}
 
 	public static Pose2d getAllianceRelativeProcessorScoringPose() {
-		return Field.getAllianceRelative(PROCESSOR_SCORING_POSE, true, true, AngleTransform.KEEP);
+		return Field.getAllianceRelative(PROCESSOR_SCORING_POSE, true, true, AngleTransform.MIRROR_Y);
 	}
 
 	public static void log(String logPath) {

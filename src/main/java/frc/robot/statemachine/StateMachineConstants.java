@@ -13,7 +13,7 @@ public class StateMachineConstants {
 	public static final double DISTANCE_FROM_CORAL_STATION_SLOT_TO_START_AIM_ASSIST_METERS = 2.2;
 
 	// Field relative
-	public static final Translation2d CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH = new Translation2d(0.6, 1.03);
+	public static final Translation2d CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH = new Translation2d(0.75, 1.03);
 	public static final Translation2d TURN_TO_HEADING_DISTANCES_FROM_MIDDLE_OF_NET_METERS = new Translation2d(5, 1.5);
 	public static final Translation2d SCORE_DISTANCES_FROM_MIDDLE_OF_BARGE_METRES = new Translation2d(3, -0.7);
 
