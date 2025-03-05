@@ -35,15 +35,22 @@ public class AutosBuilder {
 	public static List<Supplier<PathPlannerAutoWrapper>> getAllStartingAndScoringFirstObjectAutos(
 		Robot robot,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
 		for (AutoPath autoPath : PathHelper.getAllStartingAndScoringFirstObjectPaths()) {
 			autos.add(
 				() -> createAutoFromAutoPath(
 					autoPath,
-					pathPlannerPath -> PathFollowingCommandsBuilder
-						.commandAfterPath(robot, pathPlannerPath, scoringCommand, autoPath.getTargetBranch(), tolerance)
+					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+						robot,
+						pathPlannerPath,
+						scoringCommand,
+						autoPath.getTargetBranch(),
+						tolerance,
+						velocityBetweenPathfindingToPathFollowingMetersPerSecond
+					)
 				)
 			);
 		}
@@ -54,12 +61,17 @@ public class AutosBuilder {
 		Robot robot,
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
-		autos.add(() -> preBuiltLeftAuto(robot, intakingCommand, scoringCommand, tolerance));
+		autos.add(
+			() -> preBuiltLeftAuto(robot, intakingCommand, scoringCommand, tolerance, velocityBetweenPathfindingToPathFollowingMetersPerSecond)
+		);
 		autos.add(() -> preBuiltCenterAuto(robot));
-		autos.add(() -> preBuiltRightAuto(robot, intakingCommand, scoringCommand, tolerance));
+		autos.add(
+			() -> preBuiltRightAuto(robot, intakingCommand, scoringCommand, tolerance, velocityBetweenPathfindingToPathFollowingMetersPerSecond)
+		);
 		return autos;
 	}
 
@@ -71,28 +83,50 @@ public class AutosBuilder {
 		return autos;
 	}
 
-	public static List<Supplier<PathPlannerAutoWrapper>> getAllIntakingAutos(Robot robot, Supplier<Command> intakingCommand, Pose2d tolerance) {
+	public static List<Supplier<PathPlannerAutoWrapper>> getAllIntakingAutos(
+		Robot robot,
+		Supplier<Command> intakingCommand,
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
+	) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
 		for (AutoPath autoPath : PathHelper.getAllIntakingPaths()) {
 			autos.add(
 				() -> createAutoFromAutoPath(
 					autoPath,
-					pathPlannerPath -> PathFollowingCommandsBuilder
-						.deadlinePathWithCommand(robot, pathPlannerPath, intakingCommand, autoPath.getTargetBranch(), tolerance)
+					pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+						robot,
+						pathPlannerPath,
+						intakingCommand,
+						autoPath.getTargetBranch(),
+						tolerance,
+						velocityBetweenPathfindingToPathFollowingMetersPerSecond
+					)
 				)
 			);
 		}
 		return autos;
 	}
 
-	public static List<Supplier<PathPlannerAutoWrapper>> getAllScoringAutos(Robot robot, Supplier<Command> scoringCommand, Pose2d tolerance) {
+	public static List<Supplier<PathPlannerAutoWrapper>> getAllScoringAutos(
+		Robot robot,
+		Supplier<Command> scoringCommand,
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
+	) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
 		for (AutoPath autoPath : PathHelper.getAllScoringPathsFromCoralStations()) {
 			autos.add(
 				() -> createAutoFromAutoPath(
 					autoPath,
-					pathPlannerPath -> PathFollowingCommandsBuilder
-						.commandAfterPath(robot, pathPlannerPath, scoringCommand, autoPath.getTargetBranch(), tolerance)
+					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+						robot,
+						pathPlannerPath,
+						scoringCommand,
+						autoPath.getTargetBranch(),
+						tolerance,
+						velocityBetweenPathfindingToPathFollowingMetersPerSecond
+					)
 				)
 			);
 		}
@@ -123,7 +157,8 @@ public class AutosBuilder {
 		Robot robot,
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
 			autoScoreToBranch(Branch.F, robot),
@@ -136,7 +171,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							intakingCommand,
 							AutoPath.F_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -146,7 +182,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							scoringCommand,
 							AutoPath.LOWER_CORAL_STATION_2_TO_C.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -156,7 +193,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							intakingCommand,
 							AutoPath.C_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -166,7 +204,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							scoringCommand,
 							AutoPath.LOWER_CORAL_STATION_2_TO_D.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -176,7 +215,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							intakingCommand,
 							AutoPath.D_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -186,7 +226,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							scoringCommand,
 							AutoPath.LOWER_CORAL_STATION_2_TO_E.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					)
 				)
@@ -206,7 +247,8 @@ public class AutosBuilder {
 		Robot robot,
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
 			autoScoreToBranch(Branch.I, robot),
@@ -219,7 +261,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							intakingCommand,
 							AutoPath.I_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -229,7 +272,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							scoringCommand,
 							AutoPath.UPPER_CORAL_STATION_2_TO_L.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -239,7 +283,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							intakingCommand,
 							AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -249,7 +294,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							scoringCommand,
 							AutoPath.UPPER_CORAL_STATION_2_TO_K.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -259,7 +305,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							intakingCommand,
 							AutoPath.K_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					),
 					createAutoFromAutoPath(
@@ -269,7 +316,8 @@ public class AutosBuilder {
 							pathPlannerPath,
 							scoringCommand,
 							AutoPath.UPPER_CORAL_STATION_2_TO_J.getTargetBranch(),
-							tolerance
+							tolerance,
+							velocityBetweenPathfindingToPathFollowingMetersPerSecond
 						)
 					)
 				)

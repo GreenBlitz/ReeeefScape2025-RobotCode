@@ -181,32 +181,76 @@ public class Robot {
 
 		this.preBuiltAutosChooser = new AutonomousChooser(
 			"PreBuiltAutos",
-			AutosBuilder.getAllPreBuiltAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllPreBuiltAutos(
+				this,
+				intakingCommand,
+				scoringCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
-		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
+		this.firstObjectScoringLocationChooser = new AutonomousChooser(
+			"ScoreFirst",
+			AutosBuilder.getAllStartingAndScoringFirstObjectAutos(
+				this,
+				scoringCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
+		);
 		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
 			"IntakeSecond",
-			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllIntakingAutos(
+				this,
+				intakingCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
 		this.secondObjectScoringLocationChooser = new AutonomousChooser(
 			"ScoreSecond",
-			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllScoringAutos(
+				this,
+				scoringCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
 		this.thirdObjectIntakingLocationChooser = new AutonomousChooser(
 			"IntakeThird",
-			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllIntakingAutos(
+				this,
+				intakingCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
 		this.thirdObjectScoringLocationChooser = new AutonomousChooser(
 			"ScoreThird",
-			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllScoringAutos(
+				this,
+				scoringCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
 		this.fourthObjectIntakingLocationChooser = new AutonomousChooser(
 			"IntakeFourth",
-			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllIntakingAutos(
+				this,
+				intakingCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
 		this.fourthObjectScoringLocationChooser = new AutonomousChooser(
 			"ScoreFourth",
-			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			AutosBuilder.getAllScoringAutos(
+				this,
+				scoringCommand,
+				AutonomousConstants.TARGET_POSE_TOLERANCES,
+				AutonomousConstants.VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND
+			)
 		);
 	}
 

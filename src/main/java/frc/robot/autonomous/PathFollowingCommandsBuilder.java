@@ -24,9 +24,13 @@ public class PathFollowingCommandsBuilder {
 		PathPlannerPath path,
 		Supplier<Command> commandSupplier,
 		Optional<Branch> targetBranch,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
-		return new ParallelCommandGroup(commandSupplier.get(), followAdjustedPath(robot, path, targetBranch, tolerance));
+		return new ParallelCommandGroup(
+			commandSupplier.get(),
+			followAdjustedPath(robot, path, targetBranch, tolerance, velocityBetweenPathfindingToPathFollowingMetersPerSecond)
+		);
 	}
 
 	public static Command deadlinePathWithCommand(
@@ -34,9 +38,13 @@ public class PathFollowingCommandsBuilder {
 		PathPlannerPath path,
 		Supplier<Command> commandSupplier,
 		Optional<Branch> targetBranch,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
-		return new ParallelDeadlineGroup(commandSupplier.get(), followAdjustedPath(robot, path, targetBranch, tolerance));
+		return new ParallelDeadlineGroup(
+			commandSupplier.get(),
+			followAdjustedPath(robot, path, targetBranch, tolerance, velocityBetweenPathfindingToPathFollowingMetersPerSecond)
+		);
 	}
 
 	public static Command commandAfterPath(
@@ -44,9 +52,13 @@ public class PathFollowingCommandsBuilder {
 		PathPlannerPath path,
 		Supplier<Command> commandSupplier,
 		Optional<Branch> targetBranch,
-		Pose2d tolerance
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
 	) {
-		return new SequentialCommandGroup(followAdjustedPath(robot, path, targetBranch, tolerance), commandSupplier.get());
+		return new SequentialCommandGroup(
+			followAdjustedPath(robot, path, targetBranch, tolerance, velocityBetweenPathfindingToPathFollowingMetersPerSecond),
+			commandSupplier.get()
+		);
 	}
 
 
@@ -76,10 +88,18 @@ public class PathFollowingCommandsBuilder {
 			.andThen(followPath(path));
 	}
 
-	public static Command followPathOrPathfindAndFollowPath(Robot robot, PathPlannerPath path) {
+	public static Command followPathOrPathfindAndFollowPath(
+		Robot robot,
+		PathPlannerPath path,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
+	) {
 		return new ConditionalCommand(
 			followPath(path),
-			pathfindThenFollowPath(path, AutonomousConstants.getRealTimeConstraints(robot.getSwerve())),
+			pathfindThenFollowPath(
+				path,
+				AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
+				velocityBetweenPathfindingToPathFollowingMetersPerSecond
+			),
 			() -> PathPlannerUtil.isRobotInPathfindingDeadband(
 				robot.getPoseEstimator().getEstimatedPose(),
 				Field.getAllianceRelative(PathPlannerUtil.getPathStartingPose(path), true, true, AngleTransform.INVERT)
@@ -91,10 +111,16 @@ public class PathFollowingCommandsBuilder {
 		return robot.getSwerve().getCommandsBuilder().moveToPoseByPID(robot.getPoseEstimator()::getEstimatedPose, targetPose);
 	}
 
-	public static Command followAdjustedPath(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch, Pose2d tolerance) {
+	public static Command followAdjustedPath(
+		Robot robot,
+		PathPlannerPath path,
+		Optional<Branch> targetBranch,
+		Pose2d tolerance,
+		double velocityBetweenPathfindingToPathFollowingMetersPerSecond
+	) {
 		return robot.getSwerve()
 			.asSubsystemCommand(
-				followPathOrPathfindAndFollowPath(robot, path)
+				followPathOrPathfindAndFollowPath(robot, path, velocityBetweenPathfindingToPathFollowingMetersPerSecond)
 					.andThen(
 						moveToPoseByPID(
 							robot,

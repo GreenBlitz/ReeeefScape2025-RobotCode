@@ -16,6 +16,8 @@ public class AutonomousConstants {
 
 	public static final Pose2d TARGET_POSE_TOLERANCES = new Pose2d(0.035, 0.035, Rotation2d.fromDegrees(2));
 
+	public static final double VELOCITY_BETWEEN_PATHFINDING_TO_PATH_FOLLOWING_METERS_PER_SECOND = 1;
+
 	public static final double DEFAULT_AUTO_DRIVE_POWER = -0.5;
 
 	public static final double DEFAULT_AUTO_DRIVE_TIME_SECONDS = 0.6;
