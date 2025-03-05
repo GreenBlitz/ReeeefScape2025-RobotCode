@@ -7,6 +7,7 @@ package frc;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.led.LEDState;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
@@ -44,6 +45,8 @@ public class RobotManager extends LoggedRobot {
 		if (!DriverStationUtil.isMatch()) {
 			BrakeStateManager.coast();
 		}
+
+		robot.getLedStateHandler().setState(LEDState.DISABLE).schedule();
 	}
 
 	@Override
@@ -67,6 +70,7 @@ public class RobotManager extends LoggedRobot {
 			auto.cancel();
 		}
 		robot.getRobotCommander().initializeDefaultCommand();
+		robot.getLedStateHandler().setState(LEDState.IDLE).schedule();
 	}
 
 	@Override
