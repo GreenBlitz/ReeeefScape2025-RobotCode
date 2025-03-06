@@ -285,7 +285,18 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease()
 		);
 
-		Supplier<Command> driveToPath = () -> PathFollowingCommandsBuilder.followPath(path);
+		Supplier<Command> driveToPath = () -> PathFollowingCommandsBuilder.followPath(path)
+			.andThen(
+				swerve.getCommandsBuilder()
+					.moveToPoseByPID(
+						() -> robot.getPoseEstimator().getEstimatedPose(),
+						ScoringHelpers.getRobotBranchScoringPose(
+							ScoringHelpers.getTargetBranch(),
+							StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
+							false
+						)
+					)
+			);
 
 		return asSubsystemCommand(
 			new DeferredCommand(

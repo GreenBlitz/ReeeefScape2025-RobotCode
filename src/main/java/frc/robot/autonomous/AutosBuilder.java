@@ -19,7 +19,6 @@ import frc.utils.auto.PathHelper;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.math.AngleTransform;
-import frc.utils.pose.PoseUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +129,6 @@ public class AutosBuilder {
 		Supplier<Command> scoringCommand,
 		Pose2d tolerance
 	) {
-
 		PathPlannerPath path = getAutoScorePath(Branch.F, robot);
 
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
@@ -212,40 +210,43 @@ public class AutosBuilder {
 		return auto;
 	}
 
-	public static PathPlannerPath getAutoScorePath(Branch branch, Robot robot){
-
+	public static PathPlannerPath getAutoScorePath(Branch branch, Robot robot) {
 		ScoringHelpers.targetScoreLevel = ScoreLevel.L4;
 		ScoringHelpers.isLeftBranch = branch.isLeft();
 		ScoringHelpers.isFarReefHalf = branch.getReefSide().isFar();
 		ScoringHelpers.setTargetSideForReef(branch.getReefSide().getSide());
 
-		Pose2d startingPose = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose(),true,true, AngleTransform.INVERT);
-		Pose2d openSuperstructurePose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, false);
-		Pose2d scoringPose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false);
+		Pose2d startingPose = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose(), true, true, AngleTransform.INVERT);
+		Pose2d openSuperstructurePose = ScoringHelpers
+			.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, false);
+		Pose2d scoringPose = ScoringHelpers
+			.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false);
 
 		return new PathPlannerPath(
-				PathPlannerPath.waypointsFromPoses(
-						startingPose,
-						openSuperstructurePose,
-						scoringPose
-				),
-				List.of(),
-				List.of(),
-				List.of(new ConstraintsZone(
-						0.67,
-						1,
-						new PathConstraints(
-								StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
-								StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
-								StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
-								StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
-						)
-				)),
-				List.of(),
-				AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
-				new IdealStartingState(0,new Rotation2d()),
-				new GoalEndState(0, ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false).getRotation()),
-				false
+			PathPlannerPath.waypointsFromPoses(startingPose, openSuperstructurePose, scoringPose),
+			List.of(),
+			List.of(),
+			List.of(
+				new ConstraintsZone(
+					0.67,
+					1,
+					new PathConstraints(
+						StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
+						StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
+						StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
+						StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
+					)
+				)
+			),
+			List.of(),
+			AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
+			new IdealStartingState(0.5, new Rotation2d()),
+			new GoalEndState(
+				0,
+				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false)
+					.getRotation()
+			),
+			false
 
 		);
 	}
@@ -256,7 +257,6 @@ public class AutosBuilder {
 		Supplier<Command> scoringCommand,
 		Pose2d tolerance
 	) {
-
 		PathPlannerPath path = getAutoScorePath(Branch.I, robot);
 
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
