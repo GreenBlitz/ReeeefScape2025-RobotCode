@@ -120,7 +120,11 @@ public class Robot {
 
 		multiAprilTagVisionSources.applyFunctionOnAllFilters(
 			filters -> filters.and(
-				data -> VisionFilters.isYawAtAngleForMegaTag2(headingEstimator::getEstimatedHeading, VisionConstants.YAW_FILTER_TOLERANCE)
+				data -> VisionFilters
+					.isYawAtAngleForMegaTag2(
+						() -> headingEstimator.getEstimatedHeadingAtTimestamp(data.getTimestamp()),
+						VisionConstants.YAW_FILTER_TOLERANCE
+					)
 					.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
 					.apply(data)
 			)
@@ -238,6 +242,9 @@ public class Robot {
 
 	public PathPlannerAutoWrapper getAuto() {
 		if (preBuiltAutosChooser.isDefaultOptionChosen()) {
+			if (firstObjectScoringLocationChooser.isDefaultOptionChosen()) {
+				return AutosBuilder.createDefaultAuto(this);
+			}
 			return getMultiChoosersAuto();
 		}
 		return preBuiltAutosChooser.getChosenValue();

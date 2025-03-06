@@ -124,6 +124,13 @@ public class Superstructure extends GBSubsystem {
 			&& armStateHandler.getCurrentState() == ArmState.ALGAE_OUTTAKE;
 	}
 
+	public boolean isReadyToProcessor() {
+		return robot.getElevator().isAtPosition(ElevatorState.PROCESSOR_OUTTAKE.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& elevatorStateHandler.getCurrentState() == ElevatorState.PROCESSOR_OUTTAKE
+			&& robot.getArm().isAtPosition(ArmState.PROCESSOR_OUTTAKE.getPosition(), Tolerances.ALGAE_RELEASE_ARM_POSITION)
+			&& armStateHandler.getCurrentState() == ArmState.PROCESSOR_OUTTAKE;
+	}
+
 	public boolean isReadyForNet() {
 		return robot.getElevator().isAtPosition(ElevatorState.NET.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& elevatorStateHandler.getCurrentState() == ElevatorState.NET
@@ -351,7 +358,7 @@ public class Superstructure extends GBSubsystem {
 					armStateHandler.setState(ArmState.PROCESSOR_OUTTAKE),
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 					climbStateHandler.setState(ClimbState.STOP)
-				).until(this::isReadyToOuttakeAlgae),
+				).until(this::isReadyToProcessor),
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.PROCESSOR_OUTTAKE),
 					armStateHandler.setState(ArmState.PROCESSOR_OUTTAKE),
@@ -440,7 +447,7 @@ public class Superstructure extends GBSubsystem {
 						.until(() -> !robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_DEPLOY_LIFTER)),
 					new ParallelCommandGroup(climbStateHandler.setState(ClimbState.DEPLOY), armStateHandler.setState(ArmState.CLIMB))
 				),
-				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				elevatorStateHandler.setState(ElevatorState.CLIMB),
 				endEffectorStateHandler.setState(EndEffectorState.STOP)
 			),
 			SuperstructureState.PRE_CLIMB
@@ -450,7 +457,7 @@ public class Superstructure extends GBSubsystem {
 	public Command climb() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
-				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				elevatorStateHandler.setState(ElevatorState.CLIMB),
 				armStateHandler.setState(ArmState.CLIMB),
 				endEffectorStateHandler.setState(EndEffectorState.STOP),
 				climbStateHandler.setState(ClimbState.CLIMB)
@@ -486,6 +493,11 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
+	public Command elevatorOpening() {
+		return asSubsystemCommand(elevatorStateHandler.setState(ElevatorState.OPENING_HEIGHT), SuperstructureState.ELEVATOR_OPENING)
+			.until(() -> robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_FOR_OPENING));
+	}
+
 	private Command asSubsystemCommand(Command command, SuperstructureState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
@@ -499,6 +511,7 @@ public class Superstructure extends GBSubsystem {
 			case PRE_NET, NET_WITHOUT_RELEASE, NET_WITH_RELEASE -> preNet();
 			case PRE_CLIMB -> preClimb();
 			case CLIMB, STOP_CLIMB -> climbStop();
+			case ELEVATOR_OPENING -> elevatorOpening();
 		};
 	}
 
