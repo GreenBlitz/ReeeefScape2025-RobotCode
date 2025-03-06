@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
 import frc.robot.statemachine.StateMachineConstants;
@@ -17,6 +18,8 @@ import frc.utils.auto.AutoPath;
 import frc.utils.auto.PathHelper;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
+import frc.utils.math.AngleTransform;
+import frc.utils.pose.PoseUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -216,9 +219,9 @@ public class AutosBuilder {
 		ScoringHelpers.isFarReefHalf = branch.getReefSide().isFar();
 		ScoringHelpers.setTargetSideForReef(branch.getReefSide().getSide());
 
-		Pose2d startingPose = robot.getPoseEstimator().getEstimatedPose();
-		Pose2d openSuperstructurePose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, true);
-		Pose2d scoringPose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, true);
+		Pose2d startingPose = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose(),true,true, AngleTransform.INVERT);
+		Pose2d openSuperstructurePose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, false);
+		Pose2d scoringPose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false);
 
 		return new PathPlannerPath(
 				PathPlannerPath.waypointsFromPoses(
@@ -241,7 +244,7 @@ public class AutosBuilder {
 				List.of(),
 				AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
 				new IdealStartingState(0,new Rotation2d()),
-				new GoalEndState(0, ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, true).getRotation()),
+				new GoalEndState(0, ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false).getRotation()),
 				false
 
 		);
