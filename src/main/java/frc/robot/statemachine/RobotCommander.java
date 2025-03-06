@@ -256,8 +256,7 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
 			superstructure.preScore().until(superstructure::isPreScoreReady),
 			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
-			superstructure.scoreWithRelease(),
-			new InstantCommand(ScoringHelpers::reset)
+			superstructure.scoreWithRelease()
 		);
 
 		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
@@ -543,7 +542,7 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.preClimb(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CAGE))
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CAGE_ROTATION))
 			),
 			RobotState.PRE_CLIMB_WITH_AIM_ASSIST
 		);
@@ -551,10 +550,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command preClimbWithoutAimAssist() {
 		return asSubsystemCommand(
-			new ParallelCommandGroup(
-				superstructure.preClimb(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.CAGE_ROTATION))
-			),
+			new ParallelCommandGroup(superstructure.preClimb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST
 		);
 	}
