@@ -203,9 +203,9 @@ public class AutosBuilder {
 	}
 
 	private static PathPlannerAutoWrapper preBuiltCenterAuto(Robot robot) {
-		PathPlannerPath path = getAutoScorePath(Branch.I, robot);
+		PathPlannerPath path = getAutoScorePath(Branch.H, robot);
 
-		PathPlannerAutoWrapper auto = autoScoreToBranch(Branch.I, robot, path);
+		PathPlannerAutoWrapper auto = autoScoreToBranch(Branch.H, robot, path);
 		auto.setName("center");
 		return auto;
 	}
@@ -228,8 +228,8 @@ public class AutosBuilder {
 			List.of(),
 			List.of(
 				new ConstraintsZone(
-					0.67,
 					1,
+					2,
 					new PathConstraints(
 						StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
 						StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
@@ -240,7 +240,7 @@ public class AutosBuilder {
 			),
 			List.of(),
 			AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
-			new IdealStartingState(0.5, new Rotation2d()),
+			new IdealStartingState(0, startingPose.getRotation()),
 			new GoalEndState(
 				0,
 				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false)
@@ -257,19 +257,19 @@ public class AutosBuilder {
 		Supplier<Command> scoringCommand,
 		Pose2d tolerance
 	) {
-		PathPlannerPath path = getAutoScorePath(Branch.I, robot);
+		PathPlannerPath path = getAutoScorePath(Branch.J, robot);
 
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
-			autoScoreToBranch(Branch.I, robot, path),
+			autoScoreToBranch(Branch.J, robot, path),
 			PathPlannerAutoWrapper
 				.chainAutos(
 					createAutoFromAutoPath(
-						AutoPath.I_TO_UPPER_CORAL_STATION_2,
+						AutoPath.J_TO_UPPER_CORAL_STATION_2,
 						pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
 							robot,
 							pathPlannerPath,
 							intakingCommand,
-							AutoPath.I_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+							AutoPath.J_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
 							tolerance
 						)
 					),
