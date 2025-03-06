@@ -9,6 +9,7 @@
     "to coral station"
   ],
   "autoFolders": [
+    "noam",
     "test"
   ],
   "defaultMaxVel": 4.0,
