@@ -6,7 +6,10 @@ package frc;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
+import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
@@ -81,12 +84,12 @@ public class RobotManager extends LoggedRobot {
 		SendableChooser<Boolean> autoReadyForConstructionSendableChooser = new SendableChooser<>();
 		autoReadyForConstructionSendableChooser.setDefaultOption("false", false);
 		autoReadyForConstructionSendableChooser.addOption("true", true);
-		autoReadyForConstructionSendableChooser.onChange(isReady -> {
-			if (isReady) {
-				auto = robot.getAuto();
-			}
-		});
 		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
+		Trigger isReadyAndPoseEstimatorReady = new Trigger(
+			() -> autoReadyForConstructionSendableChooser.getSelected()
+				&& robot.getHeadingEstimator().isGyroOffsetCalibrated(RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE)
+		);
+		isReadyAndPoseEstimatorReady.onTrue(new InstantCommand(() -> auto = robot.getAuto()));
 	}
 
 	private void updateTimeRelatedData() {
