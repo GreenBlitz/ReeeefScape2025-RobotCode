@@ -106,6 +106,7 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void autonomousInit() {
+		robot.getRobotCommander().removeDefaultCommand();
 
 //		if (auto == null) {
 //			this.auto = robot.getAuto();
