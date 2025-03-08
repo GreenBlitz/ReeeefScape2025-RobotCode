@@ -249,7 +249,7 @@ public class Robot {
 //			}
 //			return getMultiChoosersAuto();
 //		}
-		return preBuiltAutosChooser.getChosenValue();
+		return preBuiltAutosChooser.isDefaultOptionChosen() ? AutosBuilder.createDefaultAuto(this) : preBuiltAutosChooser.getChosenValue();
 	}
 
 //	private PathPlannerAutoWrapper getMultiChoosersAuto() {

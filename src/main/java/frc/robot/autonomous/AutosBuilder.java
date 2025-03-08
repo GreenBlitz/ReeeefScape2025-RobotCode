@@ -483,20 +483,17 @@ public class AutosBuilder {
 		return auto;
 	}
 
-	public static PathPlannerAutoWrapper createDefaultAuto(Robot robot) {
-		return new PathPlannerAutoWrapper(
-			new ParallelCommandGroup(
+	public static Command createDefaultAuto(Robot robot) {
+		Command auto = new ParallelCommandGroup(
 				robot.getSwerve()
 					.getCommandsBuilder()
 					.drive(() -> new ChassisPowers(AutonomousConstants.DEFAULT_AUTO_DRIVE_POWER, 0, 0))
 					.withTimeout(AutonomousConstants.DEFAULT_AUTO_DRIVE_TIME_SECONDS)
 					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds()),
 				robot.getRobotCommander().getSuperstructure().elevatorOpening()
-			),
-			Pose2d.kZero,
-			"DefaultAuto",
-			true
-		);
+			);
+		auto.setName("default");
+		return auto;
 	}
 
 }
