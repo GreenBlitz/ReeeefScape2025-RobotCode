@@ -137,7 +137,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private boolean isReadyToOpenSuperstructure() {
+	public boolean isReadyToOpenSuperstructure() {
 		return isAtReefScoringPose(
 			StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
 			Tolerances.REEF_RELATIVE_L1_OPEN_SUPERSTRUCTURE_POSITION,
@@ -285,7 +285,7 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease()
 		);
 
-		Supplier<Command> driveToPath = () -> PathFollowingCommandsBuilder.followPath(path)
+		Command driveToPath = swerve.asSubsystemCommand(PathFollowingCommandsBuilder.followPath(path)
 			.andThen(
 				swerve.getCommandsBuilder()
 					.moveToPoseByPID(
@@ -295,22 +295,24 @@ public class RobotCommander extends GBSubsystem {
 							StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
 						)
 					)
+			), "NAMENAME"
 			);
 
 		return asSubsystemCommand(
-			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
-				Set.of(
-					this,
-					superstructure,
-					swerve,
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getSolenoid()
-				)
-			),
+//			new DeferredCommand(
+//				() ->
+						new ParallelDeadlineGroup(driveToPath),
+//				Set.of(
+//					this,
+//					superstructure,
+//					swerve,
+//					robot.getElevator(),
+//					robot.getArm(),
+//					robot.getEndEffector(),
+//					robot.getLifter(),
+//					robot.getSolenoid()
+//				)
+//			),
 			RobotState.SCORE
 		);
 	}
@@ -545,7 +547,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command asSubsystemCommand(Command command, RobotState state) {
+	public Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
 
