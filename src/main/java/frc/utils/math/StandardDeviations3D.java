@@ -62,6 +62,16 @@ public class StandardDeviations3D {
 		);
 	}
 
+	public double[] getAsArray() {
+		return new double[] {
+			xAxisStandardDeviations,
+			yAxisStandardDeviations,
+			zAxisStandardDeviations,
+			rollStandardDeviations,
+			pitchStandardDeviations,
+			yawStandardDeviations};
+	}
+
 	public double getXAxisStandardDeviations() {
 		return xAxisStandardDeviations;
 	}
