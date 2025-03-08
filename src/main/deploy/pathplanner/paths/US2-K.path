@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.54475,
-        "y": 7.42775
+        "x": 3.3357020547945204,
+        "y": 6.662007705479453
       },
       "isLocked": false,
       "linkedName": "US2"
@@ -32,7 +32,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5995037220843684,
+      "minWaypointRelativePos": 0.7,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 3.0,
@@ -54,14 +54,14 @@
     },
     {
       "name": "PRE_SCORE",
-      "waypointRelativePos": 0.4,
+      "waypointRelativePos": 0.6542372881355923,
       "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 5.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -72,7 +72,7 @@
     "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "from coral station",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -54.0
