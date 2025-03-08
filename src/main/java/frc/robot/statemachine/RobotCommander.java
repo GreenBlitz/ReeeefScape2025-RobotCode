@@ -183,6 +183,17 @@ public class RobotCommander extends GBSubsystem {
 				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
 			);
 	}
+	
+	public boolean isReadyToScoreTets() {
+		return superstructure.isReadyToScore()
+				&& isAtReefScoringPose(
+				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
+				Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
+				Tolerances.REEF_RELATIVE_SCORING_POSITION_TEST,
+				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+		);
+	}
 
 	public boolean isAtBranchScoringPose(Branch branch) {
 		return isAtBranchScoringPose(
@@ -281,7 +292,7 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.elevatorOpening(),
 			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
 			superstructure.preScore().until(superstructure::isPreScoreReady),
-			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
+			superstructure.scoreWithoutRelease().until(this::isReadyToScoreTets),
 			superstructure.scoreWithRelease()
 		);
 
