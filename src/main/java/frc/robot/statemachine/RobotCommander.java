@@ -292,8 +292,7 @@ public class RobotCommander extends GBSubsystem {
 						() -> robot.getPoseEstimator().getEstimatedPose(),
 						ScoringHelpers.getRobotBranchScoringPose(
 							ScoringHelpers.getTargetBranch(),
-							StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
-							false
+							StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
 						)
 					)
 			);

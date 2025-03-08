@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
 import frc.robot.statemachine.StateMachineConstants;
@@ -17,7 +16,7 @@ import frc.utils.auto.AutoPath;
 import frc.utils.auto.PathHelper;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
-import frc.utils.math.AngleTransform;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -215,13 +214,12 @@ public class AutosBuilder {
 		ScoringHelpers.isFarReefHalf = branch.getReefSide().isFar();
 		ScoringHelpers.setTargetSideForReef(branch.getReefSide().getSide());
 
-		Pose2d startingPose = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose(), true, true, AngleTransform.INVERT);
+		Pose2d startingPose = robot.getPoseEstimator().getEstimatedPose();
 		Pose2d openSuperstructurePose = ScoringHelpers
-			.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, false);
-		Pose2d scoringPose = ScoringHelpers
-			.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false);
+			.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH);
+		Pose2d scoringPose = ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS);
 
-		return new PathPlannerPath(
+		PathPlannerPath path = new PathPlannerPath(
 			PathPlannerPath.waypointsFromPoses(startingPose, openSuperstructurePose, scoringPose),
 			List.of(),
 			List.of(),
@@ -242,8 +240,9 @@ public class AutosBuilder {
 			new IdealStartingState(0, startingPose.getRotation()),
 			new GoalEndState(0, scoringPose.getRotation()),
 			false
-
 		);
+		path.preventFlipping = true;
+		return path;
 	}
 
 	private static PathPlannerAutoWrapper preBuiltLeftAuto(
@@ -253,6 +252,7 @@ public class AutosBuilder {
 		Pose2d tolerance
 	) {
 		PathPlannerPath path = getAutoScorePath(Branch.J, robot);
+		Logger.recordOutput("Test/path", path.getPathPoses().toArray(new Pose2d[] {}));
 
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
 			autoScoreToBranch(Branch.J, robot, path),
