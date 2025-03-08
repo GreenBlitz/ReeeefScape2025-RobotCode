@@ -240,11 +240,7 @@ public class AutosBuilder {
 			List.of(),
 			AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
 			new IdealStartingState(0, startingPose.getRotation()),
-			new GoalEndState(
-				0,
-				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false)
-					.getRotation()
-			),
+			new GoalEndState(0, scoringPose.getRotation()),
 			false
 
 		);
