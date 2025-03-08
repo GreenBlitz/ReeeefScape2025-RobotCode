@@ -69,9 +69,9 @@ public class AutosBuilder {
 		Pose2d tolerance
 	) {
 		ArrayList<Supplier<Command>> autos = new ArrayList<>();
-		autos.add(() -> LeftAuto(robot, intakingCommand, scoringCommand, tolerance));
-		autos.add(() -> preBuiltCenterAuto(robot));
-		autos.add(() -> preBuiltRightAuto(robot, intakingCommand, scoringCommand, tolerance));
+		autos.add(() -> leftAuto(robot, intakingCommand, scoringCommand, tolerance));
+		autos.add(() -> centerAuto(robot));
+		autos.add(() -> rightAuto(robot, intakingCommand, scoringCommand, tolerance));
 		return autos;
 	}
 
@@ -124,7 +124,7 @@ public class AutosBuilder {
 		return robot.getRobotCommander().autoScoreForAutonomous(path);
 	}
 
-	public static Command LeftAuto(Robot robot, Supplier<Command> intakingCommand, Supplier<Command> scoringCommand, Pose2d tolerance) {
+	public static Command leftAuto(Robot robot, Supplier<Command> intakingCommand, Supplier<Command> scoringCommand, Pose2d tolerance) {
 		PathPlannerPath path = getAutoScorePath(Branch.J, robot);
 		ScoringHelpers.targetScoreLevel = ScoreLevel.L4;
 		ScoringHelpers.isLeftBranch = Branch.J.isLeft();
@@ -184,6 +184,90 @@ public class AutosBuilder {
 		return auto;
 	}
 
+	private static Command rightAuto(
+			Robot robot,
+			Supplier<Command> intakingCommand,
+			Supplier<Command> scoringCommand,
+			Pose2d tolerance
+	) {
+		PathPlannerPath path = getAutoScorePath(Branch.E, robot);
+
+		Command auto = new SequentialCommandGroup(
+				autoScoreToBranch(Branch.E, robot, path),
+				createAutoFromAutoPath(
+						AutoPath.E_TO_LOWER_CORAL_STATION_2,
+						pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+								robot,
+								pathPlannerPath,
+								intakingCommand,
+								AutoPath.E_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
+								tolerance
+						)
+				),
+				createAutoFromAutoPath(
+						AutoPath.LOWER_CORAL_STATION_2_TO_C,
+						pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+								robot,
+								pathPlannerPath,
+								scoringCommand,
+								AutoPath.LOWER_CORAL_STATION_2_TO_C.getTargetBranch(),
+								tolerance
+						)
+				),
+				createAutoFromAutoPath(
+						AutoPath.C_TO_LOWER_CORAL_STATION_2,
+						pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+								robot,
+								pathPlannerPath,
+								intakingCommand,
+								AutoPath.C_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
+								tolerance
+						)
+				),
+				createAutoFromAutoPath(
+						AutoPath.LOWER_CORAL_STATION_2_TO_D,
+						pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+								robot,
+								pathPlannerPath,
+								scoringCommand,
+								AutoPath.LOWER_CORAL_STATION_2_TO_D.getTargetBranch(),
+								tolerance
+						)
+				),
+				createAutoFromAutoPath(
+						AutoPath.D_TO_LOWER_CORAL_STATION_2,
+						pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+								robot,
+								pathPlannerPath,
+								intakingCommand,
+								AutoPath.D_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
+								tolerance
+						)
+				),
+				createAutoFromAutoPath(
+						AutoPath.LOWER_CORAL_STATION_2_TO_E,
+						pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+								robot,
+								pathPlannerPath,
+								scoringCommand,
+								AutoPath.LOWER_CORAL_STATION_2_TO_E.getTargetBranch(),
+								tolerance
+						)
+				).asProxyAuto()
+		);
+		auto.setName("right");
+		return auto;
+	}
+
+	private static Command centerAuto(Robot robot) {
+		PathPlannerPath path = getAutoScorePath(Branch.H, robot);
+
+		Command auto = autoScoreToBranch(Branch.H, robot, path);
+		auto.setName("center");
+		return auto;
+	}
+
+
 	public static PathPlannerAutoWrapper createAutoFromAutoPath(AutoPath path, Function<PathPlannerPath, Command> pathFollowingCommand) {
 		Optional<PathPlannerPath> pathOptional = path.getPath();
 
@@ -201,19 +285,19 @@ public class AutosBuilder {
 		Supplier<Command> scoringCommand,
 		Pose2d tolerance
 	) {
-		PathPlannerPath path = getAutoScorePath(Branch.F, robot);
+		PathPlannerPath path = getAutoScorePath(Branch.E, robot);
 
 		PathPlannerAutoWrapper auto = PathPlannerAutoWrapper.chainAutos(
-			autoScoreToBranch(Branch.F, robot, path),
+			autoScoreToBranch(Branch.E, robot, path),
 			PathPlannerAutoWrapper
 				.chainAutos(
 					createAutoFromAutoPath(
-						AutoPath.F_TO_LOWER_CORAL_STATION_2,
+						AutoPath.E_TO_LOWER_CORAL_STATION_2,
 						pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
 							robot,
 							pathPlannerPath,
 							intakingCommand,
-							AutoPath.F_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
+							AutoPath.E_TO_LOWER_CORAL_STATION_2.getTargetBranch(),
 							tolerance
 						)
 					),
