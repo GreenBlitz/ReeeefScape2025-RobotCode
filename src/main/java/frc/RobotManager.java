@@ -54,7 +54,6 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void autonomousInit() {
-		CommandScheduler.getInstance().cancelAll();
 		robot.getRobotCommander().removeDefaultCommand();
 
 		if (auto == null) {
@@ -65,8 +64,6 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void teleopInit() {
-		CommandScheduler.getInstance().cancelAll();
-
 		if (auto != null) {
 			auto.cancel();
 		}
