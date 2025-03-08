@@ -7,9 +7,6 @@ public class DriverStationUtil {
 	private static final DriverStation.Alliance DEFAULT_ALLIANCE = DriverStation.Alliance.Red;
 
 	public static DriverStation.Alliance getAlliance() {
-//		if (Robot.ROBOT_TYPE.isSimulation()) {
-//			return GlobalConstants.SIMULATION_ALLIANCE;
-//		}
 		return DriverStation.getAlliance().orElse(DEFAULT_ALLIANCE);
 	}
 
