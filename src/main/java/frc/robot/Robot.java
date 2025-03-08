@@ -161,11 +161,10 @@ public class Robot {
 	}
 
 	private void configureAuto() {
-		Supplier<Command> scoringCommand = () ->
-				new SequentialCommandGroup(
-						robotCommander.getSuperstructure().scoreWithoutRelease().until(() -> robotCommander.getSuperstructure().isReadyToScore()),
-						robotCommander.getSuperstructure().scoreWithRelease()
-				).asProxy();
+		Supplier<Command> scoringCommand = () -> new SequentialCommandGroup(
+			robotCommander.getSuperstructure().scoreWithoutRelease().until(() -> robotCommander.getSuperstructure().isReadyToScore()),
+			robotCommander.getSuperstructure().scoreWithRelease()
+		).asProxy();
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
 			.closeL4AfterScore()
 			.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
