@@ -63,10 +63,10 @@ public class AutosBuilder {
 	}
 
 	public static List<Supplier<Command>> preBiuitltlt(
-			Robot robot,
-			Supplier<Command> intakingCommand,
-			Supplier<Command> scoringCommand,
-			Pose2d tolerance
+		Robot robot,
+		Supplier<Command> intakingCommand,
+		Supplier<Command> scoringCommand,
+		Pose2d tolerance
 	) {
 		ArrayList<Supplier<Command>> autos = new ArrayList<>();
 		autos.add(() -> LeftAuto(robot, intakingCommand, scoringCommand, tolerance));
@@ -124,12 +124,7 @@ public class AutosBuilder {
 		return robot.getRobotCommander().autoScoreForAutonomous(path);
 	}
 
-	public static Command LeftAuto(
-			Robot robot,
-			Supplier<Command> intakingCommand,
-			Supplier<Command> scoringCommand,
-			Pose2d tolerance
-	) {
+	public static Command LeftAuto(Robot robot, Supplier<Command> intakingCommand, Supplier<Command> scoringCommand, Pose2d tolerance) {
 		PathPlannerPath path = getAutoScorePath(Branch.J, robot);
 		ScoringHelpers.targetScoreLevel = ScoreLevel.L4;
 		ScoringHelpers.isLeftBranch = Branch.J.isLeft();
@@ -138,68 +133,52 @@ public class AutosBuilder {
 		Logger.recordOutput("Test/path", path.getPathPoses().toArray(new Pose2d[] {}));
 
 		Command auto = new SequentialCommandGroup(
-				autoScoreToBranch(robot, path),
-					createAutoFromAutoPath(
-							AutoPath.J_TO_UPPER_CORAL_STATION_2,
-							pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
-									robot,
-									pathPlannerPath,
-									intakingCommand,
-									AutoPath.J_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-									tolerance
-							)
-					),
-					createAutoFromAutoPath(
-							AutoPath.UPPER_CORAL_STATION_2_TO_L,
-							pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
-									robot,
-									pathPlannerPath,
-									scoringCommand,
-									AutoPath.UPPER_CORAL_STATION_2_TO_L.getTargetBranch(),
-									tolerance
-							)
-					),
-					createAutoFromAutoPath(
-							AutoPath.L_TO_UPPER_CORAL_STATION_2,
-							pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
-									robot,
-									pathPlannerPath,
-									intakingCommand,
-									AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-									tolerance
-							)
-					),
-					createAutoFromAutoPath(
-							AutoPath.UPPER_CORAL_STATION_2_TO_K,
-							pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
-									robot,
-									pathPlannerPath,
-									scoringCommand,
-									AutoPath.UPPER_CORAL_STATION_2_TO_K.getTargetBranch(),
-									tolerance
-							)
-					),
-					createAutoFromAutoPath(
-							AutoPath.K_TO_UPPER_CORAL_STATION_2,
-							pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
-									robot,
-									pathPlannerPath,
-									intakingCommand,
-									AutoPath.K_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-									tolerance
-							)
-					),
-					createAutoFromAutoPath(
-							AutoPath.UPPER_CORAL_STATION_2_TO_J,
-							pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
-									robot,
-									pathPlannerPath,
-									scoringCommand,
-									AutoPath.UPPER_CORAL_STATION_2_TO_J.getTargetBranch(),
-									tolerance
-							)
-					)
-			.asProxyAuto()
+			autoScoreToBranch(robot, path),
+			createAutoFromAutoPath(
+				AutoPath.J_TO_UPPER_CORAL_STATION_2,
+				pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+					robot,
+					pathPlannerPath,
+					intakingCommand,
+					AutoPath.J_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+					tolerance
+				)
+			),
+			createAutoFromAutoPath(
+				AutoPath.UPPER_CORAL_STATION_2_TO_L,
+				pathPlannerPath -> PathFollowingCommandsBuilder
+					.commandAfterPath(robot, pathPlannerPath, scoringCommand, AutoPath.UPPER_CORAL_STATION_2_TO_L.getTargetBranch(), tolerance)
+			),
+			createAutoFromAutoPath(
+				AutoPath.L_TO_UPPER_CORAL_STATION_2,
+				pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+					robot,
+					pathPlannerPath,
+					intakingCommand,
+					AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+					tolerance
+				)
+			),
+			createAutoFromAutoPath(
+				AutoPath.UPPER_CORAL_STATION_2_TO_K,
+				pathPlannerPath -> PathFollowingCommandsBuilder
+					.commandAfterPath(robot, pathPlannerPath, scoringCommand, AutoPath.UPPER_CORAL_STATION_2_TO_K.getTargetBranch(), tolerance)
+			),
+			createAutoFromAutoPath(
+				AutoPath.K_TO_UPPER_CORAL_STATION_2,
+				pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+					robot,
+					pathPlannerPath,
+					intakingCommand,
+					AutoPath.K_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+					tolerance
+				)
+			),
+			createAutoFromAutoPath(
+				AutoPath.UPPER_CORAL_STATION_2_TO_J,
+				pathPlannerPath -> PathFollowingCommandsBuilder
+					.commandAfterPath(robot, pathPlannerPath, scoringCommand, AutoPath.UPPER_CORAL_STATION_2_TO_J.getTargetBranch(), tolerance)
+			).asProxyAuto()
 		);
 		auto.setName("left");
 		return auto;

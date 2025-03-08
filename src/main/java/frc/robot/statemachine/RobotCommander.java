@@ -285,19 +285,22 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease()
 		);
 
-		Command driveToPath = swerve.asSubsystemCommand(PathFollowingCommandsBuilder.followPath(path)
-			.andThen(
-				swerve.getCommandsBuilder()
-					.moveToPoseByPID(
-						() -> robot.getPoseEstimator().getEstimatedPose(),
-						ScoringHelpers.getRobotBranchScoringPose(
-							ScoringHelpers.getTargetBranch(),
-							StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+		Command driveToPath = swerve.asSubsystemCommand(
+			PathFollowingCommandsBuilder.followPath(path)
+				.andThen(
+					swerve.getCommandsBuilder()
+						.moveToPoseByPID(
+							() -> robot.getPoseEstimator().getEstimatedPose(),
+							ScoringHelpers.getRobotBranchScoringPose(
+								ScoringHelpers.getTargetBranch(),
+								StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+							)
 						)
-					)
-			),"Auto Score Autonomous");
+				),
+			"Auto Score Autonomous"
+		);
 
-		return	new ParallelDeadlineGroup(fullySuperstructureScore, driveToPath);
+		return new ParallelDeadlineGroup(fullySuperstructureScore, driveToPath);
 	}
 
 	public Command fullyScore() {

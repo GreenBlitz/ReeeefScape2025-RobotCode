@@ -4,22 +4,10 @@
 
 package frc;
 
-import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
-import frc.robot.autonomous.AutosBuilder;
-import frc.robot.autonomous.PathFollowingCommandsBuilder;
-import frc.robot.scoringhelpers.ScoringHelpers;
-import frc.robot.statemachine.superstructure.ScoreLevel;
-import frc.utils.auto.AutoPath;
-import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtil;
@@ -29,8 +17,6 @@ import org.littletonrobotics.junction.LoggedRobot;
 import frc.utils.brakestate.BrakeStateManager;
 import org.littletonrobotics.junction.Logger;
 
-import static frc.robot.autonomous.AutosBuilder.autoScoreToBranch;
-import static frc.robot.autonomous.AutosBuilder.createAutoFromAutoPath;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as described in the TimedRobot
@@ -49,8 +35,6 @@ public class RobotManager extends LoggedRobot {
 
 		this.roborioCycles = 0;
 		this.robot = new Robot();
-
-//		auto = AutosBuilder.LeftAuto(robot, () -> new RunCommand(() -> {}), () ->  new RunCommand(() -> {}), new Pose2d());
 
 		createAutoReadyForConstructionChooser();
 		JoysticksBindings.configureBindings(robot);
