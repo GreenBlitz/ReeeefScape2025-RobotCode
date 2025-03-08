@@ -134,6 +134,7 @@ public class AutosBuilder {
 
 		Command auto = new SequentialCommandGroup(
 			autoScoreToBranch(robot, path),
+			new SequentialCommandGroup(
 			createAutoFromAutoPath(
 				AutoPath.J_TO_UPPER_CORAL_STATION_2,
 				pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
@@ -178,8 +179,8 @@ public class AutosBuilder {
 				AutoPath.UPPER_CORAL_STATION_2_TO_J,
 				pathPlannerPath -> PathFollowingCommandsBuilder
 					.commandAfterPath(robot, pathPlannerPath, scoringCommand, AutoPath.UPPER_CORAL_STATION_2_TO_J.getTargetBranch(), tolerance)
-			).asProxyAuto()
-		);
+			)
+		).asProxy());
 		auto.setName("left");
 		return auto;
 	}
@@ -394,7 +395,7 @@ public class AutosBuilder {
 				)
 			),
 			List.of(),
-			AutonomousConstants.getAutoTimeConstraints(robot.getSwerve()),
+			AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
 			new IdealStartingState(0, startingPose.getRotation()),
 			new GoalEndState(0, scoringPose.getRotation()),
 			false

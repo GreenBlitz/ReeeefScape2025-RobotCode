@@ -31,15 +31,6 @@ public class AutonomousConstants {
 		);
 	}
 
-	public static PathConstraints getAutoTimeConstraints(Swerve swerve) {
-		return new PathConstraints(
-			swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
-			5.5,
-			swerve.getConstants().maxRotationalVelocityPerSecond().getRadians(),
-			RealSwerveConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND
-		);
-	}
-
 	public static class LinkedWaypoints {
 
 		public static final Pair<String, Pose2d> AUTO_LINE_1 = Pair.of("AL1", new Pose2d(7.58, 7.26, Rotation2d.fromDegrees(-137)));
