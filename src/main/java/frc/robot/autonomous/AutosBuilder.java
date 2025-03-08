@@ -236,7 +236,7 @@ public class AutosBuilder {
 				)
 			),
 			List.of(),
-			AutonomousConstants.getRealTimeConstraints(robot.getSwerve()),
+			AutonomousConstants.getAutoTimeConstraints(robot.getSwerve()),
 			new IdealStartingState(0, startingPose.getRotation()),
 			new GoalEndState(0, scoringPose.getRotation()),
 			false
