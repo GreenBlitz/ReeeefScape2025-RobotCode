@@ -2,10 +2,7 @@ package frc.robot.autonomous;
 
 import com.pathplanner.lib.path.*;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.enums.Branch;
 import frc.robot.Robot;
 import frc.robot.statemachine.StateMachineConstants;
@@ -65,6 +62,19 @@ public class AutosBuilder {
 		return autos;
 	}
 
+	public static List<Supplier<Command>> preBiuitltlt(
+			Robot robot,
+			Supplier<Command> intakingCommand,
+			Supplier<Command> scoringCommand,
+			Pose2d tolerance
+	) {
+		ArrayList<Supplier<Command>> autos = new ArrayList<>();
+		autos.add(() -> LeftAuto(robot, intakingCommand, scoringCommand, tolerance));
+		autos.add(() -> preBuiltCenterAuto(robot));
+		autos.add(() -> preBuiltRightAuto(robot, intakingCommand, scoringCommand, tolerance));
+		return autos;
+	}
+
 	public static List<Supplier<PathPlannerAutoWrapper>> getAllAutoScoringAutos(Robot robot) {
 		ArrayList<Supplier<PathPlannerAutoWrapper>> autos = new ArrayList<>();
 		for (Branch branch : Branch.values()) {
@@ -108,6 +118,91 @@ public class AutosBuilder {
 			ScoringHelpers.isFarReefHalf = branch.getReefSide().isFar();
 			ScoringHelpers.setTargetSideForReef(branch.getReefSide().getSide());
 		}).andThen(robot.getRobotCommander().autoScoreForAutonomous(path)), Pose2d.kZero, branch.name() + " Auto Score", true);
+	}
+
+	public static Command autoScoreToBranch(Robot robot, PathPlannerPath path) {
+		return robot.getRobotCommander().autoScoreForAutonomous(path);
+	}
+
+	public static Command LeftAuto(
+			Robot robot,
+			Supplier<Command> intakingCommand,
+			Supplier<Command> scoringCommand,
+			Pose2d tolerance
+	) {
+		PathPlannerPath path = getAutoScorePath(Branch.J, robot);
+		ScoringHelpers.targetScoreLevel = ScoreLevel.L4;
+		ScoringHelpers.isLeftBranch = Branch.J.isLeft();
+		ScoringHelpers.isFarReefHalf = Branch.J.getReefSide().isFar();
+		ScoringHelpers.setTargetSideForReef(Branch.J.getReefSide().getSide());
+		Logger.recordOutput("Test/path", path.getPathPoses().toArray(new Pose2d[] {}));
+
+		Command auto = new SequentialCommandGroup(
+				autoScoreToBranch(robot, path),
+					createAutoFromAutoPath(
+							AutoPath.J_TO_UPPER_CORAL_STATION_2,
+							pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+									robot,
+									pathPlannerPath,
+									intakingCommand,
+									AutoPath.J_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+									tolerance
+							)
+					),
+					createAutoFromAutoPath(
+							AutoPath.UPPER_CORAL_STATION_2_TO_L,
+							pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+									robot,
+									pathPlannerPath,
+									scoringCommand,
+									AutoPath.UPPER_CORAL_STATION_2_TO_L.getTargetBranch(),
+									tolerance
+							)
+					),
+					createAutoFromAutoPath(
+							AutoPath.L_TO_UPPER_CORAL_STATION_2,
+							pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+									robot,
+									pathPlannerPath,
+									intakingCommand,
+									AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+									tolerance
+							)
+					),
+					createAutoFromAutoPath(
+							AutoPath.UPPER_CORAL_STATION_2_TO_K,
+							pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+									robot,
+									pathPlannerPath,
+									scoringCommand,
+									AutoPath.UPPER_CORAL_STATION_2_TO_K.getTargetBranch(),
+									tolerance
+							)
+					),
+					createAutoFromAutoPath(
+							AutoPath.K_TO_UPPER_CORAL_STATION_2,
+							pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
+									robot,
+									pathPlannerPath,
+									intakingCommand,
+									AutoPath.K_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+									tolerance
+							)
+					),
+					createAutoFromAutoPath(
+							AutoPath.UPPER_CORAL_STATION_2_TO_J,
+							pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+									robot,
+									pathPlannerPath,
+									scoringCommand,
+									AutoPath.UPPER_CORAL_STATION_2_TO_J.getTargetBranch(),
+									tolerance
+							)
+					)
+			.asProxyAuto()
+		);
+		auto.setName("left");
+		return auto;
 	}
 
 	public static PathPlannerAutoWrapper createAutoFromAutoPath(AutoPath path, Function<PathPlannerPath, Command> pathFollowingCommand) {

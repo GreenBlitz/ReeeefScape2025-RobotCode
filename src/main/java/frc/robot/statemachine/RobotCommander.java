@@ -277,7 +277,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command autoScoreForAutonomous(PathPlannerPath path) {
-		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
+		Command fullySuperstructureScore = new SequentialCommandGroup(
 			superstructure.elevatorOpening(),
 			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
 			superstructure.preScore().until(superstructure::isPreScoreReady),
@@ -285,7 +285,7 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease()
 		);
 
-		Supplier<Command> driveToPath = () -> PathFollowingCommandsBuilder.followPath(path)
+		Command driveToPath = swerve.asSubsystemCommand(PathFollowingCommandsBuilder.followPath(path)
 			.andThen(
 				swerve.getCommandsBuilder()
 					.moveToPoseByPID(
@@ -295,24 +295,9 @@ public class RobotCommander extends GBSubsystem {
 							StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
 						)
 					)
-			);
+			),"Auto Score Autonomous");
 
-		return asSubsystemCommand(
-			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
-				Set.of(
-					this,
-					superstructure,
-					swerve,
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getSolenoid()
-				)
-			),
-			RobotState.SCORE
-		);
+		return	new ParallelDeadlineGroup(fullySuperstructureScore, driveToPath);
 	}
 
 	public Command fullyScore() {
