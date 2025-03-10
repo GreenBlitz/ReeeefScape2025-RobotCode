@@ -6,7 +6,7 @@ import frc.robot.vision.sources.IndpendentHeadingVisionSource;
 import frc.robot.vision.sources.RobotHeadingRequiringVisionSource;
 import frc.utils.Filter;
 
-public class LimelightFactory {
+public class LimeLightFactory {
 
 	public static RobotHeadingRequiringVisionSource createRobotHeadingRequiringLimelight(
 		String cameraNetworkTablesName,

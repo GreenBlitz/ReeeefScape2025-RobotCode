@@ -34,14 +34,14 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 	) {
 		this.sourceName = sourceName;
 		this.useGyroForPoseEstimating = defaultUseGyroForPoseEstimating;
-		this.independentPoseEstimatingLimelight = LimelightFactory.createRobotHeadingEstimatingLimelight(
+		this.independentPoseEstimatingLimelight = LimeLightFactory.createRobotHeadingEstimatingLimelight(
 			cameraNetworkTablesName,
 			parentLogPath,
 			sourceName + "/" + VisionConstants.DYNAMIC_LIMELIGHT_MEGATAG1_SOURCE_NAME,
 			filter,
 			cameraPoseOffset
 		);
-		this.headingRequiringLimelight = LimelightFactory.createRobotHeadingRequiringLimelight(
+		this.headingRequiringLimelight = LimeLightFactory.createRobotHeadingRequiringLimelight(
 			cameraNetworkTablesName,
 			parentLogPath,
 			sourceName + "/" + VisionConstants.DYNAMIC_LIMELIGHT_MEGATAG2_SOURCE_NAME,
@@ -101,6 +101,11 @@ public class DynamicSwitchingLimelight implements IndpendentHeadingVisionSource,
 	@Override
 	public void updateRobotAngleValues(RobotAngleValues robotAngleValues) {
 		headingRequiringLimelight.updateRobotAngleValues(robotAngleValues);
+	}
+
+	public void log() {
+		headingRequiringLimelight.log();
+		independentPoseEstimatingLimelight.log();
 	}
 
 }
