@@ -8,12 +8,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.led.LEDConstants;
-import frc.robot.led.LEDState;
 import frc.robot.subsystems.climb.lifter.LifterConstants;
 import frc.utils.auto.PathPlannerUtil;
-import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtil;
 import frc.utils.time.TimeUtil;
 import frc.utils.logger.LoggerFactory;
@@ -112,7 +108,7 @@ public class RobotManager extends LoggedRobot {
 		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
 	}
 
-	static  boolean flag = true;
+	static boolean flag = true;
 
 	private void updateTimeRelatedData() {
 		roborioCycles++;

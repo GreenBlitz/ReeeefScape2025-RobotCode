@@ -10,8 +10,6 @@ import frc.robot.hardware.interfaces.InputSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6LatencyAndSlopeSignal;
 import frc.robot.hardware.phoenix6.signal.SignalGetter;
 import frc.utils.alerts.Alert;
-import frc.utils.alerts.AlertManager;
-import frc.utils.alerts.PeriodicAlert;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.LinkedList;

@@ -14,7 +14,6 @@ import frc.RobotManager;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.AutosBuilder;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
-import frc.robot.scoringhelpers.ButtonDriverHelper;
 import frc.robot.subsystems.climb.lifter.Lifter;
 import frc.robot.subsystems.climb.lifter.factory.LifterFactory;
 import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
@@ -22,7 +21,6 @@ import frc.robot.subsystems.swerve.module.ModuleConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtil;
 import frc.robot.vision.VisionConstants;
 import frc.robot.hardware.interfaces.IGyro;
-import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
@@ -90,47 +88,47 @@ public class Robot {
 
 		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve");
 		this.swerve = new Swerve(
-				SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
-				ModulesFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
-				gyro,
-				GyroFactory.createSignals(gyro)
+			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
+			ModulesFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
+			gyro,
+			GyroFactory.createSignals(gyro)
 		);
 
 		this.poseEstimator = new WPILibPoseEstimatorWrapper(
-				WPILibPoseEstimatorConstants.WPILIB_POSEESTIMATOR_LOGPATH,
-				swerve.getKinematics(),
-				swerve.getModules().getWheelPositions(0),
-				swerve.getGyroAbsoluteYaw()
+			WPILibPoseEstimatorConstants.WPILIB_POSEESTIMATOR_LOGPATH,
+			swerve.getKinematics(),
+			swerve.getModules().getWheelPositions(0),
+			swerve.getGyroAbsoluteYaw()
 		);
 
 		this.headingEstimator = new RobotHeadingEstimator(
-				RobotHeadingEstimatorConstants.DEFAULT_HEADING_ESTIMATOR_LOGPATH,
-				new Rotation2d(),
-				new Rotation2d(),
-				RobotHeadingEstimatorConstants.DEFAULT_GYRO_STANDARD_DEVIATION
+			RobotHeadingEstimatorConstants.DEFAULT_HEADING_ESTIMATOR_LOGPATH,
+			new Rotation2d(),
+			new Rotation2d(),
+			RobotHeadingEstimatorConstants.DEFAULT_GYRO_STANDARD_DEVIATION
 		);
 
 		this.multiAprilTagVisionSources = new MultiAprilTagVisionSources(
-				VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
-				headingEstimator::getEstimatedHeading,
-				true,
-				VisionConstants.VISION_SOURCES
+			VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
+			headingEstimator::getEstimatedHeading,
+			true,
+			VisionConstants.VISION_SOURCES
 		);
 
 		multiAprilTagVisionSources.applyFunctionOnAllFilters(
-				filters -> filters.and(
-						data -> VisionFilters
-								.isYawAtAngleForMegaTag2(
-										() -> headingEstimator.getEstimatedHeadingAtTimestamp(data.getTimestamp()),
-										VisionConstants.YAW_FILTER_TOLERANCE
-								)
-								.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
-								.apply(data)
-				)
+			filters -> filters.and(
+				data -> VisionFilters
+					.isYawAtAngleForMegaTag2(
+						() -> headingEstimator.getEstimatedHeadingAtTimestamp(data.getTimestamp()),
+						VisionConstants.YAW_FILTER_TOLERANCE
+					)
+					.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
+					.apply(data)
+			)
 		);
 
 		swerve.setHeadingSupplier(
-				ROBOT_TYPE.isSimulation() ? () -> poseEstimator.getEstimatedPose().getRotation() : headingEstimator::getEstimatedHeading
+			ROBOT_TYPE.isSimulation() ? () -> poseEstimator.getEstimatedPose().getRotation() : headingEstimator::getEstimatedHeading
 		);
 
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
@@ -162,29 +160,29 @@ public class Robot {
 	private void configureAuto() {
 		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure().scoreWithRelease().asProxy();
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
-				.closeL4AfterScore()
-				.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
-				.asProxy();
+			.closeL4AfterScore()
+			.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
+			.asProxy();
 
 		swerve.configPathPlanner(
-				poseEstimator::getEstimatedPose,
-				poseEstimator::resetPose,
-				PathPlannerUtil.getGuiRobotConfig().orElse(getRobotConfig())
+			poseEstimator::getEstimatedPose,
+			poseEstimator::resetPose,
+			PathPlannerUtil.getGuiRobotConfig().orElse(getRobotConfig())
 		);
 
 		new EventTrigger("PULL_OUT_ARM")
-				.onTrue(robotCommander.getSuperstructure().closeClimb().andThen(robotCommander.getSuperstructure().armPreScore()));
+			.onTrue(robotCommander.getSuperstructure().closeClimb().andThen(robotCommander.getSuperstructure().armPreScore()));
 		new EventTrigger("PRE_SCORE").onTrue(
-				robotCommander.getSuperstructure()
-						.preScore()
-						.until(() -> robotCommander.getSuperstructure().isPreScoreReady())
-						.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
+			robotCommander.getSuperstructure()
+				.preScore()
+				.until(() -> robotCommander.getSuperstructure().isPreScoreReady())
+				.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
 		);
 		new EventTrigger("ARM_PRE_SCORE").onTrue(robotCommander.getSuperstructure().armPreScore());
 
 		this.preBuiltAutosChooser = new AutonomousChooser(
-				"PreBuiltAutos",
-				AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+			"PreBuiltAutos",
+			AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 		);
 //		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
 //		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
@@ -221,9 +219,9 @@ public class Robot {
 		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
 		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getFilteredRobotHeading()) {
 			headingEstimator.updateVisionIfGyroOffsetIsNotCalibrated(
-					headingData,
-					RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
-					RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
+				headingData,
+				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+				RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
 			);
 		}
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
@@ -299,18 +297,18 @@ public class Robot {
 
 	public RobotConfig getRobotConfig() {
 		return new RobotConfig(
-				RobotConstants.MASS_KILOGRAM,
-				RobotConstants.MOMENT_OF_INERTIA_KILOGRAM_METERS_SQUARED,
-				new ModuleConfig(
-						swerve.getModules().getModule(ModuleUtil.ModulePosition.FRONT_LEFT).getModuleConstants().wheelDiameterMeters() / 2,
-						swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
-						ModuleConstants.COEFFICIENT_OF_FRICTION,
-						DCMotor.getKrakenX60Foc(ModuleConstants.NUMBER_OF_DRIVE_MOTORS),
-						KrakenX60DriveBuilder.GEAR_RATIO,
-						KrakenX60DriveBuilder.SLIP_CURRENT,
-						ModuleConstants.NUMBER_OF_DRIVE_MOTORS
-				),
-				swerve.getModules().getModulePositionsFromCenterMeters()
+			RobotConstants.MASS_KILOGRAM,
+			RobotConstants.MOMENT_OF_INERTIA_KILOGRAM_METERS_SQUARED,
+			new ModuleConfig(
+				swerve.getModules().getModule(ModuleUtil.ModulePosition.FRONT_LEFT).getModuleConstants().wheelDiameterMeters() / 2,
+				swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
+				ModuleConstants.COEFFICIENT_OF_FRICTION,
+				DCMotor.getKrakenX60Foc(ModuleConstants.NUMBER_OF_DRIVE_MOTORS),
+				KrakenX60DriveBuilder.GEAR_RATIO,
+				KrakenX60DriveBuilder.SLIP_CURRENT,
+				ModuleConstants.NUMBER_OF_DRIVE_MOTORS
+			),
+			swerve.getModules().getModulePositionsFromCenterMeters()
 		);
 	}
 
