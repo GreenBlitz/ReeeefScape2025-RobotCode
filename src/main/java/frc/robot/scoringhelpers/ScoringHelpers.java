@@ -149,7 +149,7 @@ public class ScoringHelpers {
 		return getRobotBranchScoringPose(branch, distanceFromBranchMeters, true);
 	}
 
-	public static Pose2d getRobotRelativeAlgaeRemovePose(ReefSide side, double distanceFromReefMeters) {
+	public static Pose2d getRobotRelativeReefScoringPose(ReefSide side, double distanceFromReefMeters) {
 		Translation2d reefMiddleTranslation = Field.getReefSideMiddle(side).getTranslation();
 		Rotation2d targetRobotAngle = Field.getReefSideMiddle(side).getRotation();
 		Translation2d differenceTranslation = new Translation2d(distanceFromReefMeters, targetRobotAngle);
