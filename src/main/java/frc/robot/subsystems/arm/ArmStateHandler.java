@@ -20,15 +20,19 @@ public class ArmStateHandler {
 	public Command setState(ArmState state) {
 		if (state == ArmState.STAY_IN_PLACE) {
 			return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), arm.getCommandsBuilder().stayInPlace());
+		} else if (state == ArmState.UP_SLOWLY_FROM_SCORING_SIDE) {
+			return arm.getCommandsBuilder().setPower(0.1);
+		} else if (state == ArmState.UP_SLOWLY_FROM_INTAKE_SIDE) {
+			return arm.getCommandsBuilder().setPower(-0.1);
 		} else {
 			return new ParallelCommandGroup(
-				new InstantCommand(() -> currentState = state),
-				arm.getCommandsBuilder()
-					.moveToPosition(
-						state.getPosition(),
-						state.getMaxVelocityRotation2dPerSecond(),
-						state.getMaxAccelerationRotation2dPerSecondSquared()
-					)
+					new InstantCommand(() -> currentState = state),
+					arm.getCommandsBuilder()
+							.moveToPosition(
+									state.getPosition(),
+									state.getMaxVelocityRotation2dPerSecond(),
+									state.getMaxAccelerationRotation2dPerSecondSquared()
+							)
 			);
 		}
 	}

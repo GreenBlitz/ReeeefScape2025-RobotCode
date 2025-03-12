@@ -150,6 +150,79 @@ public class Superstructure extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/EndEffectorState", endEffectorStateHandler.getCurrentState());
 		Logger.recordOutput(getLogPath() + "/ClimbState", climbStateHandler.getCurrentState());
 	}
+	
+	private Command l1Way1(){
+		return new ParallelCommandGroup(
+				new SequentialCommandGroup(
+						new ParallelCommandGroup(
+								endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+								armStateHandler.setState(ArmState.L3)
+						),
+						new ParallelCommandGroup(
+							endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
+							armStateHandler.setState(ArmState.UP_SLOWLY_FROM_SCORING_SIDE)
+						).until(() -> !isCoralIn()),
+						new ParallelCommandGroup(
+								endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE),
+								armStateHandler.setState(ArmState.STAY_IN_PLACE)
+						)
+				),
+				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				climbStateHandler.setState(ClimbState.STOP)
+		);
+	}
+	
+	private Command l1Way2(){
+		return new ParallelCommandGroup(
+				new SequentialCommandGroup(
+						new ParallelCommandGroup(
+								endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+								armStateHandler.setState(ArmState.INTAKE)
+						),
+						new ParallelCommandGroup(
+								endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
+								armStateHandler.setState(ArmState.UP_SLOWLY_FROM_INTAKE_SIDE)
+						).until(() -> !isCoralIn()),
+						new ParallelCommandGroup(
+								endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE),
+								armStateHandler.setState(ArmState.STAY_IN_PLACE)
+						)
+				),
+				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				climbStateHandler.setState(ClimbState.STOP)
+		);
+	}
+	
+	private Command l1Way3(){
+		return new ParallelCommandGroup(
+				new SequentialCommandGroup(
+						new ParallelCommandGroup(
+								armStateHandler.setState(ArmState.CLOSED),
+								elevatorStateHandler.setState(ElevatorState.OPENING_HEIGHT)
+						).until(() -> robot.getElevator().isAtPosition(ElevatorState.OPENING_HEIGHT.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)),
+						armStateHandler.setState(ArmState.START_GAME).until(() ->robot.getArm().isAtPosition(ArmState.START_GAME.getPosition(), Tolerances.ARM_POSITION)),
+						elevatorStateHandler.setState(ElevatorState.CLOSED).until(() -> robot.getElevator().isAtPosition(ElevatorState.CLOSED.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)),
+						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn()),
+						endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE).withTimeout(0.5),
+						elevatorOpening(),
+						armStateHandler.setState(ArmState.CLOSED).until(() -> robot.getArm().isAtPosition(ArmState.CLOSED.getPosition(), Tolerances.ARM_POSITION)),
+						elevatorStateHandler.setState(ElevatorState.CLOSED)
+				),
+				climbStateHandler.setState(ClimbState.STOP)
+		);
+	}
+	
+	private Command l1Way4(){
+		return new ParallelCommandGroup(
+				new SequentialCommandGroup(
+						armStateHandler.setState(ArmState.INTAKE).until(() -> robot.getArm().isAtPosition(ArmState.INTAKE.getPosition(), Tolerances.ARM_POSITION)),
+						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn()),
+						endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE)
+				),
+				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				climbStateHandler.setState(ClimbState.STOP)
+		);
+	}
 
 	public Command idle() {
 		return asSubsystemCommand(
