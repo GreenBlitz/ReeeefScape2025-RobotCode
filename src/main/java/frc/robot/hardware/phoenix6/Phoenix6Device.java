@@ -25,7 +25,7 @@ public abstract class Phoenix6Device implements IDevice {
 		this.logPath = logPath;
 		this.connectedInput = new ConnectedInputAutoLogged();
 		connectedInput.connected = true;
-		AlertManager.addAlert(new PeriodicAlert(Alert.AlertType.ERROR, logPath + "disconnectedAt", () -> !isConnected()));
+//		AlertManager.addAlert(new PeriodicAlert(Alert.AlertType.ERROR, logPath + "disconnectedAt", () -> !isConnected()));
 	}
 
 	public String getLogPath() {
@@ -85,11 +85,11 @@ public abstract class Phoenix6Device implements IDevice {
 		if (inputSignals.length == 0) {
 			return;
 		}
-		InputSignal<?>[] validSignals = getValidSignals(inputSignals);
-		refreshSignals(validSignals);
-		connectedInput.connected = isConnected();
-		Logger.processInputs(logPath, connectedInput);
-		logSignals(validSignals);
+//		InputSignal<?>[] validSignals = getValidSignals(inputSignals);
+		refreshSignals(inputSignals);
+//		connectedInput.connected = isConnected();
+//		Logger.processInputs(logPath, connectedInput);
+//		logSignals(validSignals);
 	}
 
 	public abstract ParentDevice getDevice();

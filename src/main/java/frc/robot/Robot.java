@@ -217,24 +217,24 @@ public class Robot {
 		swerve.update();
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
 
-		poseEstimator.updateOdometry(swerve.getAllOdometryData());
-		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
-		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getFilteredRobotHeading()) {
-			headingEstimator.updateVisionIfGyroOffsetIsNotCalibrated(
-				headingData,
-				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
-				RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
-			);
-		}
-		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
+//		poseEstimator.updateOdometry(swerve.getAllOdometryData());
+//		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
+//		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getFilteredRobotHeading()) {
+//			headingEstimator.updateVisionIfGyroOffsetIsNotCalibrated(
+//				headingData,
+//				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+//				RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
+//			);
+//		}
+//		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
 //		 multiAprilTagVisionSources.log();
-		headingEstimator.log();
+//		headingEstimator.log();
 
 		BatteryUtil.logStatus();
-		BusChain.logChainsStatuses();
+//		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
 		ScoringHelpers.log("Scoring");
-		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
+//		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
 
 		CommandScheduler.getInstance().run(); // Should be last
 	}

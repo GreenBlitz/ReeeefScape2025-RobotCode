@@ -34,8 +34,10 @@ public class TimeUtil {
 	private static void logStatus(int roborioCycles) {
 		Logger.recordOutput(TimeConstants.LOG_PATH + "/CycleTimeSeconds", getLatestCycleTimeSeconds());
 		Logger.recordOutput(TimeConstants.LOG_PATH + "/CurrentTimeSeconds", currentCycleStartingTimeSeconds);
-		Logger.recordOutput(TimeConstants.LOG_PATH + "/AverageCycleTimeSeconds", currentCycleStartingTimeSeconds / roborioCycles);
+		Logger.recordOutput(TimeConstants.LOG_PATH + "/AverageCycleTimeSeconds", (currentCycleStartingTimeSeconds-time) / roborioCycles);
 	}
+
+	public static double time = 0;
 
 	public static double getCurrentTimeSeconds() {
 		return Conversions.microSecondsToSeconds(HALUtil.getFPGATime());

@@ -46,14 +46,14 @@ public class RobotManager extends LoggedRobot {
 	}
 
 	private void initializeLEDTriggers() {
-		Trigger noteIn = new Trigger(() -> robot.getRobotCommander().getSuperstructure().isCoralIn());
-		noteIn.onTrue(
-			robot.getRobotCommander()
-				.getLedStateHandler()
-				.setState(LEDState.HAS_CORAL)
-				.withTimeout(LEDConstants.CORAL_IN_BLINK_TIME_SECONDS)
-				.onlyIf(robot.getRobotCommander().getSuperstructure()::isCoralIn)
-		);
+//		Trigger noteIn = new Trigger(() -> robot.getRobotCommander().getSuperstructure().isCoralIn());
+//		noteIn.onTrue(
+//			robot.getRobotCommander()
+//				.getLedStateHandler()
+//				.setState(LEDState.HAS_CORAL)
+//				.withTimeout(LEDConstants.CORAL_IN_BLINK_TIME_SECONDS)
+//				.onlyIf(robot.getRobotCommander().getSuperstructure()::isCoralIn)
+//		);
 	}
 
 	@Override
@@ -62,13 +62,13 @@ public class RobotManager extends LoggedRobot {
 			BrakeStateManager.coast();
 		}
 
-		robot.getRobotCommander().getLedStateHandler().setState(LEDState.DISABLE).schedule();
+//		robot.getRobotCommander().getLedStateHandler().setState(LEDState.DISABLE).schedule();
 	}
 
 	@Override
 	public void disabledExit() {
 		BrakeStateManager.brake();
-		robot.getRobotCommander().getLedStateHandler().setState(LEDState.IDLE).schedule();
+//		robot.getRobotCommander().getLedStateHandler().setState(LEDState.IDLE).schedule();
 		robot.getLifter().resetPosition(LifterConstants.MINIMUM_ACHIEVABLE_POSITION);
 	}
 
@@ -92,10 +92,12 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void robotPeriodic() {
+		double ct = TimeUtil.getCurrentTimeSeconds();
 		updateTimeRelatedData(); // Better to be first
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
 		robot.periodic();
-		AlertManager.reportAlerts();
+		Logger.recordOutput("Test/time", TimeUtil.getCurrentTimeSeconds() - ct);
+//		AlertManager.reportAlerts();
 	}
 
 	private void createAutoReadyForConstructionChooser() {
@@ -110,10 +112,17 @@ public class RobotManager extends LoggedRobot {
 		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
 	}
 
+	static  boolean flag = true;
+
 	private void updateTimeRelatedData() {
 		roborioCycles++;
 		Logger.recordOutput("RoborioCycles", roborioCycles);
 		TimeUtil.updateCycleTime(roborioCycles);
+		if (flag && TimeUtil.getCurrentTimeSeconds() > 60) {
+			flag = false;
+			roborioCycles = 0;
+			TimeUtil.time = TimeUtil.getCurrentTimeSeconds();
+		}
 	}
 
 }
