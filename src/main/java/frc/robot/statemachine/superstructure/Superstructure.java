@@ -342,7 +342,10 @@ public class Superstructure extends GBSubsystem {
 					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getFastSuperElevatorState()),
 					armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
-				).until(() -> robot.getElevator().isBehindPosition(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState().getHeightMeters())),
+				).until(
+					() -> robot.getElevator()
+						.isBehindPosition(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState().getHeightMeters())
+				),
 				new InstantCommand(() -> System.out.println("aaaaa")),
 				new ParallelDeadlineGroup(
 					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState()),
