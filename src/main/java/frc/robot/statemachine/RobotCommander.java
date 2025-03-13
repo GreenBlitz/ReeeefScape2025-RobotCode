@@ -243,13 +243,7 @@ public class RobotCommander extends GBSubsystem {
 		Pose2d middleOfReefPose = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide());
 		Translation2d differenceTranslation = new Translation2d(distanceFromReefMeters, middleOfReefPose.getRotation());
 		Translation2d endeffectorOffsetDifference = ScoringHelpers.END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(middleOfReefPose.getRotation());
-		Logger.recordOutput(
-			"aaaa",
-			new Pose2d(
-				middleOfReefPose.getTranslation().minus(differenceTranslation).minus(endeffectorOffsetDifference),
-				middleOfReefPose.getRotation()
-			)
-		);
+
 		return new Pose2d(
 			middleOfReefPose.getTranslation().minus(differenceTranslation).minus(endeffectorOffsetDifference),
 			middleOfReefPose.getRotation()
