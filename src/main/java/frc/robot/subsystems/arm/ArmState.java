@@ -24,6 +24,7 @@ public enum ArmState {
 	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(9)),
 	LOW_SUPER_ALGAE_REMOVE(Rotation2d.fromDegrees(-40)),
 	HIGH_SUPER_ALGAE_REMOVE(Rotation2d.fromDegrees(-40)),
+	HOLD_ALGAE(Rotation2d.fromDegrees(64.5)),
 	NET(Rotation2d.fromDegrees(10), Rotation2d.fromRotations(1.5), Rotation2d.fromRotations(1.5)),
 	PROCESSOR_OUTTAKE(Rotation2d.fromDegrees(180)),
 	CLIMB(Rotation2d.fromDegrees(-11));

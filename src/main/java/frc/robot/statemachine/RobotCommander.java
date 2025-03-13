@@ -111,6 +111,10 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
+	public boolean isCollectingAlgae() {
+		return currentState == RobotState.ALGAE_REMOVE;
+	}
+
 	private boolean isAtBranchScoringPose(
 		Branch targetBranch,
 		double scoringPoseDistanceFromReefMeters,
@@ -275,8 +279,10 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB -> climb();
+			case MANUAL_CLIMB -> manualClimb();
 			case STOP_CLIMB -> stopClimb();
 			case CLOSE_CLIMB -> closeClimb();
+			case HOLD_ALGAE -> holdAlgae();
 		};
 	}
 
@@ -573,6 +579,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command manualClimb() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.manualClimb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.MANUAL_CLIMB
+		);
+	}
+
 	public Command stopClimb() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(superstructure.climbStop(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
@@ -609,6 +622,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command holdAlgae() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.holdAlgae(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.HOLD_ALGAE
+		);
+	}
+
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
@@ -621,20 +641,20 @@ public class RobotCommander extends GBSubsystem {
 				INTAKE_WITHOUT_AIM_ASSIST,
 				DRIVE,
 				ALIGN_REEF,
-				ALGAE_REMOVE,
 				ALGAE_OUTTAKE,
 				PROCESSOR_SCORE,
 				PRE_NET,
 				NET,
 				EXIT_SUPER_ALGAE_REMOVE ->
 				drive();
+			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
 			case SCORE, SCORE_WITHOUT_RELEASE -> closeAfterScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB, STOP_CLIMB -> stopClimb();
 			case PRE_SUPER_ALGAE_REMOVE, SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
+			case CLIMB, MANUAL_CLIMB, STOP_CLIMB -> stopClimb();
 		};
 	}
 
