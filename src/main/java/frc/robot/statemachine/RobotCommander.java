@@ -266,6 +266,7 @@ public class RobotCommander extends GBSubsystem {
 			case SCORE -> score();
 			case PRE_SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
 			case SUPER_ALGAE_REMOVE -> superAlgaeRemove();
+			case EXIT_SUPER_ALGAE_REMOVE -> exitSuperAlgaeRemove();
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case PRE_NET -> preNet();
@@ -498,6 +499,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command exitSuperAlgaeRemove() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				superstructure.exitSuperAlgaeRemove(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
+			RobotState.EXIT_SUPER_ALGAE_REMOVE
+		);
+	}
+
 	private Command algaeRemove() {
 		return asSubsystemCommand(
 			new ParallelDeadlineGroup(
@@ -614,7 +625,8 @@ public class RobotCommander extends GBSubsystem {
 				ALGAE_OUTTAKE,
 				PROCESSOR_SCORE,
 				PRE_NET,
-				NET ->
+				NET,
+				EXIT_SUPER_ALGAE_REMOVE ->
 				drive();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
@@ -622,7 +634,7 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB, STOP_CLIMB -> stopClimb();
-			case PRE_SUPER_ALGAE_REMOVE, SUPER_ALGAE_REMOVE -> drive();
+			case PRE_SUPER_ALGAE_REMOVE, SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
 		};
 	}
 

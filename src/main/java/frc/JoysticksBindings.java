@@ -120,7 +120,7 @@ public class JoysticksBindings {
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.PRE_SUPER_ALGAE_REMOVE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.SUPER_ALGAE_REMOVE));
-		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.EXIT_SUPER_ALGAE_REMOVE));
 
 		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));
 		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));

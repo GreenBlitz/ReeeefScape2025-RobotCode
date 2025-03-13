@@ -346,7 +346,6 @@ public class Superstructure extends GBSubsystem {
 					() -> robot.getElevator()
 						.isBehindPosition(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState().getHeightMeters())
 				),
-				new InstantCommand(() -> System.out.println("aaaaa")),
 				new ParallelDeadlineGroup(
 					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState()),
 					armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
@@ -354,6 +353,17 @@ public class Superstructure extends GBSubsystem {
 				)
 			),
 			SuperstructureState.SUPER_ALGAE_REMOVE
+		);
+	}
+
+	public Command exitSuperAlgaeRemove() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperSlowingElevatorState()),
+				armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+			),
+			SuperstructureState.EXIT_SUPER_ALGAE_REMOVE
 		);
 	}
 
@@ -506,9 +516,9 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE, NET -> idle();
+			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE, NET, EXIT_SUPER_ALGAE_REMOVE -> idle();
 			case PRE_SUPER_ALGAE_REMOVE, SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
-			case ARM_PRE_SCORE, CLOSE_CLIMB -> idle();
+			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_CLIMB -> preClimb();
 			case CLIMB, STOP_CLIMB -> climbStop();
