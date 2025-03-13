@@ -1,11 +1,7 @@
 package frc.robot.statemachine.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.StateMachineConstants;
@@ -306,7 +302,7 @@ public class Superstructure extends GBSubsystem {
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
 					armStateHandler.setState(ArmState.MID_WAY_CLOSE)
-						.until(() -> !robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_TO_CLOSE_ARM)),
+						.until(() -> robot.getElevator().isBehindPosition(StateMachineConstants.ELEVATOR_POSITION_TO_CLOSE_ARM)),
 					armStateHandler.setState(ArmState.CLOSED)
 				),
 				new SequentialCommandGroup(
@@ -328,13 +324,43 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
+	public Command preSuperAlgaeRemove() {
+		return asSubsystemCommand(
+			new ParallelDeadlineGroup(
+				elevatorStateHandler.setState(ElevatorState.L4),
+				armStateHandler.setState(ArmState.L4),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+			),
+			SuperstructureState.PRE_SUPER_ALGAE_REMOVE
+		);
+	}
+
+	public Command superAlgaeRemove() {
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				new ParallelDeadlineGroup(
+					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getFastSuperElevatorState()),
+					armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				).until(() -> robot.getElevator().isBehindPosition(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState().getHeightMeters())),
+				new InstantCommand(() -> System.out.println("aaaaa")),
+				new ParallelDeadlineGroup(
+					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState()),
+					armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
+					endEffectorStateHandler.setState(EndEffectorState.ALGAE_INTAKE)
+				)
+			),
+			SuperstructureState.SUPER_ALGAE_REMOVE
+		);
+	}
+
 	public Command algaeRemove() {
 		return asSubsystemCommand(
 			new DeferredCommand(
 				() -> new SequentialCommandGroup(
 					new ParallelCommandGroup(
-						elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getElevatorState()),
-						armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getArmState()),
+						elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getRegularElevatorState()),
+						armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getRegularArmState()),
 						endEffectorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getEndEffectorState()),
 						climbStateHandler.setState(ClimbState.STOP)
 					)
@@ -478,7 +504,8 @@ public class Superstructure extends GBSubsystem {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
 			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE, NET -> idle();
-			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
+			case PRE_SUPER_ALGAE_REMOVE, SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
+			case ARM_PRE_SCORE, CLOSE_CLIMB -> idle();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_CLIMB -> preClimb();
 			case CLIMB, STOP_CLIMB -> climbStop();

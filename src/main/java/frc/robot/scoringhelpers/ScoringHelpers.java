@@ -29,7 +29,7 @@ public class ScoringHelpers {
 	public static boolean isFarReefHalf = false;
 	public static boolean isLeftBranch = false;
 
-	private static Side targetSideForReef = Side.MIDDLE;
+	private static Side targetSideForReef = Side.RIGHT;
 	private static CoralStation latestWantedCoralStation = CoralStation.LEFT;
 	private static CoralStationSlot latestWantedCoralStationSlot = CoralStationSlot.L1;
 	private static Cage latestWantedCage = Cage.FIELD_WALL;

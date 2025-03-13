@@ -199,6 +199,10 @@ public class Elevator extends GBSubsystem {
 		return getElevatorPositionMeters() > positionMeters;
 	}
 
+	public boolean isBehindPosition(double positionMeters) {
+		return getElevatorPositionMeters() < positionMeters;
+	}
+
 	private boolean shouldResetByMinimumPosition() {
 		return getElevatorPositionMeters() < ElevatorConstants.MINIMUM_HEIGHT_METERS;
 	}
