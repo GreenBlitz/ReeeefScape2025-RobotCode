@@ -4,6 +4,7 @@
 
 package frc;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -45,6 +46,7 @@ public class RobotManager extends LoggedRobot {
 
 		createAutoReadyForConstructionChooser();
 		JoysticksBindings.configureBindings(robot);
+		DriverStation.silenceJoystickConnectionWarning(true);
 		try {
 			Field watchDogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
 			watchDogField.setAccessible(true);
