@@ -131,8 +131,8 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isReadyForSuperAlgaeRemove() {
 		return isAtAlgaeRemovePose(
 			StateMachineConstants.ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS,
-			Tolerances.PROCESSOR_RELATIVE_SCORING_POSITION,
-			Tolerances.PROCESSOR_RELATIVE_SCORING_DEADBANDS
+			Tolerances.REEF_RELATIVE_SUPER_ALGAE_REMOVE_POSITION,
+			Tolerances.REEF_RELATIVE_SUPER_ALGAE_REMOVE_DEADBANDS
 		);
 	}
 
