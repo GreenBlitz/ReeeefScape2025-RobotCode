@@ -322,7 +322,7 @@ public class Swerve extends GBSubsystem {
 
 		setTargetModuleStates(
 			previousSetpoint.moduleStates(),
-			previousSetpoint.feedforwards().accelerationsMPSSq(),
+			previousSetpoint.feedforwards().linearForcesNewtons(),
 			swerveState.getLoopMode().isClosedLoop()
 		);
 	}
@@ -357,8 +357,8 @@ public class Swerve extends GBSubsystem {
 		modules.setTargetStates(moduleStates, isClosedLoop);
 	}
 
-	private void setTargetModuleStates(SwerveModuleState[] moduleStates, double[] accelerations, boolean isClosedLoop) {
-		modules.setTargetStates(moduleStates, accelerations, isClosedLoop);
+	private void setTargetModuleStates(SwerveModuleState[] moduleStates, double[] targetForcesNm, boolean isClosedLoop) {
+		modules.setTargetStates(moduleStates, targetForcesNm, isClosedLoop);
 	}
 
 

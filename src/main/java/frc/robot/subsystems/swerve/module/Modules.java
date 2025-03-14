@@ -84,9 +84,9 @@ public class Modules {
 		}
 	}
 
-	public void setTargetStates(SwerveModuleState[] moduleStates, double[] accelerations, boolean isClosedLoop) {
+	public void setTargetStates(SwerveModuleState[] moduleStates, double[] targetForcesNm, boolean isClosedLoop) {
 		for (int i = 0; i < modules.length; i++) {
-			modules[i].setTargetState(moduleStates[i], accelerations[i], isClosedLoop);
+			modules[i].setTargetState(moduleStates[i], targetForcesNm[i], isClosedLoop);
 		}
 	}
 
