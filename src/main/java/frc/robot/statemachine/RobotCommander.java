@@ -5,12 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
@@ -108,6 +103,32 @@ public class RobotCommander extends GBSubsystem {
 			case L1 -> PoseUtil.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, l1Tolerances, l1Deadbands);
 			case L2, L3, L4 -> PoseUtil.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, tolerances, deadbands);
 		};
+	}
+
+	private boolean isAtAlgaeRemovePose(double distanceFromReefMeters, Pose2d tolerances, Pose2d deadbands) {
+		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
+
+		Pose2d reefRelativeTargetPose = ScoringHelpers.getReefRelativeAlgaeRemovePose(distanceFromReefMeters);
+
+		Translation2d endeffectorOffsetDifference = ScoringHelpers.END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(reefAngle);
+		Pose2d reefRelativeRobotPose = new Pose2d(
+			robot.getPoseEstimator().getEstimatedPose().getTranslation().minus(endeffectorOffsetDifference),
+			robot.getPoseEstimator().getEstimatedPose().getRotation()
+		);
+
+		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
+		ChassisSpeeds reefRelativeSpeeds = SwerveMath
+			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
+
+		return PoseUtil.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, tolerances, deadbands);
+	}
+
+	private boolean isReadyForSuperAlgaeRemove() {
+		return isAtAlgaeRemovePose(
+			StateMachineConstants.ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS,
+			Tolerances.REEF_RELATIVE_SUPER_ALGAE_REMOVE_POSITION,
+			Tolerances.REEF_RELATIVE_SUPER_ALGAE_REMOVE_DEADBANDS
+		);
 	}
 
 	public boolean isCollectingAlgae() {
@@ -250,6 +271,9 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE -> preScore();
 			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
 			case SCORE -> score();
+			case PRE_SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
+			case SUPER_ALGAE_REMOVE -> superAlgaeRemove();
+			case EXIT_SUPER_ALGAE_REMOVE -> exitSuperAlgaeRemove();
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case PRE_NET -> preNet();
@@ -369,6 +393,19 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public Command completeSuperAlgaeRemove() {
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				preSuperAlgaeRemove().until(this::isReadyForSuperAlgaeRemove),
+				superAlgaeRemove()
+//						.withTimeout(StateMachineConstants.SUPER_ALGAE_REMOVE_TIME_SECONDS),
+//				exitSuperAlgaeRemove().until(() -> !isReadyForSuperAlgaeRemove()),
+//				holdAlgae()
+			),
+			RobotState.SUPER_ALGAE_REMOVE
+		);
+	}
+
 	private Command drive() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(superstructure.idle(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
@@ -459,6 +496,51 @@ public class RobotCommander extends GBSubsystem {
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
 			),
 			RobotState.SCORE
+		);
+	}
+
+	private Command preSuperAlgaeRemove() {
+		Supplier<Pose2d> targetPose = () -> ScoringHelpers
+			.getReefRelativeAlgaeRemovePose(StateMachineConstants.ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS);
+
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new ParallelCommandGroup(
+					superstructure.preSuperAlgaeRemove(),
+					swerve.getCommandsBuilder().driveToPose(robot.getPoseEstimator()::getEstimatedPose, targetPose)
+				),
+				(Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				))
+			),
+			RobotState.PRE_SUPER_ALGAE_REMOVE
+		);
+	}
+
+	private Command superAlgaeRemove() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.superAlgaeRemove(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
+			RobotState.SUPER_ALGAE_REMOVE
+		);
+	}
+
+	private Command exitSuperAlgaeRemove() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.exitSuperAlgaeRemove(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
+			RobotState.EXIT_SUPER_ALGAE_REMOVE
 		);
 	}
 
@@ -584,12 +666,13 @@ public class RobotCommander extends GBSubsystem {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
 			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE, PRE_NET, NET -> drive();
-			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
+			case ALGAE_REMOVE, HOLD_ALGAE, EXIT_SUPER_ALGAE_REMOVE -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
 			case SCORE, SCORE_WITHOUT_RELEASE -> closeAfterScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
+			case PRE_SUPER_ALGAE_REMOVE, SUPER_ALGAE_REMOVE -> preSuperAlgaeRemove();
 			case CLIMB, MANUAL_CLIMB, STOP_CLIMB -> stopClimb();
 		};
 	}
