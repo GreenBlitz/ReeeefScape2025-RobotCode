@@ -2,6 +2,7 @@ package frc.robot.hardware.phoenix6.request;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -28,6 +29,17 @@ public class Phoenix6RequestBuilder {
 			setPoint -> velocityVoltage.withVelocity(setPoint.getRotations()),
 			velocityVoltage::withFeedForward,
 			acc -> velocityVoltage.withAcceleration(acc.getRotations()),
+			defaultArbitraryFeedForward
+		);
+	}
+
+	public static Phoenix6VelocityRequest build(VelocityTorqueCurrentFOC velocityTorqueCurrentFOC, double defaultArbitraryFeedForward) {
+		return new Phoenix6VelocityRequest(
+			Rotation2d.fromRotations(velocityTorqueCurrentFOC.Velocity),
+			velocityTorqueCurrentFOC,
+			setPoint -> velocityTorqueCurrentFOC.withVelocity(setPoint.getRotations()),
+			velocityTorqueCurrentFOC::withFeedForward,
+			acc -> velocityTorqueCurrentFOC.withAcceleration(acc.getRotations()),
 			defaultArbitraryFeedForward
 		);
 	}

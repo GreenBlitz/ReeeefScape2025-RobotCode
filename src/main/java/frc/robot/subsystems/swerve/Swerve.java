@@ -65,6 +65,7 @@ public class Swerve extends GBSubsystem {
 	private SwerveState currentState;
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
+	private double lastMagnitudeMetersPerSecond;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
@@ -186,7 +187,14 @@ public class Swerve extends GBSubsystem {
 		Logger.recordOutput(constants.velocityLogPath() + "/Rotation", allianceRelativeSpeeds.omegaRadiansPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/X", allianceRelativeSpeeds.vxMetersPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/Y", allianceRelativeSpeeds.vyMetersPerSecond);
-		Logger.recordOutput(constants.velocityLogPath() + "/Magnitude", SwerveMath.getDriveMagnitude(allianceRelativeSpeeds));
+
+		double driveMagnitudeMetersPerSecond = SwerveMath.getDriveMagnitude(allianceRelativeSpeeds);
+		Logger.recordOutput(constants.velocityLogPath() + "/Magnitude", driveMagnitudeMetersPerSecond);
+		Logger.recordOutput(
+			constants.velocityLogPath() + "/Acceleration",
+			(driveMagnitudeMetersPerSecond - lastMagnitudeMetersPerSecond) / TimeUtil.getLatestCycleTimeSeconds()
+		);
+		lastMagnitudeMetersPerSecond = driveMagnitudeMetersPerSecond;
 
 		Logger.recordOutput(getLogPath() + "/OdometrySamples", getNumberOfOdometrySamples());
 	}
