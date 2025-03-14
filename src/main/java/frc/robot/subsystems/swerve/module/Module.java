@@ -200,6 +200,23 @@ public class Module {
 		setTargetSteerPosition(targetState.angle);
 	}
 
+	private boolean willOptimize(SwerveModuleState state) {
+		final Rotation2d delta = state.angle.minus(getSteerPosition());
+		return Math.abs(delta.getDegrees()) > 90.0;
+	}
+
+	public void setTargetState(SwerveModuleState targetState, double targetForceNm, boolean isClosedLoop) {
+		if (willOptimize(targetState)) {
+			targetState.optimize(getSteerPosition());
+			targetForceNm *= -1;
+		}
+
+		this.targetState = targetState;
+		moduleInputs.controlMode = ModuleUtil.ControlMode.TARGET_STATE.toLog();
+
+		setTargetSteerPosition(this.targetState.angle);
+		setTargetVelocity(this.targetState.speedMetersPerSecond, targetForceNm, isClosedLoop);
+	}
 
 	public void setTargetState(SwerveModuleState targetState, boolean isClosedLoop) {
 		targetState.optimize(getSteerPosition());
@@ -224,12 +241,31 @@ public class Module {
 		}
 	}
 
+	public void setTargetVelocity(double targetVelocityMetersPerSecond, double targetForceNm, boolean isClosedLoop) {
+		if (isClosedLoop) {
+			setTargetClosedLoopVelocity(targetVelocityMetersPerSecond, targetForceNm);
+		} else {
+			setTargetOpenLoopVelocity(targetVelocityMetersPerSecond);
+		}
+	}
+
 	public void setTargetClosedLoopVelocity(double targetVelocityMetersPerSecond) {
 		setClosedLoop(true);
 		Rotation2d targetVelocityPerSecond = Conversions.distanceToAngle(targetVelocityMetersPerSecond, constants.wheelDiameterMeters());
 		Rotation2d coupledVelocityPerSecond = ModuleUtil
 			.coupleDriveAngle(targetVelocityPerSecond, steerSignals.velocity().getLatestValue(), constants.couplingRatio());
 		drive.applyRequest(driveRequests.velocity().withSetPoint(coupledVelocityPerSecond));
+	}
+
+	public void setTargetClosedLoopVelocity(double targetVelocityMetersPerSecond, double targetForceNm) {
+		setClosedLoop(true);
+		Rotation2d targetVelocityPerSecond = Conversions.distanceToAngle(targetVelocityMetersPerSecond, constants.wheelDiameterMeters());
+		Rotation2d coupledVelocityPerSecond = ModuleUtil
+			.coupleDriveAngle(targetVelocityPerSecond, steerSignals.velocity().getLatestValue(), constants.couplingRatio());
+		Rotation2d targetAccelerationRotationsPerSecondSquared = Conversions.distanceToAngle(targetForceNm, constants.wheelDiameterMeters());
+		drive.applyRequest(
+			driveRequests.velocity().withSetPoint(coupledVelocityPerSecond).withAcceleration(targetAccelerationRotationsPerSecondSquared)
+		);
 	}
 
 	public void setTargetOpenLoopVelocity(double targetVelocityMetersPerSecond) {

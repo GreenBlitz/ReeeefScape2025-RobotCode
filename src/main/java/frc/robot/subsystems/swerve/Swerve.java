@@ -320,7 +320,11 @@ public class Swerve extends GBSubsystem {
 
 		previousSetpoint = setpointGenerator.generateSetpoint(previousSetpoint, speeds, TimeUtil.getLatestCycleTimeSeconds());
 
-		setTargetModuleStates(previousSetpoint.moduleStates(), swerveState.getLoopMode().isClosedLoop());
+		setTargetModuleStates(
+			previousSetpoint.moduleStates(),
+			previousSetpoint.feedforwards().accelerationsMPSSq(),
+			swerveState.getLoopMode().isClosedLoop()
+		);
 	}
 
 	private ChassisSpeeds handleHeadingControl(ChassisSpeeds speeds, SwerveState swerveState) {
@@ -351,6 +355,10 @@ public class Swerve extends GBSubsystem {
 	private void setTargetModuleStates(SwerveModuleState[] moduleStates, boolean isClosedLoop) {
 		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, constants.velocityAt12VoltsMetersPerSecond());
 		modules.setTargetStates(moduleStates, isClosedLoop);
+	}
+
+	private void setTargetModuleStates(SwerveModuleState[] moduleStates, double[] accelerations, boolean isClosedLoop) {
+		modules.setTargetStates(moduleStates, accelerations, isClosedLoop);
 	}
 
 
