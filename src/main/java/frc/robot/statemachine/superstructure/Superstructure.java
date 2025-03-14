@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
@@ -331,10 +330,11 @@ public class Superstructure extends GBSubsystem {
 
 	public Command preSuperAlgaeRemove() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
+			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ElevatorState.L4),
-				armStateHandler.setState(ArmState.L4),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+				climbStateHandler.setState(ClimbState.STOP)
 			),
 			SuperstructureState.PRE_SUPER_ALGAE_REMOVE
 		);
@@ -343,18 +343,20 @@ public class Superstructure extends GBSubsystem {
 	public Command superAlgaeRemove() {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				new ParallelDeadlineGroup(
+				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getFastSuperElevatorState()),
 					armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
-					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+					endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE),
+					climbStateHandler.setState(ClimbState.STOP)
 				).until(
 					() -> robot.getElevator()
 						.isBehindPosition(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState().getHeightMeters())
 				),
-				new ParallelDeadlineGroup(
+				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSlowSuperElevatorState()),
 					armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
-					endEffectorStateHandler.setState(EndEffectorState.ALGAE_INTAKE)
+					endEffectorStateHandler.setState(EndEffectorState.ALGAE_INTAKE),
+					climbStateHandler.setState(ClimbState.STOP)
 				)
 			),
 			SuperstructureState.SUPER_ALGAE_REMOVE
@@ -363,10 +365,11 @@ public class Superstructure extends GBSubsystem {
 
 	public Command exitSuperAlgaeRemove() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
+			new ParallelCommandGroup(
 				elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperSlowingElevatorState()),
 				armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getSuperArmState()),
-				endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+				climbStateHandler.setState(ClimbState.STOP)
 			),
 			SuperstructureState.EXIT_SUPER_ALGAE_REMOVE
 		);

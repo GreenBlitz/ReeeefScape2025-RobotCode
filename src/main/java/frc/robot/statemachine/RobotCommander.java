@@ -5,12 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
@@ -113,7 +108,7 @@ public class RobotCommander extends GBSubsystem {
 	private boolean isAtAlgaeRemovePose(double distanceFromReefMeters, Pose2d tolerances, Pose2d deadbands) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
 
-		Pose2d reefRelativeTargetPose = getReefRelativeAlgaeRemovePose(distanceFromReefMeters);
+		Pose2d reefRelativeTargetPose = ScoringHelpers.getReefRelativeAlgaeRemovePose(distanceFromReefMeters);
 
 		Translation2d endeffectorOffsetDifference = ScoringHelpers.END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(reefAngle);
 		Pose2d reefRelativeRobotPose = new Pose2d(
@@ -264,17 +259,6 @@ public class RobotCommander extends GBSubsystem {
 			) && swerve.isAtHeading(ScoringHelpers.getHeadingForNet(), Tolerances.HEADING_FOR_NET, Tolerances.HEADING_FOR_NET_DEADBAND);
 	}
 
-	public Pose2d getReefRelativeAlgaeRemovePose(double distanceFromReefMeters) {
-		Pose2d middleOfReefPose = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide());
-		Translation2d differenceTranslation = new Translation2d(distanceFromReefMeters, middleOfReefPose.getRotation());
-		Translation2d endeffectorOffsetDifference = ScoringHelpers.END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(middleOfReefPose.getRotation());
-
-		return new Pose2d(
-			middleOfReefPose.getTranslation().minus(differenceTranslation).minus(endeffectorOffsetDifference),
-			middleOfReefPose.getRotation()
-		);
-	}
-
 	public Command setState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
@@ -413,9 +397,10 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				preSuperAlgaeRemove().until(this::isReadyForSuperAlgaeRemove),
-				superAlgaeRemove().withTimeout(StateMachineConstants.SUPER_ALGAE_REMOVE_TIME_SECONDS),
-				exitSuperAlgaeRemove().until(() -> !isReadyForSuperAlgaeRemove()),
-				holdAlgae()
+				superAlgaeRemove()
+//						.withTimeout(StateMachineConstants.SUPER_ALGAE_REMOVE_TIME_SECONDS),
+//				exitSuperAlgaeRemove().until(() -> !isReadyForSuperAlgaeRemove()),
+//				holdAlgae()
 			),
 			RobotState.SUPER_ALGAE_REMOVE
 		);
@@ -515,12 +500,25 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private Command preSuperAlgaeRemove() {
-		Pose2d targetPose = getReefRelativeAlgaeRemovePose(StateMachineConstants.ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS);
+		Supplier<Pose2d> targetPose = () -> ScoringHelpers
+			.getReefRelativeAlgaeRemovePose(StateMachineConstants.ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS);
 
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				superstructure.preSuperAlgaeRemove(),
-				swerve.getCommandsBuilder().driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> targetPose)
+			new DeferredCommand(
+				() -> new ParallelCommandGroup(
+					superstructure.preSuperAlgaeRemove(),
+					swerve.getCommandsBuilder().driveToPose(robot.getPoseEstimator()::getEstimatedPose, targetPose)
+				),
+				(Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				))
 			),
 			RobotState.PRE_SUPER_ALGAE_REMOVE
 		);
@@ -528,7 +526,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command superAlgaeRemove() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
+			new ParallelCommandGroup(
 				superstructure.superAlgaeRemove(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 			),
@@ -538,7 +536,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command exitSuperAlgaeRemove() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
+			new ParallelCommandGroup(
 				superstructure.exitSuperAlgaeRemove(),
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 			),
