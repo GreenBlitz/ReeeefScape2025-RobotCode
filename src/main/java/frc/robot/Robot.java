@@ -11,46 +11,50 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.RobotManager;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.AutosBuilder;
-import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
-import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
-import frc.robot.scoringhelpers.ButtonDriverHelper;
-import frc.robot.subsystems.climb.lifter.Lifter;
-import frc.robot.subsystems.climb.lifter.factory.LifterFactory;
-import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
-import frc.robot.subsystems.swerve.module.ModuleConstants;
-import frc.robot.subsystems.swerve.module.ModuleUtil;
-import frc.robot.vision.VisionConstants;
 import frc.robot.hardware.interfaces.IGyro;
+import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
+import frc.robot.hardware.signal.AngleSignal;
+import frc.robot.hardware.signal.DoubleSignal;
 import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
-import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimator;
+import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
+import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.factory.ArmFactory;
+import frc.robot.subsystems.climb.lifter.Lifter;
+import frc.robot.subsystems.climb.lifter.factory.LifterFactory;
+import frc.robot.subsystems.climb.solenoid.Solenoid;
+import frc.robot.subsystems.climb.solenoid.factory.SolenoidFactory;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.factory.ElevatorFactory;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.endeffector.factory.EndEffectorFactory;
-import frc.robot.subsystems.climb.solenoid.Solenoid;
-import frc.robot.subsystems.climb.solenoid.factory.SolenoidFactory;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
-import frc.utils.auto.AutonomousChooser;
-import frc.utils.auto.PathPlannerUtil;
+import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
+import frc.robot.subsystems.swerve.module.ModuleConstants;
+import frc.robot.subsystems.swerve.module.ModuleUtil;
+import frc.robot.vision.VisionConstants;
 import frc.robot.vision.VisionFilters;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
 import frc.utils.TimedValue;
-import frc.utils.brakestate.BrakeStateManager;
+import frc.utils.auto.AutonomousChooser;
+import frc.utils.auto.PathPlannerUtil;
 import frc.utils.battery.BatteryUtil;
+import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.time.TimeUtil;
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -61,23 +65,23 @@ import java.util.function.Supplier;
  * (including subsystems, commands, and trigger mappings) should be declared here.
  */
 public class Robot {
-
+	
 	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
-
+	
 	private final IPoseEstimator poseEstimator;
 	private final RobotHeadingEstimator headingEstimator;
 	private final MultiAprilTagVisionSources multiAprilTagVisionSources;
-
+	
 	private final Swerve swerve;
 	private final Elevator elevator;
 	private final Arm arm;
 	private final EndEffector endEffector;
 	private final Solenoid solenoid;
 	private final Lifter lifter;
-
+	
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
-
+	
 	private AutonomousChooser preBuiltAutosChooser;
 	private AutonomousChooser firstObjectScoringLocationChooser;
 	private AutonomousChooser secondObjectIntakingLocationChooser;
@@ -86,108 +90,108 @@ public class Robot {
 	private AutonomousChooser thirdObjectScoringLocationChooser;
 	private AutonomousChooser fourthObjectIntakingLocationChooser;
 	private AutonomousChooser fourthObjectScoringLocationChooser;
-
+	
 	public Robot() {
 		BatteryUtil.scheduleLimiter();
-
+		
 		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve");
 		this.swerve = new Swerve(
-			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
-			ModulesFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
-			gyro,
-			GyroFactory.createSignals(gyro)
+				SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
+				ModulesFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
+				gyro,
+				GyroFactory.createSignals(gyro)
 		);
-
+		
 		this.poseEstimator = new WPILibPoseEstimatorWrapper(
-			WPILibPoseEstimatorConstants.WPILIB_POSEESTIMATOR_LOGPATH,
-			swerve.getKinematics(),
-			swerve.getModules().getWheelPositions(0),
-			swerve.getGyroAbsoluteYaw()
+				WPILibPoseEstimatorConstants.WPILIB_POSEESTIMATOR_LOGPATH,
+				swerve.getKinematics(),
+				swerve.getModules().getWheelPositions(0),
+				swerve.getGyroAbsoluteYaw()
 		);
-
+		
 		this.headingEstimator = new RobotHeadingEstimator(
-			RobotHeadingEstimatorConstants.DEFAULT_HEADING_ESTIMATOR_LOGPATH,
-			new Rotation2d(),
-			new Rotation2d(),
-			RobotHeadingEstimatorConstants.DEFAULT_GYRO_STANDARD_DEVIATION
+				RobotHeadingEstimatorConstants.DEFAULT_HEADING_ESTIMATOR_LOGPATH,
+				new Rotation2d(),
+				new Rotation2d(),
+				RobotHeadingEstimatorConstants.DEFAULT_GYRO_STANDARD_DEVIATION
 		);
-
+		
 		this.multiAprilTagVisionSources = new MultiAprilTagVisionSources(
-			VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
-			headingEstimator::getEstimatedHeading,
-			true,
-			VisionConstants.VISION_SOURCES
+				VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
+				headingEstimator::getEstimatedHeading,
+				true,
+				VisionConstants.VISION_SOURCES
 		);
-
+		
 		multiAprilTagVisionSources.applyFunctionOnAllFilters(
-			filters -> filters.and(
-				data -> VisionFilters
-					.isYawAtAngleForMegaTag2(
-						() -> headingEstimator.getEstimatedHeadingAtTimestamp(data.getTimestamp()),
-						VisionConstants.YAW_FILTER_TOLERANCE
-					)
-					.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
-					.apply(data)
-			)
+				filters -> filters.and(
+						data -> VisionFilters
+								.isYawAtAngleForMegaTag2(
+										() -> headingEstimator.getEstimatedHeadingAtTimestamp(data.getTimestamp()),
+										VisionConstants.YAW_FILTER_TOLERANCE
+								)
+								.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
+								.apply(data)
+				)
 		);
-
+		
 		swerve.setHeadingSupplier(
-			ROBOT_TYPE.isSimulation() ? () -> poseEstimator.getEstimatedPose().getRotation() : headingEstimator::getEstimatedHeading
+				ROBOT_TYPE.isSimulation() ? () -> poseEstimator.getEstimatedPose().getRotation() : headingEstimator::getEstimatedHeading
 		);
-
+		
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
 		swerve.getStateHandler().setBranchSupplier(() -> Optional.of(ScoringHelpers.getTargetBranch()));
 		swerve.getStateHandler().setReefSideSupplier(() -> Optional.of(ScoringHelpers.getTargetReefSide()));
 		swerve.getStateHandler().setCoralStationSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStation(this)));
 		swerve.getStateHandler().setCoralStationSlotSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStationSlot(this)));
 		swerve.getStateHandler().setCageSupplier(() -> Optional.of(ScoringHelpers.getTargetCage(this)));
-
+		
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
 		BrakeStateManager.add(() -> elevator.setBrake(true), () -> elevator.setBrake(false));
-
+		
 		this.arm = ArmFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Arm");
 		BrakeStateManager.add(() -> arm.setBrake(true), () -> arm.setBrake(false));
-
+		
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
 		BrakeStateManager.add(() -> endEffector.setBrake(true), () -> endEffector.setBrake(false));
-
+		
 		this.solenoid = SolenoidFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Solenoid");
-
+		
 		this.lifter = LifterFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Lifter");
 		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
-
+		
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
-
+		
 		configureAuto();
 	}
-
+	
 	private void configureAuto() {
 		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure().scoreWithRelease().asProxy();
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
-			.closeL4AfterScore()
-			.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
-			.asProxy();
-
+				.closeL4AfterScore()
+				.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
+				.asProxy();
+		
 		swerve.configPathPlanner(
-			poseEstimator::getEstimatedPose,
-			poseEstimator::resetPose,
-			PathPlannerUtil.getGuiRobotConfig().orElse(getRobotConfig())
+				poseEstimator::getEstimatedPose,
+				poseEstimator::resetPose,
+				PathPlannerUtil.getGuiRobotConfig().orElse(getRobotConfig())
 		);
-
+		
 		new EventTrigger("PULL_OUT_ARM")
-			.onTrue(robotCommander.getSuperstructure().closeClimb().andThen(robotCommander.getSuperstructure().armPreScore()));
+				.onTrue(robotCommander.getSuperstructure().closeClimb().andThen(robotCommander.getSuperstructure().armPreScore()));
 		new EventTrigger("PRE_SCORE").onTrue(
-			robotCommander.getSuperstructure()
-				.preScore()
-				.until(() -> robotCommander.getSuperstructure().isPreScoreReady())
-				.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
+				robotCommander.getSuperstructure()
+						.preScore()
+						.until(() -> robotCommander.getSuperstructure().isPreScoreReady())
+						.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
 		);
 		new EventTrigger("ARM_PRE_SCORE").onTrue(robotCommander.getSuperstructure().armPreScore());
-
+		
 		this.preBuiltAutosChooser = new AutonomousChooser(
-			"PreBuiltAutos",
-			AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+				"PreBuiltAutos",
+				AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 		);
 //		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
 //		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
@@ -215,36 +219,103 @@ public class Robot {
 //			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
 //		);
 	}
-
+	
+	@AutoLog
+	static class Inputsss {
+		Doubles doubles;
+	}
+	
+	
+	record Doubles(double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7, double d8, double d9, double d10, double d11, double d12, double d13, double d14, double d15, double d16, double d17, double d18, double d19, double d20, double d21, double d22, double d23, double d24, double d25, double d26, double d27, double d28, double d29, double d30, double d31, double d32, double d33, double d34, double d35, double d36, double d37, double d38, double d39, double d40, double d41, double d42, double d43, double d44, double d45, double d46, double d47, double d48) {
+	}
+	
 	public void periodic() {
 		BaseStatusSignal.refreshAll(Phoenix6SignalBuilder.rioSignals.toArray(new StatusSignal[0]));
 		BaseStatusSignal.refreshAll(Phoenix6SignalBuilder.chassisSignals.toArray(new StatusSignal[0]));
 		BaseStatusSignal.refreshAll(Phoenix6SignalBuilder.superstructureSignals.toArray(new StatusSignal[0]));
+		
+		Doubles doublesss = new Doubles(
+				DoubleSignal.doubleSignals.get(0).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(1).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(2).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(3).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(4).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(5).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(6).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(7).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(8).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(9).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(10).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(11).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(12).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(13).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(14).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(15).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(16).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(17).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(18).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(19).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(20).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(21).getNewValue().value(),
+				DoubleSignal.doubleSignals.get(22).getNewValue().value(),
+				AngleSignal.angleSignals.get(0).getNewValue().value(),
+				AngleSignal.angleSignals.get(1).getNewValue().value(),
+				AngleSignal.angleSignals.get(2).getNewValue().value(),
+				AngleSignal.angleSignals.get(3).getNewValue().value(),
+				AngleSignal.angleSignals.get(4).getNewValue().value(),
+				AngleSignal.angleSignals.get(5).getNewValue().value(),
+				AngleSignal.angleSignals.get(6).getNewValue().value(),
+				AngleSignal.angleSignals.get(7).getNewValue().value(),
+				AngleSignal.angleSignals.get(8).getNewValue().value(),
+				AngleSignal.angleSignals.get(9).getNewValue().value(),
+				AngleSignal.angleSignals.get(10).getNewValue().value(),
+				AngleSignal.angleSignals.get(11).getNewValue().value(),
+				AngleSignal.angleSignals.get(12).getNewValue().value(),
+				AngleSignal.angleSignals.get(13).getNewValue().value(),
+				AngleSignal.angleSignals.get(14).getNewValue().value(),
+				AngleSignal.angleSignals.get(15).getNewValue().value(),
+				AngleSignal.angleSignals.get(16).getNewValue().value(),
+				AngleSignal.angleSignals.get(17).getNewValue().value(),
+				AngleSignal.angleSignals.get(18).getNewValue().value(),
+				AngleSignal.angleSignals.get(19).getNewValue().value(),
+				AngleSignal.angleSignals.get(20).getNewValue().value(),
+				AngleSignal.angleSignals.get(21).getNewValue().value(),
+				AngleSignal.angleSignals.get(22).getNewValue().value(),
+				AngleSignal.angleSignals.get(23).getNewValue().value(),
+				AngleSignal.angleSignals.get(24).getNewValue().value(),
+				AngleSignal.angleSignals.get(25).getNewValue().value()
+		);
+		
+		InputsssAutoLogged inputsssAutoLogged = new InputsssAutoLogged();
+		inputsssAutoLogged.doubles = doublesss;
+		Logger.processInputs("Test/cool", inputsssAutoLogged);
+		
+		
 		swerve.update();
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
-
+		
 		poseEstimator.updateOdometry(swerve.getAllOdometryData());
 		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
 		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getFilteredRobotHeading()) {
 			headingEstimator.updateVisionIfGyroOffsetIsNotCalibrated(
-				headingData,
-				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
-				RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
+					headingData,
+					RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+					RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
 			);
 		}
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
 //		 multiAprilTagVisionSources.log();
 		headingEstimator.log();
-
+		
 		BatteryUtil.logStatus();
 //		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
 		ScoringHelpers.log("Scoring");
-		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
-
+//		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
+		
 		CommandScheduler.getInstance().run(); // Should be last
 	}
-
+	
 	public Command getAuto() {
 		if (preBuiltAutosChooser.isDefaultOptionChosen()) {
 //			if (firstObjectScoringLocationChooser.isDefaultOptionChosen()) {
@@ -270,54 +341,54 @@ public class Robot {
 //				.asProxyAuto()
 //		);
 //	}
-
+	
 	public IPoseEstimator getPoseEstimator() {
 		return poseEstimator;
 	}
-
+	
 	public Swerve getSwerve() {
 		return swerve;
 	}
-
+	
 	public Elevator getElevator() {
 		return elevator;
 	}
-
+	
 	public Arm getArm() {
 		return arm;
 	}
-
+	
 	public EndEffector getEndEffector() {
 		return endEffector;
 	}
-
+	
 	public Solenoid getSolenoid() {
 		return solenoid;
 	}
-
+	
 	public Lifter getLifter() {
 		return lifter;
 	}
-
+	
 	public RobotCommander getRobotCommander() {
 		return robotCommander;
 	}
-
+	
 	public RobotConfig getRobotConfig() {
 		return new RobotConfig(
-			RobotConstants.MASS_KILOGRAM,
-			RobotConstants.MOMENT_OF_INERTIA_KILOGRAM_METERS_SQUARED,
-			new ModuleConfig(
-				swerve.getModules().getModule(ModuleUtil.ModulePosition.FRONT_LEFT).getModuleConstants().wheelDiameterMeters() / 2,
-				swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
-				ModuleConstants.COEFFICIENT_OF_FRICTION,
-				DCMotor.getKrakenX60Foc(ModuleConstants.NUMBER_OF_DRIVE_MOTORS),
-				KrakenX60DriveBuilder.GEAR_RATIO,
-				KrakenX60DriveBuilder.SLIP_CURRENT,
-				ModuleConstants.NUMBER_OF_DRIVE_MOTORS
-			),
-			swerve.getModules().getModulePositionsFromCenterMeters()
+				RobotConstants.MASS_KILOGRAM,
+				RobotConstants.MOMENT_OF_INERTIA_KILOGRAM_METERS_SQUARED,
+				new ModuleConfig(
+						swerve.getModules().getModule(ModuleUtil.ModulePosition.FRONT_LEFT).getModuleConstants().wheelDiameterMeters() / 2,
+						swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
+						ModuleConstants.COEFFICIENT_OF_FRICTION,
+						DCMotor.getKrakenX60Foc(ModuleConstants.NUMBER_OF_DRIVE_MOTORS),
+						KrakenX60DriveBuilder.GEAR_RATIO,
+						KrakenX60DriveBuilder.SLIP_CURRENT,
+						ModuleConstants.NUMBER_OF_DRIVE_MOTORS
+				),
+				swerve.getModules().getModulePositionsFromCenterMeters()
 		);
 	}
-
+	
 }

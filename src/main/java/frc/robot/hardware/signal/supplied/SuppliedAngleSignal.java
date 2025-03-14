@@ -16,7 +16,7 @@ public class SuppliedAngleSignal extends AngleSignal {
 	}
 
 	@Override
-	protected TimedValue<Double> getNewValue() {
+	public TimedValue<Double> getNewValue() {
 		return new TimedValue<>(angleSupplier.get(), TimeUtil.getCurrentTimeSeconds());
 	}
 

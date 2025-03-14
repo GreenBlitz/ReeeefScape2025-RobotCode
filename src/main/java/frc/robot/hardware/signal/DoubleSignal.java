@@ -5,8 +5,12 @@ import frc.robot.hardware.interfaces.InputSignal;
 import frc.utils.TimedValue;
 import org.littletonrobotics.junction.LogTable;
 
+import java.util.ArrayList;
+
 public abstract class DoubleSignal implements InputSignal<Double> {
 
+	public static ArrayList<DoubleSignal> doubleSignals = new ArrayList<>();
+	
 	private final String name;
 	private double value;
 	private double timestamp;
@@ -14,6 +18,7 @@ public abstract class DoubleSignal implements InputSignal<Double> {
 	public DoubleSignal(String name) {
 		this.name = name;
 		this.value = 0;
+		doubleSignals.add(this);
 	}
 
 	@Override
@@ -66,7 +71,7 @@ public abstract class DoubleSignal implements InputSignal<Double> {
 		TimedValue<Double> timedValue = getNewValue();
 		value = timedValue.value();
 		timestamp = timedValue.timestamp();
-//		table.put(name, value);
+		table.put(name, value);
 	}
 
 	@Override
@@ -74,6 +79,6 @@ public abstract class DoubleSignal implements InputSignal<Double> {
 		value = table.get(name, 0);
 	}
 
-	protected abstract TimedValue<Double> getNewValue();
+	public abstract TimedValue<Double> getNewValue();
 
 }

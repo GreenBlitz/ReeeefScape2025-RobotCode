@@ -18,7 +18,7 @@ class SimulationEncoderBuilder {
 		return new EncoderSignals(new AngleSignal("yaw", AngleUnit.DEGREES) {
 
 			@Override
-			protected TimedValue<Double> getNewValue() {
+			public TimedValue<Double> getNewValue() {
 				return new TimedValue<>(0.0, TimeUtil.getCurrentTimeSeconds());
 			}
 

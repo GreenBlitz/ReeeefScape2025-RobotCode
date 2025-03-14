@@ -4,6 +4,8 @@
 
 package frc;
 
+import edu.wpi.first.wpilibj.IterativeRobotBase;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,6 +22,8 @@ import frc.utils.logger.LoggerFactory;
 import org.littletonrobotics.junction.LoggedRobot;
 import frc.utils.brakestate.BrakeStateManager;
 import org.littletonrobotics.junction.Logger;
+
+import java.lang.reflect.Field;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as described in the TimedRobot
@@ -41,7 +45,15 @@ public class RobotManager extends LoggedRobot {
 
 		createAutoReadyForConstructionChooser();
 		JoysticksBindings.configureBindings(robot);
-
+		try {
+			Field watchDogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
+			watchDogField.setAccessible(true);
+			Watchdog watchdog = (Watchdog) watchDogField.get(this);
+			watchdog.setTimeout(0.2);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		
 		initializeLEDTriggers();
 	}
 
@@ -110,10 +122,18 @@ public class RobotManager extends LoggedRobot {
 		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
 	}
 
+	boolean flag = true;
+	
 	private void updateTimeRelatedData() {
 		roborioCycles++;
 		Logger.recordOutput("RoborioCycles", roborioCycles);
 		TimeUtil.updateCycleTime(roborioCycles);
+		
+		if (flag && TimeUtil.getCurrentTimeSeconds() > 35) {
+			roborioCycles = 0;
+			flag = false;
+			TimeUtil.time = TimeUtil.getCurrentTimeSeconds();
+		}
 	}
 
 }

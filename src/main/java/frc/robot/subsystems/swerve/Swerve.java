@@ -130,7 +130,7 @@ public class Swerve extends GBSubsystem {
 
 
 	public void update() {
-		gyro.updateInputs(gyroSignals.yawSignal());
+		//gyro.updateInputs(gyroSignals.yawSignal());
 		modules.updateInputs();
 
 		currentState.log(constants.stateLogPath());

@@ -16,7 +16,7 @@ public class Phoenix6AngleSignal extends AngleSignal implements SignalGetter {
 	}
 
 	@Override
-	protected TimedValue<Double> getNewValue() {
+	public TimedValue<Double> getNewValue() {
 		return new TimedValue<>(statusSignal.getValueAsDouble(), TimeUtil.getCurrentTimeSeconds() - statusSignal.getTimestamp().getLatency());
 	}
 

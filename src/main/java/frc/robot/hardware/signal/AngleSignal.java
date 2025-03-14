@@ -7,8 +7,12 @@ import frc.utils.math.AngleUnit;
 import frc.utils.TimedValue;
 import org.littletonrobotics.junction.LogTable;
 
+import java.util.ArrayList;
+
 public abstract class AngleSignal implements InputSignal<Rotation2d> {
 
+	public static ArrayList<AngleSignal> angleSignals = new ArrayList<>();
+	
 	private final String name;
 	private final AngleUnit angleUnit;
 	private Rotation2d value;
@@ -18,6 +22,7 @@ public abstract class AngleSignal implements InputSignal<Rotation2d> {
 		this.name = name;
 		this.angleUnit = angleUnit;
 		this.value = new Rotation2d();
+		angleSignals.add(this);
 	}
 
 	@Override
@@ -70,7 +75,7 @@ public abstract class AngleSignal implements InputSignal<Rotation2d> {
 		TimedValue<Double> timedValue = getNewValue();
 		value = angleUnit.toRotation2d(timedValue.value());
 		timestamp = timedValue.timestamp();
-//		table.put(name, value);
+		table.put(name, value);
 	}
 
 	@Override
@@ -78,6 +83,6 @@ public abstract class AngleSignal implements InputSignal<Rotation2d> {
 		value = table.get(name, new Rotation2d());
 	}
 
-	protected abstract TimedValue<Double> getNewValue();
+	public abstract TimedValue<Double> getNewValue();
 
 }
