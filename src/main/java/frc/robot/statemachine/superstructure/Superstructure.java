@@ -180,7 +180,7 @@ public class Superstructure extends GBSubsystem {
 					new ParallelCommandGroup(
 						endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 						armStateHandler.setState(ArmState.INTAKE)
-					),
+					).until(() -> robot.getArm().isAtPosition(ArmState.INTAKE.getPosition(), Tolerances.ARM_POSITION)),
 					new ParallelCommandGroup(
 						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
 						armStateHandler.setState(ArmState.UP_SLOWLY_FROM_INTAKE_SIDE)
