@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
@@ -230,9 +228,7 @@ public class Robot {
 	}
 	
 	public void periodic() {
-		BaseStatusSignal.refreshAll(Phoenix6SignalBuilder.rioSignals.toArray(new StatusSignal[0]));
-		BaseStatusSignal.refreshAll(Phoenix6SignalBuilder.chassisSignals.toArray(new StatusSignal[0]));
-		BaseStatusSignal.refreshAll(Phoenix6SignalBuilder.superstructureSignals.toArray(new StatusSignal[0]));
+		Phoenix6SignalBuilder.refreshAll();
 		
 		Doubles doublesss = new Doubles(
 				DoubleSignal.doubleSignals.get(0).getNewValue().value(),
@@ -289,8 +285,7 @@ public class Robot {
 		InputsssAutoLogged inputsssAutoLogged = new InputsssAutoLogged();
 		inputsssAutoLogged.doubles = doublesss;
 		Logger.processInputs("Test/cool", inputsssAutoLogged);
-		
-		
+
 		swerve.update();
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
 		
