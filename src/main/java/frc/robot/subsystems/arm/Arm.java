@@ -77,8 +77,8 @@ public class Arm extends GBSubsystem {
 	}
 
 	private void updateInputs() {
-		motor.updateInputs(motorPositionSignal, motorVoltageSignal);
-		encoder.updateInputs(encoderPositionSignal);
+		//motor.updateInputs(motorPositionSignal, motorVoltageSignal);
+		//encoder.updateInputs(encoderPositionSignal);
 	}
 
 	private void log() {

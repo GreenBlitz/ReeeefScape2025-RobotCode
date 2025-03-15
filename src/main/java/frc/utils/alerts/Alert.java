@@ -46,12 +46,12 @@ public class Alert {
 	public void report() {
 		timesOccurredSinceLastReportToDriverStation++;
 		if (!DriverStationUtil.isMatch()) {
-			switch (type) {
-				case ERROR:
-					if (shouldReportToDriverStation()) {
-						reportToDriverStation();
-					}
-			}
+//			switch (type) {
+//				case ERROR:
+//					if (shouldReportToDriverStation()) {
+//						reportToDriverStation();
+//					}
+//			}
 		}
 		Logger.recordOutput(logPath, TimeUtil.getCurrentTimeSeconds());
 	}

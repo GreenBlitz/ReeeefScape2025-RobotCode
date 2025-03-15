@@ -59,7 +59,7 @@ public class Lifter extends GBSubsystem {
 	}
 
 	private void updateInputs() {
-		motor.updateInputs(positionSignal);
+		//motor.updateInputs(positionSignal);
 	}
 
 	public void applyCalibrationBindings(SmartJoystick joystick) {

@@ -28,7 +28,7 @@ public class Solenoid extends GBSubsystem {
 
 	public void updateInputs() {
 		motor.updateSimulation();
-		motor.updateInputs(voltageSignal, powerSignal);
+		//motor.updateInputs(voltageSignal, powerSignal);
 	}
 
 	@Override
