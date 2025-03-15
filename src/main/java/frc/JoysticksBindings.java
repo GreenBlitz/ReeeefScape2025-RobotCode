@@ -166,7 +166,7 @@ public class JoysticksBindings {
 		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.L1_WAY2));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.L1_WAY3));
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.L1_WAY4));
-		
+
 		usedJoystick.R1.onTrue(robot.getRobotCommander().setState(RobotState.DRIVE));
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
 	}
