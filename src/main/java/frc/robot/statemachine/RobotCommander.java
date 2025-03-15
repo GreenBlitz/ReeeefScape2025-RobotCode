@@ -485,9 +485,8 @@ public class RobotCommander extends GBSubsystem {
 //					superstructure.idle(),
 //					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 //				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(
-					superstructure.l1Way1(),
-					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				new ParallelCommandGroup(superstructure.l1Way1()
+//						,swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 				)
 			),
 			RobotState.L1_WAY1
@@ -501,9 +500,8 @@ public class RobotCommander extends GBSubsystem {
 //					superstructure.idle(),
 //					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 //				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(
-					superstructure.l1Way2(),
-					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				new ParallelCommandGroup(superstructure.l1Way2()
+//						,					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 				)
 			),
 			RobotState.L1_WAY2
@@ -517,9 +515,8 @@ public class RobotCommander extends GBSubsystem {
 //					superstructure.idle(),
 //					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 //				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(
-					superstructure.l1Way3(),
-					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				new ParallelCommandGroup(superstructure.l1Way3()
+//						, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 				)
 			),
 			RobotState.L1_WAY3
@@ -533,9 +530,8 @@ public class RobotCommander extends GBSubsystem {
 //					superstructure.idle(),
 //					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 //				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(
-					superstructure.l1Way4(),
-					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				new ParallelCommandGroup(superstructure.l1Way4()
+//						, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 				)
 			),
 			RobotState.L1_WAY4

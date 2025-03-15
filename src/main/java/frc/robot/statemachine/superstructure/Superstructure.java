@@ -155,8 +155,8 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					new ParallelCommandGroup(endEffectorStateHandler.setState(EndEffectorState.DEFAULT), armStateHandler.setState(ArmState.L3))
-						.until(() -> robot.getArm().isAtPosition(ArmState.L3.getPosition(), Tolerances.ARM_POSITION)),
+					new ParallelCommandGroup(endEffectorStateHandler.setState(EndEffectorState.DEFAULT), armStateHandler.setState(ArmState.L2))
+						.until(() -> robot.getArm().isAtPosition(ArmState.L2.getPosition(), Tolerances.ARM_POSITION)),
 					new ParallelCommandGroup(
 						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
 						armStateHandler.setState(ArmState.UP_SLOWLY_FROM_SCORING_SIDE)
@@ -166,7 +166,7 @@ public class Superstructure extends GBSubsystem {
 						armStateHandler.setState(ArmState.STAY_IN_PLACE)
 					)
 				),
-				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				elevatorStateHandler.setState(ElevatorState.PRE_L1),
 				climbStateHandler.setState(ClimbState.STOP)
 			),
 			SuperstructureState.L1_WAY1
@@ -177,10 +177,8 @@ public class Superstructure extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
-					new ParallelCommandGroup(
-						endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-						armStateHandler.setState(ArmState.INTAKE)
-					).until(() -> robot.getArm().isAtPosition(ArmState.INTAKE.getPosition(), Tolerances.ARM_POSITION)),
+					new ParallelCommandGroup(endEffectorStateHandler.setState(EndEffectorState.DEFAULT), armStateHandler.setState(ArmState.L1))
+						.until(() -> robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)),
 					new ParallelCommandGroup(
 						endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
 						armStateHandler.setState(ArmState.UP_SLOWLY_FROM_INTAKE_SIDE)
@@ -190,7 +188,7 @@ public class Superstructure extends GBSubsystem {
 						armStateHandler.setState(ArmState.STAY_IN_PLACE)
 					)
 				),
-				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				elevatorStateHandler.setState(ElevatorState.PRE_L1),
 				climbStateHandler.setState(ClimbState.STOP)
 			),
 			SuperstructureState.L1_WAY2
@@ -209,9 +207,9 @@ public class Superstructure extends GBSubsystem {
 					),
 					armStateHandler.setState(ArmState.START_GAME)
 						.until(() -> robot.getArm().isAtPosition(ArmState.START_GAME.getPosition(), Tolerances.ARM_POSITION)),
-					elevatorStateHandler.setState(ElevatorState.CLOSED)
+					elevatorStateHandler.setState(ElevatorState.PRE_L1)
 						.until(
-							() -> robot.getElevator().isAtPosition(ElevatorState.CLOSED.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+							() -> robot.getElevator().isAtPosition(ElevatorState.PRE_L1.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
 						),
 					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn()),
 					endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE).withTimeout(0.5),
@@ -235,7 +233,7 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn()),
 					endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE)
 				),
-				elevatorStateHandler.setState(ElevatorState.CLOSED),
+				elevatorStateHandler.setState(ElevatorState.PRE_L1),
 				climbStateHandler.setState(ClimbState.STOP)
 			),
 			SuperstructureState.L1_WAY4
