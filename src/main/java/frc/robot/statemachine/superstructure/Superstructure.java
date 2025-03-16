@@ -151,6 +151,43 @@ public class Superstructure extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/ClimbState", climbStateHandler.getCurrentState());
 	}
 
+	public Command preL1() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						armStateHandler.setState(ArmState.CLOSED),
+						elevatorStateHandler.setState(ElevatorState.OPENING_HEIGHT)
+					).until(
+						() -> robot.getElevator().isAtPosition(ElevatorState.OPENING_HEIGHT.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+					),
+					armStateHandler.setState(ArmState.L1)
+						.until(() -> robot.getArm().isAtPosition(ArmState.L1.getPosition(), Tolerances.ARM_POSITION)),
+					elevatorStateHandler.setState(ElevatorState.L1)
+				),
+				climbStateHandler.setState(ClimbState.STOP)
+			),
+			SuperstructureState.PRE_SCORE
+		);
+	}
+
+	public Command scoreL1() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
+					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn()),
+					endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE).withTimeout(0.5),
+					elevatorOpening(),
+					armStateHandler.setState(ArmState.CLOSED)
+						.until(() -> robot.getArm().isAtPosition(ArmState.CLOSED.getPosition(), Tolerances.ARM_POSITION)),
+					elevatorStateHandler.setState(ElevatorState.CLOSED)
+				),
+				climbStateHandler.setState(ClimbState.STOP)
+			),
+			SuperstructureState.SCORE
+		);
+	}
+
 	public Command idle() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
@@ -501,7 +538,7 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE, NET -> idle();
+			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, CLOSE_L4, PROCESSOR_OUTTAKE, NET, SCORE_L1 -> idle();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_CLIMB -> preClimb();

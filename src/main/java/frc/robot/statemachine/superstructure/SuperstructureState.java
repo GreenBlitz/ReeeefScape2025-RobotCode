@@ -10,6 +10,7 @@ public enum SuperstructureState {
 	PRE_SCORE,
 	SCORE_WITHOUT_RELEASE,
 	SCORE,
+	SCORE_L1,
 	CLOSE_L4,
 	ALGAE_REMOVE,
 	ALGAE_OUTTAKE,
