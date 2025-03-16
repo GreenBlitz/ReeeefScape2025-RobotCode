@@ -50,15 +50,17 @@ public class VisionConstants {
 
 	public static final int NO_APRILTAG_ID = -1;
 
-	public static Rotation2d ROLL_FILTER_TOLERANCE = Rotation2d.fromDegrees(3);
+	public static Rotation2d ROLL_FILTER_TOLERANCE = Rotation2d.fromDegrees(5);
 
-	public static Rotation2d PITCH_FILTER_TOLERANCE = Rotation2d.fromDegrees(3);
+	public static Rotation2d PITCH_FILTER_TOLERANCE = Rotation2d.fromDegrees(5);
 
-	public static Rotation2d YAW_FILTER_TOLERANCE = Rotation2d.fromDegrees(1);
+	public static Rotation2d YAW_FILTER_TOLERANCE = Rotation2d.fromDegrees(2);
 
 	public static double ROBOT_POSITION_IN_FIELD_TOLERANCE_METERS = 0.1;
 
-	public static double ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS = 0.3;
+	public static double ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS = 0.5;
+
+	public static int[] TAGS_TO_IGNORE_FOR_LIMELIGHT_FEEDER = {4, 5, 14, 15};
 
 	public static double DEFAULT_RATIO_BETWEEN_IMU_AND_SOURCE_LIMELIGHT_4 = 0.001;
 
@@ -79,13 +81,18 @@ public class VisionConstants {
 		.and(VisionFilters.isOnGround(ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS));
 
 	public static final Pose3d LIMELIGHT_LEFT_CAMERA_ROBOT_POSE = new Pose3d(
-		new Translation3d(0.22989, -0.11998, 0.48927),
-		AngleUnit.DEGREES.toRotation3d(-8.6, -27.07, -21.72)
+		new Translation3d(0.19989, -0.11998, 0.50927),
+		AngleUnit.DEGREES.toRotation3d(-8.9, -24.37, -22.92)
 	);
 
 	public static final Pose3d LIMELIGHT_RIGHT_CAMERA_ROBOT_POSE = new Pose3d(
-		new Translation3d(0.215, 0.11, 0.495),
-		AngleUnit.DEGREES.toRotation3d(11.21, -24.65, 23.76)
+		new Translation3d(0.185, 0.13, 0.505),
+		AngleUnit.DEGREES.toRotation3d(8.81, -25.55, 19.96)
+	);
+
+	public static final Pose3d LIMELIGHT_FEEDER_CAMERA_ROBOT_POSE = new Pose3d(
+		new Translation3d(-0.07575, 0.27, 0.93),
+		AngleUnit.DEGREES.toRotation3d(-2.8, 52.64, -176.7)
 	);
 
 	public static final VisionSource<AprilTagVisionData> LIMELIGHT_LEFT = new DynamicSwitchingLimelight(
@@ -106,6 +113,15 @@ public class VisionConstants {
 		LIMELIGHT_RIGHT_CAMERA_ROBOT_POSE
 	);
 
-	public static final List<VisionSource<AprilTagVisionData>> VISION_SOURCES = List.of(LIMELIGHT_LEFT, LIMELIGHT_RIGHT);
+	public static final VisionSource<AprilTagVisionData> LIMELIGHT_FEEDER = new DynamicSwitchingLimelight(
+		true,
+		"limelight-feeder",
+		VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
+		"limelight3-feeder",
+		VisionConstants.DEFAULT_VISION_FILTER.and(VisionFilters.isNotSeeingTags(TAGS_TO_IGNORE_FOR_LIMELIGHT_FEEDER)),
+		LIMELIGHT_FEEDER_CAMERA_ROBOT_POSE
+	);
+
+	public static final List<VisionSource<AprilTagVisionData>> VISION_SOURCES = List.of(LIMELIGHT_LEFT, LIMELIGHT_RIGHT, LIMELIGHT_FEEDER);
 
 }

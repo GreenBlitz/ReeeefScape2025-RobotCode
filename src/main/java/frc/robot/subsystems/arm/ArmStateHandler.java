@@ -18,10 +18,19 @@ public class ArmStateHandler {
 	}
 
 	public Command setState(ArmState state) {
-		return new ParallelCommandGroup(
-			new InstantCommand(() -> currentState = state),
-			arm.getCommandsBuilder().moveToPosition(state.getPosition())
-		);
+		if (state == ArmState.STAY_IN_PLACE) {
+			return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), arm.getCommandsBuilder().stayInPlace());
+		} else {
+			return new ParallelCommandGroup(
+				new InstantCommand(() -> currentState = state),
+				arm.getCommandsBuilder()
+					.moveToPosition(
+						state.getPosition(),
+						state.getMaxVelocityRotation2dPerSecond(),
+						state.getMaxAccelerationRotation2dPerSecondSquared()
+					)
+			);
+		}
 	}
 
 }

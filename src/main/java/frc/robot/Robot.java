@@ -6,14 +6,15 @@ package frc.robot;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.RobotManager;
+import frc.robot.autonomous.AutonomousConstants;
+import frc.robot.autonomous.AutosBuilder;
+import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
-import frc.robot.scoringhelpers.ButtonDriverHelper;
 import frc.robot.subsystems.climb.lifter.Lifter;
 import frc.robot.subsystems.climb.lifter.factory.LifterFactory;
 import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
@@ -21,7 +22,6 @@ import frc.robot.subsystems.swerve.module.ModuleConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtil;
 import frc.robot.vision.VisionConstants;
 import frc.robot.hardware.interfaces.IGyro;
-import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
@@ -40,17 +40,17 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
-import frc.robot.vision.VisionFilters;
-import frc.robot.vision.data.VisionData;
-import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
-import frc.utils.Filter;
-import frc.utils.TimedValue;
+import frc.utils.auto.AutonomousChooser;
 import frc.utils.auto.PathPlannerUtil;
+import frc.robot.vision.VisionFilters;
+import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
+import frc.utils.TimedValue;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.time.TimeUtil;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -74,6 +74,15 @@ public class Robot {
 
 	private final SimulationManager simulationManager;
 	private final RobotCommander robotCommander;
+
+	private AutonomousChooser preBuiltAutosChooser;
+	private AutonomousChooser firstObjectScoringLocationChooser;
+	private AutonomousChooser secondObjectIntakingLocationChooser;
+	private AutonomousChooser secondObjectScoringLocationChooser;
+	private AutonomousChooser thirdObjectIntakingLocationChooser;
+	private AutonomousChooser thirdObjectScoringLocationChooser;
+	private AutonomousChooser fourthObjectIntakingLocationChooser;
+	private AutonomousChooser fourthObjectScoringLocationChooser;
 
 	public Robot() {
 		BatteryUtil.scheduleLimiter();
@@ -109,10 +118,13 @@ public class Robot {
 
 		multiAprilTagVisionSources.applyFunctionOnAllFilters(
 			filters -> filters.and(
-				new Filter<>(
-					data -> VisionFilters.isYawAtAngle(headingEstimator::getEstimatedHeading, VisionConstants.YAW_FILTER_TOLERANCE)
-						.apply((VisionData) data)
-				)
+				data -> VisionFilters
+					.isYawAtAngleForMegaTag2(
+						() -> headingEstimator.getEstimatedHeadingAtTimestamp(data.getTimestamp()),
+						VisionConstants.YAW_FILTER_TOLERANCE
+					)
+					.and(VisionFilters.isYawAngleNotZeroForMegaTag2())
+					.apply(data)
 			)
 		);
 
@@ -124,6 +136,8 @@ public class Robot {
 		swerve.getStateHandler().setBranchSupplier(() -> Optional.of(ScoringHelpers.getTargetBranch()));
 		swerve.getStateHandler().setReefSideSupplier(() -> Optional.of(ScoringHelpers.getTargetReefSide()));
 		swerve.getStateHandler().setCoralStationSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStation(this)));
+		swerve.getStateHandler().setCoralStationSlotSupplier(() -> Optional.of(ScoringHelpers.getTargetCoralStationSlot(this)));
+		swerve.getStateHandler().setCageSupplier(() -> Optional.of(ScoringHelpers.getTargetCage(this)));
 
 		this.elevator = ElevatorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Elevator");
 		BrakeStateManager.add(() -> elevator.setBrake(true), () -> elevator.setBrake(false));
@@ -132,6 +146,7 @@ public class Robot {
 		BrakeStateManager.add(() -> arm.setBrake(true), () -> arm.setBrake(false));
 
 		this.endEffector = EndEffectorFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/EndEffector");
+		BrakeStateManager.add(() -> endEffector.setBrake(true), () -> endEffector.setBrake(false));
 
 		this.solenoid = SolenoidFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Solenoid");
 
@@ -141,24 +156,72 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
-		configPathPlanner();
+		configureAuto();
 	}
 
-	public void configPathPlanner() {
+	private void configureAuto() {
+		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure().scoreWithRelease().asProxy();
+		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
+			.closeL4AfterScore()
+			.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
+			.asProxy();
+
 		swerve.configPathPlanner(
 			poseEstimator::getEstimatedPose,
 			poseEstimator::resetPose,
 			PathPlannerUtil.getGuiRobotConfig().orElse(getRobotConfig())
 		);
+
+		new EventTrigger("PULL_OUT_ARM")
+			.onTrue(robotCommander.getSuperstructure().closeClimb().andThen(robotCommander.getSuperstructure().armPreScore()));
+		new EventTrigger("PRE_SCORE").onTrue(
+			robotCommander.getSuperstructure()
+				.preScore()
+				.until(() -> robotCommander.getSuperstructure().isPreScoreReady())
+				.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
+		);
+		new EventTrigger("ARM_PRE_SCORE").onTrue(robotCommander.getSuperstructure().armPreScore());
+
+		this.preBuiltAutosChooser = new AutonomousChooser(
+			"PreBuiltAutos",
+			AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+		);
+//		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
+//		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeSecond",
+//			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.secondObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreSecond",
+//			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.thirdObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeThird",
+//			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.thirdObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreThird",
+//			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.fourthObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeFourth",
+//			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.fourthObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreFourth",
+//			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
 	}
 
 	public void periodic() {
+		Phoenix6SignalBuilder.refreshAll();
+
 		swerve.update();
 		arm.setReversedSoftLimit(robotCommander.getSuperstructure().getArmReversedSoftLimitByElevator());
 
 		poseEstimator.updateOdometry(swerve.getAllOdometryData());
 		headingEstimator.updateGyroAngle(new TimedValue<>(swerve.getGyroAbsoluteYaw(), TimeUtil.getCurrentTimeSeconds()));
-		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getRawRobotHeadings()) {
+		for (TimedValue<Rotation2d> headingData : multiAprilTagVisionSources.getFilteredRobotHeading()) {
 			headingEstimator.updateVisionIfGyroOffsetIsNotCalibrated(
 				headingData,
 				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
@@ -166,21 +229,43 @@ public class Robot {
 			);
 		}
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
-		multiAprilTagVisionSources.log();
+//		 multiAprilTagVisionSources.log();
 		headingEstimator.log();
 
 		BatteryUtil.logStatus();
-		BusChain.logChainsStatuses();
+//		BusChain.logChainsStatuses();
 		simulationManager.logPoses();
 		ScoringHelpers.log("Scoring");
-		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
+//		ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
 
 		CommandScheduler.getInstance().run(); // Should be last
 	}
 
-	public Command getAutonomousCommand() {
-		return new InstantCommand();
+	public Command getAuto() {
+		if (preBuiltAutosChooser.isDefaultOptionChosen()) {
+//			if (firstObjectScoringLocationChooser.isDefaultOptionChosen()) {
+			return AutosBuilder.createDefaultNoDelayAuto(this);
+//			}
+//			return getMultiChoosersAuto();
+		}
+		return preBuiltAutosChooser.getChosenValue();
 	}
+
+//	private PathPlannerAutoWrapper getMultiChoosersAuto() {
+//		return PathPlannerAutoWrapper.chainAutos(
+//			firstObjectScoringLocationChooser.getChosenValue(),
+//			PathPlannerAutoWrapper
+//				.chainAutos(
+//					secondObjectIntakingLocationChooser.getChosenValue(),
+//					secondObjectScoringLocationChooser.getChosenValue(),
+//					thirdObjectIntakingLocationChooser.getChosenValue(),
+//					thirdObjectScoringLocationChooser.getChosenValue(),
+//					fourthObjectIntakingLocationChooser.getChosenValue(),
+//					fourthObjectScoringLocationChooser.getChosenValue()
+//				)
+//				.asProxyAuto()
+//		);
+//	}
 
 	public IPoseEstimator getPoseEstimator() {
 		return poseEstimator;
@@ -230,6 +315,5 @@ public class Robot {
 			swerve.getModules().getModulePositionsFromCenterMeters()
 		);
 	}
-
 
 }

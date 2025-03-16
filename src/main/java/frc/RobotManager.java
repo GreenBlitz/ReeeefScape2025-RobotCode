@@ -4,8 +4,14 @@
 
 package frc;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.led.LEDConstants;
+import frc.robot.led.LEDState;
+import frc.robot.subsystems.climb.lifter.LifterConstants;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtil;
@@ -23,7 +29,7 @@ import org.littletonrobotics.junction.Logger;
 public class RobotManager extends LoggedRobot {
 
 	private final Robot robot;
-	private Command autonomousCommand;
+	private Command auto;
 	private int roborioCycles;
 
 	public RobotManager() {
@@ -33,7 +39,21 @@ public class RobotManager extends LoggedRobot {
 		this.roborioCycles = 0;
 		this.robot = new Robot();
 
+		createAutoReadyForConstructionChooser();
 		JoysticksBindings.configureBindings(robot);
+
+		initializeLEDTriggers();
+	}
+
+	private void initializeLEDTriggers() {
+		Trigger noteIn = new Trigger(() -> robot.getRobotCommander().getSuperstructure().isCoralIn());
+		noteIn.onTrue(
+			robot.getRobotCommander()
+				.getLedStateHandler()
+				.setState(LEDState.HAS_CORAL)
+				.withTimeout(LEDConstants.CORAL_IN_BLINK_TIME_SECONDS)
+				.onlyIf(robot.getRobotCommander().getSuperstructure()::isCoralIn)
+		);
 	}
 
 	@Override
@@ -41,30 +61,31 @@ public class RobotManager extends LoggedRobot {
 		if (!DriverStationUtil.isMatch()) {
 			BrakeStateManager.coast();
 		}
+
+		robot.getRobotCommander().getLedStateHandler().setState(LEDState.DISABLE).schedule();
 	}
 
 	@Override
 	public void disabledExit() {
-		if (!DriverStationUtil.isMatch()) {
-			BrakeStateManager.brake();
-		}
+		BrakeStateManager.brake();
+		robot.getRobotCommander().getLedStateHandler().setState(LEDState.IDLE).schedule();
+		robot.getLifter().resetPosition(LifterConstants.MINIMUM_ACHIEVABLE_POSITION);
 	}
 
 	@Override
 	public void autonomousInit() {
 		robot.getRobotCommander().removeDefaultCommand();
 
-		this.autonomousCommand = robot.getAutonomousCommand();
-
-		if (autonomousCommand != null) {
-			autonomousCommand.schedule();
+		if (auto == null) {
+			this.auto = robot.getAuto();
 		}
+		auto.schedule();
 	}
 
 	@Override
 	public void teleopInit() {
-		if (autonomousCommand != null) {
-			autonomousCommand.cancel();
+		if (auto != null) {
+			auto.cancel();
 		}
 		robot.getRobotCommander().initializeDefaultCommand();
 	}
@@ -75,6 +96,18 @@ public class RobotManager extends LoggedRobot {
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
 		robot.periodic();
 		AlertManager.reportAlerts();
+	}
+
+	private void createAutoReadyForConstructionChooser() {
+		SendableChooser<Boolean> autoReadyForConstructionSendableChooser = new SendableChooser<>();
+		autoReadyForConstructionSendableChooser.setDefaultOption("false", false);
+		autoReadyForConstructionSendableChooser.addOption("true", true);
+		autoReadyForConstructionSendableChooser.onChange(isReady -> {
+			if (isReady) {
+				auto = robot.getAuto();
+			}
+		});
+		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
 	}
 
 	private void updateTimeRelatedData() {

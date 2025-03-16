@@ -4,32 +4,53 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public enum ArmState {
 
-	CLOSED(Rotation2d.fromDegrees(185)),
-	MID_WAY_CLOSE(Rotation2d.fromDegrees(150)),
-	INTAKE(Rotation2d.fromDegrees(185)),
-	OUTTAKE(Rotation2d.fromDegrees(13)),
-	PRE_L1(Rotation2d.fromDegrees(185)),
-	L1(Rotation2d.fromDegrees(185)),
-	PRE_L2(Rotation2d.fromDegrees(-11)),
-	L2(Rotation2d.fromDegrees(-11)),
-	PRE_L3(Rotation2d.fromDegrees(10)),
-	L3(Rotation2d.fromDegrees(10)),
-	PRE_L4(Rotation2d.fromDegrees(37)),
-	L4(Rotation2d.fromDegrees(-25)),
-	POST_LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-30)),
-	LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-30)),
-	PRE_HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(1)),
-	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(1));
-
+	STAY_IN_PLACE(Rotation2d.fromDegrees(Double.NaN)),
+	CLOSED(Rotation2d.fromDegrees(221.5)),
+	FIRST_WAYPOINT_TO_CLOSE(Rotation2d.fromDegrees(66)),
+	SECOND_WAYPOINT_TO_CLOSE(Rotation2d.fromDegrees(136)),
+	START_GAME(Rotation2d.fromDegrees(233)),
+	MID_WAY_CLOSE(Rotation2d.fromDegrees(156), Rotation2d.fromRotations(2), Rotation2d.fromRotations(1.5)),
+	INTAKE(Rotation2d.fromDegrees(221.5)),
+	ALGAE_OUTTAKE(Rotation2d.fromDegrees(211)),
+	PRE_L1(Rotation2d.fromDegrees(216)),
+	L1(Rotation2d.fromDegrees(216)),
+	PRE_L2(Rotation2d.fromDegrees(13)),
+	L2(Rotation2d.fromDegrees(13)),
+	PRE_L3(Rotation2d.fromDegrees(36)),
+	L3(Rotation2d.fromDegrees(36)),
+	PRE_L4(Rotation2d.fromDegrees(81), Rotation2d.fromRotations(3), Rotation2d.fromRotations(1.5)),
+	L4(Rotation2d.fromDegrees(1), Rotation2d.fromRotations(3), Rotation2d.fromRotations(1.5)),
+	LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-4)),
+	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(35)),
+	HOLD_ALGAE(Rotation2d.fromDegrees(90.5)),
+	NET(Rotation2d.fromDegrees(36), Rotation2d.fromRotations(1.5), Rotation2d.fromRotations(1.5)),
+	PROCESSOR_OUTTAKE(Rotation2d.fromDegrees(206)),
+	CLIMB(Rotation2d.fromDegrees(15));
 
 	private final Rotation2d position;
+	private final Rotation2d maxVelocityRotation2dPerSecond;
+	private final Rotation2d maxAccelerationRotation2dPerSecondSquared;
+
+	ArmState(Rotation2d position, Rotation2d maxVelocityRotation2dPerSecond, Rotation2d maxAccelerationRotation2dPerSecondSquared) {
+		this.position = Rotation2d.fromDegrees(position.getDegrees() + ArmConstants.POSITION_OFFSET.getDegrees());
+		this.maxVelocityRotation2dPerSecond = maxVelocityRotation2dPerSecond;
+		this.maxAccelerationRotation2dPerSecondSquared = maxAccelerationRotation2dPerSecondSquared;
+	}
 
 	ArmState(Rotation2d position) {
-		this.position = position;
+		this(position, ArmConstants.CRUISE_VELOCITY_ANGLES_PER_SECOND, ArmConstants.ACCELERATION_ANGLES_PER_SECOND_SQUARED);
 	}
 
 	public Rotation2d getPosition() {
 		return position;
+	}
+
+	public Rotation2d getMaxVelocityRotation2dPerSecond() {
+		return maxVelocityRotation2dPerSecond;
+	}
+
+	public Rotation2d getMaxAccelerationRotation2dPerSecondSquared() {
+		return maxAccelerationRotation2dPerSecondSquared;
 	}
 
 }

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.IDs;
 import frc.robot.RobotConstants;
 import frc.robot.hardware.mechanisms.wpilib.SingleJointedArmSimulation;
+import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
@@ -23,8 +24,8 @@ public class Falcon500LifterBuilder {
 	private static final double CURRENT_LIMIT = 40;
 
 	private static final boolean SET_BRAKE = true;
-	private static final boolean INVERTED = true;
-	private static final double MOMENT_OF_INERTIA = 0.001;
+	private static final boolean INVERTED = false;
+	private static final double MOMENT_OF_INERTIA = 5;
 
 	private static final Rotation2d MAXIMUM_POSITION = Rotation2d.fromDegrees(200);
 
@@ -59,7 +60,7 @@ public class Falcon500LifterBuilder {
 		lifter.setBrake(SET_BRAKE);
 
 		Phoenix6AngleSignal positionSignal = Phoenix6SignalBuilder
-			.build(lifter.getDevice().getPosition(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+			.build(lifter.getDevice().getPosition(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS, BusChain.ROBORIO);
 
 		return new Lifter(logPath, lifter, positionSignal);
 	}
