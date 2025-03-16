@@ -394,16 +394,11 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command completeSuperAlgaeRemove() {
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				preSuperAlgaeRemove().until(this::isReadyForSuperAlgaeRemove),
-				superAlgaeRemove()
+		return asSubsystemCommand(new SequentialCommandGroup(preSuperAlgaeRemove().until(this::isReadyForSuperAlgaeRemove), superAlgaeRemove()
 //						.withTimeout(StateMachineConstants.SUPER_ALGAE_REMOVE_TIME_SECONDS),
 //				exitSuperAlgaeRemove().until(() -> !isReadyForSuperAlgaeRemove()),
 //				holdAlgae()
-			),
-			RobotState.SUPER_ALGAE_REMOVE
-		);
+		), RobotState.SUPER_ALGAE_REMOVE);
 	}
 
 	private Command drive() {
@@ -509,7 +504,7 @@ public class RobotCommander extends GBSubsystem {
 					superstructure.preSuperAlgaeRemove(),
 					swerve.getCommandsBuilder().driveToPose(robot.getPoseEstimator()::getEstimatedPose, targetPose)
 				),
-				(Set.of(
+				Set.of(
 					this,
 					superstructure,
 					swerve,
@@ -518,7 +513,7 @@ public class RobotCommander extends GBSubsystem {
 					robot.getEndEffector(),
 					robot.getLifter(),
 					robot.getSolenoid()
-				))
+				)
 			),
 			RobotState.PRE_SUPER_ALGAE_REMOVE
 		);
@@ -526,9 +521,21 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command superAlgaeRemove() {
 		return asSubsystemCommand(
-			new ParallelCommandGroup(
-				superstructure.superAlgaeRemove(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			new DeferredCommand(
+				() -> new ParallelCommandGroup(
+					superstructure.superAlgaeRemove(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				)
 			),
 			RobotState.SUPER_ALGAE_REMOVE
 		);

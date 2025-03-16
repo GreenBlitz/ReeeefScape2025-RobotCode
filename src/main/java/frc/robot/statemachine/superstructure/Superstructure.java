@@ -431,7 +431,7 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.ALGAE_OUTTAKE),
 					armStateHandler.setState(ArmState.ALGAE_OUTTAKE),
-					endEffectorStateHandler.setState(EndEffectorState.ALGAE_OUTTAKE),
+					endEffectorStateHandler.setState(EndEffectorState.ALGAE_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP)
 				)
 			),

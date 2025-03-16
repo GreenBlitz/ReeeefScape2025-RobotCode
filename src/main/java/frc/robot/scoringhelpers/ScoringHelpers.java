@@ -178,6 +178,7 @@ public class ScoringHelpers {
 		Logger.recordOutput(logPath + "/TargetCoralStationSlot", latestWantedCoralStationSlot);
 		Logger.recordOutput(logPath + "/TargetScoreLevel", targetScoreLevel);
 		Logger.recordOutput(logPath + "/TargetCage", latestWantedCage);
+		Logger.recordOutput(logPath + "/TargetAlgaeRemoveLevel", getAlgaeRemoveLevel());
 	}
 
 	private static CoralStationSlot getClosestCoralStationSlot(Translation2d robotTranslation, CoralStationSlot... slots) {
