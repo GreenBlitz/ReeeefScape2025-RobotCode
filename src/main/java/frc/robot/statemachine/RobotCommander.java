@@ -65,21 +65,42 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public void initializeDefaultCommand() {
-		setDefaultCommand(
-			new DeferredCommand(
-				() -> endState(currentState),
-				Set.of(
-					this,
-					superstructure,
-					swerve,
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getSolenoid()
-				)
+		setDefaultCommand(new DeferredCommand(() -> switch (currentState) {
+			case ALGAE_REMOVE, HOLD_ALGAE -> endState(currentState);
+			case
+				ALGAE_OUTTAKE,
+				ALIGN_REEF,
+				ARM_PRE_SCORE,
+				CLIMB,
+				CLOSE_CLIMB,
+				CORAL_OUTTAKE,
+				DRIVE,
+				INTAKE_WITH_AIM_ASSIST,
+				INTAKE_WITHOUT_AIM_ASSIST,
+				MANUAL_CLIMB,
+				NET,
+				PRE_SCORE,
+				PRE_CLIMB_WITH_AIM_ASSIST,
+				PRE_CLIMB_WITHOUT_AIM_ASSIST,
+				PRE_NET,
+				PROCESSOR_SCORE,
+				SCORE,
+				SCORE_WITHOUT_RELEASE,
+				STAY_IN_PLACE,
+				STOP_CLIMB ->
+				endState(currentState).until(this::isCloseToFeeder).andThen(intakeWithoutAimAssist());
+		},
+			Set.of(
+				this,
+				superstructure,
+				swerve,
+				robot.getElevator(),
+				robot.getArm(),
+				robot.getEndEffector(),
+				robot.getLifter(),
+				robot.getSolenoid()
 			)
-		);
+		));
 	}
 
 	/**
@@ -236,6 +257,14 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.SCORE_DISTANCES_FROM_MIDDLE_OF_BARGE_METRES.getX(),
 				StateMachineConstants.SCORE_DISTANCES_FROM_MIDDLE_OF_BARGE_METRES.getY()
 			) && swerve.isAtHeading(ScoringHelpers.getHeadingForNet(), Tolerances.HEADING_FOR_NET, Tolerances.HEADING_FOR_NET_DEADBAND);
+	}
+
+	public boolean isCloseToFeeder() {
+		return robot.getPoseEstimator()
+			.getEstimatedPose()
+			.getTranslation()
+			.getDistance(Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot)).getTranslation())
+			<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_INTAKE_METERS;
 	}
 
 	public Command setState(RobotState state) {

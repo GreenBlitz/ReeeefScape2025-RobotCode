@@ -14,6 +14,7 @@ public class StateMachineConstants {
 	public static final double POWER_FOR_MANUAL_CLIMB = -0.5;
 
 	public static final double DISTANCE_FROM_CORAL_STATION_SLOT_TO_START_AIM_ASSIST_METERS = 2.2;
+	public static final double DISTANCE_FROM_CORAL_STATION_TO_START_INTAKE_METERS = 1;
 
 	// Field relative
 	public static final Translation2d CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH = new Translation2d(0.6, 1.03);
