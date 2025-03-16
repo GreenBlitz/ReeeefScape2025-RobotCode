@@ -218,6 +218,10 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public boolean isReadyToScoreL1() {
+		return superstructure.isReadyToScore() && isAtReefScoringPose(ScoringHelpers.getTargetReefSide());
+	}
+
 	public boolean isAtReefScoringPose(ReefSide reefSide) {
 		return isAtReefScoringPose(
 			reefSide,
@@ -262,10 +266,7 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_SCORE -> preScore();
 			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
 			case SCORE -> score();
-			case L1_WAY1 -> l1Way1();
-			case L1_WAY2 -> l1Way2();
-			case L1_WAY3 -> l1Way3();
-			case L1_WAY4 -> l1Way4();
+			case SCORE_L1 -> scoreL1();
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case PRE_NET -> preNet();
@@ -478,63 +479,19 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command l1Way1() {
+	private Command scoreL1() {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
-				// new ParallelCommandGroup(
-//					superstructure.idle(),
-//					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-//				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(superstructure.l1Way1()
-//						,swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				new ParallelCommandGroup(
+					superstructure.preL1(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
+				).until(this::isReadyToScoreL1),
+				new ParallelCommandGroup(
+					superstructure.scoreL1(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 				)
 			),
-			RobotState.L1_WAY1
-		);
-	}
-
-	private Command l1Way2() {
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				// new ParallelCommandGroup(
-//					superstructure.idle(),
-//					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-//				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(superstructure.l1Way2()
-//						,					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-				)
-			),
-			RobotState.L1_WAY2
-		);
-	}
-
-	private Command l1Way3() {
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				// new ParallelCommandGroup(
-//					superstructure.idle(),
-//					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-//				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(superstructure.l1Way3()
-//						, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-				)
-			),
-			RobotState.L1_WAY3
-		);
-	}
-
-	private Command l1Way4() {
-		return asSubsystemCommand(
-			new SequentialCommandGroup(
-				// new ParallelCommandGroup(
-//					superstructure.idle(),
-//					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-//				).until(() -> isAtReefScoringPose(ScoringHelpers.getTargetReefSide())),
-				new ParallelCommandGroup(superstructure.l1Way4()
-//						, swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
-				)
-			),
-			RobotState.L1_WAY4
+			RobotState.SCORE_L1
 		);
 	}
 
@@ -659,19 +616,7 @@ public class RobotCommander extends GBSubsystem {
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
-			case
-				INTAKE_WITH_AIM_ASSIST,
-				INTAKE_WITHOUT_AIM_ASSIST,
-				DRIVE,
-				ALIGN_REEF,
-				ALGAE_OUTTAKE,
-				PROCESSOR_SCORE,
-				PRE_NET,
-				NET,
-				L1_WAY1,
-				L1_WAY2,
-				L1_WAY3,
-				L1_WAY4 ->
+			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE, PRE_NET, NET, SCORE_L1 ->
 				drive();
 			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
