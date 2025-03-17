@@ -399,11 +399,15 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command completeSuperAlgaeRemove() {
-		return asSubsystemCommand(new SequentialCommandGroup(preSuperAlgaeRemove().until(this::isReadyForSuperAlgaeRemove), superAlgaeRemove()
-						.withTimeout(StateMachineConstants.SUPER_ALGAE_REMOVE_TIME_SECONDS),
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				preSuperAlgaeRemove().until(this::isReadyForSuperAlgaeRemove),
+				superAlgaeRemove().withTimeout(StateMachineConstants.SUPER_ALGAE_REMOVE_TIME_SECONDS),
 				exitSuperAlgaeRemove().until(() -> !isReadyForSuperAlgaeRemove()),
 				holdAlgae()
-		), RobotState.SUPER_ALGAE_REMOVE);
+			),
+			RobotState.SUPER_ALGAE_REMOVE
+		);
 	}
 
 	private Command drive() {
