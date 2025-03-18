@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.*;
@@ -251,6 +252,7 @@ public class Robot {
 		Logger.recordOutput("TimeTest/CommandSchedular", TimeUtil.getCurrentTimeSeconds() - startingSchedularTime);
 
 		Logger.recordOutput("TimeTest/RobotPeriodic", TimeUtil.getCurrentTimeSeconds() - startingTime);
+		Logger.recordOutput("robotPoseWithSpeed", new Pose2d(ScoringHelpers.getRobotTranslationWithSpeedsHandle(this), poseEstimator.getEstimatedPose().getRotation()));
 	}
 
 	public Command getAuto() {

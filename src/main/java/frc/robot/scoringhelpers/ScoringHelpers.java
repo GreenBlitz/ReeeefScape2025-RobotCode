@@ -46,7 +46,7 @@ public class ScoringHelpers {
 		return ReefSide.getReefSideBySideAndFar(targetSideForReef, isFarReefHalf);
 	}
 
-	private static Translation2d getRobotTranslationWithSpeedsHandle(Robot robot) {
+	public static Translation2d getRobotTranslationWithSpeedsHandle(Robot robot) {
 		Translation2d robotTranslation = robot.getPoseEstimator().getEstimatedPose().getTranslation();
 		ChassisSpeeds allianceSpeeds = robot.getSwerve().getFieldRelativeVelocity();
 		Translation2d diffBySpeed = new Translation2d(
