@@ -239,16 +239,16 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		return (int) hardwareMetricsArray[LimeLightHardwareMetrics.FPS.getIndex()];
 	}
 
-	public int getCPUTemperature() {
-		return (int) hardwareMetricsArray[LimeLightHardwareMetrics.CPU_TEMPERATURE.getIndex()];
+	public double getCPUTemperature() {
+		return hardwareMetricsArray[LimeLightHardwareMetrics.CPU_TEMPERATURE.getIndex()];
 	}
 
-	public int getRAMUsage() {
-		return (int) hardwareMetricsArray[LimeLightHardwareMetrics.RAM_USAGE.getIndex()];
+	public double getRAMUsage() {
+		return hardwareMetricsArray[LimeLightHardwareMetrics.RAM_USAGE.getIndex()];
 	}
 
-	public int getLimeLightTemperature() {
-		return (int) hardwareMetricsArray[LimeLightHardwareMetrics.LIMELIGHT_TEMPERATURE.getIndex()];
+	public double getLimeLightTemperature() {
+		return hardwareMetricsArray[LimeLightHardwareMetrics.LIMELIGHT_TEMPERATURE.getIndex()];
 	}
 
 	public void log() {
