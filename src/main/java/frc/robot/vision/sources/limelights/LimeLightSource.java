@@ -89,7 +89,7 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		AlertManager.addAlert(
 			new PeriodicAlert(
 				Alert.AlertType.WARNING,
-				sourceName + "TooHot",
+				sourceName + "IsTooHot",
 				() -> getLimeLightTemperature() > VisionConstants.MAXIMUM_LIMELIGHT_TEMPERATURE
 					|| getCPUTemperature() > VisionConstants.MAXIMUM_CPU_TEMPERATURE
 			)
@@ -119,7 +119,7 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		standardDeviationsArray = standardDeviations.getDoubleArray(new double[Pose3dComponentsValue.POSE3D_COMPONENTS_AMOUNT]);
 		computingPipeLineLatency = computingPipelineLatencyEntry.getDouble(0D);
 		captureLatency = captureLatencyEntry.getDouble(0D);
-		hardwareMetricsArray = hardwareMetricsEntry.getDoubleArray(new double[LimeLightHardwareMetrics.length]);
+		hardwareMetricsArray = hardwareMetricsEntry.getDoubleArray(new double[LimeLightHardwareMetrics.values().length]);
 
 		log();
 	}
