@@ -108,8 +108,6 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		standardDeviationsArray = standardDeviations.getDoubleArray(new double[Pose3dComponentsValue.POSE3D_COMPONENTS_AMOUNT]);
 		computingPipeLineLatency = computingPipelineLatencyEntry.getDouble(0D);
 		captureLatency = captureLatencyEntry.getDouble(0D);
-
-		log();
 	}
 
 	protected double getLatency() {
@@ -223,6 +221,7 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		);
 	}
 
+	@Override
 	public void log() {
 		Logger.recordOutput(logPath + "filterResult", shouldDataBeFiltered.getAsBoolean());
 //		Logger.recordOutput(logPath + "megaTagDirectOutput", PoseUtil.toPose3D(robotPoseArray, AngleUnit.DEGREES));
@@ -232,9 +231,9 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 //			Logger.recordOutput(logPath + "aprilTagHeightMeters", visionData.getAprilTagHeightMeters());
 			Logger.recordOutput(logPath + "lastUpdate", visionData.getTimestamp());
 //			Logger.recordOutput(logPath + "stdDevs", standardDeviationsArray);
-			if (poseEstimationMethod == LimelightPoseEstimationMethod.MEGATAG_1) {
+//			if (poseEstimationMethod == LimelightPoseEstimationMethod.MEGATAG_1) {
 //				Logger.recordOutput(logPath + "robotMegaTag1Heading", visionData.getEstimatedPose().getRotation().toRotation2d());
-			}
+//			}
 		});
 	}
 
