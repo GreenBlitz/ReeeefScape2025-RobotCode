@@ -60,9 +60,9 @@ public class VisionConstants {
 
 	public static double ROBOT_DISTANCE_TO_GROUND_TOLERANCE_METERS = 0.5;
 
-	public static double MAXIMUM_CPU_TEMPERATURE = 1.0;
+	public static double MAXIMUM_CPU_TEMPERATURE = 80.0;
 
-	public static double MAXIMUM_LIMELIGHT_TEMPERATURE = 1.0;
+	public static double MAXIMUM_LIMELIGHT_TEMPERATURE = 80.0;
 
 	public static int[] TAGS_TO_IGNORE_FOR_LIMELIGHT_FEEDER = {4, 5, 14, 15};
 
