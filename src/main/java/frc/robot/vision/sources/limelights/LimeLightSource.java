@@ -29,7 +29,7 @@ import java.util.function.BooleanSupplier;
 
 public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHeadingRequiringVisionSource {
 
-	protected final String logPath;
+	private final String logPath;
 	private final String cameraNetworkTablesName;
 	private final String sourceName;
 	private final LimelightPoseEstimationMethod poseEstimationMethod;
