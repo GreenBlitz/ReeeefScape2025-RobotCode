@@ -12,6 +12,7 @@ import frc.robot.hardware.digitalinput.IDigitalInput;
 import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.hardware.interfaces.IDynamicMotionMagicRequest;
 import frc.robot.hardware.interfaces.IRequest;
+import frc.robot.hardware.phoenix6.signal.Phoenix6AngleSignal;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elevator.factory.KrakenX60ElevatorBuilder;
 import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
@@ -40,6 +41,8 @@ public class Elevator extends GBSubsystem {
 	private final SysIdCalibrator sysIdCalibrator;
 	private final ElevatorInputsAutoLogged inputs;
 
+	private final Phoenix6AngleSignal velocitySignal;
+
 	private boolean hasBeenResetBySwitch;
 	private double ffCalibrationVoltage;
 	private double targetPositionMeters;
@@ -52,7 +55,8 @@ public class Elevator extends GBSubsystem {
 		ElevatorMotorSignals leftMotorSignals,
 		IDynamicMotionMagicRequest positionRequest,
 		IRequest<Double> voltageRequest,
-		IDigitalInput limitSwitch
+		IDigitalInput limitSwitch,
+		Phoenix6AngleSignal velocitySignal
 	) {
 		super(logPath);
 
@@ -68,6 +72,8 @@ public class Elevator extends GBSubsystem {
 		this.digitalInputInputs = new DigitalInputInputsAutoLogged();
 		hasBeenResetBySwitch = false;
 		this.ffCalibrationVoltage = 0;
+
+		this.velocitySignal = velocitySignal;
 
 		this.commandsBuilder = new ElevatorCommandsBuilder(this);
 		this.sysIdCalibrator = new SysIdCalibrator(rightMotor.getSysidConfigInfo(), this, (voltage) -> setVoltage(voltage + getKgVoltage()));
@@ -122,6 +128,7 @@ public class Elevator extends GBSubsystem {
 			getElevatorPositionMeters(),
 			targetPositionMeters
 		);
+		leftMotor.updateInputs(velocitySignal);
 		Logger.processInputs(getLogPath(), inputs);
 
 //		limitSwitch.updateInputs(digitalInputInputs);
