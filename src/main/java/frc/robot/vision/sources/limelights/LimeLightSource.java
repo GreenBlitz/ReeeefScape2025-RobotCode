@@ -86,7 +86,6 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 
 		updateCameraPoseOffset(cameraPoseOffset);
 		update();
-		log();
 	}
 
 	@Override

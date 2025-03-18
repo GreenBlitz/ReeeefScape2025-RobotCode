@@ -231,6 +231,7 @@ public class Robot {
 		poseEstimator.updateVision(multiAprilTagVisionSources.getFilteredVisionData());
 //		 multiAprilTagVisionSources.log();
 		headingEstimator.log();
+		multiAprilTagVisionSources.log();
 
 		BatteryUtil.logStatus();
 //		BusChain.logChainsStatuses();
