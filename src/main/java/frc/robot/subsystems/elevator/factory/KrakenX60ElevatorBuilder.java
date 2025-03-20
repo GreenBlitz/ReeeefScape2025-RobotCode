@@ -192,7 +192,12 @@ public class KrakenX60ElevatorBuilder {
 			: Phoenix6RequestBuilder.build(new DynamicMotionMagicVoltage(0, 0, 0, 0).withSlot(1), 0, true);
 		Phoenix6Request<Double> voltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0), true);
 
-		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder.build(rightMotor.getDevice().getVelocity(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS, BusChain.SUPERSTRUCTURE_CANIVORE);
+		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder.build(
+			rightMotor.getDevice().getVelocity(),
+			RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
+			AngleUnit.ROTATIONS,
+			BusChain.SUPERSTRUCTURE_CANIVORE
+		);
 		return new Elevator(
 			logPath,
 			rightMotor,

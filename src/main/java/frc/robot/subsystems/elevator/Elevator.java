@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
@@ -80,7 +81,7 @@ public class Elevator extends GBSubsystem {
 
 		resetMotors(ElevatorConstants.MINIMUM_HEIGHT_METERS);
 		periodic();
-		setDefaultCommand(getCommandsBuilder().stayInPlace());
+//		setDefaultCommand(getCommandsBuilder().stayInPlace());
 	}
 
 	public double getKgVoltage() {
@@ -246,16 +247,31 @@ public class Elevator extends GBSubsystem {
 		// The sysid outputs will be logged to the "CTRE Signal Logger". Use phoenix tuner x to extract the position, velocity, motorVoltage,
 		// state signals into wpilog. Then enter the wpilog into wpilib sysid app and make sure you enter all info in the correct places. (see
 		// wpilib sysid in google)
-		sysIdCalibrator.setAllButtonsForCalibration(joystick);
+//		sysIdCalibrator.setAllButtonsForCalibration(joystick);
 
 		ElevatorStateHandler elevatorStateHandler = new ElevatorStateHandler(this);
 
 		// PID Testing
 		joystick.POV_DOWN.onTrue(elevatorStateHandler.setState(ElevatorState.CLOSED));
 		joystick.POV_LEFT.onTrue(elevatorStateHandler.setState(ElevatorState.NET));
-		joystick.POV_RIGHT.onTrue(elevatorStateHandler.setState(ElevatorState.PRE_L4));
-		joystick.POV_UP.onTrue(elevatorStateHandler.setState(ElevatorState.L3));
-
+		joystick.A.onTrue(
+			new ParallelCommandGroup(
+				new InstantCommand(() -> Logger.recordOutput("/ElevatorState", ElevatorState.L4.name())),
+				elevatorStateHandler.setState(ElevatorState.L4)
+			)
+		);
+		joystick.B.onTrue(
+				new ParallelCommandGroup(
+						new InstantCommand(() -> Logger.recordOutput("/ElevatorState", ElevatorState.L3.name())),
+						elevatorStateHandler.setState(ElevatorState.L3)
+				)
+		);
+		joystick.Y.onTrue(
+				new ParallelCommandGroup(
+						new InstantCommand(() -> Logger.recordOutput("/ElevatorState", ElevatorState.CLOSED.name())),
+						elevatorStateHandler.setState(ElevatorState.CLOSED)
+				)
+		);
 		// Calibrate max acceleration and cruse velocity by the equations: max acceleration = (12 + Ks)/2kA cruise velocity = (12 + Ks)/kV
 	}
 

@@ -43,7 +43,6 @@ import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.utils.auto.AutonomousChooser;
-import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.robot.vision.VisionFilters;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
@@ -186,36 +185,36 @@ public class Robot {
 				.andThen(robotCommander.getSuperstructure().scoreWithoutRelease())
 		);
 		new EventTrigger("ARM_PRE_SCORE").onTrue(robotCommander.getSuperstructure().armPreScore());
-
-		this.preBuiltAutosChooser = new AutonomousChooser(
-			"PreBuiltAutos",
-			AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
-		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
-		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
-			"IntakeSecond",
-			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
-		this.secondObjectScoringLocationChooser = new AutonomousChooser(
-			"ScoreSecond",
-			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
-		this.thirdObjectIntakingLocationChooser = new AutonomousChooser(
-			"IntakeThird",
-			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
-		this.thirdObjectScoringLocationChooser = new AutonomousChooser(
-			"ScoreThird",
-			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
-		this.fourthObjectIntakingLocationChooser = new AutonomousChooser(
-			"IntakeFourth",
-			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
-		this.fourthObjectScoringLocationChooser = new AutonomousChooser(
-			"ScoreFourth",
-			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		);
+//
+//		this.preBuiltAutosChooser = new AutonomousChooser(
+//			"PreBuiltAutos",
+//			AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
+//		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeSecond",
+//			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.secondObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreSecond",
+//			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.thirdObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeThird",
+//			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.thirdObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreThird",
+//			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.fourthObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeFourth",
+//			AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
+//		this.fourthObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreFourth",
+//			AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		);
 	}
 
 	public void periodic() {
@@ -253,7 +252,10 @@ public class Robot {
 		Logger.recordOutput("TimeTest/CommandSchedular", TimeUtil.getCurrentTimeSeconds() - startingSchedularTime);
 
 		Logger.recordOutput("TimeTest/RobotPeriodic", TimeUtil.getCurrentTimeSeconds() - startingTime);
-		Logger.recordOutput("robotPoseWithSpeed", new Pose2d(ScoringHelpers.getRobotTranslationWithSpeedsHandle(this), poseEstimator.getEstimatedPose().getRotation()));
+		Logger.recordOutput(
+			"robotPoseWithSpeed",
+			new Pose2d(ScoringHelpers.getRobotTranslationWithSpeedsHandle(this), poseEstimator.getEstimatedPose().getRotation())
+		);
 	}
 
 	public Command getAuto() {
@@ -266,21 +268,21 @@ public class Robot {
 		return preBuiltAutosChooser.getChosenValue();
 	}
 
-	private PathPlannerAutoWrapper getMultiChoosersAuto() {
-		return PathPlannerAutoWrapper.chainAutos(
-			firstObjectScoringLocationChooser.getChosenValue(),
-			PathPlannerAutoWrapper
-				.chainAutos(
-					secondObjectIntakingLocationChooser.getChosenValue(),
-					secondObjectScoringLocationChooser.getChosenValue(),
-					thirdObjectIntakingLocationChooser.getChosenValue(),
-					thirdObjectScoringLocationChooser.getChosenValue(),
-					fourthObjectIntakingLocationChooser.getChosenValue(),
-					fourthObjectScoringLocationChooser.getChosenValue()
-				)
-				.asProxyAuto()
-		);
-	}
+//	private PathPlannerAutoWrapper getMultiChoosersAuto() {
+//		return PathPlannerAutoWrapper.chainAutos(
+//			firstObjectScoringLocationChooser.getChosenValue(),
+//			PathPlannerAutoWrapper
+//				.chainAutos(
+//					secondObjectIntakingLocationChooser.getChosenValue(),
+//					secondObjectScoringLocationChooser.getChosenValue(),
+//					thirdObjectIntakingLocationChooser.getChosenValue(),
+//					thirdObjectScoringLocationChooser.getChosenValue(),
+//					fourthObjectIntakingLocationChooser.getChosenValue(),
+//					fourthObjectScoringLocationChooser.getChosenValue()
+//				)
+//				.asProxyAuto()
+//		);
+//	}
 
 	public IPoseEstimator getPoseEstimator() {
 		return poseEstimator;
