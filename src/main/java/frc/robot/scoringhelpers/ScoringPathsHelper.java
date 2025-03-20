@@ -6,41 +6,66 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
+import frc.robot.Robot;
+import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.statemachine.StateMachineConstants;
+import frc.robot.statemachine.superstructure.ScoreLevel;
 
 import java.util.HashMap;
 
 public class ScoringPathsHelper {
 
-	private static final HashMap<Branch, PathPlannerPath> BRANCH_PATH_PLANNER_PATH_HASH_MAP = generateAllPaths();
+	public static HashMap<Branch, PathPlannerPath> L4_AUTO_SCORE_PATHS;
+	public static HashMap<Branch, PathPlannerPath> L2_L3_AUTO_SCORE_PATHS;
 
-	private static HashMap<Branch, PathPlannerPath> generateAllPaths() {
+	public static void generateAutoScorePathsHashMaps(Robot robot) {
+		generateL4AutoScorePaths(robot);
+		generateL2L3AutoScorePaths(robot);
+	}
+
+	private static void generateL4AutoScorePaths(Robot robot) {
+		L4_AUTO_SCORE_PATHS = generateAllAutoScorePaths(ScoreLevel.L4, robot);
+	}
+
+	private static void generateL2L3AutoScorePaths(Robot robot) {
+		L2_L3_AUTO_SCORE_PATHS = generateAllAutoScorePaths(ScoreLevel.L3, robot);
+	}
+
+	private static HashMap<Branch, PathPlannerPath> generateAllAutoScorePaths(ScoreLevel scoreLevel, Robot robot) {
 		HashMap<Branch, PathPlannerPath> branchToPathMap = new HashMap<>();
 
 		Branch[] branches = Branch.values();
 		for (Branch branch : branches) {
-			branchToPathMap.put(branch, generatePathToTargetBranch(branch));
+			branchToPathMap.put(branch, generatePathToTargetBranch(branch, scoreLevel, robot));
 		}
 		return branchToPathMap;
 	}
 
 
-	public static PathPlannerPath getPathByBranch(Branch branch) {
-		return BRANCH_PATH_PLANNER_PATH_HASH_MAP.get(branch);
+	public static PathPlannerPath getPathByBranch(Branch branch, ScoreLevel scoreLevel) {
+		return switch (scoreLevel) {
+			case L1, L2, L3 -> L2_L3_AUTO_SCORE_PATHS.get(branch);
+			case L4 -> L4_AUTO_SCORE_PATHS.get(branch);
+		};
 	}
 
-	private static PathPlannerPath generatePathToTargetBranch(Branch branch) {
+	private static PathPlannerPath generatePathToTargetBranch(Branch branch, ScoreLevel scoreLevel, Robot robot) {
+		PathConstraints pathConstraints = switch (scoreLevel) {
+			case L1, L2, L3 -> AutonomousConstants.getRealTimeConstraints(robot.getSwerve());
+			case L4 ->
+				new PathConstraints(
+					StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
+					StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
+					StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
+					StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
+				);
+		};
 		return new PathPlannerPath(
 			PathPlannerPath.waypointsFromPoses(
 				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, false),
 				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false)
 			),
-			new PathConstraints(
-				StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
-				StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
-				StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
-				StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
-			),
+			pathConstraints,
 			new IdealStartingState(
 				StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
 				Field.getReefSideMiddle(branch.getReefSide(), false).getRotation()

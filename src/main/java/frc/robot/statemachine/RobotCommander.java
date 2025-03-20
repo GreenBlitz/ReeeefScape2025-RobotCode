@@ -290,6 +290,78 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command autoScore() {
+		return ScoringHelpers.targetScoreLevel == ScoreLevel.L4 ? autoScoreL4() : autoScoreL2L3();
+	}
+
+	private Command autoScoreL2L3() {
+		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
+			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
+			superstructure.preScore().until(superstructure::isPreScoreReady),
+			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
+			superstructure.scoreWithRelease()
+		);
+
+		Supplier<Command> driveToPose = () -> swerve.getCommandsBuilder()
+			.driveToPose(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				() -> ScoringHelpers
+					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			);
+
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPose.get()),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				)
+			),
+			RobotState.SCORE
+		);
+	}
+
+	public Command autoScoreL2L3NoSpeedLimit() {
+		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
+			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
+			superstructure.preScore().until(superstructure::isPreScoreReady),
+			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
+			superstructure.scoreWithRelease()
+		);
+
+		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
+			.driveToPath(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch(), ScoringHelpers.targetScoreLevel),
+				ScoringHelpers
+					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			);
+
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				)
+			),
+			RobotState.SCORE
+		);
+	}
+
+
+	private Command autoScoreL4() {
 		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
 			superstructure.armPreScore().alongWith(ledStateHandler.setState(LEDState.MOVE_TO_POSE)).until(this::isReadyToOpenSuperstructure),
 			superstructure.preScore()
@@ -304,7 +376,7 @@ public class RobotCommander extends GBSubsystem {
 		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
 			.driveToPath(
 				() -> robot.getPoseEstimator().getEstimatedPose(),
-				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
+				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch(), ScoringHelpers.targetScoreLevel),
 				ScoringHelpers
 					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
 			);
