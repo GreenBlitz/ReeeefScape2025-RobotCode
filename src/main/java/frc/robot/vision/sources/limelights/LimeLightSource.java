@@ -43,10 +43,12 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 	private final NetworkTableEntry robotOrientationEntry;
 	private final NetworkTableEntry computingPipelineLatencyEntry;
 	private final NetworkTableEntry captureLatencyEntry;
+	private final NetworkTableEntry hardwareMetricsEntry;
 
 	private double[] aprilTagPoseArray;
 	private double[] robotPoseArray;
 	private double[] standardDeviationsArray;
+	private double[] hardwareMetricsArray;
 	private double computingPipeLineLatency;
 	private double captureLatency;
 	private int lastSeenAprilTagId;
@@ -78,10 +80,19 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		this.robotOrientationEntry = getLimelightNetworkTableEntry("robot_orientation_set");
 		this.computingPipelineLatencyEntry = getLimelightNetworkTableEntry("tl");
 		this.captureLatencyEntry = getLimelightNetworkTableEntry("cl");
+		this.hardwareMetricsEntry = getLimelightNetworkTableEntry("hw");
 
 		this.robotAngleValues = new RobotAngleValues();
 		AlertManager.addAlert(
 			new PeriodicAlert(Alert.AlertType.ERROR, logPath + "DisconnectedAt", () -> getLimelightNetworkTableEntry("tv").getInteger(-1) == -1)
+		);
+		AlertManager.addAlert(
+			new PeriodicAlert(
+				Alert.AlertType.WARNING,
+				sourceName + "IsTooHot",
+				() -> getLimeLightTemperature() > VisionConstants.MAXIMUM_LIMELIGHT_TEMPERATURE
+					|| getCPUTemperature() > VisionConstants.MAXIMUM_CPU_TEMPERATURE
+			)
 		);
 
 		updateCameraPoseOffset(cameraPoseOffset);
@@ -108,6 +119,7 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		standardDeviationsArray = standardDeviations.getDoubleArray(new double[Pose3dComponentsValue.POSE3D_COMPONENTS_AMOUNT]);
 		computingPipeLineLatency = computingPipelineLatencyEntry.getDouble(0D);
 		captureLatency = captureLatencyEntry.getDouble(0D);
+		hardwareMetricsArray = hardwareMetricsEntry.getDoubleArray(new double[LimeLightHardwareMetrics.values().length]);
 
 		log();
 	}
@@ -223,7 +235,24 @@ public class LimeLightSource implements IndpendentHeadingVisionSource, RobotHead
 		);
 	}
 
+	public int getFPSCount() {
+		return (int) hardwareMetricsArray[LimeLightHardwareMetrics.FPS.getIndex()];
+	}
+
+	public double getCPUTemperature() {
+		return hardwareMetricsArray[LimeLightHardwareMetrics.CPU_TEMPERATURE.getIndex()];
+	}
+
+	public double getRAMUsage() {
+		return hardwareMetricsArray[LimeLightHardwareMetrics.RAM_USAGE.getIndex()];
+	}
+
+	public double getLimeLightTemperature() {
+		return hardwareMetricsArray[LimeLightHardwareMetrics.LIMELIGHT_TEMPERATURE.getIndex()];
+	}
+
 	public void log() {
+		Logger.recordOutput(logPath + "temperature", getLimeLightTemperature());
 		Logger.recordOutput(logPath + "filterResult", shouldDataBeFiltered.getAsBoolean());
 //		Logger.recordOutput(logPath + "megaTagDirectOutput", PoseUtil.toPose3D(robotPoseArray, AngleUnit.DEGREES));
 		getVisionData().ifPresent(visionData -> {
