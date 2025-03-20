@@ -211,22 +211,19 @@ public class AutosBuilder {
 						tolerance
 					)
 				)),
-				createAutoFromAutoPath(
-					AutoPath.L_TO_UPPER_CORAL_STATION_2,
-					pathPlannerPath -> new InstantCommand(() -> {
-						ScoringHelpers.isLeftBranch = true;
-						ScoringHelpers.isFarReefHalf = false;
-						ScoringHelpers.setTargetSideForReef(Side.LEFT);
-					}).andThen(
-						PathFollowingCommandsBuilder.deadlinePathWithCommand(
-							robot,
-							pathPlannerPath,
-							intakingCommand,
-							AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-							tolerance
-						)
+				createAutoFromAutoPath(AutoPath.L_TO_UPPER_CORAL_STATION_2, pathPlannerPath -> new InstantCommand(() -> {
+					ScoringHelpers.isLeftBranch = true;
+					ScoringHelpers.isFarReefHalf = false;
+					ScoringHelpers.setTargetSideForReef(Side.LEFT);
+				}).andThen(
+					PathFollowingCommandsBuilder.deadlinePathWithCommand(
+						robot,
+						pathPlannerPath,
+						intakingCommand,
+						AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+						tolerance
 					)
-				),
+				)),
 				createAutoFromAutoPath(
 					AutoPath.UPPER_CORAL_STATION_2_TO_K,
 					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
