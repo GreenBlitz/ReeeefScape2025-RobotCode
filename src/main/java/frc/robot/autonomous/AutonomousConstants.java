@@ -76,13 +76,13 @@ public class AutonomousConstants {
 
 		public static final Pair<String, Pose2d> H = Pair.of("H", new Pose2d(5.86, 4.17, Rotation2d.fromDegrees(180)));
 
-		public static final Pair<String, Pose2d> I = Pair.of("I", new Pose2d(5.3, 5.06, Rotation2d.fromDegrees(-120)));
+		public static final Pair<String, Pose2d> I = Pair.of("I", new Pose2d(5.34, 5.12, Rotation2d.fromDegrees(-120)));
 
-		public static final Pair<String, Pose2d> J = Pair.of("J", new Pose2d(5.02, 5.22, Rotation2d.fromDegrees(-120)));
+		public static final Pair<String, Pose2d> J = Pair.of("J", new Pose2d(5.05, 5.28, Rotation2d.fromDegrees(-120)));
 
 		public static final Pair<String, Pose2d> K = Pair.of("K", new Pose2d(3.97, 5.31, Rotation2d.fromDegrees(-60)));
 
-		public static final Pair<String, Pose2d> L = Pair.of("L", new Pose2d(3.68, 5.1, Rotation2d.fromDegrees(-60)));
+		public static final Pair<String, Pose2d> L = Pair.of("L", new Pose2d(3.66, 5.15, Rotation2d.fromDegrees(-60)));
 
 	}
 
