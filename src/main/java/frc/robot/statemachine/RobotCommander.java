@@ -327,6 +327,35 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public Command autoAlgaeRemove() {
+		Supplier<Command> algaeRemove = superstructure::algaeRemove;
+
+		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
+			.driveToPath(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				ScoringPathsHelper.getPathByReefSide(ScoringHelpers.getTargetReefSide()),
+				ScoringHelpers
+					.getAlgaeRemovePose(ScoringHelpers.getTargetReefSide(), StateMachineConstants.ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS)
+			);
+
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new ParallelDeadlineGroup(algaeRemove.get(), driveToPath.get()),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				)
+			),
+			RobotState.ALGAE_REMOVE
+		);
+	}
+
 	public Command autoScoreForAutonomous(PathPlannerPath path) {
 		Command fullySuperstructureScore = new SequentialCommandGroup(
 			superstructure.elevatorOpening(),
