@@ -21,6 +21,7 @@ import frc.utils.auto.AutoPath;
 import frc.utils.auto.PathHelper;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
+import frc.utils.pose.Side;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
@@ -197,24 +198,33 @@ public class AutosBuilder {
 						tolerance
 					)
 				),
-				createAutoFromAutoPath(
-					AutoPath.UPPER_CORAL_STATION_2_TO_L,
-					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
+				createAutoFromAutoPath(AutoPath.UPPER_CORAL_STATION_2_TO_L, pathPlannerPath -> new InstantCommand(() -> {
+					ScoringHelpers.isLeftBranch = false;
+					ScoringHelpers.isFarReefHalf = false;
+					ScoringHelpers.setTargetSideForReef(Side.LEFT);
+				}).andThen(
+					PathFollowingCommandsBuilder.commandAfterPath(
 						robot,
 						pathPlannerPath,
 						scoringCommand,
 						AutoPath.UPPER_CORAL_STATION_2_TO_L.getTargetBranch(),
 						tolerance
 					)
-				),
+				)),
 				createAutoFromAutoPath(
 					AutoPath.L_TO_UPPER_CORAL_STATION_2,
-					pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
-						robot,
-						pathPlannerPath,
-						intakingCommand,
-						AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
-						tolerance
+					pathPlannerPath -> new InstantCommand(() -> {
+						ScoringHelpers.isLeftBranch = true;
+						ScoringHelpers.isFarReefHalf = false;
+						ScoringHelpers.setTargetSideForReef(Side.LEFT);
+					}).andThen(
+						PathFollowingCommandsBuilder.deadlinePathWithCommand(
+							robot,
+							pathPlannerPath,
+							intakingCommand,
+							AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+							tolerance
+						)
 					)
 				),
 				createAutoFromAutoPath(
