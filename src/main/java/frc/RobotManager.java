@@ -15,6 +15,7 @@ import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.led.LEDConstants;
 import frc.robot.led.LEDState;
 import frc.robot.subsystems.climb.lifter.LifterConstants;
+import frc.utils.alerts.AlertManager;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.DriverStationUtil;
 import frc.utils.time.TimeUtil;
@@ -59,6 +60,7 @@ public class RobotManager extends LoggedRobot {
 				.setState(LEDState.HAS_CORAL)
 				.withTimeout(LEDConstants.CORAL_IN_BLINK_TIME_SECONDS)
 				.onlyIf(robot.getRobotCommander().getSuperstructure()::isCoralIn)
+				.ignoringDisable(true)
 		);
 	}
 
@@ -68,12 +70,13 @@ public class RobotManager extends LoggedRobot {
 			BrakeStateManager.coast();
 		}
 
-		robot.getRobotCommander().getLedStateHandler().setState(LEDState.DISABLE).schedule();
+		robot.getSwerve().getCommandsBuilder().resetTargetSpeeds().ignoringDisable(true).schedule();
+		robot.getRobotCommander().getLedStateHandler().setState(LEDState.DISABLE).ignoringDisable(true).schedule();
 	}
 
 	@Override
 	public void disabledExit() {
-		robot.getRobotCommander().getLedStateHandler().setState(LEDState.IDLE).schedule();
+		robot.getRobotCommander().getLedStateHandler().setState(LEDState.IDLE).ignoringDisable(true).schedule();
 		robot.getLifter().resetPosition(LifterConstants.MINIMUM_ACHIEVABLE_POSITION);
 	}
 
@@ -88,10 +91,14 @@ public class RobotManager extends LoggedRobot {
 	}
 
 	@Override
-	public void teleopInit() {
+	public void autonomousExit() {
 		if (auto != null) {
 			auto.cancel();
 		}
+	}
+
+	@Override
+	public void teleopInit() {
 		robot.getRobotCommander().initializeDefaultCommand();
 	}
 
@@ -100,7 +107,7 @@ public class RobotManager extends LoggedRobot {
 		updateTimeRelatedData(); // Better to be first
 		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
 		robot.periodic();
-//		AlertManager.reportAlerts();
+		AlertManager.reportAlerts();
 	}
 
 	private void createAutoReadyForConstructionChooser() {
