@@ -133,9 +133,8 @@ public class Superstructure extends GBSubsystem {
 	}
 
 
-	public boolean isReadyToProcessor() {
-		return robot.getElevator().isAtPosition(ElevatorState.PROCESSOR_OUTTAKE.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == ElevatorState.PROCESSOR_OUTTAKE
+	public boolean isReadyToScoreProcessor() {
+		return elevatorStateHandler.isAtState(ElevatorState.PROCESSOR_OUTTAKE, Tolerances.ELEVATOR_HEIGHT_METERS)
 			&& armStateHandler.isAtState(ArmState.PROCESSOR_OUTTAKE, Tolerances.ALGAE_RELEASE_ARM_POSITION);
 	}
 
@@ -374,25 +373,28 @@ public class Superstructure extends GBSubsystem {
 			SuperstructureState.ALGAE_REMOVE
 		);
 	}
-
-	public Command processorScore() {
+	
+	public Command preProcessor(){
 		return asSubsystemCommand(
-			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					elevatorStateHandler.setState(ElevatorState.PROCESSOR_OUTTAKE),
-					armStateHandler.setState(ArmState.PROCESSOR_OUTTAKE),
-					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
-					climbStateHandler.setState(ClimbState.STOP)
-				).until(this::isReadyToProcessor),
+						elevatorStateHandler.setState(ElevatorState.PROCESSOR_OUTTAKE),
+						armStateHandler.setState(ArmState.PROCESSOR_OUTTAKE),
+						endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+						climbStateHandler.setState(ClimbState.STOP)
+				),
+				SuperstructureState.PRE_PROCESSOR
+		);
+	}
+
+	public Command scoreProcessor() {
+		return asSubsystemCommand(
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.PROCESSOR_OUTTAKE),
 					armStateHandler.setState(ArmState.PROCESSOR_OUTTAKE),
 					endEffectorStateHandler.setState(EndEffectorState.PROCESSOR_OUTTAKE),
 					climbStateHandler.setState(ClimbState.STOP)
-				)
-			),
-//					.until(() -> !isAlgaeIn()),
-			SuperstructureState.PROCESSOR_OUTTAKE
+				),
+			SuperstructureState.SCORE_PROCESSOR
 		);
 	}
 
@@ -525,10 +527,11 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, PROCESSOR_OUTTAKE -> idle();
+			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, SCORE_PROCESSOR -> idle();
 			case NET -> softCloseNet().andThen(idle());
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> preScore();
+			case PRE_PROCESSOR -> preProcessor();
 			case PRE_CLIMB -> preClimb();
 			case CLIMB, MANUAL_CLIMB, STOP_CLIMB -> stopClimb();
 			case ELEVATOR_OPENING -> elevatorOpening();

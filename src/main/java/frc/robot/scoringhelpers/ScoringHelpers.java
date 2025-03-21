@@ -22,7 +22,6 @@ public class ScoringHelpers {
 	public static final Translation2d END_EFFECTOR_OFFSET_FROM_MID_ROBOT = new Translation2d(0, -0.025);
 	public static final Translation2d END_EFFECTOR_TUSKS_OFFSET_FROM_MID_ROBOT = new Translation2d(0, -0.017);
 	private static final double TIME_FOR_POSE_MOVEMENT_SECONDS = 0.3;
-	private static final Pose2d PROCESSOR_SCORING_POSE = new Pose2d(6, 0.7, Field.getProcessor().getRotation());
 	private static final Rotation2d HEADING_FOR_NET = Rotation2d.fromDegrees(0);
 	private static final Rotation2d HEADING_FOR_CAGE = Rotation2d.fromDegrees(180);
 
@@ -124,6 +123,17 @@ public class ScoringHelpers {
 		Translation2d endeffectorOffsetDifference = END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(targetRobotAngle);
 		return new Pose2d(branchTranslation.minus(differenceTranslation).minus(endeffectorOffsetDifference), targetRobotAngle);
 	}
+	
+	public static Pose2d getProcessorScoringPose(double distanceFromProcessorMeters){
+		Translation2d processorTranslation = Field.getProcessor().getTranslation();
+		Rotation2d targetRobotAngle = getHeadingForProcessor();
+		Translation2d differenceTranslation = new Translation2d(distanceFromProcessorMeters, targetRobotAngle);
+		return new Pose2d(processorTranslation.plus(differenceTranslation), targetRobotAngle);
+	}
+	
+	public static Rotation2d getHeadingForProcessor(){
+		return Field.getProcessor().getRotation().plus(Rotation2d.fromDegrees(20));
+	}
 
 	public static void setClosetReefSideTarget(Robot robot) {
 		ReefSide closetReefSide = getNearestReefSide(getRobotTranslationWithSpeedsHandle(robot));
@@ -156,10 +166,6 @@ public class ScoringHelpers {
 		Rotation2d targetRobotAngle = Field.getReefSideMiddle(side).getRotation();
 		Translation2d differenceTranslation = new Translation2d(distanceFromReefMeters, targetRobotAngle);
 		return new Pose2d(reefMiddleTranslation.minus(differenceTranslation), targetRobotAngle);
-	}
-
-	public static Pose2d getAllianceRelativeProcessorScoringPose() {
-		return Field.getAllianceRelative(PROCESSOR_SCORING_POSE, true, true, AngleTransform.KEEP);
 	}
 
 	public static void log(String logPath) {
