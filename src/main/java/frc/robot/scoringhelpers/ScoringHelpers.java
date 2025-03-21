@@ -194,12 +194,19 @@ public class ScoringHelpers {
 		return new Pose2d(coralStationSlotPose.getTranslation().plus(rotatedEndEffectorOffset), coralStationSlotPose.getRotation());
 	}
 
-	public static Pose2d getAlgaeRemovePose() {
-		Pose2d middleOfReefSide = Field.getReefSideMiddle(getTargetReefSide());
+	public static Pose2d getAlgaeRemovePose(ReefSide reefSide, double distanceFromReefSideMeters){
+		return getAlgaeRemovePose(reefSide, distanceFromReefSideMeters, true);
+	}
+
+	public static Pose2d getAlgaeRemovePose(ReefSide reefSide, double distanceFromReefSideMeters, boolean isAllianceRelative) {
+		Pose2d middleOfReefSide = Field.getReefSideMiddle(reefSide, isAllianceRelative);
 		Translation2d rotatedEndEffectorOffset = ScoringHelpers.END_EFFECTOR_TUSKS_OFFSET_FROM_MID_ROBOT
 			.rotateBy(middleOfReefSide.getRotation());
 
-		return new Pose2d(middleOfReefSide.getTranslation().minus(rotatedEndEffectorOffset), middleOfReefSide.getRotation());
+		Rotation2d targetRobotAngle = middleOfReefSide.getRotation();
+		Translation2d differenceTranslation = new Translation2d(distanceFromReefSideMeters, targetRobotAngle);
+
+		return new Pose2d(middleOfReefSide.getTranslation().minus(differenceTranslation).minus(rotatedEndEffectorOffset), targetRobotAngle);
 	}
 
 	private static Cage getClosestCage(Translation2d robotTranslation, Cage... cages) {
