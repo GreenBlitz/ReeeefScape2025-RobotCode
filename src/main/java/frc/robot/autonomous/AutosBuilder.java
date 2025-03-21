@@ -21,7 +21,6 @@ import frc.utils.auto.AutoPath;
 import frc.utils.auto.PathHelper;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
-import frc.utils.pose.Side;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.ArrayList;
@@ -135,9 +134,7 @@ public class AutosBuilder {
 
 	public static PathPlannerPath getAutoScorePath(Branch branch, Robot robot) {
 		ScoringHelpers.targetScoreLevel = ScoreLevel.L4;
-		ScoringHelpers.isLeftBranch = branch.isLeft();
-		ScoringHelpers.isFarReefHalf = branch.getReefSide().isFar();
-		ScoringHelpers.setTargetSideForReef(branch.getReefSide().getSide());
+		ScoringHelpers.setTargetBranch(branch);
 
 		Pose2d startingPose = robot.getPoseEstimator().getEstimatedPose();
 		Pose2d openSuperstructurePose = ScoringHelpers
@@ -194,36 +191,33 @@ public class AutosBuilder {
 						robot,
 						pathPlannerPath,
 						intakingCommand,
-						AutoPath.J_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
+						AutoPath.I_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
 						tolerance
 					)
 				),
-				createAutoFromAutoPath(AutoPath.UPPER_CORAL_STATION_2_TO_L, pathPlannerPath -> new InstantCommand(() -> {
-					ScoringHelpers.isLeftBranch = false;
-					ScoringHelpers.isFarReefHalf = false;
-					ScoringHelpers.setTargetSideForReef(Side.LEFT);
-				}).andThen(
-					PathFollowingCommandsBuilder.commandAfterPath(
+				new InstantCommand(() -> ScoringHelpers.setTargetBranch(Branch.L)),
+				createAutoFromAutoPath(
+					AutoPath.UPPER_CORAL_STATION_2_TO_L,
+					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
 						robot,
 						pathPlannerPath,
 						scoringCommand,
 						AutoPath.UPPER_CORAL_STATION_2_TO_L.getTargetBranch(),
 						tolerance
 					)
-				)),
-				createAutoFromAutoPath(AutoPath.L_TO_UPPER_CORAL_STATION_2, pathPlannerPath -> new InstantCommand(() -> {
-					ScoringHelpers.isLeftBranch = true;
-					ScoringHelpers.isFarReefHalf = false;
-					ScoringHelpers.setTargetSideForReef(Side.LEFT);
-				}).andThen(
-					PathFollowingCommandsBuilder.deadlinePathWithCommand(
+				),
+				createAutoFromAutoPath(
+					AutoPath.L_TO_UPPER_CORAL_STATION_2,
+					pathPlannerPath -> PathFollowingCommandsBuilder.deadlinePathWithCommand(
 						robot,
 						pathPlannerPath,
 						intakingCommand,
 						AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
 						tolerance
+
 					)
-				)),
+				),
+				new InstantCommand(() -> ScoringHelpers.setTargetBranch(Branch.K)),
 				createAutoFromAutoPath(
 					AutoPath.UPPER_CORAL_STATION_2_TO_K,
 					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
@@ -244,6 +238,7 @@ public class AutosBuilder {
 						tolerance
 					)
 				),
+				new InstantCommand(() -> ScoringHelpers.setTargetBranch(Branch.J)),
 				createAutoFromAutoPath(
 					AutoPath.UPPER_CORAL_STATION_2_TO_J,
 					pathPlannerPath -> PathFollowingCommandsBuilder.commandAfterPath(
