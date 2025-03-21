@@ -214,7 +214,6 @@ public class AutosBuilder {
 						intakingCommand,
 						AutoPath.L_TO_UPPER_CORAL_STATION_2.getTargetBranch(),
 						tolerance
-
 					)
 				),
 				new InstantCommand(() -> ScoringHelpers.setTargetBranch(Branch.K)),
