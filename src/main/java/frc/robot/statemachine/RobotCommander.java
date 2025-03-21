@@ -25,6 +25,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -156,21 +157,21 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private boolean isAtProcessorScoringPose() {
-		Rotation2d processorAngle = Field.getProcessor().getRotation();
+		Rotation2d processorAngle = ScoringHelpers.getHeadingForProcessor();
 
-		Pose2d processorRelativeTargetPose = ScoringHelpers.getAllianceRelativeProcessorScoringPose().rotateBy(processorAngle.unaryMinus());
-		Pose2d processorRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(processorAngle.unaryMinus());
+		Pose2d targetPose = ScoringHelpers.getProcessorScoringPose(StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_PROCESSOR);
+		Pose2d robotPose = robot.getPoseEstimator().getEstimatedPose();
 
 		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
 		ChassisSpeeds processorRelativeSpeeds = SwerveMath
 			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(processorAngle.unaryMinus()));
 
 		return PoseUtil.isAtPose(
-			processorRelativeRobotPose,
-			processorRelativeTargetPose,
+			robotPose,
+			targetPose,
 			processorRelativeSpeeds,
-			Tolerances.PROCESSOR_RELATIVE_SCORING_POSITION,
-			Tolerances.PROCESSOR_RELATIVE_SCORING_DEADBANDS,
+			Tolerances.PROCESSOR_SCORING_POSITION,
+			Tolerances.PROCESSOR_SCORING_DEADBANDS,
 			"/isAtProcessorScoringPose"
 		);
 	}
@@ -278,7 +279,8 @@ public class RobotCommander extends GBSubsystem {
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case PRE_NET -> preNet();
 			case NET -> net();
-			case PROCESSOR_SCORE -> fullyProcessorScore();
+			case PRE_PROCESSOR -> preProcessor();
+			case SCORE_PROCESSOR -> scoreProcessor();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB -> climb();
@@ -395,15 +397,30 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-
-	public Command fullyProcessorScore() {
+	public Command preProcessor(){
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				new SequentialCommandGroup(superstructure.idle().until(this::isAtProcessorScoringPose), superstructure.processorScore()),
-				swerve.getCommandsBuilder()
-					.driveToPose(robot.getPoseEstimator()::getEstimatedPose, ScoringHelpers::getAllianceRelativeProcessorScoringPose)
+				new ParallelCommandGroup(
+						superstructure.preProcessor(),
+						robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.PROCESSOR))
+				),
+				RobotState.PRE_PROCESSOR
+		);
+	}
+
+	public Command scoreProcessor() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.scoreProcessor(),
+				robot.getSwerve().getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.PROCESSOR))
 			),
-			RobotState.PROCESSOR_SCORE
+			RobotState.SCORE_PROCESSOR
+		);
+	}
+	
+	public Command fullyProcessorScore(){
+		return new SequentialCommandGroup(
+				preProcessor().until(this::isAtProcessorScoringPose),
+				scoreProcessor()
 		);
 	}
 
@@ -631,10 +648,11 @@ public class RobotCommander extends GBSubsystem {
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
-			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE, PRE_NET, NET -> drive();
+			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, SCORE_PROCESSOR, PRE_NET, NET -> drive();
 			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
+			case PRE_PROCESSOR -> preProcessor();
 			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
