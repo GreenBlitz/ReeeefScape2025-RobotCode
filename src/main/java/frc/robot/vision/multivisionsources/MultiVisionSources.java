@@ -1,6 +1,5 @@
 package frc.robot.vision.multivisionsources;
 
-import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.VisionData;
 import frc.robot.vision.sources.VisionSource;
 import frc.utils.Filter;
@@ -48,8 +47,9 @@ public class MultiVisionSources<T extends VisionData> {
 	}
 
 	public void log() {
-		logPoses(logPath + VisionConstants.FILTERED_DATA_LOGPATH_ADDITION, getFilteredVisionData());
-		logPoses(logPath + VisionConstants.NON_FILTERED_DATA_LOGPATH_ADDITION, getUnfilteredVisionData());
+		for (VisionSource<T> source : visionSources) {
+			source.log();
+		}
 	}
 
 	protected static <T extends VisionData> ArrayList<T> createMappedCopyOfSources(
