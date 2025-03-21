@@ -49,6 +49,22 @@ public class PathFollowingCommandsBuilder {
 		return new SequentialCommandGroup(followAdjustedPath(robot, path, targetBranch, tolerance), commandSupplier.get());
 	}
 
+	public static Command herm(
+		Robot robot,
+		PathPlannerPath path,
+		Supplier<Command> commandSupplier,
+		Optional<Branch> targetBranch,
+		Pose2d tolerance
+	) {
+		return new ParallelDeadlineGroup(
+		new SequentialCommandGroup(
+			new RunCommand(() -> {}).until(() -> robot.getRobotCommander().isReadyToScore()),
+			commandSupplier.get()
+		),
+		followAdjustedPathHerm(robot, path, targetBranch, tolerance)
+		);
+	}
+
 
 	public static Command followPath(PathPlannerPath path) {
 		return AutoBuilder.followPath(path);
@@ -89,6 +105,35 @@ public class PathFollowingCommandsBuilder {
 
 	public static Command moveToPoseByPID(Robot robot, Pose2d targetPose) {
 		return robot.getSwerve().getCommandsBuilder().moveToPoseByPID(robot.getPoseEstimator()::getEstimatedPose, targetPose);
+	}
+
+	public static Command followAdjustedPathHerm(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch, Pose2d tolerance) {
+		return robot.getSwerve()
+			.asSubsystemCommand(
+				followPathOrPathfindAndFollowPath(robot, path).andThen(
+					moveToPoseByPID(
+						robot,
+						targetBranch
+							.map(
+								branch -> ScoringHelpers
+									.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+							)
+							.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
+					)
+				),
+//					.until(
+//						() -> targetBranch.map(branch -> robot.getRobotCommander().isAtBranchScoringPose(branch))
+//							.orElse(
+//								ToleranceMath.isNear(
+//									Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT),
+//									robot.getPoseEstimator().getEstimatedPose(),
+//									tolerance
+//								)
+//							)
+//					)
+//					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds()),
+				"Follow Adjusted " + path.name
+			);
 	}
 
 	public static Command followAdjustedPath(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch, Pose2d tolerance) {
