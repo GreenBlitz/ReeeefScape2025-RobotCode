@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0253613685923506,
-        "y": 6.129480541289031
+        "x": 3.0147871606584977,
+        "y": 6.101903974505603
       },
       "isLocked": false,
       "linkedName": "K"
@@ -20,8 +20,8 @@
         "y": 7.34
       },
       "prevControl": {
-        "x": 1.9690449842574318,
-        "y": 7.0350018660008535
+        "x": 1.9723124621683588,
+        "y": 7.049564135647119
       },
       "nextControl": null,
       "isLocked": false,
@@ -57,5 +57,5 @@
     "velocity": 0,
     "rotation": -59.99999999999999
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
