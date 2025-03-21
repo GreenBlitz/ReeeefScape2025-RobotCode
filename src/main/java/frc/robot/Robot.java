@@ -247,7 +247,6 @@ public class Robot {
 		}
 		List<AprilTagVisionData> visionData = multiAprilTagVisionSources.getFilteredVisionData();
 		poseEstimator.updateVision(visionData);
-//		 multiAprilTagVisionSources.log();
 		headingEstimator.log();
 		multiAprilTagVisionSources.log();
 		Logger.recordOutput("TimeTest/Pose", TimeUtil.getCurrentTimeSeconds() - poseTime);
