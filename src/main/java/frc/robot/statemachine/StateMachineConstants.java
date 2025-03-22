@@ -7,6 +7,7 @@ import frc.robot.subsystems.arm.ArmConstants;
 public class StateMachineConstants {
 
 	public static final double ROBOT_SCORING_DISTANCE_FROM_REEF_METERS = 0.59;
+	public static final double ROBOT_ALGAE_REMOVE_DISTANCE_FROM_REEF_METERS = 0.5;
 	public static final double OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS = 0.8;
 	public static final double DISTANCE_TO_BRANCH_FOR_STARTING_PATH = 1;
 	public static final double OPEN_SUPERSTRUCTURE_DISTANCE_FROM_NET_METERS = 2.4;
@@ -20,6 +21,7 @@ public class StateMachineConstants {
 	public static final Translation2d SCORE_DISTANCES_FROM_MIDDLE_OF_BARGE_METRES = new Translation2d(1.6, 0.1);
 
 	public static final double SCORE_OUTTAKE_TIME_AFTER_BEAM_BREAK_SECONDS = 0;
+	public static final double SUPER_ALGAE_REMOVE_TIME_SECONDS = 1.5;
 	public static final double NET_OUTTAKE_TIME_SECONDS = 1;
 	public static final double ALGAE_REMOVE_TIME_AFTER_LIMIT_SWITCH_SECONDS = 0;
 	public static final double INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS = 0;
