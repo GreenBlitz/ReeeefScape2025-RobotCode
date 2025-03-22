@@ -522,6 +522,16 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
+	public Command releaseArmFromClimb(){
+		return asSubsystemCommand(
+				new SequentialCommandGroup(
+						new ParallelCommandGroup(
+								new InstantCommand(() -> robot.getArm().setBrake(false))
+						)
+				)
+		)
+	}
+
 	public Command holdAlgae() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
