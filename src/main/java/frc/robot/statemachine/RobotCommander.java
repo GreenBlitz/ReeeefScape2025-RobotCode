@@ -25,6 +25,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -331,14 +332,18 @@ public class RobotCommander extends GBSubsystem {
 	public Command autoScoreForAutonomous(PathPlannerPath path) {
 		Command fullySuperstructureScore = new SequentialCommandGroup(
 			superstructure.elevatorOpening(),
+			new InstantCommand(() -> Logger.recordOutput("Test/eleOpen", true)),
 			superstructure.armPreScore().alongWith(ledStateHandler.setState(LEDState.MOVE_TO_POSE)).until(this::isReadyToOpenSuperstructure),
+			new InstantCommand(() -> Logger.recordOutput("Test/ready open", true)),
 			superstructure.preScore()
 				.alongWith(ledStateHandler.setState(LEDState.IN_POSITION_TO_OPEN_ELEVATOR))
 				.until(superstructure::isPreScoreReady),
+			new InstantCommand(() -> Logger.recordOutput("Test/pre ready", true)),
 			superstructure.scoreWithoutRelease()
 				.alongWith(ledStateHandler.setState(LEDState.OPENING_SUPERSTRUCTURE))
 				.until(this::isReadyToScore),
-			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
+			new InstantCommand(() -> Logger.recordOutput("Test/ready to score", true)),
+				superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
 		);
 
 		Command driveToPath = swerve.asSubsystemCommand(
