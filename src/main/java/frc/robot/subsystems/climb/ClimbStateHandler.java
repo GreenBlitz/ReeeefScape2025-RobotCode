@@ -29,6 +29,7 @@ public class ClimbStateHandler {
 			case CLIMB -> climb();
 			case MANUAL_CLIMB -> manualClimb();
 			case CLOSE -> close();
+			case EXIT_CLIMB -> exitClimb();
 		});
 	}
 
@@ -58,6 +59,18 @@ public class ClimbStateHandler {
 		return new ParallelCommandGroup(
 			lifterStateHandler.setState(LifterState.MANUAL_CLIMB),
 			solenoidStateHandler.setState(SolenoidState.LOCKED)
+		);
+	}
+
+	private Command exitClimb() {
+		return new SequentialCommandGroup(
+			new ParallelCommandGroup(
+				lifterStateHandler.setState(LifterState.BACKWARD).withTimeout(ClimbConstants.SOLENOID_RELEASE_TIME_SECONDS),
+				solenoidStateHandler.setState(SolenoidState.INITIAL_FREE)
+					.withTimeout(ClimbConstants.SOLENOID_RETRACTING_UNTIL_HOLDING_TIME_SECONDS)
+			),
+			new ParallelCommandGroup(lifterStateHandler.setState(LifterState.FORWARD), solenoidStateHandler.setState(SolenoidState.HOLD_FREE))
+
 		);
 	}
 
