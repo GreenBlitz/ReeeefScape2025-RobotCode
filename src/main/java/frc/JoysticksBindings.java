@@ -83,7 +83,9 @@ public class JoysticksBindings {
 	private static Command reefActionChooser(Robot robot) {
 		return new DeferredCommand(
 			() -> robot.getRobotCommander().getSuperstructure().isCoralIn()
-				? robot.getRobotCommander().autoScore()
+				? (ScoringHelpers.isAutoAlgaeRemoveActivated
+					? robot.getRobotCommander().autoScoreThenAlgaeRemove()
+					: robot.getRobotCommander().autoScore())
 				: new InstantCommand(() -> ScoringHelpers.setClosetReefSideTarget(robot))
 					.andThen(robot.getRobotCommander().setState(RobotState.ALGAE_REMOVE)),
 			Set.of(
@@ -122,7 +124,7 @@ public class JoysticksBindings {
 			RobotCommander robotCommander = robot.getRobotCommander();
 			RobotState state = robotCommander.getCurrentState();
 			Command command;
-			if (state == RobotState.ALGAE_REMOVE) {
+			if (state == RobotState.ALGAE_REMOVE || state == RobotState.PRE_NET) {
 				robotCommander.setState(RobotState.HOLD_ALGAE).schedule();
 				return;
 			} else if (state == RobotState.NET) {
@@ -158,6 +160,21 @@ public class JoysticksBindings {
 		});
 	}
 
+	private static Command netActionChooser(Robot robot) {
+		return new InstantCommand(() -> {
+			RobotCommander robotCommander = robot.getRobotCommander();
+			RobotState state = robotCommander.getCurrentState();
+			Command command;
+
+			if (state == RobotState.NET || state == RobotState.PRE_NET) {
+				command = robotCommander.setState(RobotState.NET);
+			} else {
+				command = robotCommander.completeNet();
+			}
+			command.schedule();
+		});
+	}
+
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
@@ -166,7 +183,7 @@ public class JoysticksBindings {
 		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITH_AIM_ASSIST));
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(intakeActionChooser(robot));
 
-		usedJoystick.R1.onTrue(robot.getRobotCommander().fullyNet());
+		usedJoystick.R1.onTrue(netActionChooser(robot));
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
@@ -192,7 +209,9 @@ public class JoysticksBindings {
 		usedJoystick.R1.onTrue(new InstantCommand(() -> ScoringHelpers.isLeftBranch = false));
 		usedJoystick.L1.onTrue(new InstantCommand(() -> ScoringHelpers.isLeftBranch = true));
 
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
+		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> ScoringHelpers.isAutoAlgaeRemoveActivated = true));
+
 		usedJoystick.L3.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));
 	}
 

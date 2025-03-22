@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.68,
-        "y": 5.1
+        "y": 5.15
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.694029848486276,
-        "y": 6.145988033822364
+        "x": 2.7013192609540333,
+        "y": 6.164975625442464
       },
       "isLocked": false,
       "linkedName": "L"
@@ -20,8 +20,8 @@
         "y": 7.34
       },
       "prevControl": {
-        "x": 1.9868632290923247,
-        "y": 6.922115379812205
+        "x": 1.9999261349570385,
+        "y": 6.8937468680596155
       },
       "nextControl": null,
       "isLocked": false,
@@ -57,5 +57,5 @@
     "velocity": 0,
     "rotation": -59.99999999999999
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
