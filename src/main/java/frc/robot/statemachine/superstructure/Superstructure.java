@@ -1,12 +1,7 @@
 package frc.robot.statemachine.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
@@ -457,6 +452,14 @@ public class Superstructure extends GBSubsystem {
 
 
 	public Command preClimb() {
+		return new ConditionalCommand(
+			defaultPreClimb(),
+			releaseArmFromClimb(),
+			() -> robot.getArm().isBehindPosition(StateMachineConstants.ARM_POSITION_TO_NEED_RELEASE)
+		);
+	}
+
+	private Command defaultPreClimb() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				new SequentialCommandGroup(
@@ -522,14 +525,34 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	public Command releaseArmFromClimb(){
+	public Command releaseArmFromClimb() {
 		return asSubsystemCommand(
-				new SequentialCommandGroup(
-						new ParallelCommandGroup(
-								new InstantCommand(() -> robot.getArm().setBrake(false))
-						)
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					new InstantCommand(() -> robot.getArm().setBrake(false)),
+					elevatorStateHandler.setState(ElevatorState.STAY_IN_PLACE),
+					armStateHandler.setState(ArmState.STAY_IN_PLACE),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					climbStateHandler.setState(ClimbState.DEPLOY)
+				).until(() -> robot.getLifter().isHigher(StateMachineConstants.LIFTER_POSITION_TO_RELEASE_ARM)),
+				new ParallelCommandGroup(
+					elevatorStateHandler.setState(ElevatorState.OPENING_HEIGHT),
+					armStateHandler.setState(ArmState.STAY_IN_PLACE),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					climbStateHandler.setState(ClimbState.STOP)
+				).until(
+					() -> robot.getElevator().isAtPosition(ElevatorState.OPENING_HEIGHT.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+				),
+				new ParallelCommandGroup(
+					new InstantCommand(() -> robot.getArm().setBrake(true)),
+					elevatorStateHandler.setState(ElevatorState.CLIMB),
+					armStateHandler.setState(ArmState.CLIMB),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					climbStateHandler.setState(ClimbState.STOP)
 				)
-		)
+			),
+			SuperstructureState.RELEASE_ARM_FROM_CLIMB
+		);
 	}
 
 	public Command holdAlgae() {
@@ -560,7 +583,7 @@ public class Superstructure extends GBSubsystem {
 			case NET -> softCloseNet().andThen(idle());
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> preScore();
-			case PRE_CLIMB -> preClimb();
+			case PRE_CLIMB, RELEASE_ARM_FROM_CLIMB -> preClimb();
 			case CLIMB, MANUAL_CLIMB, STOP_CLIMB -> stopClimb();
 			case ELEVATOR_OPENING -> elevatorOpening();
 			case HOLD_ALGAE -> holdAlgae();
