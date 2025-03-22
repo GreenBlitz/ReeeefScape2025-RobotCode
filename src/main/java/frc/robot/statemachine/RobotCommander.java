@@ -278,6 +278,7 @@ public class RobotCommander extends GBSubsystem {
 			case ALGAE_REMOVE -> algaeRemove();
 			case ALGAE_OUTTAKE -> algaeOuttake();
 			case PRE_NET -> preNet();
+			case SCORE_L1 -> scoreL1();
 			case NET -> net();
 			case PROCESSOR_SCORE -> fullyProcessorScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
@@ -598,6 +599,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command scoreL1() {
+		return asSubsystemCommand(
+			driveWith("ScoreL1", superstructure.preL1().until(superstructure::isReadyToL1).andThen(superstructure.scoreL1()), true),
+			RobotState.SCORE_L1
+		);
+	}
+
 	private Command afterScore() {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
@@ -642,7 +650,7 @@ public class RobotCommander extends GBSubsystem {
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
-			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE -> drive();
+			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE, SCORE_L1 -> drive();
 			case PRE_NET, NET -> afterNet();
 			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();

@@ -14,6 +14,7 @@ public enum SuperstructureState {
 	ALGAE_OUTTAKE,
 	PRE_NET,
 	NET,
+	SCORE_L1,
 	PROCESSOR_OUTTAKE,
 	PRE_CLIMB,
 	CLIMB,

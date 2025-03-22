@@ -108,6 +108,11 @@ public class Superstructure extends GBSubsystem {
 			&& armStateHandler.getCurrentState() == ArmState.CLOSED;
 	}
 
+	public boolean isReadyToL1() {
+		return elevatorStateHandler.isAtState(ElevatorState.L1, Tolerances.ELEVATOR_HEIGHT_METERS)
+			&& armStateHandler.isAtState(ArmState.L1, Tolerances.ARM_POSITION);
+	}
+
 	public boolean isPreNetReady() {
 		return robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_TO_START_THROW_NET)
 			&& elevatorStateHandler.getCurrentState() == ElevatorState.NET
@@ -311,6 +316,43 @@ public class Superstructure extends GBSubsystem {
 				Set.of(this, robot.getElevator(), robot.getArm(), robot.getEndEffector(), robot.getLifter(), robot.getSolenoid())
 			),
 			SuperstructureState.SCORE
+		);
+	}
+
+	public Command preL1() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						armStateHandler.setState(ArmState.CLOSED),
+						elevatorStateHandler.setState(ElevatorState.OPENING_HEIGHT)
+					).until(
+						() -> robot.getElevator().isAtPosition(ElevatorState.OPENING_HEIGHT.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
+					),
+					armStateHandler.setState(ArmState.L1)
+						.until(() -> robot.getArm().isAtPosition(armStateHandler.getStatePosition(ArmState.L1), Tolerances.ARM_POSITION)),
+					elevatorStateHandler.setState(ElevatorState.L1)
+				),
+				climbStateHandler.setState(ClimbState.STOP)
+			),
+			SuperstructureState.PRE_SCORE
+		);
+	}
+
+	public Command scoreL1() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				new SequentialCommandGroup(
+					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE).until(() -> !isCoralIn()),
+					endEffectorStateHandler.setState(EndEffectorState.BRANCH_OUTTAKE).withTimeout(0.5),
+					elevatorOpening(),
+					armStateHandler.setState(ArmState.CLOSED)
+						.until(() -> robot.getArm().isAtPosition(armStateHandler.getStatePosition(ArmState.CLOSED), Tolerances.ARM_POSITION)),
+					elevatorStateHandler.setState(ElevatorState.CLOSED)
+				),
+				climbStateHandler.setState(ClimbState.STOP)
+			).until(this::isClosed),
+			SuperstructureState.SCORE_L1
 		);
 	}
 
@@ -546,7 +588,7 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, PROCESSOR_OUTTAKE, PRE_NET -> idle();
+			case INTAKE, IDLE, ALGAE_REMOVE, ALGAE_OUTTAKE, PROCESSOR_OUTTAKE, PRE_NET, SCORE_L1 -> idle();
 			case NET -> softCloseNet().andThen(idle());
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> preScore();

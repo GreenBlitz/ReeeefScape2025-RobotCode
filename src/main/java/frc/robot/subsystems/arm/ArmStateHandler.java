@@ -52,7 +52,7 @@ public class ArmStateHandler {
 		return arm.isAtPosition(getStatePosition(state), tolerance) && currentState == state;
 	}
 
-	private Rotation2d getStatePosition(ArmState state) {
+	public Rotation2d getStatePosition(ArmState state) {
 		return Rotation2d.fromDegrees(state.getPosition().getDegrees() + switch (state) {
 			case L4 -> ArmConstants.L4_DISTANCE_ANGLE_MAP.get(distanceSupplier.get()).getDegrees();
 			case L3, PRE_L3 -> ArmConstants.L3_DISTANCE_ANGLE_MAP.get(distanceSupplier.get()).getDegrees();
