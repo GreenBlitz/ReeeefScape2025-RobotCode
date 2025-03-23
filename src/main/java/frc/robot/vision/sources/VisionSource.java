@@ -12,6 +12,8 @@ public interface VisionSource<T extends VisionData> {
 
 	void update();
 
+	void log();
+
 	Optional<T> getVisionData();
 
 	default Optional<T> getFilteredVisionData() {
