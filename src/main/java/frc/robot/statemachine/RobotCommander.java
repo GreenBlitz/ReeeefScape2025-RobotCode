@@ -283,8 +283,10 @@ public class RobotCommander extends GBSubsystem {
 			case PROCESSOR_SCORE -> fullyProcessorScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB -> climb();
+			case CLIMB_WITHOUT_LIMIT_SWITCH -> climbWithoutLimitSwitch();
+			case CLIMB_WITH_LIMIT_SWITCH -> climbWithLimitSwitch();
 			case MANUAL_CLIMB -> manualClimb();
+			case EXIT_CLIMB -> exitClimb();
 			case STOP_CLIMB -> stopClimb();
 			case CLOSE_CLIMB -> closeClimb();
 			case HOLD_ALGAE -> holdAlgae();
@@ -414,7 +416,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command completeNet() {
-		return asSubsystemCommand(new SequentialCommandGroup(preNet().until(this::isReadyForNet), net()), RobotState.NET);
+		return new SequentialCommandGroup(preNet().until(this::isReadyForNet), net());
 	}
 
 	private Command drive() {
@@ -551,6 +553,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command holdAlgae() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.holdAlgae(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.HOLD_ALGAE
+		);
+	}
+
 	private Command preClimbWithAimAssist() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
@@ -568,10 +577,23 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command climb() {
+	private Command climbWithoutLimitSwitch() {
 		return asSubsystemCommand(
-			new ParallelCommandGroup(superstructure.climb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
-			RobotState.CLIMB
+			new ParallelCommandGroup(
+				superstructure.climbWithoutLimitSwitch(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
+			RobotState.CLIMB_WITHOUT_LIMIT_SWITCH
+		);
+	}
+
+	private Command climbWithLimitSwitch() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				superstructure.climbWithLimitSwitch(),
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+			),
+			RobotState.CLIMB_WITH_LIMIT_SWITCH
 		);
 	}
 
@@ -579,6 +601,13 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(superstructure.manualClimb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			RobotState.MANUAL_CLIMB
+		);
+	}
+
+	private Command exitClimb() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.exitClimb(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.EXIT_CLIMB
 		);
 	}
 
@@ -617,10 +646,19 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command holdAlgae() {
-		return asSubsystemCommand(
-			new ParallelCommandGroup(superstructure.holdAlgae(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
-			RobotState.HOLD_ALGAE
+	private Command afterNet() {
+		return new DeferredCommand(
+			() -> new SequentialCommandGroup(driveWith("Soft close net", getSuperstructure().softCloseNet(), true), drive()),
+			Set.of(
+				this,
+				superstructure,
+				swerve,
+				robot.getElevator(),
+				robot.getArm(),
+				robot.getEndEffector(),
+				robot.getLifter(),
+				robot.getSolenoid()
+			)
 		);
 	}
 
@@ -631,14 +669,15 @@ public class RobotCommander extends GBSubsystem {
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
-			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE, PRE_NET, NET -> drive();
+			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE -> drive();
+			case PRE_NET, NET -> afterNet();
 			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
 			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB, MANUAL_CLIMB, STOP_CLIMB -> stopClimb();
+			case CLIMB_WITHOUT_LIMIT_SWITCH, CLIMB_WITH_LIMIT_SWITCH, MANUAL_CLIMB, EXIT_CLIMB, STOP_CLIMB -> stopClimb();
 		};
 	}
 
