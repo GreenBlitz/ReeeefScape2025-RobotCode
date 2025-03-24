@@ -32,9 +32,9 @@ public class ArmConstants {
 			0.48,
 			Rotation2d.fromDegrees(0),
 			0.59,
-			Rotation2d.fromDegrees(8),
+			Rotation2d.fromDegrees(8.5),
 			0.65,
-			Rotation2d.fromDegrees(11),
+			Rotation2d.fromDegrees(12),
 			0.70,
 			Rotation2d.fromDegrees(19.5)
 		)
@@ -49,9 +49,9 @@ public class ArmConstants {
 			0.48,
 			Rotation2d.fromDegrees(0),
 			0.59,
-			Rotation2d.fromDegrees(2.25),
+			Rotation2d.fromDegrees(1.75),
 			0.65,
-			Rotation2d.fromDegrees(5),
+			Rotation2d.fromDegrees(4.5),
 			0.70,
 			Rotation2d.fromDegrees(7.5)
 		)
@@ -66,11 +66,11 @@ public class ArmConstants {
 			0.48,
 			Rotation2d.fromDegrees(0),
 			0.59,
-			Rotation2d.fromDegrees(3.75),
+			Rotation2d.fromDegrees(3.5),
 			0.65,
-			Rotation2d.fromDegrees(6.5),
+			Rotation2d.fromDegrees(6),
 			0.70,
-			Rotation2d.fromDegrees(9.5)
+			Rotation2d.fromDegrees(9)
 		)
 	);
 
