@@ -264,7 +264,7 @@ public class RobotCommander extends GBSubsystem {
 		Pose2d feederPose = Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot));
 		Pose2d feederRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().relativeTo(feederPose);
 
-		return Math.abs(feederRelativeRobotPose.getX()) < distance;
+		return Math.abs(feederRelativeRobotPose.getX()) > distance;
 	}
 
 	private boolean shouldStartHoldCoral() {
