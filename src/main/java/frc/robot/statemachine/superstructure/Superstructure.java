@@ -580,7 +580,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 				climbStateHandler.setState(ClimbState.STOP)
 			),
-			SuperstructureState.HOLD_ALGAE
+			SuperstructureState.HOLD_CORAL
 		);
 	}
 
