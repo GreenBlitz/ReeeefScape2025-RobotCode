@@ -18,7 +18,6 @@ import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
-import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 
