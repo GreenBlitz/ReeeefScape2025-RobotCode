@@ -26,6 +26,7 @@ import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.utils.pose.PoseUtil;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -260,14 +261,17 @@ public class RobotCommander extends GBSubsystem {
 			&& SwerveMath.isStill(swerve.getAllianceRelativeVelocity(), Tolerances.NET_DEADBANDS);
 	}
 
+	private boolean isFarFromFeeder(double distance) {
+		Pose2d feederPose = Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot));
+		Pose2d feederRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().relativeTo(feederPose);
+
+		return Math.abs(feederRelativeRobotPose.getX()) < distance;
+	}
+
 	private boolean shouldStartHoldCoral() {
 		boolean isAtState = currentState == RobotState.DRIVE;
 		boolean hasCoral = superstructure.isCoralIn();
-		boolean isAtDistance = Field.getCoralStationSlot(ScoringHelpers.getTargetCoralStationSlot(robot))
-			.getTranslation()
-			.getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation())
-			< StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_HOLD_CORAL;
-
+		boolean isAtDistance = isFarFromFeeder(StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_HOLD_CORAL);
 		return isAtState && hasCoral && isAtDistance;
 	}
 
