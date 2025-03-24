@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
@@ -49,6 +50,8 @@ public class RobotCommander extends GBSubsystem {
 
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
+
+		new Trigger(this::shouldStartHoldCoral).onTrue(holdCoral());
 
 		initializeDefaultCommand();
 	}
@@ -257,6 +260,17 @@ public class RobotCommander extends GBSubsystem {
 			&& SwerveMath.isStill(swerve.getAllianceRelativeVelocity(), Tolerances.NET_DEADBANDS);
 	}
 
+	private boolean shouldStartHoldCoral() {
+		boolean isAtState = currentState == RobotState.DRIVE;
+		boolean hasCoral = superstructure.isCoralIn();
+		boolean isAtDistance = Field.getCoralStationSlot(ScoringHelpers.getTargetCoralStationSlot(robot))
+			.getTranslation()
+			.getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation())
+			< StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_HOLD_CORAL;
+
+		return isAtState && hasCoral && isAtDistance;
+	}
+
 	public Command driveWith(String name, Command command, boolean asDeadline) {
 		Command swerveDriveCommand = swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE);
 		Command wantedCommand = asDeadline ? command.deadlineFor(swerveDriveCommand) : command.alongWith(swerveDriveCommand);
@@ -289,6 +303,7 @@ public class RobotCommander extends GBSubsystem {
 			case STOP_CLIMB -> stopClimb();
 			case CLOSE_CLIMB -> closeClimb();
 			case HOLD_ALGAE -> holdAlgae();
+			case HOLD_CORAL -> holdCoral();
 		};
 	}
 
@@ -561,6 +576,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command holdCoral() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.holdCoral(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.HOLD_CORAL
+		);
+	}
+
 	private Command preClimbWithAimAssist() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
@@ -670,9 +692,10 @@ public class RobotCommander extends GBSubsystem {
 	private Command endState(RobotState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
-			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE -> drive();
+			case DRIVE, ALIGN_REEF, ALGAE_OUTTAKE, PROCESSOR_SCORE -> drive();
 			case PRE_NET, NET -> afterNet();
 			case ALGAE_REMOVE, HOLD_ALGAE -> holdAlgae();
+			case INTAKE_WITH_AIM_ASSIST, INTAKE_WITHOUT_AIM_ASSIST, HOLD_CORAL -> holdCoral();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
 			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
