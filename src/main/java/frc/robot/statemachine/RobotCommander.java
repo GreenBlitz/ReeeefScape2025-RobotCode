@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
@@ -50,6 +51,8 @@ public class RobotCommander extends GBSubsystem {
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 
+		new Trigger(this::shouldAutoIntake).onTrue(setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
+
 		initializeDefaultCommand();
 	}
 
@@ -66,42 +69,21 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public void initializeDefaultCommand() {
-		setDefaultCommand(new DeferredCommand(() -> switch (currentState) {
-			case ALGAE_REMOVE, HOLD_ALGAE -> endState(currentState);
-			case
-				ALGAE_OUTTAKE,
-				ALIGN_REEF,
-				ARM_PRE_SCORE,
-				CLIMB,
-				CLOSE_CLIMB,
-				CORAL_OUTTAKE,
-				DRIVE,
-				INTAKE_WITH_AIM_ASSIST,
-				INTAKE_WITHOUT_AIM_ASSIST,
-				MANUAL_CLIMB,
-				NET,
-				PRE_SCORE,
-				PRE_CLIMB_WITH_AIM_ASSIST,
-				PRE_CLIMB_WITHOUT_AIM_ASSIST,
-				PRE_NET,
-				PROCESSOR_SCORE,
-				SCORE,
-				SCORE_WITHOUT_RELEASE,
-				STAY_IN_PLACE,
-				STOP_CLIMB ->
-				endState(currentState).until(this::isCloseToFeeder).andThen(intakeWithoutAimAssist());
-		},
-			Set.of(
-				this,
-				superstructure,
-				swerve,
-				robot.getElevator(),
-				robot.getArm(),
-				robot.getEndEffector(),
-				robot.getLifter(),
-				robot.getSolenoid()
+		setDefaultCommand(
+			new DeferredCommand(
+				() -> endState(currentState),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				)
 			)
-		));
+		);
 	}
 
 	/**
@@ -284,12 +266,13 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(wantedCommand, name);
 	}
 
-	public boolean isCloseToFeeder() {
-		return robot.getPoseEstimator()
-			.getEstimatedPose()
-			.getTranslation()
-			.getDistance(Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot)).getTranslation())
-			<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_INTAKE_METERS;
+	public boolean shouldAutoIntake() {
+		return currentState == RobotState.DRIVE
+			&& robot.getPoseEstimator()
+				.getEstimatedPose()
+				.getTranslation()
+				.getDistance(Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot)).getTranslation())
+				<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_INTAKE_METERS;
 	}
 
 	public Command setState(RobotState state) {
