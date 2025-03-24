@@ -43,7 +43,7 @@ class Pigeon2GyroBuilder {
 				pigeon2Gyro.getDevice().getYaw(),
 				RobotConstants.DEFAULT_CANIVORE_SIGNALS_FREQUENCY_HERTZ,
 				AngleUnit.DEGREES,
-				BusChain.SWERVE_CANIVORE
+				BusChain.ROBORIO
 			)
 		);
 	}

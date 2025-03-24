@@ -10,8 +10,7 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 public enum BusChain {
 
 	ROBORIO("rio"),
-	SUPERSTRUCTURE_CANIVORE("superstructure"),
-	SWERVE_CANIVORE("chassis");
+	SUPERSTRUCTURE_CANIVORE("superstructure");
 
 	private static final double PERMITTED_CAN_UTILIZATION_DECIMAL_VALUE = 0.6;
 	private static final int PERMITTED_RECEIVE_ERRORS = 0;

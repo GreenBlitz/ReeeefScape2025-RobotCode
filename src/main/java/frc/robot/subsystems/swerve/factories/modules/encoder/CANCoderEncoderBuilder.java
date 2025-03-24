@@ -44,12 +44,8 @@ class CANCoderEncoderBuilder {
 
 	static EncoderSignals buildSignals(CANCoderEncoder encoder) {
 		return new EncoderSignals(
-			Phoenix6SignalBuilder.build(
-				encoder.getDevice().getPosition(),
-				RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
-				AngleUnit.ROTATIONS,
-				BusChain.SWERVE_CANIVORE
-			)
+			Phoenix6SignalBuilder
+				.build(encoder.getDevice().getPosition(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS, BusChain.ROBORIO)
 		);
 	}
 

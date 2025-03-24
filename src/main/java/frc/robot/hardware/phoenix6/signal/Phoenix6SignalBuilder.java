@@ -11,12 +11,10 @@ public class Phoenix6SignalBuilder {
 	private static final int UPDATE_FREQUENCY_RETRIES = 5;
 
 	public static BaseStatusSignal[] rioSignals = new BaseStatusSignal[0];
-	public static BaseStatusSignal[] chassisSignals = new BaseStatusSignal[0];
 	public static BaseStatusSignal[] superstructureSignals = new BaseStatusSignal[0];
 
 	public static void refreshAll() {
 		BaseStatusSignal.refreshAll(rioSignals);
-		BaseStatusSignal.refreshAll(chassisSignals);
 		BaseStatusSignal.refreshAll(superstructureSignals);
 	}
 
@@ -35,7 +33,6 @@ public class Phoenix6SignalBuilder {
 		StatusSignal<?> signalClone = signal.clone();
 		switch (busChain) {
 			case ROBORIO -> rioSignals = addSignalToArray(rioSignals, signalClone);
-			case SWERVE_CANIVORE -> chassisSignals = addSignalToArray(chassisSignals, signalClone);
 			case SUPERSTRUCTURE_CANIVORE -> superstructureSignals = addSignalToArray(superstructureSignals, signalClone);
 		}
 
