@@ -293,27 +293,39 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command autoScore() {
-		return ScoringHelpers.targetScoreLevel == ScoreLevel.L4 ? autoScoreL4() : autoScoreL2L3();
-	}
-
-	private Command autoScoreL2L3() {
 		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
-			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
-			superstructure.preScore().until(superstructure::isPreScoreReady),
-			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
-			superstructure.scoreWithRelease()
+			superstructure.armPreScore().alongWith(ledStateHandler.setState(LEDState.MOVE_TO_POSE)).until(this::isReadyToOpenSuperstructure),
+			superstructure.preScore()
+				.alongWith(ledStateHandler.setState(LEDState.IN_POSITION_TO_OPEN_ELEVATOR))
+				.until(superstructure::isPreScoreReady),
+			superstructure.scoreWithoutRelease()
+				.alongWith(ledStateHandler.setState(LEDState.OPENING_SUPERSTRUCTURE))
+				.until(this::isReadyToScore),
+			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
 		);
 
-		Supplier<Command> driveToPose = () -> swerve.getCommandsBuilder()
-			.driveToPose(
-				() -> robot.getPoseEstimator().getEstimatedPose(),
-				() -> ScoringHelpers
-					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-			);
+		Supplier<Command> swerveCommand = ScoringHelpers.targetScoreLevel == ScoreLevel.L4
+			? () -> swerve.getCommandsBuilder()
+				.driveToPath(
+					() -> robot.getPoseEstimator().getEstimatedPose(),
+					ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch(), ScoringHelpers.targetScoreLevel),
+					ScoringHelpers.getRobotBranchScoringPose(
+						ScoringHelpers.getTargetBranch(),
+						StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+					)
+				)
+			: () -> swerve.getCommandsBuilder()
+				.driveToPose(
+					() -> robot.getPoseEstimator().getEstimatedPose(),
+					() -> ScoringHelpers.getRobotBranchScoringPose(
+						ScoringHelpers.getTargetBranch(),
+						StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS
+					)
+				);
 
 		return asSubsystemCommand(
 			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPose.get()),
+				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), swerveCommand.get()),
 				Set.of(
 					this,
 					superstructure,
@@ -335,45 +347,6 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.preScore().until(superstructure::isPreScoreReady),
 			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
 			superstructure.scoreWithRelease()
-		);
-
-		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
-			.driveToPath(
-				() -> robot.getPoseEstimator().getEstimatedPose(),
-				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch(), ScoringHelpers.targetScoreLevel),
-				ScoringHelpers
-					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-			);
-
-		return asSubsystemCommand(
-			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
-				Set.of(
-					this,
-					superstructure,
-					swerve,
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getSolenoid()
-				)
-			),
-			RobotState.SCORE
-		);
-	}
-
-
-	private Command autoScoreL4() {
-		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
-			superstructure.armPreScore().alongWith(ledStateHandler.setState(LEDState.MOVE_TO_POSE)).until(this::isReadyToOpenSuperstructure),
-			superstructure.preScore()
-				.alongWith(ledStateHandler.setState(LEDState.IN_POSITION_TO_OPEN_ELEVATOR))
-				.until(superstructure::isPreScoreReady),
-			superstructure.scoreWithoutRelease()
-				.alongWith(ledStateHandler.setState(LEDState.OPENING_SUPERSTRUCTURE))
-				.until(this::isReadyToScore),
-			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
 		);
 
 		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
