@@ -5,15 +5,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public enum ArmState {
 
 	STAY_IN_PLACE(Rotation2d.fromDegrees(Double.NaN)),
-	CLOSED(Rotation2d.fromDegrees(221.5)),
+	CLOSED(Rotation2d.fromDegrees(219.5)),
 	START_GAME(Rotation2d.fromDegrees(233)),
-	MID_WAY_CLOSE(Rotation2d.fromDegrees(76), Rotation2d.fromRotations(2), Rotation2d.fromRotations(1.5)),
-	INTAKE(Rotation2d.fromDegrees(221.5)),
+	MID_WAY_CLOSE(Rotation2d.fromDegrees(90), Rotation2d.fromRotations(2), Rotation2d.fromRotations(1.5)),
+	INTAKE(Rotation2d.fromDegrees(219.5)),
 	ALGAE_OUTTAKE(Rotation2d.fromDegrees(211)),
 	PRE_L1(Rotation2d.fromDegrees(216)),
 	L1(Rotation2d.fromDegrees(216)),
-	PRE_L2(Rotation2d.fromDegrees(13)),
-	L2(Rotation2d.fromDegrees(13)),
+	PRE_L2(Rotation2d.fromDegrees(14)),
+	L2(Rotation2d.fromDegrees(14)),
 	PRE_L3(Rotation2d.fromDegrees(36)),
 	L3(Rotation2d.fromDegrees(36)),
 	PRE_L4(Rotation2d.fromDegrees(81), Rotation2d.fromRotations(3), Rotation2d.fromRotations(1.5)),
@@ -21,8 +21,9 @@ public enum ArmState {
 	LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-4)),
 	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(35)),
 	HOLD_ALGAE(Rotation2d.fromDegrees(90.5)),
-	NET(Rotation2d.fromDegrees(36), Rotation2d.fromRotations(1.5), Rotation2d.fromRotations(1.5)),
-	PROCESSOR_OUTTAKE(Rotation2d.fromDegrees(206)),
+	PRE_NET(Rotation2d.fromDegrees(90.5), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
+	NET(Rotation2d.fromDegrees(36), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
+	PROCESSOR_OUTTAKE(Rotation2d.fromDegrees(206), Rotation2d.fromRotations(2), Rotation2d.fromRotations(1.5)),
 	CLIMB(Rotation2d.fromDegrees(15));
 
 	private final Rotation2d position;
