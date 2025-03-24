@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3357020547945204,
-        "y": 6.662007705479453
+        "x": 2.9549020253730607,
+        "y": 6.222701450448306
       },
       "isLocked": false,
       "linkedName": "US2"
     },
     {
       "anchor": {
-        "x": 4.0,
-        "y": 5.26
+        "x": 3.97,
+        "y": 5.31
       },
       "prevControl": {
-        "x": 3.2387295081967213,
-        "y": 6.620338114754098
+        "x": 3.076619476032942,
+        "y": 6.1706000909086995
       },
       "nextControl": null,
       "isLocked": false,
@@ -54,7 +54,7 @@
     },
     {
       "name": "PRE_SCORE",
-      "waypointRelativePos": 0.36,
+      "waypointRelativePos": 0.45,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -77,5 +77,5 @@
     "velocity": 0,
     "rotation": -54.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
