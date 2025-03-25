@@ -124,6 +124,10 @@ public class JoysticksBindings {
 			RobotCommander robotCommander = robot.getRobotCommander();
 			RobotState state = robotCommander.getCurrentState();
 			Command command;
+			if (robot.getRobotCommander().getSuperstructure().isCoralIn() && state != RobotState.HOLD_CORAL) {
+				robotCommander.setState(RobotState.HOLD_CORAL).schedule();
+				return;
+			}
 			if (state == RobotState.ALGAE_REMOVE || state == RobotState.PRE_NET) {
 				robotCommander.setState(RobotState.HOLD_ALGAE).schedule();
 				return;
