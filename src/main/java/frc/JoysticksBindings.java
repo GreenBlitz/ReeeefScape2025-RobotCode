@@ -87,7 +87,7 @@ public class JoysticksBindings {
 					? robot.getRobotCommander().autoScoreThenAlgaeRemove()
 					: robot.getRobotCommander().autoScore())
 				: new InstantCommand(() -> ScoringHelpers.setClosetReefSideTarget(robot))
-					.andThen(robot.getRobotCommander().setState(RobotState.ALGAE_REMOVE)),
+					.andThen(robot.getRobotCommander().autoAlgaeRemove()),
 			Set.of(
 				robot.getRobotCommander(),
 				robot.getRobotCommander().getSuperstructure(),

@@ -16,6 +16,7 @@ import frc.robot.autonomous.AutosBuilder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.led.LEDState;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
+import frc.robot.scoringhelpers.ScoringPathsHelper;
 import frc.robot.subsystems.climb.lifter.Lifter;
 import frc.robot.subsystems.climb.lifter.factory.LifterFactory;
 import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
@@ -161,6 +162,7 @@ public class Robot {
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
 		configureAuto();
+		ScoringPathsHelper.generateAlgaeRemovePaths(this);
 	}
 
 	private void configureAuto() {
