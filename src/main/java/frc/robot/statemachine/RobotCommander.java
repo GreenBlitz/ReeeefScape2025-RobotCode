@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
@@ -49,6 +50,8 @@ public class RobotCommander extends GBSubsystem {
 
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
+
+		new Trigger(this::shouldAutoIntake).onTrue(setState(RobotState.INTAKE_WITHOUT_AIM_ASSIST));
 
 		initializeDefaultCommand();
 	}
@@ -261,6 +264,15 @@ public class RobotCommander extends GBSubsystem {
 		Command swerveDriveCommand = swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE);
 		Command wantedCommand = asDeadline ? command.deadlineFor(swerveDriveCommand) : command.alongWith(swerveDriveCommand);
 		return asSubsystemCommand(wantedCommand, name);
+	}
+
+	public boolean shouldAutoIntake() {
+		return currentState == RobotState.DRIVE
+			&& robot.getPoseEstimator()
+				.getEstimatedPose()
+				.getTranslation()
+				.getDistance(Field.getCoralStationMiddle(ScoringHelpers.getTargetCoralStation(robot)).getTranslation())
+				<= StateMachineConstants.DISTANCE_FROM_CORAL_STATION_TO_START_INTAKE_METERS;
 	}
 
 	public Command setState(RobotState state) {
