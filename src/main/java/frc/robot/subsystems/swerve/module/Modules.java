@@ -90,6 +90,12 @@ public class Modules {
 		}
 	}
 
+	public void setTargetStates(SwerveModuleState[] moduleStates, double[] targetForcesNm, boolean isClosedLoop) {
+		for (int i = 0; i < modules.length; i++) {
+			modules[i].setTargetState(moduleStates[i], targetForcesNm[i], isClosedLoop);
+		}
+	}
+
 
 	public Translation2d[] getModulePositionsFromCenterMeters() {
 		return Arrays.stream(modules).map(Module::getPositionFromCenterMeters).toArray(Translation2d[]::new);

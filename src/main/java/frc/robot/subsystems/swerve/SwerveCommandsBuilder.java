@@ -143,7 +143,7 @@ public class SwerveCommandsBuilder {
 	public Command turnToHeading(Rotation2d targetHeading, RotateAxis rotateAxis) {
 		return swerve.asSubsystemCommand(
 			new InitExecuteCommand(
-				swerve::resetPIDControllers,
+				swerve::initDrive,
 				() -> swerve.turnToHeading(targetHeading, SwerveState.DEFAULT_DRIVE.withRotateAxis(rotateAxis))
 			),
 			"Rotate around " + rotateAxis.name() + " to " + targetHeading
@@ -164,7 +164,7 @@ public class SwerveCommandsBuilder {
 
 	public Command driveByState(Supplier<ChassisPowers> powersSupplier, SwerveState state) {
 		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.driveByState(powersSupplier.get(), state)),
+			new InitExecuteCommand(swerve::initDrive, () -> swerve.driveByState(powersSupplier.get(), state)),
 			"Drive with state"
 		);
 	}
@@ -175,7 +175,7 @@ public class SwerveCommandsBuilder {
 
 	public Command driveByDriversInputs(SwerveState state) {
 		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.driveByDriversTargetsPowers(state)),
+			new InitExecuteCommand(swerve::initDrive, () -> swerve.driveByDriversTargetsPowers(state)),
 			"Drive by drivers inputs with state"
 		);
 	}
@@ -204,7 +204,7 @@ public class SwerveCommandsBuilder {
 		}
 
 		return swerve.asSubsystemCommand(
-			new SequentialCommandGroup(new InstantCommand(swerve::resetPIDControllers), pathFollowingCommand),
+			new SequentialCommandGroup(new InstantCommand(swerve::initDrive), pathFollowingCommand),
 			"Path to pose: " + targetPose
 		);
 	}
@@ -221,7 +221,7 @@ public class SwerveCommandsBuilder {
 
 	public Command moveToPoseByPID(Supplier<Pose2d> currentPose, Pose2d targetPose) {
 		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
+			new InitExecuteCommand(swerve::initDrive, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
 			"PID to pose: " + targetPose
 		);
 	}
