@@ -13,7 +13,9 @@ public class StateMachineConstants {
 	public static final double L2_L3_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS = 0.8;
 	public static final double L1_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS = 0.8;
 
-	public static final double DISTANCE_TO_BRANCH_FOR_STARTING_PATH = 1;
+	public static final double L4_DISTANCE_TO_BRANCH_FOR_STARTING_PATH = 1;
+	public static final double L2_L3_DISTANCE_TO_BRANCH_FOR_STARTING_PATH = 1;
+
 	public static final double OPEN_SUPERSTRUCTURE_DISTANCE_FROM_NET_METERS = 2.4;
 	public static final double SCORE_DISTANCE_FROM_NET_METERS = 2.1;
 	public static final double POWER_FOR_MANUAL_CLIMB = -0.5;
@@ -45,6 +47,8 @@ public class StateMachineConstants {
 
 
 	public static final double MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND = 1;
+	public static final double L2_L3_IDEAL_STARTING_STATE_VELOCITY_METERS_PER_SECOND = 1;
+
 	public static final double MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED = 2.5;
 	public static final Rotation2d MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND = Rotation2d.fromRadians(4);
 	public static final Rotation2d MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED = Rotation2d.fromRadians(4);

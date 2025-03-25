@@ -34,6 +34,42 @@ public class AutonomousConstants {
 		);
 	}
 
+	public static PathConstraints getRealTimeConstraintsForL4AutoScore(Swerve swerve) {
+		return new PathConstraints(
+			swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
+			2.5, // RealSwerveConstants.ACCELERATION_AT_12_VOLTS_METERS_PER_SECOND_SQUARED,
+			swerve.getConstants().maxRotationalVelocityPerSecond().getRadians(),
+			RealSwerveConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND
+		);
+	}
+
+	public static PathConstraints getRealTimeConstraintsForL2L3AutoScore(Swerve swerve) {
+		return new PathConstraints(
+			swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
+			2.5, // RealSwerveConstants.ACCELERATION_AT_12_VOLTS_METERS_PER_SECOND_SQUARED,
+			swerve.getConstants().maxRotationalVelocityPerSecond().getRadians(),
+			RealSwerveConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND
+		);
+	}
+
+	public static PathConstraints getRealTimeConstraintsForL4Path(Swerve swerve) {
+		return new PathConstraints(
+			StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
+			StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
+			StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
+			StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
+		);
+	}
+
+	public static PathConstraints getRealTimeConstraintsForL2L3Path(Swerve swerve) {
+		return new PathConstraints(
+			swerve.getConstants().velocityAt12VoltsMetersPerSecond(),
+			2.5, // RealSwerveConstants.ACCELERATION_AT_12_VOLTS_METERS_PER_SECOND_SQUARED,
+			swerve.getConstants().maxRotationalVelocityPerSecond().getRadians(),
+			RealSwerveConstants.MAX_ANGULAR_ACCELERATION_RADIANS_PER_SECOND
+		);
+	}
+
 	public static PathConstraints getRealTimeConstraintsForAuto(Swerve swerve) {
 		return new PathConstraints(
 			swerve.getConstants().velocityAt12VoltsMetersPerSecond(),

@@ -50,26 +50,23 @@ public class ScoringPathsHelper {
 	}
 
 	private static PathPlannerPath generatePathToTargetBranch(Branch branch, ScoreLevel scoreLevel, Robot robot) {
-		PathConstraints pathConstraints = switch (scoreLevel) {
-			case L1, L2, L3 -> AutonomousConstants.getRealTimeConstraints(robot.getSwerve());
-			case L4 ->
-				new PathConstraints(
-					StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
-					StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
-					StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
-					StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
-				);
-		};
+		PathConstraints pathConstraints = scoreLevel == ScoreLevel.L4
+			? AutonomousConstants.getRealTimeConstraintsForL4Path(robot.getSwerve())
+			: AutonomousConstants.getRealTimeConstraintsForL2L3Path(robot.getSwerve());
+		double distanceToBranchForStartingPath = scoreLevel == ScoreLevel.L4
+			? StateMachineConstants.L4_DISTANCE_TO_BRANCH_FOR_STARTING_PATH
+			: StateMachineConstants.L2_L3_DISTANCE_TO_BRANCH_FOR_STARTING_PATH;
+		double idealStartingStateVelocity = scoreLevel == ScoreLevel.L4
+			? StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND
+			: StateMachineConstants.L2_L3_IDEAL_STARTING_STATE_VELOCITY_METERS_PER_SECOND;
+
 		return new PathPlannerPath(
 			PathPlannerPath.waypointsFromPoses(
-				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.DISTANCE_TO_BRANCH_FOR_STARTING_PATH, false),
+				ScoringHelpers.getRobotBranchScoringPose(branch, distanceToBranchForStartingPath, false),
 				ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false)
 			),
 			pathConstraints,
-			new IdealStartingState(
-				StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
-				Field.getReefSideMiddle(branch.getReefSide(), false).getRotation()
-			),
+			new IdealStartingState(idealStartingStateVelocity, Field.getReefSideMiddle(branch.getReefSide(), false).getRotation()),
 			new GoalEndState(0, Field.getReefSideMiddle(branch.getReefSide(), false).getRotation())
 		);
 	}

@@ -345,15 +345,9 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
 		);
 
-		PathConstraints pathFindingConstraints = AutonomousConstants.getRealTimeConstraints(swerve);
-//				ScoringHelpers.targetScoreLevel == ScoreLevel.L4
-//			? new PathConstraints(
-//				StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND,
-//				StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_METERS_PER_SECOND_SQUARED,
-//				StateMachineConstants.MAX_VELOCITY_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND.getRadians(),
-//				StateMachineConstants.MAX_ACCELERATION_WHILE_ELEVATOR_L4_ROTATION2D_PER_SECOND_SQUARED.getRadians()
-//			)
-//			: AutonomousConstants.getRealTimeConstraints(swerve);
+		PathConstraints pathFindingConstraints = ScoringHelpers.targetScoreLevel == ScoreLevel.L4
+			? AutonomousConstants.getRealTimeConstraintsForL4AutoScore(swerve)
+			: AutonomousConstants.getRealTimeConstraintsForL2L3AutoScore(swerve);
 
 		Supplier<Command> swerveCommand = () -> swerve.getCommandsBuilder()
 			.driveToPath(
