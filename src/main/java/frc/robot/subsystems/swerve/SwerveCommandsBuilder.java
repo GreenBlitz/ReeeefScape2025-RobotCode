@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -209,10 +210,10 @@ public class SwerveCommandsBuilder {
 		);
 	}
 
-	public Command driveToPath(Supplier<Pose2d> currentPose, PathPlannerPath path, Pose2d targetPose) {
+	public Command driveToPath(Supplier<Pose2d> currentPose, PathPlannerPath path, Pose2d targetPose, PathConstraints pathFindingConstraints) {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
-				PathFollowingCommandsBuilder.pathfindThenFollowPath(path, AutonomousConstants.getRealTimeConstraints(swerve)),
+				PathFollowingCommandsBuilder.pathfindThenFollowPath(path, pathFindingConstraints),
 				moveToPoseByPID(currentPose, targetPose)
 			),
 			Set.of(swerve)

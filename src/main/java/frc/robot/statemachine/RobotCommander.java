@@ -1,5 +1,6 @@
 package frc.robot.statemachine;
 
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -10,6 +11,7 @@ import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
 import frc.robot.Robot;
+import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.PathFollowingCommandsBuilder;
 import frc.robot.hardware.phoenix6.leds.CANdleWrapper;
 import frc.robot.led.LEDConstants;
@@ -91,8 +93,10 @@ public class RobotCommander extends GBSubsystem {
 		double scoringPoseDistanceFromReefMeters,
 		Pose2d l1Tolerances,
 		Pose2d l1Deadbands,
-		Pose2d tolerances,
-		Pose2d deadbands
+		Pose2d l2L3Tolerances,
+		Pose2d l2L3Deadbands,
+		Pose2d l4Tolerances,
+		Pose2d l4Deadbands
 	) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
 
@@ -115,9 +119,24 @@ public class RobotCommander extends GBSubsystem {
 					l1Deadbands,
 					"/isAtL1ScoringPose"
 				);
-			case L2, L3, L4 ->
-				PoseUtil
-					.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, tolerances, deadbands, "/isAtReefScoringPose");
+			case L2, L3 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					l2L3Tolerances,
+					l2L3Deadbands,
+					"/isAtReefScoringPose"
+				);
+			case L4 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					l4Tolerances,
+					l4Deadbands,
+					"/isAtReefScoringPose"
+				);
 		};
 	}
 
@@ -126,8 +145,10 @@ public class RobotCommander extends GBSubsystem {
 		double scoringPoseDistanceFromReefMeters,
 		Pose2d l1Tolerances,
 		Pose2d l1Deadbands,
-		Pose2d tolerances,
-		Pose2d deadbands
+		Pose2d l2L3Tolerances,
+		Pose2d l2L3Deadbands,
+		Pose2d l4Tolerances,
+		Pose2d l4Deadbands
 	) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(targetBranch.getReefSide()).getRotation();
 
@@ -143,13 +164,22 @@ public class RobotCommander extends GBSubsystem {
 			case L1 ->
 				PoseUtil
 					.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, l1Tolerances, l1Deadbands, "/isAL1ScoringPose");
-			case L2, L3, L4 ->
+			case L2, L3 ->
 				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
 					reefRelativeTargetPose,
 					reefRelativeSpeeds,
-					tolerances,
-					deadbands,
+					l2L3Tolerances,
+					l2L3Deadbands,
+					"/isAtBranchScoringPose"
+				);
+			case L4 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					l4Tolerances,
+					l4Deadbands,
 					"/isAtBranchScoringPose"
 				);
 		};
@@ -176,12 +206,17 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private boolean isReadyToOpenSuperstructure() {
-		return isAtReefScoringPose(
-			StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
+		return isAtReefScoringPose(switch (ScoringHelpers.targetScoreLevel) {
+			case L4 -> StateMachineConstants.L4_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS;
+			case L2, L3 -> StateMachineConstants.L2_L3_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS;
+			case L1 -> StateMachineConstants.L1_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS;
+		},
 			Tolerances.REEF_RELATIVE_L1_OPEN_SUPERSTRUCTURE_POSITION,
 			Tolerances.REEF_RELATIVE_L1_OPEN_SUPERSTRUCTURE_DEADBANDS,
-			Tolerances.REEF_RELATIVE_OPEN_SUPERSTRUCTURE_POSITION,
-			Tolerances.REEF_RELATIVE_OPEN_SUPERSTRUCTURE_DEADBANDS
+			Tolerances.REEF_RELATIVE_L2_L3_OPEN_SUPERSTRUCTURE_POSITION,
+			Tolerances.REEF_RELATIVE_L2_L3_OPEN_SUPERSTRUCTURE_DEADBANDS,
+			Tolerances.REEF_RELATIVE_L4_OPEN_SUPERSTRUCTURE_POSITION,
+			Tolerances.REEF_RELATIVE_L4_OPEN_SUPERSTRUCTURE_DEADBANDS
 		);
 	}
 
@@ -191,8 +226,10 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 				Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 				Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
-				Tolerances.REEF_RELATIVE_SCORING_POSITION,
-				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_DEADBANDS,
+				Tolerances.REEF_RELATIVE_L4_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L4_SCORING_DEADBANDS
 			);
 	}
 
@@ -217,8 +254,10 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 				Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 				Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
-				Tolerances.REEF_RELATIVE_SCORING_POSITION,
-				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_DEADBANDS,
+				Tolerances.REEF_RELATIVE_L4_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L4_SCORING_DEADBANDS
 			);
 	}
 
@@ -228,8 +267,10 @@ public class RobotCommander extends GBSubsystem {
 			StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 			Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 			Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
-			Tolerances.REEF_RELATIVE_SCORING_POSITION,
-			Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+			Tolerances.REEF_RELATIVE_L2_L3_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_L2_L3_SCORING_DEADBANDS,
+			Tolerances.REEF_RELATIVE_L4_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_L4_SCORING_DEADBANDS
 		);
 	}
 
@@ -304,17 +345,56 @@ public class RobotCommander extends GBSubsystem {
 			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
 		);
 
-		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
+		PathConstraints pathFindingConstraints = ScoringHelpers.targetScoreLevel == ScoreLevel.L4
+			? AutonomousConstants.getRealTimeConstraintsForL4AutoScore(swerve)
+			: AutonomousConstants.getRealTimeConstraintsForL2L3AutoScore(swerve);
+
+		Supplier<Command> swerveCommand = () -> swerve.getCommandsBuilder()
 			.driveToPath(
 				() -> robot.getPoseEstimator().getEstimatedPose(),
-				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
+				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch(), ScoringHelpers.targetScoreLevel),
 				ScoringHelpers
-					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS),
+				pathFindingConstraints
 			);
+
 
 		return asSubsystemCommand(
 			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
+				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), swerveCommand.get()),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid()
+				)
+			),
+			RobotState.SCORE
+		);
+	}
+
+	public Command autoScoreL2L3DriveToPose() {
+		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
+			superstructure.armPreScore().until(this::isReadyToOpenSuperstructure),
+			superstructure.preScore().until(superstructure::isPreScoreReady),
+			superstructure.scoreWithoutRelease().until(this::isReadyToScore),
+			superstructure.scoreWithRelease()
+		);
+
+
+		Supplier<Command> driveToPose = () -> swerve.getCommandsBuilder()
+			.driveToPose(
+				() -> robot.getPoseEstimator().getEstimatedPose(),
+				() -> ScoringHelpers
+					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+			);
+		return asSubsystemCommand(
+			new DeferredCommand(
+				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPose.get()),
 				Set.of(
 					this,
 					superstructure,
