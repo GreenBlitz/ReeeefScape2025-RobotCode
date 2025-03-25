@@ -93,8 +93,10 @@ public class RobotCommander extends GBSubsystem {
 		double scoringPoseDistanceFromReefMeters,
 		Pose2d l1Tolerances,
 		Pose2d l1Deadbands,
-		Pose2d tolerances,
-		Pose2d deadbands
+		Pose2d l2L3Tolerances,
+		Pose2d l2L3Deadbands,
+		Pose2d l4Tolerances,
+		Pose2d l4Deadbands
 	) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetBranch().getReefSide()).getRotation();
 
@@ -117,9 +119,24 @@ public class RobotCommander extends GBSubsystem {
 					l1Deadbands,
 					"/isAtL1ScoringPose"
 				);
-			case L2, L3, L4 ->
-				PoseUtil
-					.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, tolerances, deadbands, "/isAtReefScoringPose");
+			case L2, L3 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					l2L3Tolerances,
+					l2L3Deadbands,
+					"/isAtReefScoringPose"
+				);
+			case L4 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					l4Tolerances,
+					l4Deadbands,
+					"/isAtReefScoringPose"
+				);
 		};
 	}
 
@@ -128,8 +145,10 @@ public class RobotCommander extends GBSubsystem {
 		double scoringPoseDistanceFromReefMeters,
 		Pose2d l1Tolerances,
 		Pose2d l1Deadbands,
-		Pose2d tolerances,
-		Pose2d deadbands
+		Pose2d l2L3Tolerances,
+		Pose2d l2L3Deadbands,
+		Pose2d l4Tolerances,
+		Pose2d l4Deadbands
 	) {
 		Rotation2d reefAngle = Field.getReefSideMiddle(targetBranch.getReefSide()).getRotation();
 
@@ -145,13 +164,22 @@ public class RobotCommander extends GBSubsystem {
 			case L1 ->
 				PoseUtil
 					.isAtPose(reefRelativeRobotPose, reefRelativeTargetPose, reefRelativeSpeeds, l1Tolerances, l1Deadbands, "/isAL1ScoringPose");
-			case L2, L3, L4 ->
+			case L2, L3 ->
 				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
 					reefRelativeTargetPose,
 					reefRelativeSpeeds,
-					tolerances,
-					deadbands,
+					l2L3Tolerances,
+					l2L3Deadbands,
+					"/isAtBranchScoringPose"
+				);
+			case L4 ->
+				PoseUtil.isAtPose(
+					reefRelativeRobotPose,
+					reefRelativeTargetPose,
+					reefRelativeSpeeds,
+					l4Tolerances,
+					l4Deadbands,
 					"/isAtBranchScoringPose"
 				);
 		};
@@ -178,12 +206,17 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private boolean isReadyToOpenSuperstructure() {
-		return isAtReefScoringPose(
-			StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
+		return isAtReefScoringPose(switch (ScoringHelpers.targetScoreLevel) {
+			case L4 -> StateMachineConstants.L4_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS;
+			case L2, L3 -> StateMachineConstants.L2_L3_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS;
+			case L1 -> StateMachineConstants.L1_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS;
+		},
 			Tolerances.REEF_RELATIVE_L1_OPEN_SUPERSTRUCTURE_POSITION,
 			Tolerances.REEF_RELATIVE_L1_OPEN_SUPERSTRUCTURE_DEADBANDS,
-			Tolerances.REEF_RELATIVE_OPEN_SUPERSTRUCTURE_POSITION,
-			Tolerances.REEF_RELATIVE_OPEN_SUPERSTRUCTURE_DEADBANDS
+			Tolerances.REEF_RELATIVE_L2_L3_OPEN_SUPERSTRUCTURE_POSITION,
+			Tolerances.REEF_RELATIVE_L2_L3_OPEN_SUPERSTRUCTURE_DEADBANDS,
+			Tolerances.REEF_RELATIVE_L4_OPEN_SUPERSTRUCTURE_POSITION,
+			Tolerances.REEF_RELATIVE_L4_OPEN_SUPERSTRUCTURE_DEADBANDS
 		);
 	}
 
@@ -193,8 +226,10 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 				Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 				Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
-				Tolerances.REEF_RELATIVE_SCORING_POSITION,
-				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_DEADBANDS,
+				Tolerances.REEF_RELATIVE_L4_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L4_SCORING_DEADBANDS
 			);
 	}
 
@@ -219,8 +254,10 @@ public class RobotCommander extends GBSubsystem {
 				StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 				Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 				Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
-				Tolerances.REEF_RELATIVE_SCORING_POSITION,
-				Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L2_L3_SCORING_DEADBANDS,
+				Tolerances.REEF_RELATIVE_L4_SCORING_POSITION,
+				Tolerances.REEF_RELATIVE_L4_SCORING_DEADBANDS
 			);
 	}
 
@@ -230,8 +267,10 @@ public class RobotCommander extends GBSubsystem {
 			StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 			Tolerances.REEF_RELATIVE_L1_SCORING_POSITION,
 			Tolerances.REEF_RELATIVE_L1_SCORING_DEADBANDS,
-			Tolerances.REEF_RELATIVE_SCORING_POSITION,
-			Tolerances.REEF_RELATIVE_SCORING_DEADBANDS
+			Tolerances.REEF_RELATIVE_L2_L3_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_L2_L3_SCORING_DEADBANDS,
+			Tolerances.REEF_RELATIVE_L4_SCORING_POSITION,
+			Tolerances.REEF_RELATIVE_L4_SCORING_DEADBANDS
 		);
 	}
 

@@ -12,18 +12,29 @@ public class Tolerances {
 	public static final Rotation2d ARM_POSITION = Rotation2d.fromDegrees(3);
 	public static final Rotation2d ALGAE_RELEASE_ARM_POSITION = Rotation2d.fromDegrees(10);
 
-	public static final Pose2d REEF_RELATIVE_SCORING_POSITION = new Pose2d(0.15, 0.025, Rotation2d.fromDegrees(3.5));
-	public static final Pose2d REEF_RELATIVE_SCORING_DEADBANDS = new Pose2d(1, 1, Rotation2d.fromRadians(2));
+	public static final Pose2d REEF_RELATIVE_L4_SCORING_POSITION = new Pose2d(0.15, 0.025, Rotation2d.fromDegrees(3.5));
+	public static final Pose2d REEF_RELATIVE_L4_SCORING_DEADBANDS = new Pose2d(1, 1, Rotation2d.fromRadians(2));
+
+	public static final Pose2d REEF_RELATIVE_L2_L3_SCORING_POSITION = new Pose2d(0.15, 0.025, Rotation2d.fromDegrees(3.5));
+	public static final Pose2d REEF_RELATIVE_L2_L3_SCORING_DEADBANDS = new Pose2d(1, 1, Rotation2d.fromRadians(2));
+
 	public static final Rotation2d HEADING_FOR_NET = Rotation2d.fromDegrees(10);
 	public static final Pose2d NET_DEADBANDS = new Pose2d(0.1, 0.1, Rotation2d.fromRadians(3));
 
 
-	public static final Pose2d REEF_RELATIVE_OPEN_SUPERSTRUCTURE_POSITION = new Pose2d(
-		StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
+	public static final Pose2d REEF_RELATIVE_L4_OPEN_SUPERSTRUCTURE_POSITION = new Pose2d(
+		StateMachineConstants.L4_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
 		1,
 		Rotation2d.fromDegrees(15)
 	);
-	public static final Pose2d REEF_RELATIVE_OPEN_SUPERSTRUCTURE_DEADBANDS = new Pose2d(2, 2, Rotation2d.fromRadians(4));
+	public static final Pose2d REEF_RELATIVE_L4_OPEN_SUPERSTRUCTURE_DEADBANDS = new Pose2d(2, 2, Rotation2d.fromRadians(4));
+
+	public static final Pose2d REEF_RELATIVE_L2_L3_OPEN_SUPERSTRUCTURE_POSITION = new Pose2d(
+		StateMachineConstants.L2_L3_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
+		1,
+		Rotation2d.fromDegrees(15)
+	);
+	public static final Pose2d REEF_RELATIVE_L2_L3_OPEN_SUPERSTRUCTURE_DEADBANDS = new Pose2d(2, 2, Rotation2d.fromRadians(4));
 
 	public static final Pose2d REEF_RELATIVE_L1_SCORING_POSITION = new Pose2d(
 		0.2,
@@ -33,7 +44,7 @@ public class Tolerances {
 	public static final Pose2d REEF_RELATIVE_L1_SCORING_DEADBANDS = new Pose2d(0.2, 1, Rotation2d.fromRadians(0.1));
 
 	public static final Pose2d REEF_RELATIVE_L1_OPEN_SUPERSTRUCTURE_POSITION = new Pose2d(
-		StateMachineConstants.OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
+		StateMachineConstants.L1_OPEN_SUPERSTRUCTURE_DISTANCE_FROM_REEF_METERS,
 		Field.REEF_SIDE_LENGTH_METERS / 2.0,
 		Rotation2d.fromDegrees(3)
 	);
