@@ -5,7 +5,8 @@ import com.ctre.phoenix.led.*;
 public enum LEDState {
 
 	DISABLE(new StrobeAnimation(250, 60, 0)),
-	IDLE(new LarsonAnimation(0, 250, 0, 255, 0.5, LEDConstants.NUMBER_OF_LEDS, LarsonAnimation.BounceMode.Front, 5)),
+	IDLE_RED(new LarsonAnimation(255, 0, 0, 255, 0.5, LEDConstants.NUMBER_OF_LEDS, LarsonAnimation.BounceMode.Front, 5)),
+	IDLE_BLUE(new LarsonAnimation(0, 0, 255, 255, 0.5, LEDConstants.NUMBER_OF_LEDS, LarsonAnimation.BounceMode.Front, 5)),
 	READY_TO_COLLECT(new StrobeAnimation(0, 200, 200)),
 	HAS_CORAL(new ColorFlowAnimation(200, 0, 200, 250, 1, LEDConstants.NUMBER_OF_LEDS, ColorFlowAnimation.Direction.Forward)),
 	TOUCHING_LIMIT_SWITCH(new ColorFlowAnimation(173, 216, 230, 250, 1, LEDConstants.NUMBER_OF_LEDS, ColorFlowAnimation.Direction.Forward)),

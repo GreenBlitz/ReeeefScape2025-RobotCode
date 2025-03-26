@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.subsystems.GBSubsystem;
 import frc.utils.utilcommands.InitExecuteCommand;
 
+import java.util.Set;
+
 public class LEDStateHandler extends GBSubsystem {
 
 	private final CANdle candle;
@@ -15,8 +17,19 @@ public class LEDStateHandler extends GBSubsystem {
 		this.candle = candle;
 
 		setDefaultCommand(
-			new ConditionalCommand(setState(LEDState.IDLE), setState(LEDState.DISABLE), DriverStation::isEnabled).ignoringDisable(true)
+			new ConditionalCommand(new DeferredCommand(this::getIdleByAlliance, Set.of(this)), setState(LEDState.DISABLE), DriverStation::isEnabled).ignoringDisable(true)
 		);
+	}
+
+	public Command getIdleByAlliance(){
+		if (DriverStation.getAlliance().isEmpty()){
+			return setState(LEDState.DISABLE);
+		}
+		if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+			return setState(LEDState.IDLE_RED);
+		}else{
+			return setState(LEDState.IDLE_BLUE);
+		}
 	}
 
 	public Command setState(LEDState state) {
