@@ -16,6 +16,7 @@ import frc.constants.MathConstants;
 import frc.constants.field.Field;
 import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
+import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.hardware.empties.EmptyGyro;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.poseestimator.OdometryData;
@@ -108,7 +109,7 @@ public class Swerve extends GBSubsystem {
 			currentPoseSupplier,
 			resetPoseConsumer,
 			this::getRobotRelativeVelocity,
-			(speeds) -> driveByState(speeds, SwerveState.DEFAULT_PATH_PLANNER),
+			(speeds) -> driveByPathPlanner(speeds, currentPoseSupplier.get()),
 			constants.pathPlannerHolonomicDriveController(),
 			robotConfig,
 			() -> !Field.isFieldConventionAlliance(),
@@ -223,19 +224,7 @@ public class Swerve extends GBSubsystem {
 
 
 	protected void moveToPoseByPID(Pose2d currentPose, Pose2d targetPose) {
-		double xVelocityMetersPerSecond = constants.xMetersPIDController().calculate(currentPose.getX(), targetPose.getX());
-		double yVelocityMetersPerSecond = constants.yMetersPIDController().calculate(currentPose.getY(), targetPose.getY());
-		int direction = Field.isFieldConventionAlliance() ? 1 : -1;
-		Rotation2d rotationVelocityPerSecond = Rotation2d.fromDegrees(
-			constants.rotationDegreesPIDController().calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees())
-		);
-
-		ChassisSpeeds targetAllianceRelativeSpeeds = new ChassisSpeeds(
-			xVelocityMetersPerSecond * direction,
-			yVelocityMetersPerSecond * direction,
-			rotationVelocityPerSecond.getRadians()
-		);
-		driveByState(targetAllianceRelativeSpeeds, SwerveState.DEFAULT_DRIVE);
+		driveByState(calculateSelfRelativePIDToPoseSpeeds(currentPose, targetPose), SwerveState.DEFAULT_DRIVE);
 	}
 
 	protected void turnToHeading(Rotation2d targetHeading, SwerveState swerveState) {
@@ -249,9 +238,34 @@ public class Swerve extends GBSubsystem {
 		driveByState(targetSpeeds, swerveState);
 	}
 
+	private ChassisSpeeds calculateSelfRelativePIDToPoseSpeeds(Pose2d currentPose, Pose2d targetPose) {
+		double xVelocityMetersPerSecond = constants.xMetersPIDController().calculate(currentPose.getX(), targetPose.getX());
+		double yVelocityMetersPerSecond = constants.yMetersPIDController().calculate(currentPose.getY(), targetPose.getY());
+		int direction = Field.isFieldConventionAlliance() ? 1 : -1;
+		Rotation2d rotationVelocityPerSecond = Rotation2d.fromDegrees(
+			constants.rotationDegreesPIDController().calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees())
+		);
+
+		ChassisSpeeds targetAllianceRelativeSpeeds = new ChassisSpeeds(
+			xVelocityMetersPerSecond * direction,
+			yVelocityMetersPerSecond * direction,
+			rotationVelocityPerSecond.getRadians()
+		);
+
+		return targetAllianceRelativeSpeeds;
+	}
+
 	protected void driveByDriversTargetsPowers(SwerveState swerveState) {
 		driveByState(driversPowerInputs, swerveState);
 	}
+
+	protected void driveByPathPlanner(ChassisSpeeds ppFeedforward, Pose2d currentPose) {
+		ChassisSpeeds pidSpeeds = calculateSelfRelativePIDToPoseSpeeds(currentPose, PathPlannerUtil.ppTargetPose);
+		ChassisSpeeds scaledSpeeds = ppFeedforward.times(AutonomousConstants.FF_FACTOR);
+		ChassisSpeeds combinedSpeeds = pidSpeeds.plus(scaledSpeeds);
+		driveByState(combinedSpeeds, SwerveState.DEFAULT_PATH_PLANNER);
+	}
+
 
 	protected void driveByState(ChassisPowers powers, SwerveState swerveState) {
 		ChassisSpeeds speedsFromPowers = SwerveMath.powersToSpeeds(powers, constants);

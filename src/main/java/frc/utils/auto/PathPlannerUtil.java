@@ -38,6 +38,8 @@ public class PathPlannerUtil {
 
 	private static List<Pair<Translation2d, Translation2d>> dynamicObstacles = List.of();
 
+	public static Pose2d ppTargetPose = new Pose2d();
+
 	public static void configPathPlanner(
 		Supplier<Pose2d> poseSupplier,
 		Consumer<Pose2d> resetPose,
@@ -64,8 +66,10 @@ public class PathPlannerUtil {
 		PathPlannerLogging.setLogActivePathCallback(
 			activePath -> Logger.recordOutput(AutonomousConstants.LOG_PATH_PREFIX + "/ActivePath", activePath.toArray(Pose2d[]::new))
 		);
-		PathPlannerLogging
-			.setLogTargetPoseCallback(targetPose -> Logger.recordOutput(AutonomousConstants.LOG_PATH_PREFIX + "/TargetPose", targetPose));
+		PathPlannerLogging.setLogTargetPoseCallback(targetPose -> {
+			Logger.recordOutput(AutonomousConstants.LOG_PATH_PREFIX + "/TargetPose", targetPose);
+			ppTargetPose = targetPose;
+		});
 	}
 
 	public static void startPathfinder() {
