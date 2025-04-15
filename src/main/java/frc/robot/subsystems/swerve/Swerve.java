@@ -215,7 +215,7 @@ public class Swerve extends GBSubsystem {
 		return SwerveMath.robotToAllianceRelativeSpeeds(getRobotRelativeVelocity(), getAllianceRelativeHeading());
 	}
 
-	private ChassisSpeeds getDriveModeRelativeSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
+	private ChassisSpeeds getRobotRelativeSpeedsByState(ChassisSpeeds speeds, SwerveState swerveState) {
 		if (swerveState.getDriveRelative() == DriveRelative.ROBOT_RELATIVE) {
 			return speeds;
 		}
@@ -224,7 +224,7 @@ public class Swerve extends GBSubsystem {
 
 
 	protected void moveToPoseByPID(Pose2d currentPose, Pose2d targetPose) {
-		driveByState(calculateSelfRelativePIDToPoseSpeeds(currentPose, targetPose), SwerveState.DEFAULT_DRIVE);
+		driveByState(calculateFieldRelativePIDToPoseSpeeds(currentPose, targetPose), SwerveState.DEFAULT_DRIVE);
 	}
 
 	protected void turnToHeading(Rotation2d targetHeading, SwerveState swerveState) {
@@ -238,7 +238,7 @@ public class Swerve extends GBSubsystem {
 		driveByState(targetSpeeds, swerveState);
 	}
 
-	private ChassisSpeeds calculateSelfRelativePIDToPoseSpeeds(Pose2d currentPose, Pose2d targetPose) {
+	private ChassisSpeeds calculateFieldRelativePIDToPoseSpeeds(Pose2d currentPose, Pose2d targetPose) {
 		double xVelocityMetersPerSecond = constants.xMetersPIDController().calculate(currentPose.getX(), targetPose.getX());
 		double yVelocityMetersPerSecond = constants.yMetersPIDController().calculate(currentPose.getY(), targetPose.getY());
 		int direction = Field.isFieldConventionAlliance() ? 1 : -1;
@@ -260,7 +260,10 @@ public class Swerve extends GBSubsystem {
 	}
 
 	protected void driveByPathPlanner(ChassisSpeeds ppFeedforward, Pose2d currentPose) {
-		ChassisSpeeds pidSpeeds = calculateSelfRelativePIDToPoseSpeeds(currentPose, PathPlannerUtil.ppTargetPose);
+		ChassisSpeeds pidSpeeds = getRobotRelativeSpeedsByState(
+			calculateFieldRelativePIDToPoseSpeeds(currentPose, PathPlannerUtil.ppTargetPose),
+			SwerveState.DEFAULT_DRIVE
+		);
 		ChassisSpeeds scaledSpeeds = ppFeedforward.times(AutonomousConstants.FF_FACTOR);
 		ChassisSpeeds combinedSpeeds = pidSpeeds.plus(scaledSpeeds);
 		driveByState(combinedSpeeds, SwerveState.DEFAULT_PATH_PLANNER);
@@ -284,7 +287,7 @@ public class Swerve extends GBSubsystem {
 
 		speeds = SwerveMath.factorSpeeds(speeds, swerveState.getDriveSpeed());
 		speeds = SwerveMath.applyDeadband(speeds, SwerveConstants.DEADBANDS);
-		speeds = getDriveModeRelativeSpeeds(speeds, swerveState);
+		speeds = getRobotRelativeSpeedsByState(speeds, swerveState);
 		speeds = SwerveMath.discretize(speeds);
 
 		applySpeeds(speeds, swerveState);

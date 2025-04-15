@@ -28,7 +28,7 @@ public class JoysticksBindings {
 
 	private static final SmartJoystick MAIN_JOYSTICK = new SmartJoystick(JoystickPorts.MAIN);
 	private static final SmartJoystick SECOND_JOYSTICK = new SmartJoystick(JoystickPorts.SECOND);
-//	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
+	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
 //	private static final SmartJoystick FOURTH_JOYSTICK = new SmartJoystick(JoystickPorts.FOURTH);
 //	private static final SmartJoystick FIFTH_JOYSTICK = new SmartJoystick(JoystickPorts.FIFTH);
 //	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
@@ -56,15 +56,11 @@ public class JoysticksBindings {
 			driversInputChassisPowers.yPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_X);
 			driversInputChassisPowers.rotationalPower = MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X);
 		}
-//		else if (THIRD_JOYSTICK.isConnected()) {
-//			swerve.setDriversPowerInputs(
-//				new ChassisPowers(
-//					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y),
-//					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X),
-//					THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X)
-//				)
-//			);
-//		}
+		else if (THIRD_JOYSTICK.isConnected()) {
+			driversInputChassisPowers.xPower = THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y);
+			driversInputChassisPowers.yPower = THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X);
+			driversInputChassisPowers.rotationalPower = THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X);
+		}
 		else {
 			driversInputChassisPowers.xPower = 0;
 			driversInputChassisPowers.yPower = 0;
@@ -220,10 +216,10 @@ public class JoysticksBindings {
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {
-//		SmartJoystick usedJoystick = THIRD_JOYSTICK;
+		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
 
-//		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
+		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {
