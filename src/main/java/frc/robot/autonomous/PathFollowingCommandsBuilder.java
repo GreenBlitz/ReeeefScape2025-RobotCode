@@ -70,34 +70,31 @@ public class PathFollowingCommandsBuilder {
 		);
 	}
 
-	public static Command moveToPoseByPID(Robot robot, Pose2d targetPose) {
-		return robot.getSwerve().getCommandsBuilder().moveToPoseByPID(robot.getPoseEstimator()::getEstimatedPose, targetPose);
-	}
-
 	public static Command followAdjustedPath(Robot robot, PathPlannerPath path) {
 		return robot.getSwerve()
 			.asSubsystemCommand(
 				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose()).andThen(
-					moveToPoseByPID(robot, Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
+					robot.getSwerve()
+						.getCommandsBuilder()
+						.moveToPoseByPID(
+							robot.getPoseEstimator()::getEstimatedPose,
+							Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT)
+						)
 				),
 				"Follow Adjusted " + path.name
 			);
 	}
 
 	public static Command followAdjustedPathThenStop(Robot robot, PathPlannerPath path, Pose2d tolerance) {
-		return robot.getSwerve()
-			.asSubsystemCommand(
-				followAdjustedPath(robot, path)
-					.until(
-						() -> ToleranceMath.isNear(
-							Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT),
-							robot.getPoseEstimator().getEstimatedPose(),
-							tolerance
-						)
-					)
-					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds()),
-				"Follow Adjusted " + path.name + " Then Stop"
-			);
+		return followAdjustedPath(robot, path)
+			.until(
+				() -> ToleranceMath.isNear(
+					Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT),
+					robot.getPoseEstimator().getEstimatedPose(),
+					tolerance
+				)
+			)
+			.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds());
 	}
 
 }

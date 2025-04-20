@@ -10,6 +10,7 @@ import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
 import frc.robot.Robot;
+import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.PathFollowingCommandsBuilder;
 import frc.robot.hardware.phoenix6.leds.CANdleWrapper;
 import frc.robot.led.LEDConstants;
@@ -405,7 +406,11 @@ public class RobotCommander extends GBSubsystem {
 				new ParallelCommandGroup(
 					superstructure.processorWithoutRelease(),
 					swerve.getCommandsBuilder()
-						.driveToPose(robot.getPoseEstimator()::getEstimatedPose, ScoringHelpers::getAllianceRelativeProcessorScoringPose)
+						.driveToPose(
+							robot.getPoseEstimator()::getEstimatedPose,
+							ScoringHelpers::getAllianceRelativeProcessorScoringPose,
+							AutonomousConstants.getRealTimeConstraints(swerve)
+						)
 				).until(this::isAtProcessorScoringPose),
 				new ParallelCommandGroup(
 					superstructure.processorScore(),

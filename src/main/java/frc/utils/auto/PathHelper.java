@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PathHelper {
@@ -65,7 +64,7 @@ public class PathHelper {
 			.filter(name -> name.endsWith(".path"))
 			.map(name -> name.substring(0, name.lastIndexOf(".")))
 			.sorted(String::compareToIgnoreCase)
-			.collect(Collectors.toList());
+			.toList();
 	}
 
 	private static Map<String, PathPlannerPath> getAllPaths() {
