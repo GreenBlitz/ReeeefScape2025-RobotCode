@@ -51,11 +51,11 @@ public class JoysticksBindings {
 	}
 
 	public static void setDriversInputsToSwerve(Swerve swerve) {
-		if (MAIN_JOYSTICK.isConnected()) {
-			driversInputChassisPowers.xPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_Y);
-			driversInputChassisPowers.yPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_X);
-			driversInputChassisPowers.rotationalPower = MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X);
-		}
+//		if (MAIN_JOYSTICK.isConnected()) {
+//			driversInputChassisPowers.xPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_Y);
+//			driversInputChassisPowers.yPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_X);
+//			driversInputChassisPowers.rotationalPower = MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X);
+//		}
 //		else if (THIRD_JOYSTICK.isConnected()) {
 //			swerve.setDriversPowerInputs(
 //				new ChassisPowers(
@@ -65,11 +65,11 @@ public class JoysticksBindings {
 //				)
 //			);
 //		}
-		else {
+//		else {
 			driversInputChassisPowers.xPower = 0;
 			driversInputChassisPowers.yPower = 0;
 			driversInputChassisPowers.rotationalPower = 0;
-		}
+//		}
 		swerve.setDriversPowerInputs(driversInputChassisPowers);
 	}
 
@@ -181,12 +181,14 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getRobotCommander().getSuperstructure().algaeRemove());
+		Command alagRemove = robot.getRobotCommander().getSuperstructure().algaeRemove().alongWith(new InstantCommand(() -> robot.getRobotCommander().currentState = RobotState.ALGAE_REMOVE));
+		alagRemove.addRequirements(robot.getRobotCommander());
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(alagRemove);
 
-		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITH_AIM_ASSIST));
+//		usedJoystick.L1.onTrue(robot.getRobotCommander().setState(RobotState.INTAKE_WITH_AIM_ASSIST));
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(intakeActionChooser(robot));
 
-		usedJoystick.R1.onTrue(netActionChooser(robot));
+		usedJoystick.POV_UP.onTrue(netActionChooser(robot));
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE));

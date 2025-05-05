@@ -35,7 +35,7 @@ public class RobotCommander extends GBSubsystem {
 	private final Swerve swerve;
 	private final Superstructure superstructure;
 
-	private RobotState currentState;
+	public RobotState currentState;
 
 	private CANdleWrapper caNdleWrapper;
 	private LEDStateHandler ledStateHandler;
@@ -538,7 +538,7 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.preNet(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 			),
 			RobotState.PRE_NET
 		);
