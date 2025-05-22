@@ -120,6 +120,10 @@ public class Swerve extends GBSubsystem {
 		this.headingSupplier = headingSupplier;
 	}
 
+	public void resetHeading(){
+		gyro.setYaw(new Rotation2d());
+	}
+
 	public void setDriversPowerInputs(ChassisPowers powers) {
 		this.driversPowerInputs = powers;
 	}
