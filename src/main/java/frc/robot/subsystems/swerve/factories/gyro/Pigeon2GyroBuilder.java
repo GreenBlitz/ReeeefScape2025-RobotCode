@@ -10,8 +10,8 @@ import frc.robot.hardware.phoenix6.gyro.Pigeon2Gyro;
 import frc.robot.hardware.phoenix6.gyro.Pigeon2Wrapper;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.swerve.GyroSignals;
+import frc.utils.AngleUnit;
 import frc.utils.alerts.Alert;
-import frc.utils.math.AngleUnit;
 
 class Pigeon2GyroBuilder {
 
@@ -23,7 +23,7 @@ class Pigeon2GyroBuilder {
 	}
 
 	static IGyro buildGyro(String logPath) {
-		Pigeon2Wrapper pigeon2Wrapper = new Pigeon2Wrapper(IDs.SWERVE_PIGEON_2);
+		Pigeon2Wrapper pigeon2Wrapper = new Pigeon2Wrapper(IDs.Pigeon2IDs.SWERVE_GYRO);
 
 		MountPoseConfigs mountPoseConfigs = new MountPoseConfigs();
 		pigeon2Wrapper.getConfigurator().refresh(mountPoseConfigs);

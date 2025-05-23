@@ -10,6 +10,7 @@ import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
 import frc.robot.Robot;
+import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.PathFollowingCommandsBuilder;
 import frc.robot.hardware.phoenix6.leds.CANdleWrapper;
 import frc.robot.led.LEDConstants;
@@ -24,6 +25,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.utils.math.ToleranceMath;
 import frc.utils.pose.PoseUtil;
 
 import java.util.Set;
@@ -47,7 +49,7 @@ public class RobotCommander extends GBSubsystem {
 		this.superstructure = new Superstructure("StateMachine/Superstructure", robot);
 		this.currentState = RobotState.STAY_IN_PLACE;
 
-		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
+		this.caNdleWrapper = new CANdleWrapper(IDs.CANdleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 
 		initializeDefaultCommand();
@@ -207,8 +209,8 @@ public class RobotCommander extends GBSubsystem {
 			.getTranslation();
 		Translation2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
 
-		return !PoseUtil
-			.isAtTranslation(reefRelativeRobotPose, reefRelativeReefSideMiddle, StateMachineConstants.CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH);
+		return !ToleranceMath
+			.isNear(reefRelativeRobotPose, reefRelativeReefSideMiddle, StateMachineConstants.CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH);
 	}
 
 	public boolean isReadyToScore() {
@@ -241,9 +243,9 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private boolean isCloseToNet(double distanceOnXAxis, double distanceOnYAxis) {
-		boolean isPastX = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose().getTranslation(), true, true).getX()
+		boolean isPastX = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose().getTranslation()).getX()
 			> Field.LENGTH_METERS / 2 - distanceOnXAxis;
-		boolean isPastY = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose().getTranslation(), true, true).getY()
+		boolean isPastY = Field.getAllianceRelative(robot.getPoseEstimator().getEstimatedPose().getTranslation()).getY()
 			> Field.WIDTH_METERS / 2 - distanceOnYAxis;
 		return isPastX && isPastY;
 	}
@@ -309,7 +311,9 @@ public class RobotCommander extends GBSubsystem {
 				() -> robot.getPoseEstimator().getEstimatedPose(),
 				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
 				ScoringHelpers
-					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS),
+				AutonomousConstants.getRealTimeConstraints(robot.getSwerve())
+
 			);
 
 		return asSubsystemCommand(
@@ -405,7 +409,11 @@ public class RobotCommander extends GBSubsystem {
 				new ParallelCommandGroup(
 					superstructure.processorWithoutRelease(),
 					swerve.getCommandsBuilder()
-						.driveToPose(robot.getPoseEstimator()::getEstimatedPose, ScoringHelpers::getAllianceRelativeProcessorScoringPose)
+						.driveToPose(
+							robot.getPoseEstimator()::getEstimatedPose,
+							ScoringHelpers::getAllianceRelativeProcessorScoringPose,
+							AutonomousConstants.getRealTimeConstraints(robot.getSwerve())
+						)
 				).until(this::isAtProcessorScoringPose),
 				new ParallelCommandGroup(
 					superstructure.processorScore(),

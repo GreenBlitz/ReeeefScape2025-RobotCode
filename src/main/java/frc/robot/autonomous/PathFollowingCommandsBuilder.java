@@ -6,54 +6,55 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.constants.field.Field;
-import frc.constants.field.enums.Branch;
-import frc.robot.Robot;
-import frc.robot.scoringhelpers.ScoringHelpers;
-import frc.robot.statemachine.StateMachineConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.auto.PathPlannerUtil;
-import frc.utils.math.AngleTransform;
 import frc.utils.math.ToleranceMath;
 
-import java.util.Optional;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import java.util.function.Supplier;
 
 public class PathFollowingCommandsBuilder {
 
 	public static Command commandDuringPath(
-		Robot robot,
+		Swerve swerve,
+		Supplier<Pose2d> currentPose,
 		PathPlannerPath path,
+		PathConstraints pathfindingConstraints,
 		Supplier<Command> commandSupplier,
-		Optional<Branch> targetBranch,
 		Pose2d tolerance
 	) {
-		return new ParallelCommandGroup(commandSupplier.get(), followAdjustedPath(robot, path, targetBranch, tolerance));
+		return new ParallelCommandGroup(
+			commandSupplier.get(),
+			followAdjustedPathThenStop(swerve, currentPose, path, pathfindingConstraints, tolerance)
+		);
 	}
 
 	public static Command deadlinePathWithCommand(
-		Robot robot,
+		Swerve swerve,
+		Supplier<Pose2d> currentPose,
 		PathPlannerPath path,
-		Supplier<Command> commandSupplier,
-		Optional<Branch> targetBranch,
-		Pose2d tolerance
+		PathConstraints pathfindingConstraints,
+		Supplier<Command> commandSupplier
 	) {
-		return new ParallelDeadlineGroup(commandSupplier.get(), followAdjustedPath(robot, path, targetBranch, tolerance));
+		return new ParallelDeadlineGroup(commandSupplier.get(), followAdjustedPath(swerve, currentPose, path, pathfindingConstraints));
 	}
 
 	public static Command commandAfterPath(
-		Robot robot,
+		Swerve swerve,
+		Supplier<Pose2d> currentPose,
 		PathPlannerPath path,
+		PathConstraints pathfindingConstraints,
 		Supplier<Command> commandSupplier,
-		Optional<Branch> targetBranch,
 		Pose2d tolerance
 	) {
-		return new SequentialCommandGroup(followAdjustedPath(robot, path, targetBranch, tolerance), commandSupplier.get());
-	}
-
-	public static Command scoreToBranch(Robot robot, PathPlannerPath path, Supplier<Command> commandSupplier, Optional<Branch> targetBranch) {
-		return new ParallelDeadlineGroup(
-			new SequentialCommandGroup(new WaitUntilCommand(() -> robot.getRobotCommander().isReadyToScore()), commandSupplier.get()),
-			followAdjustedPathWithoutStop(robot, path, targetBranch)
+		return new SequentialCommandGroup(
+			followAdjustedPathThenStop(swerve, currentPose, path, pathfindingConstraints, tolerance),
+			commandSupplier.get()
 		);
 	}
 
@@ -77,74 +78,50 @@ public class PathFollowingCommandsBuilder {
 	) {
 		return AutoBuilder
 			.pathfindToPose(
-				Field.getAllianceRelative(PathPlannerUtil.getPathStartingPose(path), true, true, AngleTransform.INVERT),
+				Field.getAllianceRelative(PathPlannerUtil.getPathStartingPose(path)),
 				pathfindingConstraints,
 				velocityBetweenPathfindingToPathFollowingMetersPerSecond
 			)
 			.andThen(followPath(path));
 	}
 
-	public static Command followPathOrPathfindAndFollowPath(Swerve swerve, PathPlannerPath path, Supplier<Pose2d> currentPose) {
+	public static Command followPathOrPathfindAndFollowPath(
+		PathPlannerPath path,
+		Supplier<Pose2d> currentPose,
+		PathConstraints pathfindingConstraints
+	) {
 		return new ConditionalCommand(
 			followPath(path),
-			pathfindThenFollowPath(path, AutonomousConstants.getRealTimeConstraints(swerve)),
-			() -> PathPlannerUtil.isRobotInPathfindingDeadband(
-				currentPose.get(),
-				Field.getAllianceRelative(PathPlannerUtil.getPathStartingPose(path), true, true, AngleTransform.INVERT)
-			)
+			pathfindThenFollowPath(path, pathfindingConstraints),
+			() -> PathPlannerUtil
+				.isRobotInPathfindingDeadband(currentPose.get(), Field.getAllianceRelative(PathPlannerUtil.getPathStartingPose(path)))
 		);
 	}
 
-	public static Command moveToPoseByPID(Robot robot, Pose2d targetPose) {
-		return robot.getSwerve().getCommandsBuilder().moveToPoseByPID(robot.getPoseEstimator()::getEstimatedPose, targetPose);
+	public static Command followAdjustedPath(
+		Swerve swerve,
+		Supplier<Pose2d> currentPose,
+		PathPlannerPath path,
+		PathConstraints pathfindingConstraints
+	) {
+		return swerve.asSubsystemCommand(
+			followPathOrPathfindAndFollowPath(path, currentPose, pathfindingConstraints).andThen(
+				swerve.getCommandsBuilder().moveToPoseByPID(currentPose, Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path)))
+			),
+			"Follow Adjusted " + path.name
+		);
 	}
 
-	public static Command followAdjustedPath(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch, Pose2d tolerance) {
-		return robot.getSwerve()
-			.asSubsystemCommand(
-				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose())
-					.andThen(
-						moveToPoseByPID(
-							robot,
-							targetBranch
-								.map(
-									branch -> ScoringHelpers
-										.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-								)
-								.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
-						)
-					)
-					.until(
-						() -> targetBranch.map(branch -> robot.getRobotCommander().isAtBranchScoringPose(branch))
-							.orElse(
-								ToleranceMath.isNear(
-									Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT),
-									robot.getPoseEstimator().getEstimatedPose(),
-									tolerance
-								)
-							)
-					)
-					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds()),
-				"Follow Adjusted " + path.name
-			);
-	}
-
-	public static Command followAdjustedPathWithoutStop(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch) {
-		return robot.getSwerve()
-			.asSubsystemCommand(
-				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose()).andThen(
-					moveToPoseByPID(
-						robot,
-						targetBranch
-							.map(
-								branch -> ScoringHelpers
-									.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-							)
-							.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
-					)
-				),
-				"Follow Adjusted " + path + " without stop"
-			);
+	public static Command followAdjustedPathThenStop(
+		Swerve swerve,
+		Supplier<Pose2d> currentPose,
+		PathPlannerPath path,
+		PathConstraints pathfindingConstraints,
+		Pose2d tolerance
+	) {
+		return followAdjustedPath(swerve, currentPose, path, pathfindingConstraints)
+			.until(() -> ToleranceMath.isNear(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path)), currentPose.get(), tolerance))
+			.andThen(swerve.getCommandsBuilder().resetTargetSpeeds());
 	}
 
 }

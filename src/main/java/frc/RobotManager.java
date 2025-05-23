@@ -15,6 +15,12 @@ import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.led.LEDConstants;
 import frc.robot.led.LEDState;
 import frc.robot.subsystems.climb.lifter.LifterConstants;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Threads;
+import frc.robot.Robot;
+import frc.robot.autonomous.AutonomousConstants;
+import frc.utils.auto.PathPlannerUtil;
 import frc.utils.alerts.AlertManager;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.DriverStationUtil;
@@ -36,6 +42,8 @@ public class RobotManager extends LoggedRobot {
 	private int roborioCycles;
 
 	public RobotManager() {
+		Threads.setCurrentThreadPriority(true, 10);
+
 		LoggerFactory.initializeLogger();
 		DriverStation.silenceJoystickConnectionWarning(true);
 		PathPlannerUtil.startPathfinder();
@@ -117,7 +125,7 @@ public class RobotManager extends LoggedRobot {
 	@Override
 	public void robotPeriodic() {
 		updateTimeRelatedData(); // Better to be first
-		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
+		JoysticksBindings.updateChassisDriverInputs();
 		robot.periodic();
 		AlertManager.reportAlerts();
 	}

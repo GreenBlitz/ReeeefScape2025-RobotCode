@@ -1,39 +1,47 @@
 package frc.utils.auto;
 
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.autonomous.AutonomousConstants;
+import frc.utils.alerts.Alert;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public class PathHelper {
 
+	public static final Map<String, PathPlannerPath> PATH_PLANNER_PATHS = getAllPaths();
 
-	public static List<AutoPath> getAllStartingAndScoringFirstObjectPaths() {
-		ArrayList<AutoPath> autoLinePaths = new ArrayList<>();
-		for (AutoPath autoPath : AutoPath.values()) {
-			if (autoPath.getStartingPoint().getFirst().startsWith("AL")) {
-				autoLinePaths.add(autoPath);
-			}
+	private static List<String> getAllPathNames() {
+		File[] pathFiles = new File(Filesystem.getDeployDirectory(), "pathplanner/paths").listFiles();
+
+		if (pathFiles == null) {
+			return new ArrayList<>();
 		}
-		return autoLinePaths;
+
+		return Stream.of(pathFiles)
+			.filter(file -> !file.isDirectory())
+			.map(File::getName)
+			.filter(name -> name.endsWith(".path"))
+			.map(name -> name.substring(0, name.lastIndexOf(".")))
+			.sorted(String::compareToIgnoreCase)
+			.toList();
 	}
 
-	public static List<AutoPath> getAllIntakingPaths() {
-		ArrayList<AutoPath> pathsToCoralStations = new ArrayList<>();
-		for (AutoPath autoPath : AutoPath.values()) {
-			if (autoPath.getEndPoint().getFirst().startsWith("US") || autoPath.getEndPoint().getFirst().startsWith("LS")) {
-				pathsToCoralStations.add(autoPath);
+	private static Map<String, PathPlannerPath> getAllPaths() {
+		Map<String, PathPlannerPath> paths = new HashMap<>();
+		for (String pathName : getAllPathNames()) {
+			try {
+				paths.put(pathName, PathPlannerPath.fromPathFile(pathName));
+			} catch (Exception exception) {
+				new Alert(Alert.AlertType.ERROR, AutonomousConstants.LOG_PATH_PREFIX + "/" + exception.getMessage()).report();
 			}
 		}
-		return pathsToCoralStations;
-	}
-
-	public static List<AutoPath> getAllScoringPathsFromCoralStations() {
-		ArrayList<AutoPath> pathsFromCoralStations = new ArrayList<>();
-		for (AutoPath autoPath : AutoPath.values()) {
-			if (autoPath.getStartingPoint().getFirst().startsWith("US") || autoPath.getStartingPoint().getFirst().startsWith("LS")) {
-				pathsFromCoralStations.add(autoPath);
-			}
-		}
-		return pathsFromCoralStations;
+		return paths;
 	}
 
 }

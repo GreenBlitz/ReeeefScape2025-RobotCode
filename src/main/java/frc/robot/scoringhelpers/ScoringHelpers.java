@@ -14,7 +14,6 @@ import frc.constants.field.enums.*;
 import frc.robot.Robot;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.utils.math.AngleTransform;
 import frc.utils.pose.Side;
 import org.littletonrobotics.junction.Logger;
 
@@ -167,7 +166,7 @@ public class ScoringHelpers {
 	}
 
 	public static Pose2d getAllianceRelativeProcessorScoringPose() {
-		return Field.getAllianceRelative(PROCESSOR_SCORING_POSE, true, true, AngleTransform.INVERT);
+		return Field.getAllianceRelative(PROCESSOR_SCORING_POSE);
 	}
 
 	public static void log(String logPath) {

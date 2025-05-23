@@ -97,21 +97,21 @@ public class PathPlannerUtil {
 		NamedCommands.registerCommand(commandName, command);
 	}
 
-	static Optional<PathPlannerPath> getPathFromFile(String pathName) {
-		try {
-			return Optional.of(PathPlannerPath.fromPathFile(pathName));
-		} catch (Exception exception) {
-			reportAlert(Alert.AlertType.ERROR, exception.getMessage());
-		}
-		return Optional.empty();
-	}
-
 	public static Pose2d getPathStartingPose(PathPlannerPath path) {
 		return new Pose2d(path.getPathPoses().get(0).getTranslation(), path.getIdealStartingState().rotation());
 	}
 
 	public static Pose2d getLastPathPose(PathPlannerPath path) {
 		return new Pose2d(path.getPathPoses().get(path.getPathPoses().size() - 1).getTranslation(), path.getGoalEndState().rotation());
+	}
+
+	public static Optional<PathPlannerPath> getPathFromFile(String pathName) {
+		try {
+			return Optional.of(PathPlannerPath.fromPathFile(pathName));
+		} catch (Exception exception) {
+			reportAlert(Alert.AlertType.ERROR, exception.getMessage());
+		}
+		return Optional.empty();
 	}
 
 	public static Command createPathDuringRuntime(Pose2d currentPose, Pose2d targetPose, PathConstraints constraints) {

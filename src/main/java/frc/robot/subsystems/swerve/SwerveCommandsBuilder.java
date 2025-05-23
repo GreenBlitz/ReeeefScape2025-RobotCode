@@ -1,28 +1,21 @@
 package frc.robot.subsystems.swerve;
 
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.autonomous.AutonomousConstants;
+import frc.constants.field.Field;
 import frc.robot.autonomous.PathFollowingCommandsBuilder;
-import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
+import frc.robot.subsystems.swerve.module.ModuleConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtil;
 import frc.robot.subsystems.swerve.module.Modules;
-import frc.robot.subsystems.swerve.states.LoopMode;
 import frc.robot.subsystems.swerve.states.RotateAxis;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.auto.PathPlannerUtil;
-import frc.utils.calibration.swervecalibration.maxvelocityacceleration.MaxVelocityAccelerationCharacterization;
-import frc.utils.calibration.swervecalibration.maxvelocityacceleration.VelocityType;
 import frc.utils.calibration.swervecalibration.wheelradius.WheelRadiusCharacterization;
 import frc.utils.calibration.sysid.SysIdCalibrator;
 import frc.utils.utilcommands.InitExecuteCommand;
@@ -48,7 +41,7 @@ public class SwerveCommandsBuilder {
 		this.driveCalibrator = new SysIdCalibrator(
 			modules.getModule(ModuleUtil.ModulePosition.FRONT_LEFT).getDriveSysIdConfigInfo(),
 			swerve,
-			KrakenX60DriveBuilder.IS_CURRENT_CONTROL ? modules::setDrivesCurrent : modules::setDrivesVoltage
+			ModuleConstants.IS_CURRENT_CONTROL ? modules::setDrivesCurrent : modules::setDrivesVoltage
 		);
 	}
 
@@ -124,17 +117,6 @@ public class SwerveCommandsBuilder {
 		);
 	}
 
-	public Command maxVelocityAccelerationCalibration(VelocityType velocityType) {
-		return swerve.asSubsystemCommand(
-			new MaxVelocityAccelerationCharacterization(
-				swerve,
-				powers -> swerve.driveByState(powers, SwerveState.DEFAULT_DRIVE.withLoopMode(LoopMode.OPEN)),
-				velocityType
-			),
-			"Max " + velocityType + " Velocity Acceleration Calibration"
-		);
-	}
-
 
 	public Command turnToHeading(Rotation2d targetHeading) {
 		return turnToHeading(targetHeading, RotateAxis.MIDDLE_OF_CHASSIS);
@@ -162,9 +144,9 @@ public class SwerveCommandsBuilder {
 		);
 	}
 
-	public Command driveByState(Supplier<ChassisPowers> powersSupplier, SwerveState state) {
+	public Command driveByState(Supplier<ChassisPowers> chassisPowersSupplier, SwerveState state) {
 		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.driveByState(powersSupplier.get(), state)),
+			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.driveByState(chassisPowersSupplier.get(), state)),
 			"Drive with state"
 		);
 	}
@@ -187,20 +169,26 @@ public class SwerveCommandsBuilder {
 		);
 	}
 
-	public Command driveToPose(Supplier<Pose2d> currentPose, Supplier<Pose2d> targetPose) {
-		return new DeferredCommand(
-			() -> new SequentialCommandGroup(pathToPose(currentPose.get(), targetPose.get()), moveToPoseByPID(currentPose, targetPose.get())),
-			Set.of(swerve)
+
+	public Command driveToPose(Supplier<Pose2d> currentPose, Supplier<Pose2d> targetPose, PathConstraints pathfindingConstraints) {
+		return swerve.asSubsystemCommand(
+			new DeferredCommand(
+				() -> new SequentialCommandGroup(
+					pathToPose(currentPose.get(), targetPose.get(), pathfindingConstraints),
+					moveToPoseByPID(currentPose, targetPose.get())
+				),
+				Set.of(swerve)
+			),
+			"Drive to pose"
 		);
 	}
 
-	private Command pathToPose(Pose2d currentPose, Pose2d targetPose) {
+	private Command pathToPose(Pose2d currentPose, Pose2d targetPose, PathConstraints pathfindingConstraints) {
 		Command pathFollowingCommand;
 		if (PathPlannerUtil.isRobotInPathfindingDeadband(currentPose, targetPose)) {
-			pathFollowingCommand = PathPlannerUtil
-				.createPathDuringRuntime(currentPose, targetPose, AutonomousConstants.getRealTimeConstraints(swerve));
+			pathFollowingCommand = PathPlannerUtil.createPathDuringRuntime(currentPose, targetPose, pathfindingConstraints);
 		} else {
-			pathFollowingCommand = PathFollowingCommandsBuilder.pathfindToPose(targetPose, AutonomousConstants.getRealTimeConstraints(swerve));
+			pathFollowingCommand = PathFollowingCommandsBuilder.pathfindToPose(targetPose, pathfindingConstraints);
 		}
 
 		return swerve.asSubsystemCommand(
@@ -209,11 +197,11 @@ public class SwerveCommandsBuilder {
 		);
 	}
 
-	public Command driveToPath(Supplier<Pose2d> currentPose, PathPlannerPath path, Pose2d targetPose) {
+	public Command driveToPath(Supplier<Pose2d> currentPose, PathPlannerPath path, Pose2d targetPose, PathConstraints pathfindingConstraints) {
 		return new DeferredCommand(
 			() -> new SequentialCommandGroup(
-				PathFollowingCommandsBuilder.followPathOrPathfindAndFollowPath(swerve, path, currentPose),
-				moveToPoseByPID(currentPose, targetPose)
+				PathFollowingCommandsBuilder.pathfindThenFollowPath(path, pathfindingConstraints),
+				moveToPoseByPID(currentPose, Field.getAllianceRelative(targetPose))
 			),
 			Set.of(swerve)
 		);
