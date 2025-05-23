@@ -72,7 +72,6 @@ public class Modules {
 		}
 	}
 
-
 	public void setDrivesVoltage(double voltage) {
 		for (Module module : modules) {
 			module.setDriveVoltage(voltage);

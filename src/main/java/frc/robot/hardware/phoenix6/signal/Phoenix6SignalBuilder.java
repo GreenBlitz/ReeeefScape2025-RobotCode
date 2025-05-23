@@ -1,6 +1,5 @@
 package frc.robot.hardware.phoenix6.signal;
 
-
 import com.ctre.phoenix6.StatusSignal;
 import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.hardware.phoenix6.Phoenix6Util;

@@ -198,35 +198,10 @@ public class Robot {
 			robotCommander.getSuperstructure().armPreScore().alongWith(getRobotCommander().getLedStateHandler().setState(LEDState.MOVE_TO_POSE))
 		);
 
-		// this.preBuiltAutosChooser = new AutonomousChooser(
-		// "PreBuiltAutos",
-		// AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
-		// this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
-		// this.secondObjectIntakingLocationChooser = new AutonomousChooser(
-		// "IntakeSecond",
-		// AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
-		// this.secondObjectScoringLocationChooser = new AutonomousChooser(
-		// "ScoreSecond",
-		// AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
-		// this.thirdObjectIntakingLocationChooser = new AutonomousChooser(
-		// "IntakeThird",
-		// AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
-		// this.thirdObjectScoringLocationChooser = new AutonomousChooser(
-		// "ScoreThird",
-		// AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
-		// this.fourthObjectIntakingLocationChooser = new AutonomousChooser(
-		// "IntakeFourth",
-		// AutosBuilder.getAllIntakingAutos(this, intakingCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
-		// this.fourthObjectScoringLocationChooser = new AutonomousChooser(
-		// "ScoreFourth",
-		// AutosBuilder.getAllScoringAutos(this, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-		// );
+//		 this.preBuiltAutosChooser = new AutonomousChooser(
+//		 	"PreBuiltAutos",
+//			 AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
+//		 );
 	}
 
 	public void periodic() {

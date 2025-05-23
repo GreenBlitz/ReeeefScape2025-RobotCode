@@ -56,8 +56,6 @@ public class RobotManager extends LoggedRobot {
 		JoysticksBindings.configureBindings(robot);
 
 		initializeLEDTriggers();
-
-		Threads.setCurrentThreadPriority(true, 10);
 	}
 
 	private void initializeLEDTriggers() {
