@@ -16,7 +16,7 @@ import frc.RobotManager;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.AutosBuilder;
 import frc.robot.led.LEDState;
-import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimatorConstants;
+import frc.robot.poseestimator.helpers.headingestimator.RobotHeadingEstimatorConstants;
 import frc.robot.subsystems.climb.lifter.Lifter;
 import frc.robot.subsystems.climb.lifter.factory.LifterFactory;
 import frc.robot.subsystems.swerve.factories.modules.drive.KrakenX60DriveBuilder;
@@ -53,7 +53,7 @@ import frc.robot.hardware.phoenix6.BusChain;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.time.TimeUtil;
 import org.littletonrobotics.junction.Logger;
-import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimator;
+import frc.robot.poseestimator.helpers.headingestimator.RobotHeadingEstimator;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package frc.robot.poseestimator.helpers.robotheadingestimator;
+package frc.robot.poseestimator.helpers.headingestimator;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Rotation2d;
