@@ -54,7 +54,6 @@ public class MultiAprilTagVisionSources extends MultiVisionSources<AprilTagVisio
 		this(logPath, robotHeadingSupplier, useRobotHeadingForPoseEstimating, List.of(visionSources));
 	}
 
-
 	private void updateAngleInHeadingRequiringSources(OrientationState3D robotOrientationState) {
 		for (VisionSource<AprilTagVisionData> visionSource : visionSources) {
 			if (visionSource instanceof RobotHeadingRequiringVisionSource robotHeadingRequiringVisionSource) {

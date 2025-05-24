@@ -93,6 +93,15 @@ public class PathPlannerUtil {
 		return Optional.empty();
 	}
 
+	static Optional<PathPlannerPath> getPathFromFile(String pathName) {
+		try {
+			return Optional.of(PathPlannerPath.fromPathFile(pathName));
+		} catch (Exception exception) {
+			reportAlert(Alert.AlertType.ERROR, exception.getMessage());
+		}
+		return Optional.empty();
+	}
+
 	public static void registerCommand(String commandName, Command command) {
 		NamedCommands.registerCommand(commandName, command);
 	}
@@ -103,15 +112,6 @@ public class PathPlannerUtil {
 
 	public static Pose2d getLastPathPose(PathPlannerPath path) {
 		return new Pose2d(path.getPathPoses().get(path.getPathPoses().size() - 1).getTranslation(), path.getGoalEndState().rotation());
-	}
-
-	public static Optional<PathPlannerPath> getPathFromFile(String pathName) {
-		try {
-			return Optional.of(PathPlannerPath.fromPathFile(pathName));
-		} catch (Exception exception) {
-			reportAlert(Alert.AlertType.ERROR, exception.getMessage());
-		}
-		return Optional.empty();
 	}
 
 	public static Command createPathDuringRuntime(Pose2d currentPose, Pose2d targetPose, PathConstraints constraints) {
