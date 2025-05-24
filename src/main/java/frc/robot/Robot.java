@@ -292,7 +292,6 @@ public class Robot {
 		// BusChain.logChainsStatuses();
 		simulationManager.logPoses();
 		ScoringHelpers.log("Scoring");
-		// ButtonDriverHelper.log("Scoring/ButtonDriverDisplay");
 
 		double startingSchedularTime = TimeUtil.getCurrentTimeSeconds();
 		CommandScheduler.getInstance().run(); // Should be last
