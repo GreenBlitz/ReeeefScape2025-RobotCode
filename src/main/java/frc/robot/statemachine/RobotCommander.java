@@ -359,7 +359,7 @@ public class RobotCommander extends GBSubsystem {
 							)
 						)
 				),
-			"Auto Score Autonomous"
+			path.name
 		);
 
 		return new ParallelDeadlineGroup(fullySuperstructureScore, driveToPath);

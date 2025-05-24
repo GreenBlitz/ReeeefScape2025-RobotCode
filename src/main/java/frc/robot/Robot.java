@@ -9,10 +9,12 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.RobotManager;
 import frc.robot.autonomous.AutonomousConstants;
+import frc.robot.autonomous.AutosBuilder;
 import frc.robot.led.LEDState;
 import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimatorConstants;
 import frc.robot.subsystems.climb.lifter.Lifter;
@@ -41,12 +43,12 @@ import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.utils.auto.AutonomousChooser;
+import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.robot.vision.VisionFilters;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
 import frc.utils.TimedValue;
 import frc.utils.brakestate.BrakeStateManager;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.hardware.phoenix6.BusChain;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.time.TimeUtil;
@@ -165,12 +167,14 @@ public class Robot {
 	}
 
 	private void configureAuto() {
-		Supplier<Command> scoringCommand = () -> robotCommander.getSuperstructure()
-			.scoreWithoutRelease()
-			.until(robotCommander.getSuperstructure()::isReadyToScore)
-			.andThen(robotCommander.getSuperstructure().scoreWithRelease())
-			.deadlineFor(getRobotCommander().getLedStateHandler().setState(LEDState.IN_POSITION_TO_SCORE))
-			.asProxy();
+		Supplier<Command> scoringCommand = () -> new WaitUntilCommand(robotCommander::isReadyToScore).andThen(
+			robotCommander.getSuperstructure()
+				.scoreWithoutRelease()
+				.until(robotCommander.getSuperstructure()::isReadyToScore)
+				.andThen(robotCommander.getSuperstructure().scoreWithRelease())
+				.deadlineFor(getRobotCommander().getLedStateHandler().setState(LEDState.IN_POSITION_TO_SCORE))
+				.asProxy()
+		);
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
 			.softCloseL4()
 			.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
@@ -199,10 +203,65 @@ public class Robot {
 			robotCommander.getSuperstructure().armPreScore().alongWith(getRobotCommander().getLedStateHandler().setState(LEDState.MOVE_TO_POSE))
 		);
 
-//		 this.preBuiltAutosChooser = new AutonomousChooser(
-//		 	"PreBuiltAutos",
-//			 AutosBuilder.getAllNoDelayAutos(this, intakingCommand, scoringCommand, AutonomousConstants.TARGET_POSE_TOLERANCES)
-//		 );
+		this.preBuiltAutosChooser = new AutonomousChooser(
+			"PreBuiltAutos",
+			AutosBuilder.getAllPreBuiltAutos(this, intakingCommand, scoringCommand)
+		);
+//		this.firstObjectScoringLocationChooser = new AutonomousChooser("ScoreFirst", AutosBuilder.getAllAutoScoringAutos(this));
+//		this.secondObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeSecond",
+//			AutosBuilder.getAllIntakingAutos(
+//				getSwerve(),
+//				getPoseEstimator()::getEstimatedPose,
+//				AutonomousConstants.getRealTimeConstraintsForAuto(getSwerve()),
+//				intakingCommand
+//			)
+//		);
+//		this.secondObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreSecond",
+//			AutosBuilder.getAllScoringAutos(
+//				getSwerve(),
+//				getPoseEstimator()::getEstimatedPose,
+//				AutonomousConstants.getRealTimeConstraintsForAuto(getSwerve()),
+//				scoringCommand
+//			)
+//		);
+//		this.thirdObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeThird",
+//			AutosBuilder.getAllIntakingAutos(
+//				getSwerve(),
+//				getPoseEstimator()::getEstimatedPose,
+//				AutonomousConstants.getRealTimeConstraintsForAuto(getSwerve()),
+//				intakingCommand
+//			)
+//		);
+//		this.thirdObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreThird",
+//			AutosBuilder.getAllScoringAutos(
+//				getSwerve(),
+//				getPoseEstimator()::getEstimatedPose,
+//				AutonomousConstants.getRealTimeConstraintsForAuto(getSwerve()),
+//				scoringCommand
+//			)
+//		);
+//		this.fourthObjectIntakingLocationChooser = new AutonomousChooser(
+//			"IntakeFourth",
+//			AutosBuilder.getAllIntakingAutos(
+//				getSwerve(),
+//				getPoseEstimator()::getEstimatedPose,
+//				AutonomousConstants.getRealTimeConstraintsForAuto(getSwerve()),
+//				intakingCommand
+//			)
+//		);
+//		this.fourthObjectScoringLocationChooser = new AutonomousChooser(
+//			"ScoreFourth",
+//			AutosBuilder.getAllScoringAutos(
+//				getSwerve(),
+//				getPoseEstimator()::getEstimatedPose,
+//				AutonomousConstants.getRealTimeConstraintsForAuto(getSwerve()),
+//				scoringCommand
+//			)
+//		);
 	}
 
 	public void periodic() {
@@ -242,31 +301,33 @@ public class Robot {
 		Logger.recordOutput("TimeTest/RobotPeriodic", TimeUtil.getCurrentTimeSeconds() - startingTime);
 	}
 
-	public Command getAuto() {
+	public PathPlannerAutoWrapper getAuto() {
 		if (preBuiltAutosChooser.isDefaultOptionChosen()) {
 			// if (firstObjectScoringLocationChooser.isDefaultOptionChosen()) {
-			return null;// AutosBuilder.createDefaultNoDelayAuto(this);
+			return AutosBuilder.createDefaultAuto(this);
 			// }
 			// return getMultiChoosersAuto();
 		}
 		return preBuiltAutosChooser.getChosenValue();
 	}
 
-	// private PathPlannerAutoWrapper getMultiChoosersAuto() {
-	// return PathPlannerAutoWrapper.chainAutos(
-	// firstObjectScoringLocationChooser.getChosenValue(),
-	// PathPlannerAutoWrapper
-	// .chainAutos(
-	// secondObjectIntakingLocationChooser.getChosenValue(),
-	// secondObjectScoringLocationChooser.getChosenValue(),
-	// thirdObjectIntakingLocationChooser.getChosenValue(),
-	// thirdObjectScoringLocationChooser.getChosenValue(),
-	// fourthObjectIntakingLocationChooser.getChosenValue(),
-	// fourthObjectScoringLocationChooser.getChosenValue()
-	// )
-	// .asProxyAuto()
-	// );
-	// }
+//	private PathPlannerAutoWrapper getMultiChoosersAuto() {
+//		return new PathPlannerAutoWrapper(
+//			new SequentialCommandGroup(
+//				firstObjectScoringLocationChooser.getChosenValue(),
+//				new SequentialCommandGroup(
+//					secondObjectIntakingLocationChooser.getChosenValue(),
+//					secondObjectScoringLocationChooser.getChosenValue(),
+//					thirdObjectIntakingLocationChooser.getChosenValue(),
+//					thirdObjectScoringLocationChooser.getChosenValue(),
+//					fourthObjectIntakingLocationChooser.getChosenValue(),
+//					fourthObjectScoringLocationChooser.getChosenValue()
+//				).asProxy()
+//			),
+//			firstObjectScoringLocationChooser.getChosenValue().getStartingPose(),
+//			"Multi Choosers Auto"
+//		);
+//	}
 
 	public IPoseEstimator getPoseEstimator() {
 		return poseEstimator;
