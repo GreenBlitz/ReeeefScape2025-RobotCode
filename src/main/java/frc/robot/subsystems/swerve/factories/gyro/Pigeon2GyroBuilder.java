@@ -25,10 +25,11 @@ class Pigeon2GyroBuilder {
 	static IGyro buildGyro(String logPath) {
 		Pigeon2Wrapper pigeon2Wrapper = new Pigeon2Wrapper(IDs.SWERVE_PIGEON_2);
 
-		MountPoseConfigs mountPoseConfigs = new MountPoseConfigs();
-		pigeon2Wrapper.getConfigurator().refresh(mountPoseConfigs);
+
 		Pigeon2Configuration pigeon2Configuration = buildGyroConfig();
-		pigeon2Configuration.MountPose = mountPoseConfigs;
+		pigeon2Configuration.MountPose.MountPoseYaw = 88.75128173828125;
+		pigeon2Configuration.MountPose.MountPoseRoll = 0.2158888727426529;
+		pigeon2Configuration.MountPose.MountPosePitch = -1.2275630235671997;
 
 		if (!pigeon2Wrapper.applyConfiguration(pigeon2Configuration, APPLY_CONFIG_RETRIES).isOK()) {
 			new Alert(Alert.AlertType.ERROR, logPath + "ConfigurationFailAt").report();

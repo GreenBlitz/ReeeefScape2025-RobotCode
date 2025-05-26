@@ -310,7 +310,7 @@ public class RobotCommander extends GBSubsystem {
 				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
 				ScoringHelpers
 					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-			);
+			).until(() -> isAtBranchScoringPose(ScoringHelpers.getTargetBranch())).andThen(swerve.getCommandsBuilder().resetTargetSpeeds());
 
 		return asSubsystemCommand(
 			new DeferredCommand(
