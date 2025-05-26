@@ -113,18 +113,18 @@ public class PathFollowingCommandsBuilder {
 								)
 								.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
 						)
-					)
-					.until(
-						() -> targetBranch.map(branch -> robot.getRobotCommander().isAtBranchScoringPose(branch))
-							.orElse(
-								ToleranceMath.isNear(
-									Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT),
-									robot.getPoseEstimator().getEstimatedPose(),
-									tolerance
-								)
-							)
-					)
-					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds()),
+					),
+//					.until(
+//						() -> targetBranch.map(branch -> robot.getRobotCommander().isAtBranchScoringPose(branch))
+//							.orElse(
+//								ToleranceMath.isNear(
+//									Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT),
+//									robot.getPoseEstimator().getEstimatedPose(),
+//									tolerance
+//								)
+//							)
+//					)
+//					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds()),
 				"Follow Adjusted " + path.name
 			);
 	}
