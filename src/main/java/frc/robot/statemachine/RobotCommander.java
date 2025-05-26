@@ -417,7 +417,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command completeNet() {
-		return new SequentialCommandGroup(preNet().until(this::isReadyForNet), net());
+		return new SequentialCommandGroup(preNet(), net());
 	}
 
 	private Command drive() {
@@ -538,7 +538,7 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
 				superstructure.preNet(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NET))
+				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 			),
 			RobotState.PRE_NET
 		);
