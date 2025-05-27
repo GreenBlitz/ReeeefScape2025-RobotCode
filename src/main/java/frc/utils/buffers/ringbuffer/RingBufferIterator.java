@@ -1,4 +1,4 @@
-package frc.utils.buffers.RingBuffer;
+package frc.utils.buffers.ringbuffer;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
