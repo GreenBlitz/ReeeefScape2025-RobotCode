@@ -310,7 +310,9 @@ public class RobotCommander extends GBSubsystem {
 				ScoringPathsHelper.getPathByBranch(ScoringHelpers.getTargetBranch()),
 				ScoringHelpers
 					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-			).until(() -> isAtBranchScoringPose(ScoringHelpers.getTargetBranch())).andThen(swerve.getCommandsBuilder().resetTargetSpeeds());
+			)
+			.until(() -> isAtBranchScoringPose(ScoringHelpers.getTargetBranch()))
+			.andThen(swerve.getCommandsBuilder().resetTargetSpeeds());
 
 		return asSubsystemCommand(
 			new DeferredCommand(
@@ -536,10 +538,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command preNet() {
 		return asSubsystemCommand(
-			new ParallelCommandGroup(
-				superstructure.preNet(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-			),
+			new ParallelCommandGroup(superstructure.preNet(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			RobotState.PRE_NET
 		);
 	}

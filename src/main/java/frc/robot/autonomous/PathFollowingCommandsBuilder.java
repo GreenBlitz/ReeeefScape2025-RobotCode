@@ -13,7 +13,6 @@ import frc.robot.statemachine.StateMachineConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.math.AngleTransform;
-import frc.utils.math.ToleranceMath;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -102,18 +101,17 @@ public class PathFollowingCommandsBuilder {
 	public static Command followAdjustedPath(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch, Pose2d tolerance) {
 		return robot.getSwerve()
 			.asSubsystemCommand(
-				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose())
-					.andThen(
-						moveToPoseByPID(
-							robot,
-							targetBranch
-								.map(
-									branch -> ScoringHelpers
-										.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-								)
-								.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
-						)
-					),
+				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose()).andThen(
+					moveToPoseByPID(
+						robot,
+						targetBranch
+							.map(
+								branch -> ScoringHelpers
+									.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+							)
+							.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
+					)
+				),
 //					.until(
 //						() -> targetBranch.map(branch -> robot.getRobotCommander().isAtBranchScoringPose(branch))
 //							.orElse(

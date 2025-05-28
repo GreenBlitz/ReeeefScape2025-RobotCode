@@ -55,13 +55,11 @@ public class JoysticksBindings {
 			driversInputChassisPowers.xPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_Y);
 			driversInputChassisPowers.yPower = MAIN_JOYSTICK.getAxisValue(Axis.LEFT_X);
 			driversInputChassisPowers.rotationalPower = MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X);
-		}
-		else if (THIRD_JOYSTICK.isConnected()) {
+		} else if (THIRD_JOYSTICK.isConnected()) {
 			driversInputChassisPowers.xPower = THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y);
 			driversInputChassisPowers.yPower = THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X);
 			driversInputChassisPowers.rotationalPower = THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X);
-		}
-		else {
+		} else {
 			driversInputChassisPowers.xPower = 0;
 			driversInputChassisPowers.yPower = 0;
 			driversInputChassisPowers.rotationalPower = 0;
