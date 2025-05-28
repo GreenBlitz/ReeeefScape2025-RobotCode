@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Robot;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.led.LEDConstants;
 import frc.robot.led.LEDState;
 import frc.robot.subsystems.climb.lifter.LifterConstants;
 import frc.utils.alerts.AlertManager;
+import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.DriverStationUtil;
 import frc.utils.time.TimeUtil;
@@ -32,10 +32,12 @@ import org.littletonrobotics.junction.Logger;
 public class RobotManager extends LoggedRobot {
 
 	private final Robot robot;
-	private Command auto;
+	private PathPlannerAutoWrapper auto;
 	private int roborioCycles;
 
 	public RobotManager() {
+		Threads.setCurrentThreadPriority(true, 10);
+
 		LoggerFactory.initializeLogger();
 		DriverStation.silenceJoystickConnectionWarning(true);
 		PathPlannerUtil.startPathfinder();
@@ -45,11 +47,9 @@ public class RobotManager extends LoggedRobot {
 		this.robot = new Robot();
 
 		createAutoReadyForConstructionChooser();
-		JoysticksBindings.configureBindings(robot);
+//		JoysticksBindings.configureBindings(robot);
 
 		initializeLEDTriggers();
-
-		Threads.setCurrentThreadPriority(true, 10);
 	}
 
 	private void initializeLEDTriggers() {
@@ -117,7 +117,7 @@ public class RobotManager extends LoggedRobot {
 	@Override
 	public void robotPeriodic() {
 		updateTimeRelatedData(); // Better to be first
-		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
+		JoysticksBindings.updateChassisDriverInputs();
 		robot.periodic();
 		AlertManager.reportAlerts();
 	}
