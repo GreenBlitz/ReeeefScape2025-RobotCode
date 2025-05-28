@@ -68,19 +68,19 @@ public class Robot {
 
 	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
 
-	private final IPoseEstimator poseEstimator;
-	private final RobotHeadingEstimator headingEstimator;
-	private final MultiAprilTagVisionSources multiAprilTagVisionSources;
+	private IPoseEstimator poseEstimator;
+	private  RobotHeadingEstimator headingEstimator;
+	private MultiAprilTagVisionSources multiAprilTagVisionSources;
 
-	private final Swerve swerve;
+	private Swerve swerve;
 	private final Elevator elevator;
 	private final Arm arm;
 	private final EndEffector endEffector;
 	private final Solenoid solenoid;
 	private final Lifter lifter;
 
-	private final SimulationManager simulationManager;
-	private final RobotCommander robotCommander;
+	private SimulationManager simulationManager;
+	private RobotCommander robotCommander;
 
 	private AutonomousChooser preBuiltAutosChooser;
 	private AutonomousChooser firstObjectScoringLocationChooser;
@@ -163,7 +163,7 @@ public class Robot {
 		this.simulationManager = new SimulationManager("SimulationManager", this);
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
-		configureAuto();
+//		configureAuto();
 	}
 
 	private void configureAuto() {

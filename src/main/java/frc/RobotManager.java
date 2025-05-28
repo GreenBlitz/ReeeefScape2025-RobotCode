@@ -47,7 +47,7 @@ public class RobotManager extends LoggedRobot {
 		this.robot = new Robot();
 
 		createAutoReadyForConstructionChooser();
-		JoysticksBindings.configureBindings(robot);
+//		JoysticksBindings.configureBindings(robot);
 
 		initializeLEDTriggers();
 	}
