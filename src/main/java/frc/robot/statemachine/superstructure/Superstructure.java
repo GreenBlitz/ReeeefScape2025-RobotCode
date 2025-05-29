@@ -196,7 +196,7 @@ public class Superstructure extends GBSubsystem {
 					armStateHandler.setState(ArmState.INTAKE),
 					endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP)
-				).until(this::isCoralIn),
+				),//.until(this::isCoralIn),
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.INTAKE),
 					armStateHandler.setState(ArmState.INTAKE),
@@ -215,7 +215,7 @@ public class Superstructure extends GBSubsystem {
 				armStateHandler.setState(ArmState.STAY_IN_PLACE),
 				endEffectorStateHandler.setState(EndEffectorState.CORAL_OUTTAKE),
 				climbStateHandler.setState(ClimbState.STOP)
-			).until(() -> !isCoralIn()),
+			),//.until(() -> !isCoralIn()),
 			SuperstructureState.OUTTAKE
 		);
 	}
@@ -300,7 +300,7 @@ public class Superstructure extends GBSubsystem {
 						armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
 						endEffectorStateHandler.setState(ScoringHelpers.targetScoreLevel.getEndEffectorScore()),
 						climbStateHandler.setState(ClimbState.STOP)
-					).until(() -> !isCoralIn()),
+					).withTimeout(1.5),//.until(() -> !isCoralIn()),
 					new ParallelCommandGroup(
 						elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
 						armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
