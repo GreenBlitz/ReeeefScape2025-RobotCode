@@ -3,6 +3,7 @@ package frc.robot.statemachine;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.arm.ArmConstants;
+import frc.robot.subsystems.elevator.ElevatorState;
 import frc.robot.subsystems.swerve.ChassisPowers;
 
 public class StateMachineConstants {
@@ -37,7 +38,7 @@ public class StateMachineConstants {
 	public static final double ELEVATOR_POSITION_TO_MOVE_ARM_TO_SCORE_L4 = 0.5;
 	public static final double ELEVATOR_POSITION_TO_CLOSE_ARM = 0.4;
 	public static final double ELEVATOR_POSITION_TO_RELEASE_NET = 0.37;
-	public static final double ELEVATOR_POSITION_TO_START_THROW_NET = 0.8;
+	public static final double ELEVATOR_POSITION_TO_START_THROW_NET = ElevatorState.NET.getHeightMeters() - 0.15;
 
 
 	public static final double MAX_VELOCITY_WHILE_ELEVATOR_L4_METERS_PER_SECOND = 1;
