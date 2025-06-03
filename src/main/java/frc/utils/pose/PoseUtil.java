@@ -5,8 +5,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.utils.AngleUnit;
 import frc.utils.TimedValue;
 import frc.robot.poseestimator.Pose2dComponentsValue;
 import frc.robot.poseestimator.Pose3dComponentsValue;
@@ -14,7 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.vision.data.VisionData;
 import frc.utils.alerts.Alert;
-import frc.utils.math.AngleUnit;
+import frc.utils.AngleUnit;
 import frc.utils.math.ToleranceMath;
 import org.littletonrobotics.junction.Logger;
 
@@ -43,12 +43,6 @@ public class PoseUtil {
 		Logger.recordOutput(IS_AT_POSE_LOG_PATH_PREFIX + logPath + "/isStill", isStill);
 
 		return isAtX && isAtY && isAtHeading && isStill;
-	}
-
-	public static boolean isAtTranslation(Translation2d currentPose, Translation2d targetPose, Translation2d tolerances) {
-		boolean isAtX = MathUtil.isNear(targetPose.getX(), currentPose.getX(), tolerances.getX());
-		boolean isAtY = MathUtil.isNear(targetPose.getY(), currentPose.getY(), tolerances.getY());
-		return isAtX && isAtY;
 	}
 
 	public static Pose3d toPose3D(double[] poseArray, AngleUnit angleUnit) {

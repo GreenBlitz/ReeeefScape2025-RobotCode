@@ -93,10 +93,6 @@ public class PathPlannerUtil {
 		return Optional.empty();
 	}
 
-	public static void registerCommand(String commandName, Command command) {
-		NamedCommands.registerCommand(commandName, command);
-	}
-
 	static Optional<PathPlannerPath> getPathFromFile(String pathName) {
 		try {
 			return Optional.of(PathPlannerPath.fromPathFile(pathName));
@@ -104,6 +100,10 @@ public class PathPlannerUtil {
 			reportAlert(Alert.AlertType.ERROR, exception.getMessage());
 		}
 		return Optional.empty();
+	}
+
+	public static void registerCommand(String commandName, Command command) {
+		NamedCommands.registerCommand(commandName, command);
 	}
 
 	public static Pose2d getPathStartingPose(PathPlannerPath path) {
