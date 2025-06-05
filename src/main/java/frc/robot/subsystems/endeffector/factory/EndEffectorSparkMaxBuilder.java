@@ -68,7 +68,7 @@ public class EndEffectorSparkMaxBuilder {
 
 		return switch (limitSwitch) {
 			case FORWARD ->
-				new SuppliedDigitalInput(() -> sparkMaxWrapper.getForwardLimitSwitch().isPressed(), new Debouncer(DEBOUNCE_TIME_SECONDS));
+				new SuppliedDigitalInput(() -> !sparkMaxWrapper.getForwardLimitSwitch().isPressed(), new Debouncer(DEBOUNCE_TIME_SECONDS));
 			case REVERSE ->
 				new SuppliedDigitalInput(() -> sparkMaxWrapper.getReverseLimitSwitch().isPressed(), new Debouncer(DEBOUNCE_TIME_SECONDS));
 		};
