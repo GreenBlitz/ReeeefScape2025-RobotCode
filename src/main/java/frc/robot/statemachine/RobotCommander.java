@@ -597,7 +597,7 @@ public class RobotCommander extends GBSubsystem {
 					),
 				new ParallelCommandGroup(
 					swerve.getCommandsBuilder()
-						.driveToPose(robot.getPoseEstimator()::getEstimatedPose, scoringPosition)
+						.moveToPoseByPID(robot.getPoseEstimator()::getEstimatedPose, scoringPosition.get())
 						.until(
 							() -> ToleranceMath.isNear(
 								scoringPosition.get(),
