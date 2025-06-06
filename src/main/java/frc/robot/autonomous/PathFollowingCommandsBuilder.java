@@ -57,6 +57,13 @@ public class PathFollowingCommandsBuilder {
 		);
 	}
 
+	public static Command scoreToNet(Robot robot, PathPlannerPath path, Supplier<Command> commandSupplier, Optional<Branch> targetBranch) {
+		return new ParallelDeadlineGroup(
+			new SequentialCommandGroup(new WaitUntilCommand(() -> robot.getRobotCommander().isReadyForNetForAuto()), commandSupplier.get()),
+			followAdjustedPathWithoutStop(robot, path, targetBranch)
+		);
+	}
+
 
 	public static Command followPath(PathPlannerPath path) {
 		return AutoBuilder.followPath(path);
@@ -95,24 +102,22 @@ public class PathFollowingCommandsBuilder {
 		);
 	}
 
-	public static Command moveToPoseByPID(Robot robot, Pose2d targetPose) {
-		return robot.getSwerve().getCommandsBuilder().moveToPoseByPID(robot.getPoseEstimator()::getEstimatedPose, targetPose);
-	}
-
 	public static Command followAdjustedPath(Robot robot, PathPlannerPath path, Optional<Branch> targetBranch, Pose2d tolerance) {
 		return robot.getSwerve()
 			.asSubsystemCommand(
 				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose())
 					.andThen(
-						moveToPoseByPID(
-							robot,
-							targetBranch
-								.map(
-									branch -> ScoringHelpers
-										.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-								)
-								.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
-						)
+						robot.getSwerve()
+							.getCommandsBuilder()
+							.moveToPoseByPID(
+								robot.getPoseEstimator()::getEstimatedPose,
+								targetBranch
+									.map(
+										branch -> ScoringHelpers
+											.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+									)
+									.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
+							)
 					)
 					.until(
 						() -> targetBranch.map(branch -> robot.getRobotCommander().isAtBranchScoringPose(branch))
@@ -133,15 +138,17 @@ public class PathFollowingCommandsBuilder {
 		return robot.getSwerve()
 			.asSubsystemCommand(
 				followPathOrPathfindAndFollowPath(robot.getSwerve(), path, () -> robot.getPoseEstimator().getEstimatedPose()).andThen(
-					moveToPoseByPID(
-						robot,
-						targetBranch
-							.map(
-								branch -> ScoringHelpers
-									.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
-							)
-							.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
-					)
+					robot.getSwerve()
+						.getCommandsBuilder()
+						.moveToPoseByPID(
+							robot.getPoseEstimator()::getEstimatedPose,
+							targetBranch
+								.map(
+									branch -> ScoringHelpers
+										.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
+								)
+								.orElse(Field.getAllianceRelative(PathPlannerUtil.getLastPathPose(path), true, true, AngleTransform.INVERT))
+						)
 				),
 				"Follow Adjusted " + path + " without stop"
 			);
