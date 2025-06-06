@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.constants.MathConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class ToleranceMath {
 
@@ -19,6 +20,9 @@ public class ToleranceMath {
 	}
 
 	public static boolean isNear(Translation2d wantedTranslation, Translation2d translation, Translation2d tolerance) {
+		Logger.recordOutput("isNear/isAtX", MathUtil.isNear(wantedTranslation.getX(), translation.getX(), tolerance.getX()));
+		Logger.recordOutput("isNear/isAtY", MathUtil.isNear(wantedTranslation.getY(), translation.getY(), tolerance.getY()));
+		
 		return MathUtil.isNear(wantedTranslation.getX(), translation.getX(), tolerance.getX())
 			&& MathUtil.isNear(wantedTranslation.getY(), translation.getY(), tolerance.getY());
 	}
