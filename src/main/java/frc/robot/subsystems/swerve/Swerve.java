@@ -223,6 +223,10 @@ public class Swerve extends GBSubsystem {
 
 
 	protected void moveToPoseByPID(Pose2d currentPose, Pose2d targetPose) {
+		moveToPoseByPID(currentPose, targetPose, SwerveState.DEFAULT_DRIVE);
+	}
+
+	protected void moveToPoseByPID(Pose2d currentPose, Pose2d targetPose, SwerveState swerveState) {
 		double xVelocityMetersPerSecond = constants.xMetersPIDController().calculate(currentPose.getX(), targetPose.getX());
 		double yVelocityMetersPerSecond = constants.yMetersPIDController().calculate(currentPose.getY(), targetPose.getY());
 		int direction = Field.isFieldConventionAlliance() ? 1 : -1;
@@ -235,7 +239,7 @@ public class Swerve extends GBSubsystem {
 			yVelocityMetersPerSecond * direction,
 			rotationVelocityPerSecond.getRadians()
 		);
-		driveByState(targetAllianceRelativeSpeeds, SwerveState.DEFAULT_DRIVE);
+		driveByState(targetAllianceRelativeSpeeds, swerveState);
 	}
 
 	protected void turnToHeading(Rotation2d targetHeading, SwerveState swerveState) {
