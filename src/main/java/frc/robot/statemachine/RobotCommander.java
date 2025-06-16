@@ -169,10 +169,32 @@ public class RobotCommander extends GBSubsystem {
 		};
 	}
 
-	private boolean isAtProcessorScoringPose() {
+	private boolean isAtEndEffectorProcessorScoringPose() {
 		Rotation2d processorAngle = Field.getProcessor().getRotation();
 
-		Pose2d processorRelativeTargetPose = ScoringHelpers.getAllianceRelativeProcessorScoringPose().rotateBy(processorAngle.unaryMinus());
+		Pose2d processorRelativeTargetPose = ScoringHelpers.getAllianceRelativeEndEffectorProcessorScoringPose()
+			.rotateBy(processorAngle.unaryMinus());
+		Pose2d processorRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(processorAngle.unaryMinus());
+
+		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
+		ChassisSpeeds processorRelativeSpeeds = SwerveMath
+			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(processorAngle.unaryMinus()));
+
+		return PoseUtil.isAtPose(
+			processorRelativeRobotPose,
+			processorRelativeTargetPose,
+			processorRelativeSpeeds,
+			Tolerances.PROCESSOR_RELATIVE_SCORING_POSITION,
+			Tolerances.PROCESSOR_RELATIVE_SCORING_DEADBANDS,
+			"/isAtProcessorScoringPose"
+		);
+	}
+
+	private boolean isAtAlgaeIntakeProcessorScoringPose() {
+		Rotation2d processorAngle = Field.getProcessor().getRotation();
+
+		Pose2d processorRelativeTargetPose = ScoringHelpers.getAllianceRelativeAlgaeIntakeProcessorScoringPose()
+			.rotateBy(processorAngle.unaryMinus());
 		Pose2d processorRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(processorAngle.unaryMinus());
 
 		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
@@ -294,7 +316,8 @@ public class RobotCommander extends GBSubsystem {
 			case AUTO_PRE_NET -> driveToPreNet();
 			case PRE_NET -> preNet();
 			case NET -> net();
-			case PROCESSOR_SCORE -> fullyProcessorScore();
+			case END_EFFECTOR_PROCESSOR_SCORE -> fullyEndEffectorProcessorScore();
+			case ALGAE_INTAKE_PROCESSOR_SCORE -> fullyAlgaeIntakeProcessorScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB_WITHOUT_LIMIT_SWITCH -> climbWithoutLimitSwitch();
@@ -418,20 +441,43 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 
-	public Command fullyProcessorScore() {
+	public Command fullyEndEffectorProcessorScore() {
 		return asSubsystemCommand(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					superstructure.processorWithoutRelease(),
+					superstructure.endEffectorProcessorWithoutRelease(),
 					swerve.getCommandsBuilder()
-						.driveToPose(robot.getPoseEstimator()::getEstimatedPose, ScoringHelpers::getAllianceRelativeProcessorScoringPose)
-				).until(this::isAtProcessorScoringPose),
+						.driveToPose(
+							robot.getPoseEstimator()::getEstimatedPose,
+							ScoringHelpers::getAllianceRelativeEndEffectorProcessorScoringPose
+						)
+				).until(this::isAtEndEffectorProcessorScoringPose),
 				new ParallelCommandGroup(
-					superstructure.processorScore(),
+					superstructure.endEffectorProcessorScore(),
 					swerve.getCommandsBuilder().drive(() -> StateMachineConstants.SWERVE_POWERS_TO_PROCESSOR)
 				).withTimeout(StateMachineConstants.TIME_TO_RELEASE_ALGAE_TO_PROCESSOR)
 			),
-			RobotState.PROCESSOR_SCORE
+			RobotState.END_EFFECTOR_PROCESSOR_SCORE
+		);
+	}
+
+	public Command fullyAlgaeIntakeProcessorScore() {
+		return asSubsystemCommand(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					superstructure.algaeIntakeProcessorWithoutRelease(),
+					swerve.getCommandsBuilder()
+						.driveToPose(
+							robot.getPoseEstimator()::getEstimatedPose,
+							ScoringHelpers::getAllianceRelativeAlgaeIntakeProcessorScoringPose
+						)
+				).until(this::isAtAlgaeIntakeProcessorScoringPose),
+				new ParallelCommandGroup(
+					superstructure.algaeIntakeProcessorScore(),
+					swerve.getCommandsBuilder().drive(() -> StateMachineConstants.SWERVE_POWERS_TO_PROCESSOR)
+				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_TIME_SECONDS)
+			),
+			RobotState.ALGAE_INTAKE_PROCESSOR_SCORE
 		);
 	}
 
@@ -798,7 +844,8 @@ public class RobotCommander extends GBSubsystem {
 				DRIVE,
 				ALIGN_REEF,
 				ALGAE_OUTTAKE_FROM_END_EFFECTOR,
-				PROCESSOR_SCORE,
+				END_EFFECTOR_PROCESSOR_SCORE,
+				ALGAE_INTAKE_PROCESSOR_SCORE,
 				ALGAE_OUTTAKE_FROM_INTAKE,
 				ALGAE_INTAKE ->
 				drive();

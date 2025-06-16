@@ -9,6 +9,7 @@ public enum PivotState {
 	TRANSFER_TO_END_EFFECTOR(Rotation2d.fromDegrees(100)),
 	OUTTAKE(Rotation2d.fromDegrees(-10)),
 	HOLD_ALGAE(Rotation2d.fromDegrees(20)),
+	PROCESSOR_SCORE(Rotation2d.fromDegrees(10)),
 	STAY_IN_PLACE(null);
 
 	private final Rotation2d position;
