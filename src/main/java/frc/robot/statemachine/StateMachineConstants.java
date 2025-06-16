@@ -32,6 +32,7 @@ public class StateMachineConstants {
 	public static final double ALGAE_INTAKE_TIME_AFTER_SENSOR_SECONDS = 0.2;
 
 	public static final double ALGAE_OUTTAKE_FROM_INTAKE_TIME_AFTER_SENSOR_SECONDS = 0.2;
+	public static final double ALGAE_OUTTAKE_PROCESSOR_RELEASE_TIME_SECONDS = 0.7;
 	public static final double ALGAE_TRANSFER_TO_END_EFFECTOR_TIME_SECONDS = 0.8;
 	public static final double INTAKE_TIME_AFTER_BEAM_BREAK_SECONDS = 0;
 	public static final Rotation2d ARM_POSITION_TO_CLOSE_ELEVATOR_L4 = Rotation2d.fromDegrees(63 + ArmConstants.POSITION_OFFSET.getDegrees());

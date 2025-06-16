@@ -24,7 +24,7 @@ public class ScoringHelpers {
 	public static final Translation2d ROBOT_DISTANCE_FROM_REEF_FOR_ALGAE_REMOVE = new Translation2d(0.49, 0);
 	private static final double TIME_FOR_POSE_MOVEMENT_SECONDS = 0.5;
 	private static final Pose2d END_EFFECTOR_PROCESSOR_SCORING_POSE = new Pose2d(6.05, 1, Rotation2d.fromDegrees(90));
-	private static final Pose2d ALGAE_INTAKE_PROCESSOR_SCORING_POSE = new Pose2d(6.05, 1, Rotation2d.fromDegrees(-90));
+	private static final Pose2d ALGAE_INTAKE_PROCESSOR_SCORING_POSE = new Pose2d(6.05, 1, Rotation2d.fromDegrees(90));
 	private static final Rotation2d HEADING_FOR_CAGE = Rotation2d.fromDegrees(180);
 
 	public static ScoreLevel targetScoreLevel = ScoreLevel.L4;

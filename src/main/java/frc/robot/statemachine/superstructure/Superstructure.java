@@ -602,7 +602,7 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 					climbStateHandler.setState(ClimbState.STOP),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.PROCESSOR_SCORE_WITH_RELEASE)
-				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_FROM_INTAKE_TIME_AFTER_SENSOR_SECONDS)
+				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_PROCESSOR_RELEASE_TIME_SECONDS)
 			),
 			SuperstructureState.ALGAE_INTAKE_PROCESSOR_OUTTAKE
 		);
