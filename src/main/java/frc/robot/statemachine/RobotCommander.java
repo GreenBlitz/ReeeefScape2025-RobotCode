@@ -475,7 +475,7 @@ public class RobotCommander extends GBSubsystem {
 				new ParallelCommandGroup(
 					superstructure.algaeIntakeProcessorScore(),
 					swerve.getCommandsBuilder().drive(() -> StateMachineConstants.SWERVE_POWERS_TO_PROCESSOR)
-				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_TIME_SECONDS)
+				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_FROM_INTAKE_TIME_AFTER_SENSOR_SECONDS)
 			),
 			RobotState.ALGAE_INTAKE_PROCESSOR_SCORE
 		);

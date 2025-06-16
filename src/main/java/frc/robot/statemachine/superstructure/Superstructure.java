@@ -602,7 +602,7 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 					climbStateHandler.setState(ClimbState.STOP),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.PROCESSOR_SCORE_WITH_RELEASE)
-				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_TIME_SECONDS)
+				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_FROM_INTAKE_TIME_AFTER_SENSOR_SECONDS)
 			),
 			SuperstructureState.ALGAE_INTAKE_PROCESSOR_OUTTAKE
 		);
@@ -677,7 +677,7 @@ public class Superstructure extends GBSubsystem {
 					robot.getRollers()
 				)
 			),
-			SuperstructureState.INTAKE
+			SuperstructureState.ALGAE_FLOOR_INTAKE
 		);
 	}
 
@@ -690,7 +690,7 @@ public class Superstructure extends GBSubsystem {
 						.withTimeout(0.8),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.OUTTAKE_WITH_RELEASE).until(() -> !isAlgaeInAlgaeIntake()),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.OUTTAKE_WITH_RELEASE)
-						.withTimeout(StateMachineConstants.ALGAE_OUTTAKE_TIME_SECONDS)
+						.withTimeout(StateMachineConstants.ALGAE_OUTTAKE_FROM_INTAKE_TIME_AFTER_SENSOR_SECONDS)
 				),
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.CLOSED),
@@ -699,7 +699,7 @@ public class Superstructure extends GBSubsystem {
 					climbStateHandler.setState(ClimbState.CLOSE)
 				)
 			),
-			SuperstructureState.ALGAE_FLOOR_INTAKE
+			SuperstructureState.ALGAE_OUTTAKE_FROM_INTAKE
 		);
 	}
 
@@ -722,7 +722,8 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.TRANSFER_ALGAE_FROM_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.TRANSFER_TO_END_EFFECTOR_WITHOUT_RELEASE)
-				).until(() -> algaeIntakeStateHandler.isAtState(AlgaeIntakeState.TRANSFER_TO_END_EFFECTOR_WITHOUT_RELEASE)).withTimeout(0.8)
+				).until(() -> algaeIntakeStateHandler.isAtState(AlgaeIntakeState.TRANSFER_TO_END_EFFECTOR_WITHOUT_RELEASE))
+					.withTimeout(StateMachineConstants.ALGAE_TRANSFER_TO_END_EFFECTOR_TIME_SECONDS)
 			),
 			SuperstructureState.TRANSFER_ALGAE_TO_END_EFFECTOR
 		);
