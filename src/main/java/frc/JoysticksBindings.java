@@ -187,6 +187,30 @@ public class JoysticksBindings {
 		});
 	}
 
+	private static Command processorActionChooser(Robot robot) {
+		RobotCommander robotCommander = robot.getRobotCommander();
+
+		return new DeferredCommand(
+				() -> robotCommander.setState(
+						robotCommander.getSuperstructure().isAlgaeInAlgaeIntake()
+								? RobotState.ALGAE_INTAKE_PROCESSOR_SCORE
+								: RobotState.END_EFFECTOR_PROCESSOR_SCORE
+				),
+				Set.of(
+						robotCommander,
+						robotCommander.getSuperstructure(),
+						robot.getSwerve(),
+						robot.getElevator(),
+						robot.getArm(),
+						robot.getEndEffector(),
+						robot.getLifter(),
+						robot.getSolenoid(),
+						robot.getPivot(),
+						robot.getRollers()
+				)
+		);
+	}
+
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
@@ -201,7 +225,7 @@ public class JoysticksBindings {
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_OUTTAKE_FROM_INTAKE));
-		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_INTAKE_PROCESSOR_SCORE));
+		usedJoystick.B.onTrue(processorActionChooser(robot));
 
 
 //		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));
