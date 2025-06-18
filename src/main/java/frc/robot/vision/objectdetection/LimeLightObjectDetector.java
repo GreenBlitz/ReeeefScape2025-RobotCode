@@ -13,6 +13,7 @@ import frc.utils.math.ObjectDetectionMath;
 import frc.utils.time.TimeUtil;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class LimeLightObjectDetector implements ObjectDetector {
@@ -71,6 +72,46 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		Rotation2d cameraRelativePitch = Rotation2d.fromDegrees(tyEntry.getDouble(0));
 		Translation2d robotRelativeObjectPose = ObjectDetectionMath
 			.cameraRollRelativeYawAndPitchToRobotRelativePose(cameraRelativeYaw, cameraRelativePitch, cameraPose, centerOfObjectHeightMeters);
+
+		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
+		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
+
+		return new ObjectData(robotRelativeObjectPose, objectType, timeStamp);
+	}
+
+	private static ArrayList<ObjectData> objectsEntryToObjectDataArray(
+		NetworkTableEntry allObjectsEntry,
+		NetworkTableEntry pipelineLatencyEntry,
+		NetworkTableEntry captureLatencyEntry,
+		Pose3d cameraPose
+	) {
+		double[] entryArray = allObjectsEntry.getDoubleArray(new double[0]);
+		int objectAmount = entryArray.length / VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY;
+		ArrayList<ObjectData> detectedObjects = new ArrayList<>();
+
+		for (int i = 0; i < objectAmount; i++) {
+			int firstCell = VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY * i;
+			ObjectData objectData = objectsEntryArrayToObjectData(entryArray, firstCell, pipelineLatencyEntry, captureLatencyEntry, cameraPose);
+			detectedObjects.add(objectData);
+		}
+		return detectedObjects;
+	}
+
+	private static ObjectData objectsEntryArrayToObjectData(
+		double[] entryArray,
+		int firstCell,
+		NetworkTableEntry pipelineLatencyEntry,
+		NetworkTableEntry captureLatencyEntry,
+		Pose3d cameraPose
+	) {
+		ObjectType objectType = ObjectType.ALGAE;
+
+		Rotation2d cameraRelativeYaw = Rotation2d
+			.fromDegrees(entryArray[firstCell + 1] - (VisionConstants.LIMELIGHT_3_HORIZONTAL_FOV.getDegrees() / 2));
+		Rotation2d cameraRelativePitch = Rotation2d
+			.fromDegrees(entryArray[firstCell + 2] - (VisionConstants.LIMELIGHT_3_VERTICAL_FOV.getDegrees() / 2));
+		Translation2d robotRelativeObjectPose = ObjectDetectionMath
+			.cameraRollRelativeYawAndPitchToRobotRelativePose(cameraRelativeYaw, cameraRelativePitch, cameraPose, 0.203);
 
 		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
 		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
