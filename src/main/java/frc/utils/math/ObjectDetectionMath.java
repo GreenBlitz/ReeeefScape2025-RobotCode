@@ -6,6 +6,12 @@ import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
 
 
 public class ObjectDetectionMath {
+	
+	public static double getObjectHeightToWidthRatio(double[] t2dEntryArray) {
+		double detectedHorizontalPixels = t2dEntryArray[14];
+		double detectedVerticalPixels = t2dEntryArray[15];
+		return detectedVerticalPixels / detectedHorizontalPixels;
+	}
 
 	public static Translation2d getObjectCenterPixel(double[] allObjectsEntryArray, int firstCellIndex) {
 		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(allObjectsEntryArray, firstCellIndex);

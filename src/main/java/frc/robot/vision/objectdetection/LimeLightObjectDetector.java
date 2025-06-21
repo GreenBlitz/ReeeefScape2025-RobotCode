@@ -54,9 +54,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 
 	public static Filter<double[]> squishedAlgaeFilter(double algaeHeightToWidthRatio, double heightToWidthRatioTolerance) {
 		return (t2dEntryArray) -> {
-			double detectedHorizontalPixels = t2dEntryArray[14];
-			double detectedVerticalPixels = t2dEntryArray[15];
-			double detectedHeightToWidthRatio = detectedVerticalPixels / detectedHorizontalPixels;
+			double detectedHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
 			return MathUtil.isNear(algaeHeightToWidthRatio, detectedHeightToWidthRatio, heightToWidthRatioTolerance);
 		};
 	}
@@ -79,6 +77,8 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		}
 
 		Translation2d algaeCenterPixel = ObjectDetectionMath.getObjectCenterPixel(allObjectsEntryArray, firstCellIndexInAllObjectsArray.get());
+		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
+		
 		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
 		boolean isAlgaeCutOffOnCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
 			allObjectsEntryArray,
@@ -91,19 +91,20 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		if (!isAlgaeSquished && !isAlgaeCutOffOnCorner) {
 			return Optional.of(algaeCenterPixel);
 		}
-//		if (isAlgaeSquished && !isAlgaeCutOffOnCorner) {
-//			return Optional.of(
-//				ObjectDetectionMath.findRealSquishedAlgaeCenter(
-//					algaeCenterPixel,
-//					algaeHeightToWidthRatio,
-//					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
-//					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY()
-//				)
-//			);
-//		}
-		else {
+		if (isAlgaeSquished && !isAlgaeCutOffOnCorner) {
+			return Optional.of(
+				ObjectDetectionMath.findRealSquishedAlgaeCenter(
+					algaeCenterPixel,
+					algaeHeightToWidthRatio,
+					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
+					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY()
+				)
+			);
+		}
+		if (isAlgaeCutOffOnCorner) {
 			return Optional.empty();
 		}
+		return Optional.empty();
 	}
 
 	@Override
