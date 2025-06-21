@@ -59,7 +59,8 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		};
 	}
 
-	public static Filter<ObjectData> isObjectTooFarAway(double maxValidDistanceMeters) {;
+	public static Filter<ObjectData> isObjectTooFarAway(double maxValidDistanceMeters) {
+		;
 		return (data) -> Math.abs(data.getRobotRelativeEstimatedTranslation().getX()) < maxValidDistanceMeters;
 	}
 
@@ -111,8 +112,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 	public Optional<ObjectData> getClosestObjectData() {
 		Optional<ObjectType> objectType = ObjectDetectionHelpers.getObjectType(closestObjectNameEntry);
 
-		if (
-			objectType.isEmpty()
+		if (objectType.isEmpty()
 //				|| squishedAlgaeFilter(VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO, VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO_TOLERANCE)
 //					.apply(t2dEntry.getDoubleArray(new double[0]))
 		) {
