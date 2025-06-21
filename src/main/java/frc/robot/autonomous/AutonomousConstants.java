@@ -28,6 +28,8 @@ public class AutonomousConstants {
 
 	public static final double INTAKING_TIMEOUT_SECONDS = 4;
 
+	public static final double DISTANCE_FROM_ALGAE_FOR_FLOOR_INTAKE = 0.8;
+
 	public static final double BACK_OFF_FROM_REEF_DISTANCE_METERS = -1;
 
 	public static final double FIRST_ALGAE_REMOVE_TIMEOUT_SECONDS = 1;
@@ -106,6 +108,10 @@ public class AutonomousConstants {
 		public static final Pair<String, Pose2d> MIDDLE_NET = Pair.of("MN", new Pose2d(7.578, 6.045, Rotation2d.fromDegrees(0)));
 
 		public static final Pair<String, Pose2d> RIGHT_NET = Pair.of("RN", new Pose2d(7.578, 5.064, Rotation2d.fromDegrees(0)));
+
+		public static final Pair<String, Pose2d> LEFT_FLOOR_ALGAE = Pair.of("LFA", new Pose2d(5.460, 6.640, Rotation2d.fromDegrees(-90)));
+
+		public static final Pair<String, Pose2d> RIGHT_FLOOR_ALGAE = Pair.of("RFA", new Pose2d(6.300, 6.720, Rotation2d.fromDegrees(-90)));
 
 		private static Pose2d getRobotBranchScoringBluePose(Branch branch) {
 			return ScoringHelpers.getRobotBranchScoringPose(branch, StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS, false);
