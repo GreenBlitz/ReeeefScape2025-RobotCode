@@ -181,10 +181,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public boolean isReadyForAlgaeIntake() {
-		return robot.getElevator().isAtPosition(ElevatorState.CLOSED.getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == ElevatorState.PROCESSOR_OUTTAKE
-			&& armStateHandler.isAtState(ArmState.CLOSED, Tolerances.ALGAE_RELEASE_ARM_POSITION)
-			&& algaeIntakeStateHandler.isAtState(AlgaeIntakeState.INTAKE);
+		return algaeIntakeStateHandler.isAtState(AlgaeIntakeState.INTAKE);
 	}
 
 	@Override

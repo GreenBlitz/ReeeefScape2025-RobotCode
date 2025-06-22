@@ -574,7 +574,9 @@ public class RobotCommander extends GBSubsystem {
 					superstructure.algaeIntake(),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 				).until(() -> (robot.getObjectDetector().getFilteredClosestObjectData().isPresent() && superstructure.isReadyForAlgaeIntake())),
-				new ParallelDeadlineGroup(
+				new RepeatCommand(
+						new ConditionalCommand(
+								new ParallelDeadlineGroup(
 					superstructure.algaeIntake(),
 					swerve.getCommandsBuilder()
 						.driveToObject(
@@ -585,16 +587,20 @@ public class RobotCommander extends GBSubsystem {
 							() -> Optional.of(
 								FieldMath.turnRobotRelativeToFieldRelative(
 									robot.getPoseEstimator().getEstimatedPose(),
-									robot.getObjectDetector().getFilteredClosestObjectData().get().getRobotRelativeEstimatedTranslation()
+									test
 								)
 							),
 							StateMachineConstants.DISTANCE_FROM_ALGAE_FOR_FLOOR_PICKUP_METERS
-						)
-				).until(superstructure::isAlgaeInAlgaeIntake)
+						))	.beforeStarting(new InstantCommand(() -> test = robot.getObjectDetector().getFilteredClosestObjectData().get().getRobotRelativeEstimatedTranslation())),
+						new InstantCommand(),
+						() -> robot.getObjectDetector().getFilteredClosestObjectData().isPresent()
+				)).until(superstructure::isAlgaeInAlgaeIntake)
 			),
 			RobotState.ALGAE_INTAKE
 		);
 	}
+
+	public Translation2d test = new Translation2d();
 
 	private Command transferAlgaeFromIntakeToEndEffector() {
 		return asSubsystemCommand(
