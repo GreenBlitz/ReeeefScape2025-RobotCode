@@ -2,6 +2,7 @@ package frc.utils.math;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.*;
+import frc.robot.vision.VisionConstants;
 import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
 
 
@@ -15,12 +16,12 @@ public class ObjectDetectionMath {
 
 	public static Translation2d getObjectCenterPixel(double[] allObjectsEntryArray, int firstCellIndex) {
 		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(allObjectsEntryArray, firstCellIndex);
-		double smallestFrameX = Math.min(objectFrameCorners[0].getX(), objectFrameCorners[1].getX());
-		double centerXFromEdge = Math.abs(objectFrameCorners[0].getX() - objectFrameCorners[1].getX()) / 2;
+		double smallestFrameX = objectFrameCorners[0].getX();
+		double centerXFromEdge = (objectFrameCorners[1].getX() - objectFrameCorners[0].getX()) / 2;
 		double centerX = smallestFrameX + centerXFromEdge;
 
-		double smallestFrameY = Math.min(objectFrameCorners[0].getY(), objectFrameCorners[2].getY());
-		double centerYFromEdge = Math.abs(objectFrameCorners[0].getY() - objectFrameCorners[2].getY()) / 2;
+		double smallestFrameY = objectFrameCorners[0].getY();
+		double centerYFromEdge = (objectFrameCorners[3].getY() - objectFrameCorners[0].getY()) / 2;
 		double centerY = smallestFrameY + centerYFromEdge;
 
 		return new Translation2d(centerX, centerY);
@@ -32,7 +33,7 @@ public class ObjectDetectionMath {
 		int pictureWidthPixels,
 		int pictureHeightPixels
 	) {
-		if (algaeHeightToWidthRatio > 1) {
+		if (algaeHeightToWidthRatio > VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO) {
 			return findRealXSquishedAlgaeCenter(squishedCenterPixel, algaeHeightToWidthRatio, pictureWidthPixels);
 		} else {
 			return findRealYSquishedAlgaeCenter(squishedCenterPixel, algaeHeightToWidthRatio, pictureHeightPixels);
