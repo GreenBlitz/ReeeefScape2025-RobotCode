@@ -573,34 +573,36 @@ public class RobotCommander extends GBSubsystem {
 				new ParallelDeadlineGroup(
 					superstructure.algaeIntake(),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-				).until(() -> (robot.getObjectDetector().getFilteredClosestObjectData().isPresent() && superstructure.isReadyForAlgaeIntake())),
+				).until(() -> (
+//						robot.getObjectDetector().getFilteredClosestObjectData().isPresent() &&
+				superstructure.isReadyForAlgaeIntake())),
 				new RepeatCommand(
-						new ConditionalCommand(
-								new ParallelDeadlineGroup(
-					superstructure.algaeIntake(),
-					swerve.getCommandsBuilder()
-						.driveToObject(
-							() -> new Pose2d(
-								robot.getPoseEstimator().getEstimatedPose().getTranslation(),
-								robot.getPoseEstimator().getEstimatedPose().getRotation().plus(Rotation2d.fromRadians(Math.PI))
-							),
-							() -> Optional.of(
-								FieldMath.turnRobotRelativeToFieldRelative(
-									robot.getPoseEstimator().getEstimatedPose(),
-									test
+					new ConditionalCommand(
+						new ParallelDeadlineGroup(
+							superstructure.algaeIntake(),
+							swerve.getCommandsBuilder()
+								.driveToObject(
+									() -> new Pose2d(
+										robot.getPoseEstimator().getEstimatedPose().getTranslation(),
+										robot.getPoseEstimator().getEstimatedPose().getRotation().plus(Rotation2d.fromRadians(Math.PI))
+									),
+									() -> Optional.of(
+										FieldMath.turnRobotRelativeToFieldRelative(
+											robot.getPoseEstimator().getEstimatedPose(),
+											robot.getObjectDetector().getFilteredClosestObjectData().get().getRobotRelativeEstimatedTranslation()
+										)
+									),
+									StateMachineConstants.DISTANCE_FROM_ALGAE_FOR_FLOOR_PICKUP_METERS
 								)
-							),
-							StateMachineConstants.DISTANCE_FROM_ALGAE_FOR_FLOOR_PICKUP_METERS
-						))	.beforeStarting(new InstantCommand(() -> test = robot.getObjectDetector().getFilteredClosestObjectData().get().getRobotRelativeEstimatedTranslation())),
+						),
 						new InstantCommand(),
 						() -> robot.getObjectDetector().getFilteredClosestObjectData().isPresent()
-				)).until(superstructure::isAlgaeInAlgaeIntake)
+					)
+				).until(superstructure::isAlgaeInAlgaeIntake)
 			),
 			RobotState.ALGAE_INTAKE
 		);
 	}
-
-	public Translation2d test = new Translation2d();
 
 	private Command transferAlgaeFromIntakeToEndEffector() {
 		return asSubsystemCommand(
