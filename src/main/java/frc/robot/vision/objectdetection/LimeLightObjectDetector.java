@@ -102,9 +102,6 @@ public class LimeLightObjectDetector implements ObjectDetector {
 				)
 			);
 		}
-		if (isAlgaeCutOffOnCorner) {
-			return Optional.empty();
-		}
 		return Optional.empty();
 	}
 

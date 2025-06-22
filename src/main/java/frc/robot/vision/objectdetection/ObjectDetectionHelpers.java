@@ -16,7 +16,7 @@ public class ObjectDetectionHelpers {
 
 	public static Pair<Double, Double> txNoCrossAndTyNoCrossToTxAndTy(double txNoCross, double tyNoCross) {
 		double tx = txNoCross - (VisionConstants.LIMELIGHT_3_HORIZONTAL_FOV.getDegrees() / 2);
-		double ty = tyNoCross - (VisionConstants.LIMELIGHT_3_VERTICAL_FOV.getDegrees() / 2);
+		double ty = (VisionConstants.LIMELIGHT_3_VERTICAL_FOV.getDegrees() / 2) - tyNoCross;
 		return new Pair<>(tx, ty);
 	}
 
