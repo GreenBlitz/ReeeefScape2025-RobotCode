@@ -29,8 +29,8 @@ public class ObjectDetectionHelpers {
 
 		for (int i = 0; i < objectAmount; i++) {
 			int firstCell = VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY * i;
-			double allObjectsEntryTxNoCrossValue = allObjectsEntryArray[firstCell + AllObjectsEntryIndexes.TX_NO_CROSS.getIndex()];
-			double allObjectsEntryTyNoCrossValue = allObjectsEntryArray[firstCell + AllObjectsEntryIndexes.TY_NO_CROSS.getIndex()];
+			double allObjectsEntryTxNoCrossValue = allObjectsEntryArray[firstCell + AllObjectsEntryIndexes.TX_NO_CROSS.ordinal()];
+			double allObjectsEntryTyNoCrossValue = allObjectsEntryArray[firstCell + AllObjectsEntryIndexes.TY_NO_CROSS.ordinal()];
 
 			Pair<Double, Double> allObjectsEntryTxAndTyValues = txNoCrossAndTyNoCrossToTxAndTy(
 				allObjectsEntryTxNoCrossValue,
@@ -65,20 +65,20 @@ public class ObjectDetectionHelpers {
 	public static Translation2d[] getAllObjectFrameCorners(double[] allObjectsEntryArray, int objectFirstCellIndex) {
 		return new Translation2d[] {
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_X.ordinal()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_Y.ordinal()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_X.ordinal()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_Y.ordinal()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_X.ordinal()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_Y.ordinal()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_X.ordinal()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_Y.ordinal()]
 			)};
 	}
 
