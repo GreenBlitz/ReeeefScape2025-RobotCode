@@ -573,9 +573,7 @@ public class RobotCommander extends GBSubsystem {
 				new ParallelDeadlineGroup(
 					superstructure.algaeIntake(),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-				).until(() -> (
-//						robot.getObjectDetector().getFilteredClosestObjectData().isPresent() &&
-				superstructure.isReadyForAlgaeIntake())),
+				).until(() -> (robot.getObjectDetector().getFilteredClosestObjectData().isPresent() && superstructure.isReadyForAlgaeIntake())),
 				new RepeatCommand(
 					new ConditionalCommand(
 						new ParallelDeadlineGroup(
