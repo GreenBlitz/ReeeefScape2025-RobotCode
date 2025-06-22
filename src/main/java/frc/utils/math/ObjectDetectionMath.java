@@ -8,6 +8,25 @@ import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
 
 public class ObjectDetectionMath {
 
+	public static Pair<Double, Double> pixelToTxAndTy(
+		Translation2d pixel,
+		int pictureWidthPixels,
+		int pictureHeightPixels,
+		double cameraHorizontalFOVRadians,
+		double cameraVerticalFOVRadians
+	) {
+		double normalisedX = (pixel.getX() - ((double) pictureWidthPixels / 2)) / ((double) pictureWidthPixels / 2);
+		double normalisedY = (((double) pictureHeightPixels / 2) - pixel.getY()) / ((double) pictureHeightPixels / 2);
+
+		double viewPlaneWidth = 2 * Math.tan(cameraHorizontalFOVRadians / 2);
+		double viewPlaneHeight = 2 * Math.tan(cameraVerticalFOVRadians / 2);
+
+		Translation2d pointOnViewPlane = new Translation2d(normalisedX * (viewPlaneWidth / 2), normalisedY * (viewPlaneHeight / 2));
+		double tx = Math.atan(pointOnViewPlane.getX());
+		double ty = Math.atan(pointOnViewPlane.getY());
+		return new Pair<>(tx, ty);
+	}
+
 	public static double getObjectHeightToWidthRatio(double[] t2dEntryArray) {
 		double detectedHorizontalPixels = t2dEntryArray[14];
 		double detectedVerticalPixels = t2dEntryArray[15];

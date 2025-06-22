@@ -1,6 +1,7 @@
 package frc.robot.vision.objectdetection;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -63,7 +64,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		return (data) -> Math.abs(data.getRobotRelativeEstimatedTranslation().getX()) < maxValidDistanceMeters;
 	}
 
-	public static Optional<Translation2d> filterSquishedAlgae(
+	public static Optional<Pair<Double, Double>> filterSquishedAlgae(
 		double txEntryValue,
 		double tyEntryValue,
 		Filter<double[]> t2dEntrySquishedAlgaeFilter,
@@ -80,7 +81,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
 
 		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
-		boolean isAlgaeCutOffOnCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
+		boolean isAlgaeCutOffOnPictureCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
 			allObjectsEntryArray,
 			firstCellIndexInAllObjectsArray.get(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
@@ -88,19 +89,28 @@ public class LimeLightObjectDetector implements ObjectDetector {
 			VisionConstants.EDGE_PIXEL_TOLERANCE
 		) >= 3;
 
-		if (!isAlgaeSquished && !isAlgaeCutOffOnCorner) {
-			return Optional.of(algaeCenterPixel);
+		if (!isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
+			return Optional.of(new Pair<>(txEntryValue, tyEntryValue));
 		}
-		if (isAlgaeSquished && !isAlgaeCutOffOnCorner) {
+
+		if (isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
+			Translation2d realCenterPixel = ObjectDetectionMath.findRealSquishedAlgaeCenter(
+				algaeCenterPixel,
+				algaeHeightToWidthRatio,
+				(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
+				(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY()
+			);
 			return Optional.of(
-				ObjectDetectionMath.findRealSquishedAlgaeCenter(
-					algaeCenterPixel,
-					algaeHeightToWidthRatio,
+				ObjectDetectionMath.pixelToTxAndTy(
+					realCenterPixel,
 					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
-					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY()
+					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY(),
+					VisionConstants.LIMELIGHT_3_HORIZONTAL_FOV.getRadians(),
+					VisionConstants.LIMELIGHT_3_VERTICAL_FOV.getRadians()
 				)
 			);
 		}
+
 		return Optional.empty();
 	}
 
