@@ -1,6 +1,7 @@
 package frc.robot.statemachine;
 
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -578,7 +579,7 @@ public class RobotCommander extends GBSubsystem {
 					superstructure.algaeIntake(),
 					swerve.getCommandsBuilder()
 						.driveToObject(
-							robot.getPoseEstimator()::getEstimatedPose,
+								() -> new Pose2d(robot.getPoseEstimator().getEstimatedPose().getTranslation(), robot.getPoseEstimator().getEstimatedPose().getRotation().plus(Rotation2d.fromRadians(Math.PI))),
 							() -> Optional.of(
 								FieldMath.turnRobotRelativeToFieldRelative(
 									robot.getPoseEstimator().getEstimatedPose(),
