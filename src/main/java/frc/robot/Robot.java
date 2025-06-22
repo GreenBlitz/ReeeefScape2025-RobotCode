@@ -366,6 +366,10 @@ public class Robot {
 		return robotCommander;
 	}
 
+	public LimeLightObjectDetector getObjectDetector() {
+		return objectDetector;
+	}
+
 	public RobotConfig getRobotConfig() {
 		return new RobotConfig(
 			RobotConstants.MASS_KILOGRAM,
