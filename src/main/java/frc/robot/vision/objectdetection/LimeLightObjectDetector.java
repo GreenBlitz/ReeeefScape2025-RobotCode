@@ -79,7 +79,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 
 		Translation2d algaeCenterPixel = ObjectDetectionMath.getObjectCenterPixel(allObjectsEntryArray, firstCellIndexInAllObjectsArray.get());
 		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
-		
+
 		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
 		boolean isAlgaeCutOffOnCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
 			allObjectsEntryArray,

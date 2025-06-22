@@ -6,7 +6,7 @@ import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
 
 
 public class ObjectDetectionMath {
-	
+
 	public static double getObjectHeightToWidthRatio(double[] t2dEntryArray) {
 		double detectedHorizontalPixels = t2dEntryArray[14];
 		double detectedVerticalPixels = t2dEntryArray[15];

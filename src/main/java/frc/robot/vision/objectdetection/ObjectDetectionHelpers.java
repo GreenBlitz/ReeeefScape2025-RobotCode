@@ -65,20 +65,20 @@ public class ObjectDetectionHelpers {
 	public static Translation2d[] getAllObjectFrameCorners(double[] allObjectsEntryArray, int objectFirstCellIndex) {
 		return new Translation2d[] {
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_0_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_0_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_X.getIndex()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_Y.getIndex()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_1_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_1_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_X.getIndex()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_Y.getIndex()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_2_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_2_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_X.getIndex()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_Y.getIndex()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_3_X.getIndex()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.CORNER_3_Y.getIndex()]
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_X.getIndex()],
+				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_Y.getIndex()]
 			)};
 	}
 
