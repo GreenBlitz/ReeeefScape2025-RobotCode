@@ -1,5 +1,6 @@
 package frc.robot.vision.objectdetection;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.ObjectData;
+import frc.utils.Filter;
 import frc.utils.math.ObjectDetectionMath;
 import frc.utils.time.TimeUtil;
 
@@ -82,6 +84,63 @@ public class ObjectDetectionHelpers {
 			)};
 	}
 
+	public static Optional<Pair<Double, Double>> filterSquishedAlgae(
+		double txEntryValue,
+		double tyEntryValue,
+		Filter<double[]> t2dEntrySquishedAlgaeFilter,
+		double[] t2dEntryArray,
+		double[] allObjectsEntryArray
+	) {
+		Optional<Integer> firstCellIndexInAllObjectsArray = ObjectDetectionHelpers
+			.getObjectsFirstCellIndexInAllObjectsArray(txEntryValue, tyEntryValue, allObjectsEntryArray);
+		if (firstCellIndexInAllObjectsArray.isEmpty()) {
+			return Optional.empty();
+		}
+
+		Translation2d algaeCenterPixel = ObjectDetectionMath.getObjectCenterPixel(allObjectsEntryArray, firstCellIndexInAllObjectsArray.get());
+		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
+
+		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
+		boolean isAlgaeCutOffOnPictureCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
+			allObjectsEntryArray,
+			firstCellIndexInAllObjectsArray.get(),
+			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
+			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY(),
+			VisionConstants.EDGE_PIXEL_TOLERANCE
+		) >= 3;
+
+		if (!isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
+			return Optional.of(new Pair<>(txEntryValue, tyEntryValue));
+		}
+
+		if (isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
+			Translation2d realCenterPixel = ObjectDetectionMath.findRealSquishedAlgaeCenter(
+				algaeCenterPixel,
+				algaeHeightToWidthRatio,
+				(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
+				(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY()
+			);
+			return Optional.of(
+				ObjectDetectionMath.pixelToTxAndTyRadians(
+					realCenterPixel,
+					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
+					(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY(),
+					VisionConstants.LIMELIGHT_3_HORIZONTAL_FOV.getRadians(),
+					VisionConstants.LIMELIGHT_3_VERTICAL_FOV.getRadians()
+				)
+			);
+		}
+
+		return Optional.empty();
+	}
+
+	public static Filter<double[]> squishedAlgaeFilter(double algaeHeightToWidthRatio, double heightToWidthRatioTolerance) {
+		return (t2dEntryArray) -> {
+			double detectedHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
+			return MathUtil.isNear(algaeHeightToWidthRatio, detectedHeightToWidthRatio, heightToWidthRatioTolerance);
+		};
+	}
+
 	public static Optional<ObjectType> getObjectType(NetworkTableEntry objectNameEntry) {
 		String nameEntryValue = objectNameEntry.getString(VisionConstants.NAME_ENTRY_NO_OBJECT_VALUE);
 		for (ObjectType type : ObjectType.values()) {
@@ -92,25 +151,39 @@ public class ObjectDetectionHelpers {
 		return Optional.empty();
 	}
 
-	public static ObjectData getObjectData(
+	public static Optional<ObjectData> getObjectData(
 		NetworkTableEntry txEntry,
 		NetworkTableEntry tyEntry,
+		NetworkTableEntry t2dEntry,
+		NetworkTableEntry allObjectsEntry,
 		NetworkTableEntry pipelineLatencyEntry,
 		NetworkTableEntry captureLatencyEntry,
 		ObjectType objectType,
 		Pose3d cameraPose
 	) {
-		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
+		Optional<Pair<Double, Double>> filteredTxAndTy = filterSquishedAlgae(
+			txEntry.getDouble(0),
+			tyEntry.getDouble(0),
+			squishedAlgaeFilter(VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO, VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO_TOLERANCE),
+			t2dEntry.getDoubleArray(new double[0]),
+			allObjectsEntry.getDoubleArray(new double[0])
+		);
 
-		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromDegrees(txEntry.getDouble(0));
-		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromDegrees(tyEntry.getDouble(0));
+		if (filteredTxAndTy.isEmpty()) {
+			return Optional.empty();
+		}
+
+		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
+		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromRadians(filteredTxAndTy.get().getFirst());
+		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromRadians(filteredTxAndTy.get().getSecond());
+
 		Translation2d robotRelativeObjectTranslation = ObjectDetectionMath
 			.getRobotRelativeTranslation(cameraRelativeObjectYaw, cameraRelativeObjectPitch, cameraPose, centerOfObjectHeightMeters);
 
 		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
 		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
 
-		return new ObjectData(robotRelativeObjectTranslation, objectType, timeStamp);
+		return Optional.of(new ObjectData(robotRelativeObjectTranslation, objectType, timeStamp));
 	}
 
 }

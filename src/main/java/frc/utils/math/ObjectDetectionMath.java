@@ -8,7 +8,7 @@ import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
 
 public class ObjectDetectionMath {
 
-	public static Pair<Double, Double> pixelToTxAndTy(
+	public static Pair<Double, Double> pixelToTxAndTyRadians(
 		Translation2d pixel,
 		int pictureWidthPixels,
 		int pictureHeightPixels,
