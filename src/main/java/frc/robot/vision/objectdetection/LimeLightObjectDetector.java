@@ -62,16 +62,28 @@ public class LimeLightObjectDetector implements ObjectDetector {
 			return Optional.empty();
 		}
 
-		return ObjectDetectionHelpers.getObjectData(
-			closestObjectTxEntry,
-			closestObjectTyEntry,
-			t2dEntry,
-			allObjectsEntry,
-			closestObjectPipelineLatencyEntry,
-			closestObjectCaptureLatencyEntry,
-			objectType.get(),
-			cameraPose
-		);
+		return switch (objectType.get()) {
+			case ALGAE ->
+				ObjectDetectionHelpers.getFilteredAlgaeObjectData(
+					closestObjectTxEntry,
+					closestObjectTyEntry,
+					t2dEntry,
+					allObjectsEntry,
+					closestObjectPipelineLatencyEntry,
+					closestObjectCaptureLatencyEntry,
+					objectType.get(),
+					cameraPose
+				);
+			case CORAL ->
+				ObjectDetectionHelpers.getObjectData(
+					closestObjectTxEntry,
+					closestObjectTyEntry,
+					closestObjectPipelineLatencyEntry,
+					closestObjectCaptureLatencyEntry,
+					objectType.get(),
+					cameraPose
+				);
+		};
 	}
 
 	@Override

@@ -154,6 +154,27 @@ public class ObjectDetectionHelpers {
 	public static Optional<ObjectData> getObjectData(
 		NetworkTableEntry txEntry,
 		NetworkTableEntry tyEntry,
+		NetworkTableEntry pipelineLatencyEntry,
+		NetworkTableEntry captureLatencyEntry,
+		ObjectType objectType,
+		Pose3d cameraPose
+	) {
+		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
+		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromDegrees(txEntry.getDouble(0));
+		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromDegrees(tyEntry.getDouble(0));
+
+		Translation2d robotRelativeObjectTranslation = ObjectDetectionMath
+			.getRobotRelativeTranslation(cameraRelativeObjectYaw, cameraRelativeObjectPitch, cameraPose, centerOfObjectHeightMeters);
+
+		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
+		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
+
+		return Optional.of(new ObjectData(robotRelativeObjectTranslation, objectType, timeStamp));
+	}
+
+	public static Optional<ObjectData> getFilteredAlgaeObjectData(
+		NetworkTableEntry txEntry,
+		NetworkTableEntry tyEntry,
 		NetworkTableEntry t2dEntry,
 		NetworkTableEntry allObjectsEntry,
 		NetworkTableEntry pipelineLatencyEntry,
