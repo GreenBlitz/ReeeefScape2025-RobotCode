@@ -179,7 +179,6 @@ public class ObjectDetectionHelpers {
 		NetworkTableEntry allObjectsEntry,
 		NetworkTableEntry pipelineLatencyEntry,
 		NetworkTableEntry captureLatencyEntry,
-		ObjectType objectType,
 		Pose3d cameraPose
 	) {
 		Optional<Pair<Double, Double>> filteredTxAndTy = filterSquishedAlgae(
@@ -194,7 +193,7 @@ public class ObjectDetectionHelpers {
 			return Optional.empty();
 		}
 
-		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
+		double centerOfObjectHeightMeters = ObjectType.ALGAE.getObjectHeightMeters() / 2;
 		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromRadians(filteredTxAndTy.get().getFirst());
 		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromRadians(filteredTxAndTy.get().getSecond());
 
@@ -204,7 +203,7 @@ public class ObjectDetectionHelpers {
 		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
 		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
 
-		return Optional.of(new ObjectData(robotRelativeObjectTranslation, objectType, timeStamp));
+		return Optional.of(new ObjectData(robotRelativeObjectTranslation, ObjectType.ALGAE, timeStamp));
 	}
 
 }

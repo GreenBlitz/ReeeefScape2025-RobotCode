@@ -71,7 +71,6 @@ public class LimeLightObjectDetector implements ObjectDetector {
 					allObjectsEntry,
 					closestObjectPipelineLatencyEntry,
 					closestObjectCaptureLatencyEntry,
-					objectType.get(),
 					cameraPose
 				);
 			case CORAL ->
