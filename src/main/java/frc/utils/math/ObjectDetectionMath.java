@@ -36,8 +36,8 @@ public class ObjectDetectionMath {
 		return detectedVerticalPixels / detectedHorizontalPixels;
 	}
 
-	public static Translation2d getObjectCenterPixel(double[] allObjectsEntryArray, int firstCellIndex) {
-		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(allObjectsEntryArray, firstCellIndex);
+	public static Translation2d getObjectCenterPixel(double[] rawDetectionsEntryArray, int firstCellIndex) {
+		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(rawDetectionsEntryArray, firstCellIndex);
 		double smallestFrameX = objectFrameCorners[0].getX();
 		double centerXFromEdge = (objectFrameCorners[1].getX() - objectFrameCorners[0].getX()) / 2;
 		double centerX = smallestFrameX + centerXFromEdge;

@@ -1,6 +1,6 @@
 package frc.robot.vision.objectdetection;
 
-public enum AllObjectsEntryIndexes {
+public enum RawDetectionsEntryIndexes {
 
 	TARGET_ID,
 	TX_NO_CROSS,

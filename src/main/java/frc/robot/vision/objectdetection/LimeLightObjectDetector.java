@@ -29,7 +29,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 	private final NetworkTableEntry closestObjectPipelineLatencyEntry;
 	private final NetworkTableEntry closestObjectCaptureLatencyEntry;
 	private final NetworkTableEntry t2dEntry;
-	private final NetworkTableEntry allObjectsEntry;
+	private final NetworkTableEntry rawDetectionsEntry;
 
 	public LimeLightObjectDetector(String logPath, String cameraNetworkTablesName, Pose3d cameraPose) {
 		this.logPath = logPath;
@@ -43,7 +43,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		closestObjectPipelineLatencyEntry = getLimelightNetworkTableEntry("tl");
 		closestObjectCaptureLatencyEntry = getLimelightNetworkTableEntry("cl");
 		t2dEntry = getLimelightNetworkTableEntry("t2d");
-		allObjectsEntry = getLimelightNetworkTableEntry("rawdetections");
+		rawDetectionsEntry = getLimelightNetworkTableEntry("rawdetections");
 
 		getLimelightNetworkTableEntry("camerapose_robotspace_set").setDoubleArray(PoseUtil.pose3DToPoseArray(cameraPose, AngleUnit.DEGREES));
 	}
@@ -70,7 +70,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 					closestObjectTxEntry,
 					closestObjectTyEntry,
 					t2dEntry,
-					allObjectsEntry,
+					rawDetectionsEntry,
 					closestObjectPipelineLatencyEntry,
 					closestObjectCaptureLatencyEntry,
 					cameraPose

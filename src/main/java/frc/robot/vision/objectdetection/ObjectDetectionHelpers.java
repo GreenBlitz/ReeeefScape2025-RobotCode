@@ -22,24 +22,24 @@ public class ObjectDetectionHelpers {
 		return new Pair<>(tx, ty);
 	}
 
-	public static Optional<Integer> getObjectsFirstCellIndexInAllObjectsArray(
+	public static Optional<Integer> getObjectsFirstCellIndexInRawDetectionsArray(
 		double txDegrees,
 		double tyDegrees,
-		double[] allObjectsEntryArray
+		double[] rawDetectionsEntryArray
 	) {
-		int objectAmount = allObjectsEntryArray.length / VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY;
+		int objectAmount = rawDetectionsEntryArray.length / VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY;
 
 		for (int i = 0; i < objectAmount; i++) {
 			int firstCell = VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY * i;
-			double allObjectsEntryTxNoCrossValue = allObjectsEntryArray[firstCell + AllObjectsEntryIndexes.TX_NO_CROSS.ordinal()];
-			double allObjectsEntryTyNoCrossValue = allObjectsEntryArray[firstCell + AllObjectsEntryIndexes.TY_NO_CROSS.ordinal()];
+			double rawDetectionsEntryTxNoCrossValue = rawDetectionsEntryArray[firstCell + RawDetectionsEntryIndexes.TX_NO_CROSS.ordinal()];
+			double rawDetectionsEntryTyNoCrossValue = rawDetectionsEntryArray[firstCell + RawDetectionsEntryIndexes.TY_NO_CROSS.ordinal()];
 
-			Pair<Double, Double> allObjectsEntryTxAndTyValues = txNoCrossAndTyNoCrossToTxAndTy(
-				allObjectsEntryTxNoCrossValue,
-				allObjectsEntryTyNoCrossValue
+			Pair<Double, Double> rawDetectionsEntryTxAndTyValues = txNoCrossAndTyNoCrossToTxAndTy(
+				rawDetectionsEntryTxNoCrossValue,
+				rawDetectionsEntryTyNoCrossValue
 			);
 
-			if (allObjectsEntryTxAndTyValues.getFirst() == txDegrees && allObjectsEntryTxAndTyValues.getSecond() == tyDegrees) {
+			if (rawDetectionsEntryTxAndTyValues.getFirst() == txDegrees && rawDetectionsEntryTxAndTyValues.getSecond() == tyDegrees) {
 				return Optional.of(firstCell);
 			}
 		}
@@ -47,14 +47,14 @@ public class ObjectDetectionHelpers {
 	}
 
 	public static int getNumberOfObjectCornersOnPictureEdge(
-		double[] allObjectsEntryArray,
+		double[] rawDetectionsEntryArray,
 		int objectFirstCellIndex,
 		int pictureWidthPixels,
 		int pictureHeightPixels,
 		int edgePixelTolerance
 	) {
 		int numberOfCornersOnPictureEdge = 0;
-		Translation2d[] objectFrameCorners = getAllObjectFrameCorners(allObjectsEntryArray, objectFirstCellIndex);
+		Translation2d[] objectFrameCorners = getAllObjectFrameCorners(rawDetectionsEntryArray, objectFirstCellIndex);
 
 		for (Translation2d corner : objectFrameCorners) {
 			if (ObjectDetectionMath.isPixelOnEdgeOfPicture(corner, pictureWidthPixels, pictureHeightPixels, edgePixelTolerance)) {
@@ -64,23 +64,23 @@ public class ObjectDetectionHelpers {
 		return numberOfCornersOnPictureEdge;
 	}
 
-	public static Translation2d[] getAllObjectFrameCorners(double[] allObjectsEntryArray, int objectFirstCellIndex) {
+	public static Translation2d[] getAllObjectFrameCorners(double[] rawDetectionsEntryArray, int objectFirstCellIndex) {
 		return new Translation2d[] {
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_X.ordinal()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_LEFT_CORNER_Y.ordinal()]
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.TOP_LEFT_CORNER_X.ordinal()],
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.TOP_LEFT_CORNER_Y.ordinal()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_X.ordinal()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.TOP_RIGHT_CORNER_Y.ordinal()]
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.TOP_RIGHT_CORNER_X.ordinal()],
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.TOP_RIGHT_CORNER_Y.ordinal()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_X.ordinal()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_RIGHT_CORNER_Y.ordinal()]
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.BOTTOM_RIGHT_CORNER_X.ordinal()],
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.BOTTOM_RIGHT_CORNER_Y.ordinal()]
 			),
 			new Translation2d(
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_X.ordinal()],
-				allObjectsEntryArray[objectFirstCellIndex + AllObjectsEntryIndexes.BOTTOM_LEFT_CORNER_Y.ordinal()]
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.BOTTOM_LEFT_CORNER_X.ordinal()],
+				rawDetectionsEntryArray[objectFirstCellIndex + RawDetectionsEntryIndexes.BOTTOM_LEFT_CORNER_Y.ordinal()]
 			)};
 	}
 
@@ -89,24 +89,25 @@ public class ObjectDetectionHelpers {
 		double tyDegrees,
 		Filter<double[]> t2dEntrySquishedAlgaeFilter,
 		double[] t2dEntryArray,
-		double[] allObjectsEntryArray
+		double[] rawDetectionsEntryArray
 	) {
-		Optional<Integer> firstCellIndexInAllObjectsArray = getObjectsFirstCellIndexInAllObjectsArray(
+		Optional<Integer> firstCellIndexInRawDetectionsArray = getObjectsFirstCellIndexInRawDetectionsArray(
 			txDegrees,
 			tyDegrees,
-			allObjectsEntryArray
+			rawDetectionsEntryArray
 		);
-		if (firstCellIndexInAllObjectsArray.isEmpty()) {
+		if (firstCellIndexInRawDetectionsArray.isEmpty()) {
 			return Optional.empty();
 		}
 
-		Translation2d algaeCenterPixel = ObjectDetectionMath.getObjectCenterPixel(allObjectsEntryArray, firstCellIndexInAllObjectsArray.get());
+		Translation2d algaeCenterPixel = ObjectDetectionMath
+			.getObjectCenterPixel(rawDetectionsEntryArray, firstCellIndexInRawDetectionsArray.get());
 		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
 
 		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
 		boolean isAlgaeCutOffOnPictureCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
-			allObjectsEntryArray,
-			firstCellIndexInAllObjectsArray.get(),
+			rawDetectionsEntryArray,
+			firstCellIndexInRawDetectionsArray.get(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY(),
 			VisionConstants.EDGE_PIXEL_TOLERANCE
@@ -197,7 +198,7 @@ public class ObjectDetectionHelpers {
 		NetworkTableEntry txEntry,
 		NetworkTableEntry tyEntry,
 		NetworkTableEntry t2dEntry,
-		NetworkTableEntry allObjectsEntry,
+		NetworkTableEntry rawDetectionsEntry,
 		NetworkTableEntry pipelineLatencyEntry,
 		NetworkTableEntry captureLatencyEntry,
 		Pose3d cameraPose
@@ -207,7 +208,7 @@ public class ObjectDetectionHelpers {
 			tyEntry.getDouble(0),
 			squishedAlgaeFilter(VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO, VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO_TOLERANCE),
 			t2dEntry.getDoubleArray(new double[0]),
-			allObjectsEntry.getDoubleArray(new double[0])
+			rawDetectionsEntry.getDoubleArray(new double[0])
 		);
 
 		if (filteredTxAndTy.isEmpty()) {
