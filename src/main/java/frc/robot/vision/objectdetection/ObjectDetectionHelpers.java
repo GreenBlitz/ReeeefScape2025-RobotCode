@@ -23,8 +23,8 @@ public class ObjectDetectionHelpers {
 	}
 
 	public static Optional<Integer> getObjectsFirstCellIndexInAllObjectsArray(
-		double txEntryValue,
-		double tyEntryValue,
+		double txDegrees,
+		double tyDegrees,
 		double[] allObjectsEntryArray
 	) {
 		int objectAmount = allObjectsEntryArray.length / VisionConstants.OBJECT_CELL_AMOUNT_IN_RAW_DETECTIONS_ENTRY;
@@ -39,7 +39,7 @@ public class ObjectDetectionHelpers {
 				allObjectsEntryTyNoCrossValue
 			);
 
-			if (allObjectsEntryTxAndTyValues.getFirst() == txEntryValue && allObjectsEntryTxAndTyValues.getSecond() == tyEntryValue) {
+			if (allObjectsEntryTxAndTyValues.getFirst() == txDegrees && allObjectsEntryTxAndTyValues.getSecond() == tyDegrees) {
 				return Optional.of(firstCell);
 			}
 		}
@@ -85,15 +85,15 @@ public class ObjectDetectionHelpers {
 	}
 
 	public static Optional<Pair<Double, Double>> getSquishedAlgaeRealTxAndTyRadians(
-		double txEntryValue,
-		double tyEntryValue,
+		double txDegrees,
+		double tyDegrees,
 		Filter<double[]> t2dEntrySquishedAlgaeFilter,
 		double[] t2dEntryArray,
 		double[] allObjectsEntryArray
 	) {
 		Optional<Integer> firstCellIndexInAllObjectsArray = getObjectsFirstCellIndexInAllObjectsArray(
-			txEntryValue,
-			tyEntryValue,
+			txDegrees,
+			tyDegrees,
 			allObjectsEntryArray
 		);
 		if (firstCellIndexInAllObjectsArray.isEmpty()) {
@@ -113,7 +113,7 @@ public class ObjectDetectionHelpers {
 		) >= 3;
 
 		if (!isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
-			return Optional.of(new Pair<>(txEntryValue, tyEntryValue));
+			return Optional.of(new Pair<>(txDegrees, tyDegrees));
 		}
 
 		if (isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
@@ -155,16 +155,16 @@ public class ObjectDetectionHelpers {
 	}
 
 	public static ObjectData getObjectData(
-		double tx,
-		double ty,
+		double txDegrees,
+		double tyDegrees,
 		double pipelineLatency,
 		double captureLatency,
 		ObjectType objectType,
 		Pose3d cameraPose
 	) {
 		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
-		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromDegrees(tx);
-		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromDegrees(ty);
+		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromDegrees(txDegrees);
+		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromDegrees(tyDegrees);
 
 		Translation2d robotRelativeObjectTranslation = ObjectDetectionMath
 			.getRobotRelativeTranslation(cameraRelativeObjectYaw, cameraRelativeObjectPitch, cameraPose, centerOfObjectHeightMeters);
