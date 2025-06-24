@@ -1,5 +1,6 @@
 package frc.utils.math;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.*;
 import frc.robot.vision.VisionConstants;
@@ -103,8 +104,10 @@ public class ObjectDetectionMath {
 	}
 
 	public static boolean isPixelOnEdgeOfPicture(Translation2d pixel, int pictureWidthPixels, int pictureHeightPixels, int tolerance) {
-		return ToleranceMath.isInRange(pixel.getX(), 0, pictureWidthPixels, tolerance)
-			|| ToleranceMath.isInRange(pixel.getY(), 0, pictureHeightPixels, tolerance);
+		return MathUtil.isNear(0, pixel.getX(), tolerance)
+			|| MathUtil.isNear(pictureWidthPixels, pixel.getX(), tolerance)
+			|| MathUtil.isNear(0, pixel.getY(), tolerance)
+			|| MathUtil.isNear(pictureHeightPixels, pixel.getY(), tolerance);
 	}
 
 	public static Pair<Rotation2d, Rotation2d> correctForCameraRoll(Rotation2d yaw, Rotation2d pitch, Pose3d cameraPose) {
