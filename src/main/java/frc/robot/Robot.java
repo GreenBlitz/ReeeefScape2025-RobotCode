@@ -141,6 +141,7 @@ public class Robot {
 		);
 
 		objectDetector = VisionConstants.LIMELIGHT_OBJECT;
+		objectDetector.setFilter(VisionFilters.isObjectXTooFarAway(VisionConstants.MAX_VALID_ALGAE_DISTANCE_METERS));
 
 		swerve.setHeadingSupplier(
 			ROBOT_TYPE.isSimulation() ? () -> poseEstimator.getEstimatedPose().getRotation() : headingEstimator::getEstimatedHeading

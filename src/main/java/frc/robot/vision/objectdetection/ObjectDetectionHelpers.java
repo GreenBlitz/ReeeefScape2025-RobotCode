@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.ObjectData;
-import frc.utils.Filter;
 import frc.utils.math.ObjectDetectionMath;
 import frc.utils.time.TimeUtil;
 
@@ -84,10 +83,10 @@ public class ObjectDetectionHelpers {
 			)};
 	}
 
-	public static Optional<Pair<Double, Double>> getSquishedAlgaeRealTxAndTyRadians(
+	public static Optional<Pair<Double, Double>> getAlgaeRealTxAndTyRadians(
 		double txDegrees,
 		double tyDegrees,
-		Filter<double[]> t2dEntrySquishedAlgaeFilter,
+		boolean isAlgaeSquished,
 		double[] t2dEntryArray,
 		double[] rawDetectionsEntryArray
 	) {
@@ -104,14 +103,13 @@ public class ObjectDetectionHelpers {
 			.getObjectCenterPixel(rawDetectionsEntryArray, objectFirstCellIndexInRawDetectionsArray.get());
 		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
 
-		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
 		boolean isAlgaeCutOffOnPictureCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
 			rawDetectionsEntryArray,
 			objectFirstCellIndexInRawDetectionsArray.get(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY(),
 			VisionConstants.EDGE_PIXEL_TOLERANCE
-		) >= 3;
+		) >= VisionConstants.CUT_OFF_OBJECT_MIN_CORNERS_ON_PICTURE_EDGE;
 
 		if (!isAlgaeSquished && !isAlgaeCutOffOnPictureCorner) {
 			return Optional.of(new Pair<>(txDegrees, tyDegrees));
@@ -138,11 +136,9 @@ public class ObjectDetectionHelpers {
 		return Optional.empty();
 	}
 
-	public static Filter<double[]> squishedAlgaeFilter(double algaeHeightToWidthRatio, double heightToWidthRatioTolerance) {
-		return (t2dEntryArray) -> {
-			double detectedHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
-			return MathUtil.isNear(algaeHeightToWidthRatio, detectedHeightToWidthRatio, heightToWidthRatioTolerance);
-		};
+	public static boolean isAlgaeSquished(double[] t2dEntryArray, double algaeHeightToWidthRatio, double heightToWidthRatioTolerance) {
+		double detectedHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
+		return MathUtil.isNear(algaeHeightToWidthRatio, detectedHeightToWidthRatio, heightToWidthRatioTolerance);
 	}
 
 	public static Optional<ObjectType> getObjectType(NetworkTableEntry objectNameEntry) {
@@ -203,10 +199,15 @@ public class ObjectDetectionHelpers {
 		NetworkTableEntry captureLatencyEntry,
 		Pose3d cameraPose
 	) {
-		Optional<Pair<Double, Double>> filteredTxAndTy = getSquishedAlgaeRealTxAndTyRadians(
+		boolean isAlgaeSquished = isAlgaeSquished(
+			t2dEntry.getDoubleArray(new double[0]),
+			VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO,
+			VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO_TOLERANCE
+		);
+		Optional<Pair<Double, Double>> filteredTxAndTy = getAlgaeRealTxAndTyRadians(
 			txEntry.getDouble(0),
 			tyEntry.getDouble(0),
-			squishedAlgaeFilter(VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO, VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO_TOLERANCE),
+			isAlgaeSquished,
 			t2dEntry.getDoubleArray(new double[0]),
 			rawDetectionsEntry.getDoubleArray(new double[0])
 		);

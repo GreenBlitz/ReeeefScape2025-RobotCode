@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.vision.VisionConstants;
 import frc.robot.vision.data.ObjectData;
 import frc.utils.Filter;
 import frc.utils.math.AngleUnit;
@@ -35,7 +34,6 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		this.logPath = logPath;
 		this.cameraNetworkTablesName = cameraNetworkTablesName;
 		this.cameraPose = cameraPose;
-		setFilter(isObjectXTooFarAway(VisionConstants.MAX_VALID_ALGAE_DISTANCE_METERS));
 
 		closestObjectTxEntry = getLimelightNetworkTableEntry("tx");
 		closestObjectTyEntry = getLimelightNetworkTableEntry("ty");
@@ -50,10 +48,6 @@ public class LimeLightObjectDetector implements ObjectDetector {
 
 	private NetworkTableEntry getLimelightNetworkTableEntry(String entryName) {
 		return NetworkTableInstance.getDefault().getTable(cameraNetworkTablesName).getEntry(entryName);
-	}
-
-	public static Filter<ObjectData> isObjectXTooFarAway(double maxValidDistanceMeters) {
-		return (data) -> Math.abs(data.getRobotRelativeEstimatedTranslation().getX()) < maxValidDistanceMeters;
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.*;
 import frc.robot.vision.VisionConstants;
 import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
+import frc.robot.vision.objectdetection.ObjectFrameCornerNumbers;
+import frc.robot.vision.objectdetection.T2dEntryIndexes;
 
 
 public class ObjectDetectionMath {
@@ -32,19 +34,23 @@ public class ObjectDetectionMath {
 	}
 
 	public static double getObjectHeightToWidthRatio(double[] t2dEntryArray) {
-		double detectedHorizontalPixels = t2dEntryArray[14];
-		double detectedVerticalPixels = t2dEntryArray[15];
+		double detectedHorizontalPixels = t2dEntryArray[T2dEntryIndexes.DETECTED_HORIZONTAL_PIXELS.getIndex()];
+		double detectedVerticalPixels = t2dEntryArray[T2dEntryIndexes.DETECTED_VERTICAL_PIXELS.getIndex()];
 		return detectedVerticalPixels / detectedHorizontalPixels;
 	}
 
 	public static Translation2d getObjectCenterPixel(double[] rawDetectionsEntryArray, int firstCellIndex) {
 		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(rawDetectionsEntryArray, firstCellIndex);
-		double smallestFrameX = objectFrameCorners[0].getX();
-		double centerXFromEdge = (objectFrameCorners[1].getX() - objectFrameCorners[0].getX()) / 2;
+		int topLeftCornerIndex = ObjectFrameCornerNumbers.TOP_LEFT.getNumber();
+
+		double smallestFrameX = objectFrameCorners[topLeftCornerIndex].getX();
+		double centerXFromEdge = (objectFrameCorners[ObjectFrameCornerNumbers.TOP_RIGHT.getNumber()].getX()
+			- objectFrameCorners[topLeftCornerIndex].getX()) / 2;
 		double centerX = smallestFrameX + centerXFromEdge;
 
-		double smallestFrameY = objectFrameCorners[0].getY();
-		double centerYFromEdge = (objectFrameCorners[3].getY() - objectFrameCorners[0].getY()) / 2;
+		double smallestFrameY = objectFrameCorners[topLeftCornerIndex].getY();
+		double centerYFromEdge = (objectFrameCorners[ObjectFrameCornerNumbers.BOTTOM_LEFT.getNumber()].getY()
+			- objectFrameCorners[topLeftCornerIndex].getY()) / 2;
 		double centerY = smallestFrameY + centerYFromEdge;
 
 		return new Translation2d(centerX, centerY);
