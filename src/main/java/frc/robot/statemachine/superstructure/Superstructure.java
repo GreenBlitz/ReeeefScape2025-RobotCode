@@ -2,6 +2,7 @@ package frc.robot.statemachine.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
@@ -145,19 +146,14 @@ public class Superstructure extends GBSubsystem {
 	public boolean isPreScoreReady() {
 		ScoreLevel targetScoreLevel = ScoringHelpers.targetScoreLevel;
 		ArmState targetArmState = targetScoreLevel == ScoreLevel.L4 ? targetScoreLevel.getArmScore() : targetScoreLevel.getArmPreScore();
-
-		return robot.getElevator().isAtPosition(targetScoreLevel.getElevatorPreScore().getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == targetScoreLevel.getElevatorPreScore()
-			&& armStateHandler.isAtState(targetArmState)
-			&& armStateHandler.getCurrentState() == targetArmState;
+		return  elevatorStateHandler.isAtState(targetScoreLevel.getElevatorPreScore())
+			&& armStateHandler.isAtState(targetScoreLevel.getArmPreScore());
 	}
 
 	public boolean isReadyToScore() {
 		ScoreLevel targetScoreLevel = ScoringHelpers.targetScoreLevel;
-		return robot.getElevator().isAtPosition(targetScoreLevel.getElevatorScore().getHeightMeters(), Tolerances.ELEVATOR_HEIGHT_METERS)
-			&& elevatorStateHandler.getCurrentState() == targetScoreLevel.getElevatorScore()
-			&& armStateHandler.isAtState(targetScoreLevel.getArmScore())
-			&& armStateHandler.getCurrentState() == targetScoreLevel.getArmScore();
+		return elevatorStateHandler.isAtState(targetScoreLevel.getElevatorScore()) &&
+			armStateHandler.isAtState(targetScoreLevel.getArmScore());
 	}
 
 	public boolean isReadyToOuttakeAlgae() {
@@ -380,33 +376,47 @@ public class Superstructure extends GBSubsystem {
 
 	public Command scoreWithRelease() {
 		return asSubsystemCommand(
-			new DeferredCommand(
-				() -> new SequentialCommandGroup(
-					new ParallelCommandGroup(
-						elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
-						armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
-						endEffectorStateHandler.setState(ScoringHelpers.targetScoreLevel.getEndEffectorScore()),
-						climbStateHandler.setState(ClimbState.STOP),
-						algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
-					).until(() -> !isCoralIn()),
-					new ParallelCommandGroup(
-						elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
-						armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
-						endEffectorStateHandler.setState(ScoringHelpers.targetScoreLevel.getEndEffectorScore()),
-						climbStateHandler.setState(ClimbState.STOP),
-						algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
-					).withTimeout(StateMachineConstants.SCORE_OUTTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+			new ConditionalCommand(
+				new ParallelDeadlineGroup(
+					new SequentialCommandGroup(
+						armStateHandler.setState(ArmState.L1).withTimeout(0.05),
+						armStateHandler.setState(ArmState.CLOSED_L1).until(() -> armStateHandler.isAtState(ArmState.CLOSED_L1)),
+						armStateHandler.setState(ArmState.CLOSED).until(() -> armStateHandler.isAtState(ArmState.CLOSED))
+					),
+					elevatorStateHandler.setState(ElevatorState.CLOSED),
+					endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
+					climbStateHandler.setState(ClimbState.STOP),
+					algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
 				),
-				Set.of(
-					this,
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getSolenoid(),
-					robot.getPivot(),
-					robot.getRollers()
-				)
+				new DeferredCommand(
+					() -> new SequentialCommandGroup(
+						new ParallelCommandGroup(
+							elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
+							armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
+							endEffectorStateHandler.setState(ScoringHelpers.targetScoreLevel.getEndEffectorScore()),
+							climbStateHandler.setState(ClimbState.STOP),
+							algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
+						).until(() -> !isCoralIn()),
+						new ParallelCommandGroup(
+							elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
+							armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
+							endEffectorStateHandler.setState(ScoringHelpers.targetScoreLevel.getEndEffectorScore()),
+							climbStateHandler.setState(ClimbState.STOP),
+							algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
+						).withTimeout(StateMachineConstants.SCORE_OUTTAKE_TIME_AFTER_BEAM_BREAK_SECONDS)
+					),
+					Set.of(
+						this,
+						robot.getElevator(),
+						robot.getArm(),
+						robot.getEndEffector(),
+						robot.getLifter(),
+						robot.getSolenoid(),
+						robot.getPivot(),
+						robot.getRollers()
+					)
+				),
+				() -> ScoringHelpers.targetScoreLevel == ScoreLevel.L4
 			),
 			SuperstructureState.SCORE
 		);

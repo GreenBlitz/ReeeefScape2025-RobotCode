@@ -321,6 +321,16 @@ public class RobotCommander extends GBSubsystem {
 				.until(this::isReadyToScore),
 			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
 		);
+		Supplier<Command> l1 = () -> new SequentialCommandGroup(
+			superstructure.armPreScore().alongWith(ledStateHandler.setState(LEDState.MOVE_TO_POSE)).until(this::isReadyToOpenSuperstructure),
+			superstructure.preScore()
+						  .alongWith(ledStateHandler.setState(LEDState.IN_POSITION_TO_OPEN_ELEVATOR))
+						  .until(superstructure::isPreScoreReady),
+			superstructure.scoreWithoutRelease()
+						  .alongWith(ledStateHandler.setState(LEDState.OPENING_SUPERSTRUCTURE))
+						  .until(superstructure::isReadyToScore),
+			superstructure.scoreWithRelease().deadlineFor(ledStateHandler.setState(LEDState.IN_POSITION_TO_SCORE))
+		);
 
 		Supplier<Command> driveToPath = () -> swerve.getCommandsBuilder()
 			.driveToPath(
@@ -332,7 +342,10 @@ public class RobotCommander extends GBSubsystem {
 
 		return asSubsystemCommand(
 			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
+				() -> new ConditionalCommand(
+					driveWith("l1", l1.get(), true),
+					new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
+						() -> ScoringHelpers.targetScoreLevel == ScoreLevel.L1 || ScoringHelpers.targetScoreLevel == ScoreLevel.L4),
 				Set.of(
 					this,
 					superstructure,
