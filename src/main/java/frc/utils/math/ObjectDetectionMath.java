@@ -15,13 +15,16 @@ public class ObjectDetectionMath {
 		double cameraHorizontalFOVRadians,
 		double cameraVerticalFOVRadians
 	) {
-		double normalisedX = (pixel.getX() - ((double) pictureWidthPixels / 2)) / ((double) pictureWidthPixels / 2);
-		double normalisedY = (((double) pictureHeightPixels / 2) - pixel.getY()) / ((double) pictureHeightPixels / 2);
+		double normalisedX = (pixel.getX() - (pictureWidthPixels / 2.0)) / (pictureWidthPixels / 2.0);
+		double normalisedY = ((pictureHeightPixels / 2.0) - pixel.getY()) / (pictureHeightPixels / 2.0);
 
-		double viewPlaneWidth = 2 * Math.tan(cameraHorizontalFOVRadians / 2);
-		double viewPlaneHeight = 2 * Math.tan(cameraVerticalFOVRadians / 2);
+		double viewPlaneWidthRadians = 2 * Math.tan(cameraHorizontalFOVRadians / 2);
+		double viewPlaneHeightRadians = 2 * Math.tan(cameraVerticalFOVRadians / 2);
 
-		Translation2d pointOnViewPlane = new Translation2d(normalisedX * (viewPlaneWidth / 2), normalisedY * (viewPlaneHeight / 2));
+		Translation2d pointOnViewPlane = new Translation2d(
+			normalisedX * (viewPlaneWidthRadians / 2),
+			normalisedY * (viewPlaneHeightRadians / 2)
+		);
 		double tx = Math.atan(pointOnViewPlane.getX());
 		double ty = Math.atan(pointOnViewPlane.getY());
 		return new Pair<>(tx, ty);

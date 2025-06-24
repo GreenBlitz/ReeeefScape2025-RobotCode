@@ -84,15 +84,18 @@ public class ObjectDetectionHelpers {
 			)};
 	}
 
-	public static Optional<Pair<Double, Double>> filterSquishedAlgae(
+	public static Optional<Pair<Double, Double>> getSquishedAlgaeRealTxAndTyRadians(
 		double txEntryValue,
 		double tyEntryValue,
 		Filter<double[]> t2dEntrySquishedAlgaeFilter,
 		double[] t2dEntryArray,
 		double[] allObjectsEntryArray
 	) {
-		Optional<Integer> firstCellIndexInAllObjectsArray = ObjectDetectionHelpers
-			.getObjectsFirstCellIndexInAllObjectsArray(txEntryValue, tyEntryValue, allObjectsEntryArray);
+		Optional<Integer> firstCellIndexInAllObjectsArray = getObjectsFirstCellIndexInAllObjectsArray(
+			txEntryValue,
+			tyEntryValue,
+			allObjectsEntryArray
+		);
 		if (firstCellIndexInAllObjectsArray.isEmpty()) {
 			return Optional.empty();
 		}
@@ -151,7 +154,28 @@ public class ObjectDetectionHelpers {
 		return Optional.empty();
 	}
 
-	public static Optional<ObjectData> getObjectData(
+	public static ObjectData getObjectData(
+		double tx,
+		double ty,
+		double pipelineLatency,
+		double captureLatency,
+		ObjectType objectType,
+		Pose3d cameraPose
+	) {
+		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
+		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromDegrees(tx);
+		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromDegrees(ty);
+
+		Translation2d robotRelativeObjectTranslation = ObjectDetectionMath
+			.getRobotRelativeTranslation(cameraRelativeObjectYaw, cameraRelativeObjectPitch, cameraPose, centerOfObjectHeightMeters);
+
+		double totalLatency = pipelineLatency + captureLatency;
+		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
+
+		return new ObjectData(robotRelativeObjectTranslation, objectType, timeStamp);
+	}
+
+	public static ObjectData getObjectData(
 		NetworkTableEntry txEntry,
 		NetworkTableEntry tyEntry,
 		NetworkTableEntry pipelineLatencyEntry,
@@ -159,17 +183,14 @@ public class ObjectDetectionHelpers {
 		ObjectType objectType,
 		Pose3d cameraPose
 	) {
-		double centerOfObjectHeightMeters = objectType.getObjectHeightMeters() / 2;
-		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromDegrees(txEntry.getDouble(0));
-		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromDegrees(tyEntry.getDouble(0));
-
-		Translation2d robotRelativeObjectTranslation = ObjectDetectionMath
-			.getRobotRelativeTranslation(cameraRelativeObjectYaw, cameraRelativeObjectPitch, cameraPose, centerOfObjectHeightMeters);
-
-		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
-		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
-
-		return Optional.of(new ObjectData(robotRelativeObjectTranslation, objectType, timeStamp));
+		return getObjectData(
+			txEntry.getDouble(0),
+			tyEntry.getDouble(0),
+			pipelineLatencyEntry.getDouble(0),
+			captureLatencyEntry.getDouble(0),
+			objectType,
+			cameraPose
+		);
 	}
 
 	public static Optional<ObjectData> getFilteredAlgaeObjectData(
@@ -181,7 +202,7 @@ public class ObjectDetectionHelpers {
 		NetworkTableEntry captureLatencyEntry,
 		Pose3d cameraPose
 	) {
-		Optional<Pair<Double, Double>> filteredTxAndTy = filterSquishedAlgae(
+		Optional<Pair<Double, Double>> filteredTxAndTy = getSquishedAlgaeRealTxAndTyRadians(
 			txEntry.getDouble(0),
 			tyEntry.getDouble(0),
 			squishedAlgaeFilter(VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO, VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO_TOLERANCE),
@@ -193,17 +214,16 @@ public class ObjectDetectionHelpers {
 			return Optional.empty();
 		}
 
-		double centerOfObjectHeightMeters = ObjectType.ALGAE.getObjectHeightMeters() / 2;
-		Rotation2d cameraRelativeObjectYaw = Rotation2d.fromRadians(filteredTxAndTy.get().getFirst());
-		Rotation2d cameraRelativeObjectPitch = Rotation2d.fromRadians(filteredTxAndTy.get().getSecond());
-
-		Translation2d robotRelativeObjectTranslation = ObjectDetectionMath
-			.getRobotRelativeTranslation(cameraRelativeObjectYaw, cameraRelativeObjectPitch, cameraPose, centerOfObjectHeightMeters);
-
-		double totalLatency = pipelineLatencyEntry.getDouble(0) + captureLatencyEntry.getDouble(0);
-		double timeStamp = TimeUtil.getCurrentTimeSeconds() - totalLatency;
-
-		return Optional.of(new ObjectData(robotRelativeObjectTranslation, ObjectType.ALGAE, timeStamp));
+		return Optional.of(
+			getObjectData(
+				filteredTxAndTy.get().getFirst(),
+				filteredTxAndTy.get().getSecond(),
+				pipelineLatencyEntry.getDouble(0),
+				captureLatencyEntry.getDouble(0),
+				ObjectType.ALGAE,
+				cameraPose
+			)
+		);
 	}
 
 }

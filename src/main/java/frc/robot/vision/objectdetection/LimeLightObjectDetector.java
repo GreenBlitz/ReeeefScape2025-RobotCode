@@ -1,6 +1,8 @@
 package frc.robot.vision.objectdetection;
 
-import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.vision.VisionConstants;
@@ -33,7 +35,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		this.logPath = logPath;
 		this.cameraNetworkTablesName = cameraNetworkTablesName;
 		this.cameraPose = cameraPose;
-		setFilter(isObjectTooFarAway(VisionConstants.MAX_VALID_ALGAE_DISTANCE_METERS));
+		setFilter(isObjectXTooFarAway(VisionConstants.MAX_VALID_ALGAE_DISTANCE_METERS));
 
 		closestObjectTxEntry = getLimelightNetworkTableEntry("tx");
 		closestObjectTyEntry = getLimelightNetworkTableEntry("ty");
@@ -50,7 +52,7 @@ public class LimeLightObjectDetector implements ObjectDetector {
 		return NetworkTableInstance.getDefault().getTable(cameraNetworkTablesName).getEntry(entryName);
 	}
 
-	public static Filter<ObjectData> isObjectTooFarAway(double maxValidDistanceMeters) {
+	public static Filter<ObjectData> isObjectXTooFarAway(double maxValidDistanceMeters) {
 		return (data) -> Math.abs(data.getRobotRelativeEstimatedTranslation().getX()) < maxValidDistanceMeters;
 	}
 
@@ -74,13 +76,15 @@ public class LimeLightObjectDetector implements ObjectDetector {
 					cameraPose
 				);
 			case CORAL ->
-				ObjectDetectionHelpers.getObjectData(
-					closestObjectTxEntry,
-					closestObjectTyEntry,
-					closestObjectPipelineLatencyEntry,
-					closestObjectCaptureLatencyEntry,
-					objectType.get(),
-					cameraPose
+				Optional.of(
+					ObjectDetectionHelpers.getObjectData(
+						closestObjectTxEntry,
+						closestObjectTyEntry,
+						closestObjectPipelineLatencyEntry,
+						closestObjectCaptureLatencyEntry,
+						objectType.get(),
+						cameraPose
+					)
 				);
 		};
 	}
