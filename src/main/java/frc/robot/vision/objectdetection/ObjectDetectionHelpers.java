@@ -91,23 +91,23 @@ public class ObjectDetectionHelpers {
 		double[] t2dEntryArray,
 		double[] rawDetectionsEntryArray
 	) {
-		Optional<Integer> firstCellIndexInRawDetectionsArray = getObjectsFirstCellIndexInRawDetectionsArray(
+		Optional<Integer> objectFirstCellIndexInRawDetectionsArray = getObjectsFirstCellIndexInRawDetectionsArray(
 			txDegrees,
 			tyDegrees,
 			rawDetectionsEntryArray
 		);
-		if (firstCellIndexInRawDetectionsArray.isEmpty()) {
+		if (objectFirstCellIndexInRawDetectionsArray.isEmpty()) {
 			return Optional.empty();
 		}
 
 		Translation2d algaeCenterPixel = ObjectDetectionMath
-			.getObjectCenterPixel(rawDetectionsEntryArray, firstCellIndexInRawDetectionsArray.get());
+			.getObjectCenterPixel(rawDetectionsEntryArray, objectFirstCellIndexInRawDetectionsArray.get());
 		double algaeHeightToWidthRatio = ObjectDetectionMath.getObjectHeightToWidthRatio(t2dEntryArray);
 
 		boolean isAlgaeSquished = !t2dEntrySquishedAlgaeFilter.apply(t2dEntryArray);
 		boolean isAlgaeCutOffOnPictureCorner = ObjectDetectionHelpers.getNumberOfObjectCornersOnPictureEdge(
 			rawDetectionsEntryArray,
-			firstCellIndexInRawDetectionsArray.get(),
+			objectFirstCellIndexInRawDetectionsArray.get(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getX(),
 			(int) VisionConstants.LIMELIGHT_OBJECT_RESOLUTION_PIXELS.getY(),
 			VisionConstants.EDGE_PIXEL_TOLERANCE
