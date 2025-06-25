@@ -699,7 +699,7 @@ public class Superstructure extends GBSubsystem {
 				),
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.TRANSFER_ALGAE_FROM_INTAKE),
-					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+						armStateHandler.setState(ArmState.TRANSFER_ALGAE_FROM_INTAKE),
 					endEffectorStateHandler.setState(EndEffectorState.TRANSFER_ALGAE_FROM_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.TRANSFER_TO_END_EFFECTOR_WITHOUT_RELEASE)
