@@ -6,10 +6,13 @@ public enum ArmState {
 
 	STAY_IN_PLACE(Rotation2d.fromDegrees(Double.NaN)),
 	CLOSED(Rotation2d.fromDegrees(213)),
+	SOFT_CLOSED(Rotation2d.fromDegrees(213), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	START_GAME(Rotation2d.fromDegrees(233)),
 	MID_WAY_CLOSE(Rotation2d.fromDegrees(90), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	INTAKE(Rotation2d.fromDegrees(213)),
+	SOFT_INTAKE(Rotation2d.fromDegrees(213), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	ALGAE_OUTTAKE(Rotation2d.fromDegrees(211)),
+	SOFT_ALGAE_OUTTAKE(Rotation2d.fromDegrees(211), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	PRE_L1(Rotation2d.fromDegrees(216)),
 	L1(Rotation2d.fromDegrees(216)),
 	PRE_L2(Rotation2d.fromDegrees(14)),
@@ -21,11 +24,13 @@ public enum ArmState {
 	LOW_ALGAE_REMOVE(Rotation2d.fromDegrees(-4)),
 	HIGH_ALGAE_REMOVE(Rotation2d.fromDegrees(35)),
 	HOLD_ALGAE(Rotation2d.fromDegrees(90.5)),
-	TRANSFER_ALGAE_FROM_INTAKE(Rotation2d.fromDegrees(215)),
+	TRANSFER_ALGAE_FROM_INTAKE(Rotation2d.fromDegrees(215), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
+	SOFT_TRANSFER_ALGAE_FROM_INTAKE(Rotation2d.fromDegrees(215)),
 	PRE_NET(Rotation2d.fromDegrees(70), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	NET(Rotation2d.fromDegrees(70), Rotation2d.fromRotations(2), Rotation2d.fromRotations(1)),
 	PROCESSOR_OUTTAKE(Rotation2d.fromDegrees(206), Rotation2d.fromRotations(2), Rotation2d.fromRotations(1.5)),
-	CLIMB(Rotation2d.fromDegrees(0));
+	CLIMB(Rotation2d.fromDegrees(0)),
+	SOFT_CLOSE_MID_POINT(Rotation2d.fromDegrees(195));
 
 	private final Rotation2d position;
 	private final Rotation2d maxVelocityRotation2dPerSecond;
@@ -41,7 +46,7 @@ public enum ArmState {
 		this(position, ArmConstants.CRUISE_VELOCITY_ANGLES_PER_SECOND, ArmConstants.ACCELERATION_ANGLES_PER_SECOND_SQUARED);
 	}
 
-	Rotation2d getPosition() {
+	public Rotation2d getPosition() {
 		return position;
 	}
 

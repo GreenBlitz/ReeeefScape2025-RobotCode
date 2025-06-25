@@ -44,4 +44,8 @@ public class Tolerances {
 
 	public static final Rotation2d PIVOT = Rotation2d.fromDegrees(3);
 
+	public static final Double ELEVATOR_SOFT_CLOSE_ARM = 0.1;
+	public static final Rotation2d ARM_SOFT_CLOSE = Rotation2d.fromDegrees(3);
+
+
 }

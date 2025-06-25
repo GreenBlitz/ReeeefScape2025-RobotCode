@@ -61,4 +61,14 @@ public class ArmStateHandler {
 		});
 	}
 
+	public ArmState getSoftState(ArmState state) {
+		return switch (state) {
+			case CLOSED -> ArmState.SOFT_CLOSED;
+			case INTAKE -> ArmState.SOFT_INTAKE;
+			case ALGAE_OUTTAKE -> ArmState.SOFT_ALGAE_OUTTAKE;
+			case TRANSFER_ALGAE_FROM_INTAKE -> ArmState.SOFT_TRANSFER_ALGAE_FROM_INTAKE;
+			default -> state;
+		};
+	}
+
 }
