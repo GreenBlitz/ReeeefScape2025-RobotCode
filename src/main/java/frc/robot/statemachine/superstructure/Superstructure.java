@@ -198,17 +198,16 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command closeArm(ArmState armState, ElevatorState elevatorState) {
-		if (shouldStartArmSoftClose(armState, elevatorState)) {
-			return new SequentialCommandGroup(
-				armStateHandler.setState(ArmState.SOFT_CLOSE_MID_POINT)
-					.until(
-						() -> robot.getArm().isAtPosition(ArmState.SOFT_CLOSE_MID_POINT.getPosition(), Tolerances.ARM_SOFT_CLOSE)
-							&& robot.getElevator().isAtPosition(elevatorState.getHeightMeters(), Tolerances.ELEVATOR_SOFT_CLOSE_ARM)
-					),
-				armStateHandler.setState(armStateHandler.getSoftState(armState))
-			);
-		}
-		return armStateHandler.setState(armState);
+		return new DeferredCommand(() -> {
+			if (shouldStartArmSoftClose(armState, elevatorState)) {
+				return new SequentialCommandGroup(
+					armStateHandler.setState(ArmState.SOFT_CLOSE_MID_POINT)
+						.until(() -> robot.getElevator().isAtPosition(elevatorState.getHeightMeters(), Tolerances.ELEVATOR_SOFT_CLOSE_ARM)),
+					armStateHandler.setState(armStateHandler.getSoftState(armState))
+				);
+			}
+			return armStateHandler.setState(armState);
+		}, Set.of(robot.getArm()));
 	}
 
 	public Command idle() {
@@ -699,7 +698,7 @@ public class Superstructure extends GBSubsystem {
 				),
 				new ParallelCommandGroup(
 					elevatorStateHandler.setState(ElevatorState.TRANSFER_ALGAE_FROM_INTAKE),
-						armStateHandler.setState(ArmState.TRANSFER_ALGAE_FROM_INTAKE),
+					armStateHandler.setState(ArmState.TRANSFER_ALGAE_FROM_INTAKE),
 					endEffectorStateHandler.setState(EndEffectorState.TRANSFER_ALGAE_FROM_INTAKE),
 					climbStateHandler.setState(ClimbState.STOP),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.TRANSFER_TO_END_EFFECTOR_WITHOUT_RELEASE)
