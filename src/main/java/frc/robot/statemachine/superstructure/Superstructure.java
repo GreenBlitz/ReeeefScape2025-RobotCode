@@ -208,6 +208,32 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
+	public Command preL1(){
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				elevatorStateHandler.setState(ElevatorState.PRE_L1),
+				armStateHandler.setState(ArmState.PRE_L1),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+				climbStateHandler.setState(ClimbState.STOP),
+				algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
+			),
+			SuperstructureState.PRE_L1
+		);
+	}
+
+	public Command l1(){
+		return asSubsystemCommand(
+			new ParallelCommandGroup(
+				elevatorStateHandler.setState(ElevatorState.L1),
+				armStateHandler.setState(ArmState.L1),
+				endEffectorStateHandler.setState(EndEffectorState.L1_OUTTAKE),
+				climbStateHandler.setState(ClimbState.STOP),
+				algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
+			).until(() -> !isCoralIn()),
+			SuperstructureState.L1
+		);
+	}
+
 	public Command stayInPlace() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
@@ -858,7 +884,9 @@ public class Superstructure extends GBSubsystem {
 				PROCESSOR_OUTTAKE,
 				PRE_NET,
 				ALGAE_FLOOR_INTAKE,
-				ALGAE_OUTTAKE_FROM_INTAKE ->
+				ALGAE_OUTTAKE_FROM_INTAKE,
+				PRE_L1,
+				L1 ->
 				idle();
 			case NET -> softCloseNet().andThen(idle());
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();

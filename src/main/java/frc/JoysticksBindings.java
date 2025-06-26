@@ -16,6 +16,7 @@ import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
+import frc.robot.statemachine.superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
@@ -187,6 +188,23 @@ public class JoysticksBindings {
 		});
 	}
 
+	private static Command l1ActionChooser(Robot robot) {
+		return new InstantCommand(() -> {
+			RobotCommander robotCommander = robot.getRobotCommander();
+			SuperstructureState state = robotCommander.getSuperstructure().getCurrentState();
+			Command command;
+
+			if (state == SuperstructureState.PRE_L1) {
+				command =
+					robotCommander.driveWith("L1", robotCommander.getSuperstructure().l1(), true).andThen(robotCommander.setState(RobotState.DRIVE));
+			} else {
+				command =
+					robotCommander.driveWith("PRE-L1", robotCommander.getSuperstructure().preL1(), true).andThen(robotCommander.setState(RobotState.DRIVE));
+			}
+			command.schedule();
+		});
+	}
+
 	private static Command algaeOuttakeActionChooser(Robot robot) {
 		RobotCommander robotCommander = robot.getRobotCommander();
 
@@ -225,7 +243,8 @@ public class JoysticksBindings {
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
-		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+//		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+		usedJoystick.B.onTrue(l1ActionChooser(robot));
 
 
 //		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));
