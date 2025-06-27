@@ -181,6 +181,10 @@ public class Superstructure extends GBSubsystem {
 			&& armStateHandler.getCurrentState() == ArmState.NET;
 	}
 
+	public boolean isReadyForAlgaeIntake() {
+		return algaeIntakeStateHandler.isAtState(AlgaeIntakeState.INTAKE);
+	}
+
 	@Override
 	protected void subsystemPeriodic() {
 		algaeIntakeStateHandler.updateAlgaeSensor(robot);

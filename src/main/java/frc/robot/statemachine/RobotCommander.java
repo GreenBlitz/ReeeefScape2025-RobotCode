@@ -30,6 +30,7 @@ import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
 import frc.utils.pose.PoseUtil;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -568,9 +569,34 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command algaeIntake() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				superstructure.algaeIntake(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.ALGAE_INTAKE))
+			new SequentialCommandGroup(
+				new ParallelDeadlineGroup(
+					superstructure.algaeIntake(),
+					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				).until(() -> (robot.getObjectDetector().getFilteredClosestObjectData().isPresent() && superstructure.isReadyForAlgaeIntake())),
+				new RepeatCommand(
+					new ConditionalCommand(
+						new ParallelDeadlineGroup(
+							superstructure.algaeIntake(),
+							swerve.getCommandsBuilder()
+								.driveToObject(
+									() -> new Pose2d(
+										robot.getPoseEstimator().getEstimatedPose().getTranslation(),
+										robot.getPoseEstimator().getEstimatedPose().getRotation().plus(Rotation2d.fromRadians(Math.PI))
+									),
+									() -> Optional.of(
+										FieldMath.turnRobotRelativeToFieldRelative(
+											robot.getPoseEstimator().getEstimatedPose(),
+											robot.getObjectDetector().getFilteredClosestObjectData().get().getRobotRelativeEstimatedTranslation()
+										)
+									),
+									StateMachineConstants.DISTANCE_FROM_ALGAE_FOR_FLOOR_PICKUP_METERS
+								)
+						),
+						new InstantCommand(),
+						() -> robot.getObjectDetector().getFilteredClosestObjectData().isPresent()
+					)
+				).until(superstructure::isAlgaeInAlgaeIntake)
 			),
 			RobotState.ALGAE_INTAKE
 		);

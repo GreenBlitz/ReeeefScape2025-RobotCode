@@ -61,4 +61,18 @@ public class FieldMath {
 		return translation2d;
 	}
 
+	public static Pose2d findPointByDistanceFromAnotherPointAndAngleFromASecondPoint(
+		Translation2d pointA,
+		Translation2d pointB,
+		double distance
+	) {
+		Rotation2d targetAngle = FieldMath.getRelativeTranslation(pointB, pointA).getAngle();
+		return new Pose2d(pointA.minus(new Translation2d(distance, targetAngle)), targetAngle);
+	}
+
+
+	public static Translation2d turnRobotRelativeToFieldRelative(Pose2d robotPosition, Translation2d point) {
+		return robotPosition.getTranslation().plus(point.rotateBy(robotPosition.getRotation()));
+	}
+
 }
