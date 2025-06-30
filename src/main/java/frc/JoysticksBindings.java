@@ -1,5 +1,6 @@
 package frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -12,6 +13,7 @@ import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
@@ -263,15 +265,24 @@ public class JoysticksBindings {
 		usedJoystick.L3.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));
 	}
 
+	public static Rotation2d rot2d = new Rotation2d();
+
 	private static void thirdJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
 
-		usedJoystick.POV_UP.whileTrue(robot.getElevator().getCommandsBuilder().setPower(0.1));
-		usedJoystick.POV_DOWN.whileTrue(robot.getElevator().getCommandsBuilder().setPower(-0.1));
+		usedJoystick.R1.onTrue(robot.getArm().getCommandsBuilder().moveToPosition(() -> rot2d, ArmConstants.CRUISE_VELOCITY_ANGLES_PER_SECOND, ArmConstants.ACCELERATION_ANGLES_PER_SECOND_SQUARED));
+		usedJoystick.L1.onTrue(new InstantCommand(() -> rot2d = robot.getArm().getPosition()));
 
-		usedJoystick.POV_RIGHT.whileTrue(robot.getArm().getCommandsBuilder().setPower(0.1));
-		usedJoystick.POV_LEFT.whileTrue(robot.getArm().getCommandsBuilder().setPower(-0.1));
+		usedJoystick.POV_UP.whileTrue(robot.getArm().getCommandsBuilder().setPower(() -> usedJoystick.getAxisValue(Axis.RIGHT_Y) * 0.6));
+//		usedJoystick.POV_UP.whileTrue(robot.getElevator().getCommandsBuilder().setPower(0.05));
+//		usedJoystick.POV_DOWN.whileTrue(robot.getElevator().getCommandsBuilder().setPower(-0.05));
+
+		usedJoystick.POV_RIGHT.whileTrue(robot.getArm().getCommandsBuilder().setPower(0.25));
+		usedJoystick.POV_LEFT.whileTrue(robot.getArm().getCommandsBuilder().setPower(-0.25));
+
+		usedJoystick.B.whileTrue(robot.getArm().getCommandsBuilder().setPower(0.1));
+		usedJoystick.X.whileTrue(robot.getArm().getCommandsBuilder().setPower(-0.1));
 
 		usedJoystick.Y.onTrue(
 			robot.getEndEffector()

@@ -35,6 +35,8 @@ import frc.utils.pose.PoseUtil;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import static frc.robot.scoringhelpers.ScoringHelpers.ROBOT_DISTANCE_FROM_REEF_FOR_ALGAE_REMOVE;
+
 public class RobotCommander extends GBSubsystem {
 
 	private final Robot robot;
@@ -67,7 +69,7 @@ public class RobotCommander extends GBSubsystem {
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 
-//		initializeDefaultCommand();
+		initializeDefaultCommand();
 	}
 
 	public RobotState getCurrentState() {
@@ -124,14 +126,17 @@ public class RobotCommander extends GBSubsystem {
 		ChassisSpeeds reefRelativeSpeeds = SwerveMath
 			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
 
+		Pose2d pose = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide());
+		pose = new Pose2d(pose.getTranslation().minus(new Translation2d(0.49, reefAngle)), reefAngle);
+		pose.rotateBy(reefAngle.unaryMinus());
 		return switch (ScoringHelpers.targetScoreLevel) {
 			case L1 ->
 				PoseUtil.isAtPose(
 					reefRelativeRobotPose,
-					reefRelativeTargetPose,
+					pose,
 					reefRelativeSpeeds,
-					l1Tolerances,
-					l1Deadbands,
+					tolerances,
+					deadbands,
 					"/isAtL1ScoringPose"
 				);
 			case L2, L3, L4 ->
@@ -157,7 +162,6 @@ public class RobotCommander extends GBSubsystem {
 		ChassisSpeeds allianceRelativeSpeeds = swerve.getAllianceRelativeVelocity();
 		ChassisSpeeds reefRelativeSpeeds = SwerveMath
 			.robotToAllianceRelativeSpeeds(allianceRelativeSpeeds, Field.getAllianceRelative(reefAngle.unaryMinus()));
-
 		return switch (ScoringHelpers.targetScoreLevel) {
 			case L1 ->
 				PoseUtil
@@ -332,9 +336,21 @@ public class RobotCommander extends GBSubsystem {
 					.getRobotBranchScoringPose(ScoringHelpers.getTargetBranch(), StateMachineConstants.ROBOT_SCORING_DISTANCE_FROM_REEF_METERS)
 			);
 
+		Supplier<Command> driveToMidL1 = () -> swerve.getCommandsBuilder()
+				.driveToPose(
+						() -> robot.getPoseEstimator().getEstimatedPose(),
+						() -> Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide())
+				);
+
 		return asSubsystemCommand(
 			new DeferredCommand(
-				() -> new ParallelDeadlineGroup(fullySuperstructureScore.get(), driveToPath.get()),
+				() -> new ParallelDeadlineGroup(
+						fullySuperstructureScore.get(),
+						new ConditionalCommand(
+								driveToPath.get(),
+								driveToMidL1.get(),
+								() -> ScoringHelpers.targetScoreLevel != ScoreLevel.L1)
+				),
 				Set.of(
 					this,
 					superstructure,
