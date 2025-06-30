@@ -430,7 +430,7 @@ public class AutosBuilder {
 						.getSuperstructure()
 						.preNet()
 						.asProxy()
-						.until(robot.getRobotCommander().getSuperstructure()::isPreNetReady)
+						.until(robot.getRobotCommander()::isReadyForNetForAuto)
 				)
 			),
 			robot.getRobotCommander().getSuperstructure().netWithRelease().asProxy()

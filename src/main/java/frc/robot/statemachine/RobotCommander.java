@@ -270,7 +270,7 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public boolean isReadyForNetForAuto() {
-		return isCloseToNet();
+		return isCloseToNet() && getSuperstructure().isPreNetReady();
 	}
 
 	public Command driveWith(String name, Command command, boolean asDeadline) {
