@@ -57,6 +57,15 @@ public class RobotCommander extends GBSubsystem {
 
 		this.currentState = RobotState.STAY_IN_PLACE;
 
+		Trigger resetLevi = new Trigger(
+				() -> currentState == RobotState.ALGAE_OUTTAKE_FROM_END_EFFECTOR
+						|| currentState == RobotState.ALGAE_OUTTAKE_FROM_INTAKE
+						|| currentState == RobotState.NET
+						|| currentState == RobotState.ALGAE_INTAKE_PROCESSOR_SCORE
+						|| currentState == RobotState.END_EFFECTOR_PROCESSOR_SCORE
+		);
+		resetLevi.onTrue(new InstantCommand(() -> leviButton = true));
+
 		this.handleBalls = new Trigger(
 			() -> superstructure.isAlgaeInAlgaeIntake()
 				&& !robot.getEndEffector().isCoralIn()
@@ -66,13 +75,7 @@ public class RobotCommander extends GBSubsystem {
 		);
 		handleBalls.onTrue(transferAlgaeFromIntakeToEndEffector());
 
-		Trigger resetLevi = new Trigger(
-				() -> currentState == RobotState.ALGAE_OUTTAKE_FROM_END_EFFECTOR
-				|| currentState == RobotState.ALGAE_OUTTAKE_FROM_INTAKE
-				|| currentState == RobotState.NET
-				|| currentState == RobotState.PROCESSOR_SCORE
-		);
-		resetLevi.onTrue(new InstantCommand(() -> leviButton = true));
+
 
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANDleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
