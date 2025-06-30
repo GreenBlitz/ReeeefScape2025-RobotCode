@@ -25,6 +25,13 @@ public class ClimbStateHandler {
 		return currentState;
 	}
 
+	public Rotation2d getClimbPositionWithLimitSwitch() {
+		if (climbPositionWithLimitSwitch != null) {
+			return climbPositionWithLimitSwitch;
+		}
+		return lifterStateHandler.getLifter().getPosition();
+	}
+
 	public Command setState(ClimbState state) {
 		return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), switch (state) {
 			case STOP -> stop();

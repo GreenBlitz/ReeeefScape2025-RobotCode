@@ -11,6 +11,7 @@ import frc.constants.field.Field;
 import frc.constants.field.enums.Branch;
 import frc.robot.IDs;
 import frc.robot.Robot;
+import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.autonomous.PathFollowingCommandsBuilder;
 import frc.robot.hardware.phoenix6.leds.CANdleWrapper;
 import frc.robot.led.LEDConstants;
@@ -25,6 +26,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.utils.DriverStationUtil;
 import frc.utils.math.AngleTransform;
 import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
@@ -55,7 +57,10 @@ public class RobotCommander extends GBSubsystem {
 		this.currentState = RobotState.STAY_IN_PLACE;
 
 		this.handleBalls = new Trigger(
-			() -> superstructure.isAlgaeInAlgaeIntake() && !robot.getEndEffector().isCoralIn() && currentState == RobotState.DRIVE
+			() -> superstructure.isAlgaeInAlgaeIntake()
+				&& !robot.getEndEffector().isCoralIn()
+				&& (currentState == RobotState.STAY_IN_PLACE || currentState == RobotState.DRIVE)
+				&& DriverStationUtil.isTeleop()
 		);
 		handleBalls.onTrue(transferAlgaeFromIntakeToEndEffector());
 
@@ -681,8 +686,12 @@ public class RobotCommander extends GBSubsystem {
 							? robot.getPoseEstimator().getEstimatedPose().getY() < StateMachineConstants.MIN_NET_SCORING_Y_POSITION
 							: robot.getPoseEstimator().getEstimatedPose().getY() > StateMachineConstants.MIN_NET_SCORING_Y_POSITION
 					),
-				swerve.getCommandsBuilder()
-					.driveToPose(robot.getPoseEstimator()::getEstimatedPose, openSuperstructurePosition)
+				PathFollowingCommandsBuilder
+					.pathfindToPose(
+						openSuperstructurePosition.get(),
+						AutonomousConstants.getRealTimeConstraints(swerve),
+						StateMachineConstants.VELOCITY_BETWEEN_OPEN_SUPERSTRUCTURE_AND_SCORE_TO_NET_METERS_PER_SECOND
+					)
 					.until(
 						() -> ToleranceMath.isNear(
 							openSuperstructurePosition.get(),
