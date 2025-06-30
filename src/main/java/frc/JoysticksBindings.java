@@ -235,8 +235,8 @@ public class JoysticksBindings {
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
-		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
-
+//		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+		usedJoystick.B.onTrue(closeReefActionChooser(robot));
 
 //		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));
 		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));
@@ -271,7 +271,11 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(robot.getArm().getCommandsBuilder().moveToPosition(() -> rot2d, ArmConstants.CRUISE_VELOCITY_ANGLES_PER_SECOND, ArmConstants.ACCELERATION_ANGLES_PER_SECOND_SQUARED));
+		usedJoystick.R1.onTrue(
+			robot.getArm()
+				.getCommandsBuilder()
+				.moveToPosition(() -> rot2d, ArmConstants.CRUISE_VELOCITY_ANGLES_PER_SECOND, ArmConstants.ACCELERATION_ANGLES_PER_SECOND_SQUARED)
+		);
 		usedJoystick.L1.onTrue(new InstantCommand(() -> rot2d = robot.getArm().getPosition()));
 
 		usedJoystick.POV_UP.whileTrue(robot.getArm().getCommandsBuilder().setPower(() -> usedJoystick.getAxisValue(Axis.RIGHT_Y) * 0.6));
@@ -295,7 +299,10 @@ public class JoysticksBindings {
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).whileTrue(new RunCommand(JoysticksBindings::increaseOuttakePower));
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).whileTrue(new RunCommand(JoysticksBindings::decreaseOuttakePower));
 
-		usedJoystick.A.onTrue(new DeferredCommand(() -> robot.getEndEffector().getCommandsBuilder().setPower(outtakePower), Set.of(robot.getEndEffector())))
+		usedJoystick.A
+			.onTrue(
+				new DeferredCommand(() -> robot.getEndEffector().getCommandsBuilder().setPower(outtakePower), Set.of(robot.getEndEffector()))
+			)
 			.onFalse(robot.getEndEffector().getCommandsBuilder().stop());
 
 //		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
