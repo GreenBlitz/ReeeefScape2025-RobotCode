@@ -490,10 +490,10 @@ public class RobotCommander extends GBSubsystem {
 							ScoringHelpers::getAllianceRelativeAlgaeIntakeProcessorScoringPose
 						)
 				).until(this::isAtAlgaeIntakeProcessorScoringPose),
-				new ParallelCommandGroup(
+				new ParallelDeadlineGroup(
 					superstructure.algaeIntakeProcessorScore(),
 					swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_PROCESSOR_RELEASE_TIME_SECONDS)
+				)
 			),
 			RobotState.ALGAE_INTAKE_PROCESSOR_SCORE
 		);

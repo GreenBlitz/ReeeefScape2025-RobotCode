@@ -597,6 +597,13 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 					climbStateHandler.setState(ClimbState.STOP),
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.PROCESSOR_SCORE_WITH_RELEASE)
+				).until(() -> !isAlgaeInAlgaeIntake()),
+				new ParallelCommandGroup(
+					elevatorStateHandler.setState(ElevatorState.CLOSED),
+					armStateHandler.setState(ArmState.CLOSED),
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					climbStateHandler.setState(ClimbState.STOP),
+					algaeIntakeStateHandler.setState(AlgaeIntakeState.PROCESSOR_SCORE_WITH_RELEASE)
 				).withTimeout(StateMachineConstants.ALGAE_OUTTAKE_PROCESSOR_RELEASE_TIME_SECONDS)
 			),
 			SuperstructureState.ALGAE_INTAKE_PROCESSOR_OUTTAKE
