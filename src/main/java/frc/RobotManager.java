@@ -111,7 +111,7 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void teleopInit() {
-		robot.getRobotCommander().initializeDefaultCommand();
+//		robot.getRobotCommander().initializeDefaultCommand();
 	}
 
 	@Override

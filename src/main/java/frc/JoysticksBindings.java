@@ -1,11 +1,7 @@
 package frc;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.constants.field.Field;
 import frc.joysticks.Axis;
@@ -19,6 +15,7 @@ import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
 
@@ -29,12 +26,23 @@ public class JoysticksBindings {
 
 	private static final SmartJoystick MAIN_JOYSTICK = new SmartJoystick(JoystickPorts.MAIN);
 	private static final SmartJoystick SECOND_JOYSTICK = new SmartJoystick(JoystickPorts.SECOND);
-//	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
+	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
 //	private static final SmartJoystick FOURTH_JOYSTICK = new SmartJoystick(JoystickPorts.FOURTH);
 //	private static final SmartJoystick FIFTH_JOYSTICK = new SmartJoystick(JoystickPorts.FIFTH);
 //	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
 
 	private static final ChassisPowers driversInputChassisPowers = new ChassisPowers();
+	private static double outtakePower = 0;
+
+	private static void increaseOuttakePower() {
+		outtakePower += THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_TRIGGER) * 0.1;
+		Logger.recordOutput("OuttakePower", outtakePower);
+	}
+
+	private static void decreaseOuttakePower() {
+		outtakePower -= THIRD_JOYSTICK.getAxisValue(Axis.LEFT_TRIGGER) * 0.1;
+		Logger.recordOutput("OuttakePower", outtakePower);
+	}
 
 	public static void configureBindings(Robot robot) {
 		mainJoystickButtons(robot);
@@ -256,8 +264,28 @@ public class JoysticksBindings {
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {
-//		SmartJoystick usedJoystick = THIRD_JOYSTICK;
+		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
+
+		usedJoystick.POV_UP.whileTrue(robot.getElevator().getCommandsBuilder().setPower(0.1));
+		usedJoystick.POV_DOWN.whileTrue(robot.getElevator().getCommandsBuilder().setPower(-0.1));
+
+		usedJoystick.POV_RIGHT.whileTrue(robot.getArm().getCommandsBuilder().setPower(0.1));
+		usedJoystick.POV_LEFT.whileTrue(robot.getArm().getCommandsBuilder().setPower(-0.1));
+
+		usedJoystick.Y.onTrue(
+			robot.getEndEffector()
+				.getCommandsBuilder()
+				.setPower(0.7)
+				.until(robot.getEndEffector()::isCoralIn)
+				.andThen(robot.getEndEffector().getCommandsBuilder().setPower(0.02))
+		);
+
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).whileTrue(new RunCommand(JoysticksBindings::increaseOuttakePower));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).whileTrue(new RunCommand(JoysticksBindings::decreaseOuttakePower));
+
+		usedJoystick.A.onTrue(new DeferredCommand(() -> robot.getEndEffector().getCommandsBuilder().setPower(outtakePower), Set.of(robot.getEndEffector())))
+			.onFalse(robot.getEndEffector().getCommandsBuilder().stop());
 
 //		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
 	}
