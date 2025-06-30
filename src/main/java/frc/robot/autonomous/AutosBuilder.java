@@ -387,15 +387,23 @@ public class AutosBuilder {
 			AngleTransform.INVERT
 
 		);
-		Pose2d netLinkedWaypoint = Field.getAllianceRelative(
-			isRightFloorAlgae
+		Pose2d pureNetLinkedWaypoint = isRightFloorAlgae
 				? AutonomousConstants.LinkedWaypoints.CLOSE_LEFT_NET.getSecond()
-				: AutonomousConstants.LinkedWaypoints.CLOSE_RIGHT_NET.getSecond(),
+				: AutonomousConstants.LinkedWaypoints.CLOSE_RIGHT_NET.getSecond();
+		Pose2d netLinkedWaypoint = Field.getAllianceRelative(
+			pureNetLinkedWaypoint,
 			true,
 			true,
 			AngleTransform.INVERT
 		);
-		Pose2d netLinkedWaypointMinus = new Pose2d(netLinkedWaypoint.getX() - 0.4, netLinkedWaypoint.getY(), netLinkedWaypoint.getRotation());
+		Pose2d netLinkedWaypointMinus = Field.getAllianceRelative(
+				new Pose2d(pureNetLinkedWaypoint.getX() - 0.4, pureNetLinkedWaypoint.getY(), pureNetLinkedWaypoint.getRotation()),
+				true,
+				true,
+				AngleTransform.INVERT
+		);
+		Logger.recordOutput("NET", netLinkedWaypoint);
+		Logger.recordOutput("NET MINUS", netLinkedWaypointMinus);
 		return new SequentialCommandGroup(
 			new ParallelCommandGroup(
 				robot.getSwerve()
@@ -408,13 +416,13 @@ public class AutosBuilder {
 					),
 				robot.getRobotCommander().getSuperstructure().algaeIntake().asProxy()
 			).until(() -> robot.getRobotCommander().getSuperstructure().isAlgaeInAlgaeIntake()),
-			new ParallelDeadlineGroup(
-				PathFollowingCommandsBuilder
+			new ParallelCommandGroup(
+				/*PathFollowingCommandsBuilder
 					.pathfindToPose(netLinkedWaypointMinus, AutonomousConstants.getRealTimeConstraints(robot.getSwerve()))
-					.andThen(
+					.andThen(*/
 						PathFollowingCommandsBuilder
-							.pathfindToPose(netLinkedWaypoint, AutonomousConstants.getRealTimeConstraints(robot.getSwerve()))
-					),
+							.pathfindToPose(netLinkedWaypoint, AutonomousConstants.getRealTimeConstraints(robot.getSwerve())),
+
 				new SequentialCommandGroup(
 					robot.getRobotCommander().getSuperstructure().transferAlgaeFromIntakeToEndEffector().asProxy(),
 					robot.getRobotCommander().getSuperstructure().holdAlgae().asProxy().withTimeout(1),
