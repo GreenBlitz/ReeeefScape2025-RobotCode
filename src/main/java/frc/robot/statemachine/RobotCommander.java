@@ -553,6 +553,16 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	public Command scoreWithoutReleaseWithoutAimAssist(){
+		return asSubsystemCommand(
+				new ParallelCommandGroup(
+						superstructure.scoreWithoutRelease(),
+						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				),
+				RobotState.SCORE_WITHOUT_RELEASE
+		);
+	}
+
 	private Command score() {
 		return asSubsystemCommand(
 			new ParallelDeadlineGroup(
@@ -560,6 +570,16 @@ public class RobotCommander extends GBSubsystem {
 				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH))
 			),
 			RobotState.SCORE
+		);
+	}
+
+	public Command scoreWithoutAimAssist() {
+		return asSubsystemCommand(
+				new ParallelDeadlineGroup(
+						superstructure.scoreWithRelease(),
+						swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
+				),
+				RobotState.SCORE
 		);
 	}
 

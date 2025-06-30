@@ -161,6 +161,19 @@ public class JoysticksBindings {
 		});
 	}
 
+	private static Command l1ActionChooser(Robot robot){
+		return new InstantCommand(() -> {
+			RobotCommander robotCommander = robot.getRobotCommander();
+			RobotState state = robotCommander.getCurrentState();
+			if (state == RobotState.SCORE_WITHOUT_RELEASE && ScoringHelpers.targetScoreLevel == ScoreLevel.L1) {
+				robotCommander.scoreWithoutAimAssist().schedule();
+			} else {
+				ScoringHelpers.targetScoreLevel = ScoreLevel.L1;
+				robotCommander.scoreWithoutReleaseWithoutAimAssist().schedule();
+			}
+		});
+	}
+
 	private static Command intakeActionChooser(Robot robot) {
 		return new InstantCommand(() -> {
 			RobotCommander robotCommander = robot.getRobotCommander();
@@ -241,6 +254,8 @@ public class JoysticksBindings {
 		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST));
 		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().setState(RobotState.CLIMB_WITH_LIMIT_SWITCH));
 		usedJoystick.A.onTrue(driveActionChooser(robot));
+
+		usedJoystick.POV_LEFT.onTrue(l1ActionChooser(robot));
 
 		usedJoystick.START.whileTrue(robot.getRobotCommander().setState(RobotState.MANUAL_CLIMB));
 		usedJoystick.BACK.whileTrue(robot.getRobotCommander().setState(RobotState.EXIT_CLIMB));
