@@ -1,20 +1,56 @@
 package frc.utils.math;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.*;
+import frc.robot.vision.VisionConstants;
 import frc.robot.vision.objectdetection.ObjectDetectionHelpers;
+import frc.robot.vision.objectdetection.ObjectFrameCornerNumbers;
+import frc.robot.vision.objectdetection.T2dEntryIndexes;
 
 
 public class ObjectDetectionMath {
 
-	public static Translation2d getObjectCenterPixel(double[] allObjectsEntryArray, int firstCellIndex) {
-		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(allObjectsEntryArray, firstCellIndex);
-		double smallestFrameX = Math.min(objectFrameCorners[0].getX(), objectFrameCorners[1].getX());
-		double centerXFromEdge = Math.abs(objectFrameCorners[0].getX() - objectFrameCorners[1].getX()) / 2;
+	public static Pair<Double, Double> pixelToTxAndTyRadians(
+		Translation2d pixel,
+		int pictureWidthPixels,
+		int pictureHeightPixels,
+		double cameraHorizontalFOVRadians,
+		double cameraVerticalFOVRadians
+	) {
+		double normalisedX = (pixel.getX() - (pictureWidthPixels / 2.0)) / (pictureWidthPixels / 2.0);
+		double normalisedY = ((pictureHeightPixels / 2.0) - pixel.getY()) / (pictureHeightPixels / 2.0);
+
+		double viewPlaneWidthRadians = 2 * Math.tan(cameraHorizontalFOVRadians / 2);
+		double viewPlaneHeightRadians = 2 * Math.tan(cameraVerticalFOVRadians / 2);
+
+		Translation2d pointOnViewPlane = new Translation2d(
+			normalisedX * (viewPlaneWidthRadians / 2),
+			normalisedY * (viewPlaneHeightRadians / 2)
+		);
+		double tx = Math.atan(pointOnViewPlane.getX());
+		double ty = Math.atan(pointOnViewPlane.getY());
+		return new Pair<>(tx, ty);
+	}
+
+	public static double getObjectHeightToWidthRatio(double[] t2dEntryArray) {
+		double detectedHorizontalPixels = t2dEntryArray[T2dEntryIndexes.DETECTED_HORIZONTAL_PIXELS.getIndex()];
+		double detectedVerticalPixels = t2dEntryArray[T2dEntryIndexes.DETECTED_VERTICAL_PIXELS.getIndex()];
+		return detectedVerticalPixels / detectedHorizontalPixels;
+	}
+
+	public static Translation2d getObjectCenterPixel(double[] rawDetectionsEntryArray, int firstCellIndex) {
+		Translation2d[] objectFrameCorners = ObjectDetectionHelpers.getAllObjectFrameCorners(rawDetectionsEntryArray, firstCellIndex);
+		int topLeftCornerIndex = ObjectFrameCornerNumbers.TOP_LEFT.getNumber();
+
+		double smallestFrameX = objectFrameCorners[topLeftCornerIndex].getX();
+		double centerXFromEdge = (objectFrameCorners[ObjectFrameCornerNumbers.TOP_RIGHT.getNumber()].getX()
+			- objectFrameCorners[topLeftCornerIndex].getX()) / 2;
 		double centerX = smallestFrameX + centerXFromEdge;
 
-		double smallestFrameY = Math.min(objectFrameCorners[0].getY(), objectFrameCorners[2].getY());
-		double centerYFromEdge = Math.abs(objectFrameCorners[0].getY() - objectFrameCorners[2].getY()) / 2;
+		double smallestFrameY = objectFrameCorners[topLeftCornerIndex].getY();
+		double centerYFromEdge = (objectFrameCorners[ObjectFrameCornerNumbers.BOTTOM_LEFT.getNumber()].getY()
+			- objectFrameCorners[topLeftCornerIndex].getY()) / 2;
 		double centerY = smallestFrameY + centerYFromEdge;
 
 		return new Translation2d(centerX, centerY);
@@ -26,7 +62,7 @@ public class ObjectDetectionMath {
 		int pictureWidthPixels,
 		int pictureHeightPixels
 	) {
-		if (algaeHeightToWidthRatio > 1) {
+		if (algaeHeightToWidthRatio > VisionConstants.ALGAE_HEIGHT_TO_WIDTH_RATIO) {
 			return findRealXSquishedAlgaeCenter(squishedCenterPixel, algaeHeightToWidthRatio, pictureWidthPixels);
 		} else {
 			return findRealYSquishedAlgaeCenter(squishedCenterPixel, algaeHeightToWidthRatio, pictureHeightPixels);
@@ -74,8 +110,10 @@ public class ObjectDetectionMath {
 	}
 
 	public static boolean isPixelOnEdgeOfPicture(Translation2d pixel, int pictureWidthPixels, int pictureHeightPixels, int tolerance) {
-		return ToleranceMath.isInRange(pixel.getX(), 0, pictureWidthPixels, tolerance)
-			|| ToleranceMath.isInRange(pixel.getY(), 0, pictureHeightPixels, tolerance);
+		return MathUtil.isNear(0, pixel.getX(), tolerance)
+			|| MathUtil.isNear(pictureWidthPixels, pixel.getX(), tolerance)
+			|| MathUtil.isNear(0, pixel.getY(), tolerance)
+			|| MathUtil.isNear(pictureHeightPixels, pixel.getY(), tolerance);
 	}
 
 	public static Pair<Rotation2d, Rotation2d> correctForCameraRoll(Rotation2d yaw, Rotation2d pitch, Pose3d cameraPose) {

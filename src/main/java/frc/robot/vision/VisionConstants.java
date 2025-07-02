@@ -113,6 +113,8 @@ public class VisionConstants {
 
 	public static double MAX_VALID_ALGAE_DISTANCE_METERS = 3;
 
+	public static int CUT_OFF_OBJECT_MIN_CORNERS_ON_PICTURE_EDGE = 3;
+
 	public static final VisionSource<AprilTagVisionData> LIMELIGHT_LEFT = new DynamicSwitchingLimelight(
 		true,
 		"limelight-left",

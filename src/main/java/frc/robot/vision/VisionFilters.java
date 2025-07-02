@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.constants.field.Field;
 import frc.robot.vision.data.AprilTagVisionData;
 import frc.robot.vision.data.LimeLightAprilTagVisionData;
+import frc.robot.vision.data.ObjectData;
 import frc.robot.vision.data.VisionData;
 import frc.robot.vision.sources.limelights.LimelightPoseEstimationMethod;
 import frc.utils.Filter;
@@ -90,6 +91,10 @@ public class VisionFilters {
 		}
 
 		return filter.not();
+	}
+
+	public static Filter<ObjectData> isObjectXTooFarAway(double maxValidDistanceMeters) {
+		return (data) -> Math.abs(data.getRobotRelativeEstimatedTranslation().getX()) < maxValidDistanceMeters;
 	}
 
 }
