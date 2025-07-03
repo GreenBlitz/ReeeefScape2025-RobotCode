@@ -126,6 +126,14 @@ public class ScoringHelpers {
 		return new Pose2d(branchTranslation.minus(differenceTranslation).minus(endeffectorOffsetDifference), targetRobotAngle);
 	}
 
+	public static Pose2d getRobotL1ScoringPose(ReefSide reefSide, double distanceFromReefMeters, boolean isAllianceRelative) {
+		Translation2d middleOfReefSide = Field.getReefSideMiddle(reefSide, isAllianceRelative).getTranslation();
+		Rotation2d targetRobotAngle = Field.getReefSideMiddle(reefSide, isAllianceRelative).getRotation().plus(Rotation2d.k180deg);
+		Translation2d differenceTranslation = new Translation2d(distanceFromReefMeters, targetRobotAngle);
+		Translation2d endeffectorOffsetDifference = END_EFFECTOR_OFFSET_FROM_MID_ROBOT.rotateBy(targetRobotAngle);
+		return new Pose2d(middleOfReefSide.plus(differenceTranslation).plus(endeffectorOffsetDifference), targetRobotAngle);
+	}
+
 	public static void setClosetReefSideTarget(Robot robot) {
 		ReefSide closetReefSide = getNearestReefSide(getRobotTranslationWithSpeedsHandle(robot));
 		targetSideForReef = closetReefSide.getSide();

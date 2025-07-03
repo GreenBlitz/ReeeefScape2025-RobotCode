@@ -47,7 +47,7 @@ public class EndEffector extends GBSubsystem {
 
 		periodic();
 
-		setDefaultCommand(commandsBuilder.setPower(0));
+//		setDefaultCommand(commandsBuilder.setPower(0));
 	}
 
 	public EndEffectorCommandsBuilder getCommandsBuilder() {
