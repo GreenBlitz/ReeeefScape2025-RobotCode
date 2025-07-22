@@ -1,0 +1,18 @@
+package frc.robot.vision.objectdetection;
+
+public enum RawDetectionsEntryIndexes {
+
+	TARGET_ID,
+	TX_NO_CROSS,
+	TY_NO_CROSS,
+	TARGET_AREA,
+	TOP_LEFT_CORNER_X,
+	TOP_LEFT_CORNER_Y,
+	TOP_RIGHT_CORNER_X,
+	TOP_RIGHT_CORNER_Y,
+	BOTTOM_RIGHT_CORNER_X,
+	BOTTOM_RIGHT_CORNER_Y,
+	BOTTOM_LEFT_CORNER_X,
+	BOTTOM_LEFT_CORNER_Y
+
+}
