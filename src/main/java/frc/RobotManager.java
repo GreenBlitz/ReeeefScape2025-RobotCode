@@ -4,11 +4,21 @@
 
 package frc;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.joysticks.Axis;
+import frc.joysticks.JoystickPorts;
+import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.AutonomousConstants;
@@ -24,124 +34,47 @@ import org.littletonrobotics.junction.LoggedRobot;
 import frc.utils.brakestate.BrakeStateManager;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Arrays;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as described in the TimedRobot
  * documentation. If you change the name of this class or the package after creating this project, you must also update the build.gradle file in
  * the project.
  */
 public class RobotManager extends LoggedRobot {
-
-	private final Robot robot;
-	private Command auto;
-	private int roborioCycles;
-
+	
+	SmartJoystick joystick = new SmartJoystick(JoystickPorts.MAIN);
+	DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(0.4);
+	TalonSRX[] rightMotors = new TalonSRX[]{
+			new TalonSRX(1),
+			new TalonSRX(2)
+	};
+	TalonSRX[] leftMotors = new TalonSRX[]{
+			new TalonSRX(3),
+			new TalonSRX(4)
+	};
+	
 	public RobotManager() {
 		LoggerFactory.initializeLogger();
 		DriverStation.silenceJoystickConnectionWarning(true);
 		PathPlannerUtil.startPathfinder();
 		PathPlannerUtil.setupPathPlannerLogging();
-
-		this.roborioCycles = 0;
-		this.robot = new Robot();
-
-		createAutoReadyForConstructionChooser();
-		JoysticksBindings.configureBindings(robot);
-
-		initializeLEDTriggers();
-
-		Threads.setCurrentThreadPriority(true, 10);
+		
+		Arrays.stream(leftMotors).forEach((motor) -> motor.setInverted(true));
 	}
-
-	private void initializeLEDTriggers() {
-		Trigger noteIn = new Trigger(() -> robot.getRobotCommander().getSuperstructure().isCoralIn());
-		noteIn.onTrue(
-			robot.getRobotCommander()
-				.getLedStateHandler()
-				.setState(LEDState.HAS_CORAL)
-				.withTimeout(LEDConstants.CORAL_IN_BLINK_TIME_SECONDS)
-				.onlyIf(robot.getRobotCommander().getSuperstructure()::isCoralIn)
-				.ignoringDisable(true)
-		);
-
-		Trigger climbSwitchPressed = new Trigger(() -> robot.getSolenoid().isAtLimitSwitch());
-		climbSwitchPressed.onTrue(
-			robot.getRobotCommander()
-				.getLedStateHandler()
-				.setState(LEDState.TOUCHING_LIMIT_SWITCH)
-				.withTimeout(LEDConstants.LIMIT_SWITCH_BLINK_TIME_SECONDS)
-				.onlyIf(() -> robot.getSolenoid().isAtLimitSwitch())
-				.ignoringDisable(true)
-		);
-	}
-
-	@Override
-	public void disabledInit() {
-		if (!DriverStationUtil.isMatch()) {
-			BrakeStateManager.coast();
-		}
-
-		robot.getSwerve().getCommandsBuilder().resetTargetSpeeds().ignoringDisable(true).schedule();
-		robot.getRobotCommander().getLedStateHandler().setState(LEDState.DISABLE).ignoringDisable(true).schedule();
-	}
-
-	@Override
-	public void disabledExit() {
-		robot.getRobotCommander().getLedStateHandler().setState(LEDState.IDLE).ignoringDisable(true).schedule();
-		if (robot.getLifter().getPosition().getDegrees() < LifterConstants.MINIMUM_ACHIEVABLE_POSITION.getDegrees()) {
-			robot.getLifter().resetPosition(LifterConstants.MINIMUM_ACHIEVABLE_POSITION);
-		}
-	}
-
-	@Override
-	public void autonomousInit() {
-		robot.getRobotCommander().removeDefaultCommand();
-
-		if (auto == null) {
-			this.auto = robot.getAuto();
-		}
-		auto.schedule();
-	}
-
-	@Override
-	public void autonomousExit() {
-		if (auto != null) {
-			auto.cancel();
-		}
-	}
-
-	@Override
-	public void teleopInit() {
-		robot.getRobotCommander().initializeDefaultCommand();
-	}
-
+	
 	@Override
 	public void robotPeriodic() {
-		updateTimeRelatedData(); // Better to be first
-		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
-		robot.periodic();
 		AlertManager.reportAlerts();
+		
+		DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(
+				new ChassisSpeeds(
+						joystick.getAxisValue(Axis.LEFT_Y) * 0.8,
+						joystick.getAxisValue(Axis.LEFT_Y) * 0.8,
+						joystick.getAxisValue(Axis.RIGHT_X) * -4)
+		);
+		Arrays.stream(rightMotors).forEach((motor) -> motor.set(TalonSRXControlMode.PercentOutput, speeds.rightMetersPerSecond * 0.5));
+		Arrays.stream(leftMotors).forEach((motor) -> motor.set(TalonSRXControlMode.PercentOutput, speeds.leftMetersPerSecond * 0.5));
+		
 	}
-
-	private void createAutoReadyForConstructionChooser() {
-		SendableChooser<Boolean> autoReadyForConstructionSendableChooser = new SendableChooser<>();
-		autoReadyForConstructionSendableChooser.setDefaultOption("false", false);
-		autoReadyForConstructionSendableChooser.addOption("true", true);
-		autoReadyForConstructionSendableChooser.onChange(isReady -> {
-			if (isReady) {
-				auto = robot.getAuto();
-				BrakeStateManager.brake();
-			} else {
-				BrakeStateManager.coast();
-			}
-			Logger.recordOutput(AutonomousConstants.LOG_PATH_PREFIX + "/ReadyToConstruct", isReady);
-		});
-		SmartDashboard.putData("AutoReadyForConstruction", autoReadyForConstructionSendableChooser);
-	}
-
-	private void updateTimeRelatedData() {
-		roborioCycles++;
-		Logger.recordOutput("RoborioCycles", roborioCycles);
-		TimeUtil.updateCycleTime(roborioCycles);
-	}
-
 }
