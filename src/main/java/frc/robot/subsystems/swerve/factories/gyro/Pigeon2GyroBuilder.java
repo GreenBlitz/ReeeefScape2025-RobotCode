@@ -11,6 +11,8 @@ import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.swerve.GyroSignals;
 import frc.utils.alerts.Alert;
 import frc.utils.math.AngleUnit;
+import frc.utils.time.TimeUtil;
+import org.littletonrobotics.junction.Logger;
 
 class Pigeon2GyroBuilder {
 
@@ -31,6 +33,7 @@ class Pigeon2GyroBuilder {
 		if (!pigeon2Wrapper.applyConfiguration(pigeon2Configuration, APPLY_CONFIG_RETRIES).isOK()) {
 			new Alert(Alert.AlertType.ERROR, logPath + "ConfigurationFailAt").report();
 		}
+		Logger.recordOutput("gyroconfigend", TimeUtil.getCurrentTimeSeconds());
 
 		return new Pigeon2Gyro(logPath, pigeon2Wrapper);
 	}

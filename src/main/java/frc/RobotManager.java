@@ -36,6 +36,8 @@ public class RobotManager extends LoggedRobot {
 	private int roborioCycles;
 
 	public RobotManager() {
+		Threads.setCurrentThreadPriority(true, 10);
+		
 		LoggerFactory.initializeLogger();
 		DriverStation.silenceJoystickConnectionWarning(true);
 		PathPlannerUtil.startPathfinder();
@@ -49,7 +51,6 @@ public class RobotManager extends LoggedRobot {
 
 		initializeLEDTriggers();
 
-		Threads.setCurrentThreadPriority(true, 10);
 	}
 
 	private void initializeLEDTriggers() {
