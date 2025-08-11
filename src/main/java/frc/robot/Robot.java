@@ -19,6 +19,7 @@ import frc.robot.led.LEDState;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
 import frc.robot.poseestimator.helpers.RobotHeadingEstimator.RobotHeadingEstimatorConstants;
+import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.algaeIntake.pivot.Factory.PivotFactory;
 import frc.robot.subsystems.algaeIntake.pivot.Pivot;
 import frc.robot.subsystems.algaeIntake.rollers.Factory.RollersFactory;
@@ -366,6 +367,10 @@ public class Robot {
 
 	public RobotCommander getRobotCommander() {
 		return robotCommander;
+	}
+	
+	public Superstructure getSuperstructure(){
+		return robotCommander.getSuperstructure();
 	}
 
 	public RobotConfig getRobotConfig() {

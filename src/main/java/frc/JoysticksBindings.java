@@ -16,6 +16,7 @@ import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
+import frc.robot.subsystems.endeffector.EndEffectorState;
 import frc.robot.subsystems.swerve.ChassisPowers;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.utilcommands.ExecuteEndCommand;
@@ -29,7 +30,7 @@ public class JoysticksBindings {
 
 	private static final SmartJoystick MAIN_JOYSTICK = new SmartJoystick(JoystickPorts.MAIN);
 	private static final SmartJoystick SECOND_JOYSTICK = new SmartJoystick(JoystickPorts.SECOND);
-//	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
+	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
 	private static final SmartJoystick FOURTH_JOYSTICK = new SmartJoystick(JoystickPorts.FOURTH);
 //	private static final SmartJoystick FIFTH_JOYSTICK = new SmartJoystick(JoystickPorts.FIFTH);
 //	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
@@ -259,10 +260,30 @@ public class JoysticksBindings {
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {
-//		SmartJoystick usedJoystick = THIRD_JOYSTICK;
-		// bindings...
-
-//		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
+		SmartJoystick usedJoystick = THIRD_JOYSTICK;
+		usedJoystick.A.onTrue(
+				new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L1)
+						.andThen(robot.getSuperstructure().scoreWithoutRelease())
+		);
+		usedJoystick.B.onTrue(
+				new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L2)
+						.andThen(robot.getSuperstructure().scoreWithoutRelease())
+		);
+		usedJoystick.X.onTrue(
+				new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L3)
+						.andThen(robot.getSuperstructure().scoreWithoutRelease())
+		);
+		usedJoystick.Y.onTrue(
+				new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4)
+						.andThen(robot.getSuperstructure().scoreWithoutRelease())
+		);
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getSuperstructure().release());
+		usedJoystick.R1.onTrue(robot.getSuperstructure().intake());
+		usedJoystick.BACK.onTrue(robot.getSuperstructure().idle());
+		
+		usedJoystick.L1.onTrue(robot.getSuperstructure().algaeIntake());
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getSuperstructure().preNet());
+		usedJoystick.POV_UP.onTrue(robot.getSuperstructure().netWithRelease());
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {

@@ -126,7 +126,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	public boolean isAlgaeInAlgaeIntake() {
-		return algaeIntakeStateHandler.isAlgaeIn() || driverIsAlgaeInAlgaeIntakeOverride;
+		return algaeIntakeStateHandler.isAlgaeIn() /*|| driverIsAlgaeInAlgaeIntakeOverride*/;
 	}
 
 	public boolean isClosed() {
@@ -376,6 +376,31 @@ public class Superstructure extends GBSubsystem {
 			),
 			SuperstructureState.SCORE_WITHOUT_RELEASE
 		);
+	}
+	
+	public Command release(){return asSubsystemCommand(
+			new DeferredCommand(
+					() -> new ParallelCommandGroup(
+							elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
+							armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
+							endEffectorStateHandler.setState(EndEffectorState.CORAL_OUTTAKE),
+							climbStateHandler.setState(ClimbState.STOP),
+							algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
+					),
+					Set.of(
+							this,
+							robot.getElevator(),
+							robot.getArm(),
+							robot.getEndEffector(),
+							robot.getLifter(),
+							robot.getSolenoid(),
+							robot.getPivot(),
+							robot.getRollers()
+					)
+			),
+			SuperstructureState.SCORE
+	);
+	
 	}
 
 	public Command scoreWithRelease() {
