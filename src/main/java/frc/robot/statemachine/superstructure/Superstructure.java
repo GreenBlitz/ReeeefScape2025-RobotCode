@@ -881,7 +881,7 @@ public class Superstructure extends GBSubsystem {
 	private Command endState(SuperstructureState state) {
 		return switch (state) {
 			case STAY_IN_PLACE, OUTTAKE -> stayInPlace();
-			case TRANSFER_ALGAE_TO_END_EFFECTOR, HOLD_ALGAE -> holdAlgae();
+			case TRANSFER_ALGAE_TO_END_EFFECTOR, HOLD_ALGAE,ALGAE_FLOOR_INTAKE -> holdAlgae();
 			case
 				INTAKE,
 				IDLE,
@@ -889,7 +889,6 @@ public class Superstructure extends GBSubsystem {
 				ALGAE_OUTTAKE_FROM_END_EFFECTOR,
 				PROCESSOR_OUTTAKE,
 				PRE_NET,
-				ALGAE_FLOOR_INTAKE,
 				ALGAE_OUTTAKE_FROM_INTAKE ->
 				idle();
 			case NET -> softCloseNet().andThen(idle());
