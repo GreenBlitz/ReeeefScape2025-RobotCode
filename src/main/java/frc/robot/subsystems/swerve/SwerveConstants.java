@@ -56,4 +56,15 @@ public record SwerveConstants(
 	static final Rotation2d CALIBRATION_MODULE_ANGLE_TOLERANCE = Rotation2d.fromDegrees(3);
 	static final Rotation2d CALIBRATION_MODULE_ANGULAR_VELOCITY_PER_SECOND_DEADBAND = Rotation2d.fromDegrees(3);
 
+	public static final double MAX_DRIVE_ACCELERATION_METERS_PER_SECOND_SQ = 5;
+	public static final double MAX_DRIVE_SKID_ACCELERATION_METERS_PER_SECOND_SQ = 4;
+	public static final double MAX_DRIVE_TILT_ACCELERATION_METERS_PER_SECOND_SQ = 3;
+
+	public static double getMaxLinearAcceleration() {
+		return Math.min(
+			Math.min(MAX_DRIVE_ACCELERATION_METERS_PER_SECOND_SQ, MAX_DRIVE_SKID_ACCELERATION_METERS_PER_SECOND_SQ),
+			MAX_DRIVE_TILT_ACCELERATION_METERS_PER_SECOND_SQ
+		);
+	}
+
 }
