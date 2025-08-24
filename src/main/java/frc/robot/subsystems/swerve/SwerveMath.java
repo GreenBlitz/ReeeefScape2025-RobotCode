@@ -74,7 +74,9 @@ public class SwerveMath {
 			/ TimeUtil.getLatestCycleTimeSeconds();
 
 		if (Math.abs(wantedAccelerationMetersPerCycleTimeSq) > Math.abs(maxApplicableAcceleration)) {
-			wantedAccelerationMetersPerCycleTimeSq = maxApplicableAcceleration;
+			wantedAccelerationMetersPerCycleTimeSq = wantedAccelerationMetersPerCycleTimeSq < 0
+				? -1 * maxApplicableAcceleration
+				: maxApplicableAcceleration;
 		}
 		return currentMagnitudeMetersPerSecond + wantedAccelerationMetersPerCycleTimeSq * TimeUtil.getLatestCycleTimeSeconds();
 	}
