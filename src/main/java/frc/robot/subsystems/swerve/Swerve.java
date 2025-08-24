@@ -227,7 +227,7 @@ public class Swerve extends GBSubsystem {
 		return SwerveMath.allianceToRobotRelativeSpeeds(speeds, getAllianceRelativeHeading());
 	}
 
-	private double get() {
+	private double getMaxApplicableAcceleration() {
 		return SwerveConstants.getMaxLinearAcceleration()
 			* (1 - (SwerveMath.getDriveMagnitude(getAllianceRelativeVelocity()) / constants.velocityAt12VoltsMetersPerSecond()));
 	}
@@ -299,7 +299,7 @@ public class Swerve extends GBSubsystem {
 		speeds = SwerveMath.applyDeadband(speeds, SwerveConstants.DEADBANDS);
 		speeds = getDriveModeRelativeSpeeds(speeds, swerveState);
 		speeds = SwerveMath.discretize(speeds);
-		speeds = SwerveMath.capSpeedsByAcceleration(getAllianceRelativeVelocity(), speeds, SwerveConstants.getMaxLinearAcceleration());
+		speeds = SwerveMath.capSpeedsByAcceleration(getAllianceRelativeVelocity(), speeds, getMaxApplicableAcceleration());
 
 		applySpeeds(speeds, swerveState);
 	}
