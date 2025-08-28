@@ -50,27 +50,10 @@ import frc.robot.vision.data.AprilTagVisionData;
 import frc.robot.vision.objectdetection.LimeLightObjectDetector;
 import frc.utils.TimedValue;
 import frc.utils.auto.AutonomousChooser;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.RobotManager;
-import frc.robot.hardware.interfaces.IGyro;
-import frc.robot.hardware.phoenix6.BusChain;
-import frc.robot.poseestimator.IPoseEstimator;
-import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
-import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
-import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimator;
-import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimatorConstants;
-import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
-import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
-import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
-import frc.robot.vision.VisionConstants;
-import frc.robot.vision.VisionFilters;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
-import frc.utils.TimedValue;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
-import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
 import frc.utils.battery.BatteryUtil;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.time.TimeUtil;
@@ -79,7 +62,6 @@ import org.littletonrobotics.junction.Logger;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import frc.utils.time.TimeUtil;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -218,7 +200,7 @@ public class Robot {
 			.softCloseNetToAlgaeRemove()
 			.andThen(robotCommander.getSuperstructure().algaeRemove().withTimeout(AutonomousConstants.ALGAE_REMOVE_TIMEOUT_SECONDS))
 			.asProxy();
-		Supplier<Command> netCommand = () -> new WaitUntilCommand(robotCommander::isReadyForNetForAuto)
+		Supplier<Command> netCommand = () -> new WaitUntilCommand(robotCommander::isReadyToNet)
 			.andThen(robotCommander.getSuperstructure().netWithRelease().asProxy());
 
 		swerve.configPathPlanner(
