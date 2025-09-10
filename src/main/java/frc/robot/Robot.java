@@ -502,6 +502,10 @@ public class Robot {
 		return swerve;
 	}
 
+	public Limelight getLimelightObjectDetector() {
+		return limelightObjectDetector;
+	}
+
 	public IPoseEstimator getPoseEstimator() {
 		return poseEstimator;
 	}

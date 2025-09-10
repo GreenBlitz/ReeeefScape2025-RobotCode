@@ -17,6 +17,7 @@ import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.subsystems.swerve.ChassisPowers;
+import frc.robot.vision.cameras.limelight.LimelightPipeline;
 import frc.utils.utilcommands.ExecuteEndCommand;
 import java.util.Set;
 
@@ -253,8 +254,10 @@ public class JoysticksBindings {
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {
-//		SmartJoystick usedJoystick = THIRD_JOYSTICK;
+		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
+		usedJoystick.A.onTrue(new InstantCommand(() -> robot.getLimelightObjectDetector().setPipeline(LimelightPipeline.APRIL_TAG)));
+		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getLimelightObjectDetector().setPipeline(LimelightPipeline.OBJECT_DETECTION)));
 
 //		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
 	}
