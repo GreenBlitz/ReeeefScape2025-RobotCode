@@ -15,7 +15,7 @@ import frc.robot.subsystems.swerve.IMUSignals;
 import frc.utils.alerts.Alert;
 import frc.utils.AngleUnit;
 
-class Pigeon2GyroBuilder {
+class Pigeon2IMUBuilder {
 
 	private static final int APPLY_CONFIG_RETRIES = 5;
 

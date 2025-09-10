@@ -157,7 +157,7 @@ public class Swerve extends GBSubsystem {
 		Logger.recordOutput(constants.velocityLogPath() + "/Rotation", allianceRelativeSpeeds.omegaRadiansPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/X", allianceRelativeSpeeds.vxMetersPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/Y", allianceRelativeSpeeds.vyMetersPerSecond);
-
+		
 		double driveMagnitudeMetersPerSecond = SwerveMath.getDriveMagnitude(allianceRelativeSpeeds);
 		Logger.recordOutput(constants.velocityLogPath() + "/Magnitude", driveMagnitudeMetersPerSecond);
 		Logger.recordOutput(
@@ -169,6 +169,11 @@ public class Swerve extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "/OdometrySamples", getNumberOfOdometrySamples());
 
 		Logger.recordOutput("TimeTest/SwerveUpdate", TimeUtil.getCurrentTimeSeconds() - startingTime);
+		Logger.recordOutput(getLogPath() + "/Acceleration", getMeasuredAcceleration());
+		Logger.recordOutput(getLogPath() + "/AngularVelocity", new double[]
+				{getMeasuredAngularVelocity().getX(), getMeasuredAngularVelocity().getY(), getMeasuredAngularVelocity().getZ()});
+		Logger.recordOutput(getLogPath() + "/Orientation", new double[]
+				{getMeasuredOrientation().getX(), getMeasuredOrientation().getY(), getMeasuredOrientation().getZ()});
 	}
 
 
@@ -407,17 +412,17 @@ public class Swerve extends GBSubsystem {
 
 	public Rotation3d getMeasuredAngularVelocity() {
 		return new Rotation3d(
-			IMUSignals.angularVelocityXSignal().getLatestValue().getRadians(),
-			IMUSignals.angularVelocityYSignal().getLatestValue().getRadians(),
-			IMUSignals.angularVelocityZSignal().getLatestValue().getRadians()
+			IMUSignals.angularVelocityXSignal().getAndUpdateValue().getRadians(),
+			IMUSignals.angularVelocityYSignal().getAndUpdateValue().getRadians(),
+			IMUSignals.angularVelocityZSignal().getAndUpdateValue().getRadians()
 		);
 	}
 
 	public Rotation3d getMeasuredOrientation() {
 		return new Rotation3d(
-			IMUSignals.yawSignal().getLatestValue().getRadians(),
-			IMUSignals.angularVelocityYSignal().getLatestValue().getRadians(),
-			IMUSignals.angularVelocityZSignal().getLatestValue().getRadians()
+			IMUSignals.rollSignal().getAndUpdateValue().getRadians(),
+			IMUSignals.pitchSignal().getAndUpdateValue().getRadians(),
+			IMUSignals.yawSignal().getAndUpdateValue().getRadians()
 		);
 	}
 
