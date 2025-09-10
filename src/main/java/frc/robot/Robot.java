@@ -202,6 +202,29 @@ public class Robot {
 			),
 			LimelightPipeline.OBJECT_DETECTION
 		);
+		limelightObjectDetector.setMT1PoseFilter(LimelightFilters.megaTag1Filter(limelightObjectDetector, new Translation2d(0.1, 0.1)));
+		limelightObjectDetector.setMT2PoseFilter(
+				LimelightFilters.megaTag2Filter(
+						limelightObjectDetector,
+						headingEstimator::getEstimatedHeadingAtTimestamp,
+						new Translation2d(0.1, 0.1),
+						Rotation2d.fromDegrees(2)
+				)
+		);
+		limelightObjectDetector.setMT1StdDevsCalculation(
+				LimelightStdDevCalculations.getMT1StdDevsCalculation(
+						limelightObjectDetector,
+						new StandardDeviations2D(0.0001, 0.0001, 0.0001),
+						new StandardDeviations2D(0.001, 0.001, 0.001)
+				)
+		);
+		limelightObjectDetector.setMT2StdDevsCalculation(
+				LimelightStdDevCalculations.getMT2StdDevsCalculation(
+						limelightObjectDetector,
+						new StandardDeviations2D(0.0001, 0.0001, 0.9999),
+						new StandardDeviations2D(0.001, 0.001, 0.9999)
+				)
+		);
 		limelightObjectDetector
 			.setDetectedObjectFilter(LimelightFilters.detectedObjectFilter(limelightObjectDetector, DetectedObjectType.ALGAE));
 
@@ -373,6 +396,7 @@ public class Robot {
 
 		limelightFour.updateMT1();
 		limelightThreeGB.updateMT1();
+		limelightObjectDetector.updateMT1();
 
 		limelightFour.getIndependentRobotPose()
 			.ifPresent(
@@ -390,15 +414,26 @@ public class Robot {
 					RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
 				)
 			);
+		limelightObjectDetector.getIndependentRobotPose()
+				.ifPresent(
+						robotPoseObservation -> headingEstimator.updateVisionIfGyroOffsetIsNotCalibrated(
+								new TimedValue<>(robotPoseObservation.robotPose().getRotation(), robotPoseObservation.timestampSeconds()),
+								RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+								RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE
+						)
+				);
 
 		limelightFour.setRobotOrientation(headingEstimator.getEstimatedHeading());
 		limelightThreeGB.setRobotOrientation(headingEstimator.getEstimatedHeading());
+		limelightObjectDetector.setRobotOrientation(headingEstimator.getEstimatedHeading());
 
 		limelightFour.updateMT2();
 		limelightThreeGB.updateMT2();
+		limelightObjectDetector.updateMT2();
 
 		limelightFour.getOrientationRequiringRobotPose().ifPresent(poseEstimator::updateVision);
 		limelightThreeGB.getOrientationRequiringRobotPose().ifPresent(poseEstimator::updateVision);
+		limelightObjectDetector.getOrientationRequiringRobotPose().ifPresent(poseEstimator::updateVision);
 
 		limelightFour.log();
 		limelightThreeGB.log();

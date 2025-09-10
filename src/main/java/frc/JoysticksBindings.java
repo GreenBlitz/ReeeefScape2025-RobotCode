@@ -31,7 +31,7 @@ public class JoysticksBindings {
 	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
 	private static final SmartJoystick FOURTH_JOYSTICK = new SmartJoystick(JoystickPorts.FOURTH);
 //	private static final SmartJoystick FIFTH_JOYSTICK = new SmartJoystick(JoystickPorts.FIFTH);
-//	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
+	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
 
 
 	private static final ChassisPowers chassisDriverInputs = new ChassisPowers();
@@ -256,8 +256,6 @@ public class JoysticksBindings {
 	private static void thirdJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
-		usedJoystick.A.onTrue(new InstantCommand(() -> robot.getLimelightObjectDetector().setPipeline(LimelightPipeline.APRIL_TAG)));
-		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getLimelightObjectDetector().setPipeline(LimelightPipeline.OBJECT_DETECTION)));
 
 //		robot.getSwerve().applyCalibrationBindings(usedJoystick, () -> robot.getPoseEstimator().getEstimatedPose());
 	}
@@ -278,7 +276,10 @@ public class JoysticksBindings {
 	}
 
 	private static void sixthJoystickButtons(Robot robot) {
-//		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
+		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
+
+		usedJoystick.A.onTrue(new InstantCommand(() -> robot.getLimelightObjectDetector().setPipeline(LimelightPipeline.APRIL_TAG)));
+		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getLimelightObjectDetector().setPipeline(LimelightPipeline.OBJECT_DETECTION)));
 
 //		robot.getArm().applyCalibrationBindings(usedJoystick);
 //		robot.getEndEffector().applyCalibrationsBindings(usedJoystick);
