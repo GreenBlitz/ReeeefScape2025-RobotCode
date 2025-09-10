@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve.factories.gyro;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import frc.robot.IDs;
 import frc.robot.RobotConstants;
@@ -8,7 +9,9 @@ import frc.robot.hardware.phoenix6.BusChain;
 import frc.robot.hardware.phoenix6.gyro.Pigeon2Gyro;
 import frc.robot.hardware.phoenix6.gyro.Pigeon2Wrapper;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
-import frc.robot.subsystems.swerve.GyroSignals;
+import frc.robot.hardware.signal.AngleSignal;
+import frc.robot.hardware.signal.DoubleSignal;
+import frc.robot.subsystems.swerve.IMUSignals;
 import frc.utils.alerts.Alert;
 import frc.utils.AngleUnit;
 
@@ -35,14 +38,25 @@ class Pigeon2GyroBuilder {
 		return new Pigeon2Gyro(logPath, pigeon2Wrapper);
 	}
 
-	static GyroSignals buildSignals(Pigeon2Gyro pigeon2Gyro) {
-		return new GyroSignals(
-			Phoenix6SignalBuilder.build(
-				pigeon2Gyro.getDevice().getYaw(),
-				RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
-				AngleUnit.DEGREES,
-				BusChain.SWERVE_CANIVORE
-			)
+	private static AngleSignal buildAnglePigeonSignal(StatusSignal<?> signal) {
+		return Phoenix6SignalBuilder.build(signal, RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.DEGREES, BusChain.SWERVE_CANIVORE);
+	}
+
+	private static DoubleSignal buildDoublePigeonSignal(StatusSignal<?> signal) {
+		return Phoenix6SignalBuilder.build(signal, RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, BusChain.SWERVE_CANIVORE);
+	}
+
+	static IMUSignals buildSignals(Pigeon2Gyro pigeon2Gyro) {
+		return new IMUSignals(
+			buildAnglePigeonSignal(pigeon2Gyro.getDevice().getYaw()),
+			buildAnglePigeonSignal(pigeon2Gyro.getDevice().getPitch()),
+			buildAnglePigeonSignal(pigeon2Gyro.getDevice().getRoll()),
+			buildAnglePigeonSignal(pigeon2Gyro.getDevice().getAngularVelocityXWorld()),
+			buildAnglePigeonSignal(pigeon2Gyro.getDevice().getAngularVelocityYWorld()),
+			buildAnglePigeonSignal(pigeon2Gyro.getDevice().getAngularVelocityZWorld()),
+			buildDoublePigeonSignal(pigeon2Gyro.getDevice().getAccelerationX()),
+			buildDoublePigeonSignal(pigeon2Gyro.getDevice().getAccelerationY()),
+			buildDoublePigeonSignal(pigeon2Gyro.getDevice().getAccelerationZ())
 		);
 	}
 

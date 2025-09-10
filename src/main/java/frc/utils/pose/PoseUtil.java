@@ -125,4 +125,12 @@ public class PoseUtil {
 		return new TimedValue<>(visionData.getEstimatedPose().getRotation().toRotation2d(), visionData.getTimestamp());
 	}
 
+	public static Rotation3d cloneRotation3d(Rotation3d rotation3d) {
+		return new Rotation3d(rotation3d.getX(), rotation3d.getY(), rotation3d.getZ());
+	}
+
+	public static Translation3d cloneTranslation3d(Translation3d translation3d) {
+		return new Translation3d(translation3d.getX(), translation3d.getY(), translation3d.getZ());
+	}
+
 }
