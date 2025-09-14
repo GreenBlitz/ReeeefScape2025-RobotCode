@@ -53,7 +53,7 @@ public class Swerve extends GBSubsystem {
 	private double lastMagnitudeMetersPerSecond;
 	private final OdometryData odometryData;
 
-	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, IMUSignals IMUSignals) {
+	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, IMUSignals imuSignals) {
 		super(constants.logPath());
 		this.currentState = new SwerveState(SwerveState.DEFAULT_DRIVE);
 		this.driversPowerInputs = new ChassisPowers();
@@ -62,7 +62,7 @@ public class Swerve extends GBSubsystem {
 		this.driveRadiusMeters = SwerveMath.calculateDriveRadiusMeters(modules.getModulePositionsFromCenterMeters());
 		this.modules = modules;
 		this.gyro = gyro;
-		this.imuSignals = IMUSignals;
+		this.imuSignals = imuSignals;
 
 		this.kinematics = new SwerveDriveKinematics(modules.getModulePositionsFromCenterMeters());
 		this.headingSupplier = this::getGyroAbsoluteYaw;
@@ -123,17 +123,7 @@ public class Swerve extends GBSubsystem {
 
 	public void setHeading(Rotation2d heading) {
 		gyro.setYaw(heading);
-		gyro.updateInputs(
-			imuSignals.pitchSignal(),
-			imuSignals.rollSignal(),
-			imuSignals.yawSignal(),
-			imuSignals.angularVelocityRollSignal(),
-			imuSignals.angularVelocityPitchSignal(),
-			imuSignals.angularVelocityYawSignal(),
-			imuSignals.accelerationXSignal(),
-			imuSignals.accelerationYSignal(),
-			imuSignals.accelerationZSignal()
-		);
+		updateIMU();
 		headingStabilizer.unlockTarget();
 		headingStabilizer.setTargetHeading(heading);
 	}
@@ -146,23 +136,20 @@ public class Swerve extends GBSubsystem {
 
 	private void updateIMU() {
 		gyro.updateInputs(
-				imuSignals.pitchSignal(),
-				imuSignals.rollSignal(),
-				imuSignals.yawSignal(),
-				imuSignals.angularVelocityRollSignal(),
-				imuSignals.angularVelocityPitchSignal(),
-				imuSignals.angularVelocityYawSignal(),
-				imuSignals.accelerationXSignal(),
-				imuSignals.accelerationYSignal(),
-				imuSignals.accelerationZSignal()
+			imuSignals.pitchSignal(),
+			imuSignals.rollSignal(),
+			imuSignals.yawSignal(),
+			imuSignals.angularVelocityRollSignal(),
+			imuSignals.angularVelocityPitchSignal(),
+			imuSignals.angularVelocityYawSignal(),
+			imuSignals.accelerationXSignal(),
+			imuSignals.accelerationYSignal(),
+			imuSignals.accelerationZSignal()
 		);
 	}
 
 	public void update() {
-		double startingTime = TimeUtil.getCurrentTimeSeconds();
-
 		updateIMU();
-		gyro.updateInputs(imuSignals.yawSignal());
 		modules.updateInputs();
 
 		currentState.log(constants.stateLogPath());
