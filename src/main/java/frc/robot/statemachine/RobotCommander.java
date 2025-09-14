@@ -349,7 +349,8 @@ public class RobotCommander extends GBSubsystem {
 							)
 						)
 				)
-				.until(this::isAtCoralScoringPose),
+				.until(this::isAtCoralScoringPose)
+				.andThen(swerve.getCommandsBuilder()::resetTargetSpeeds),
 			"Auto Score Autonomous"
 		);
 
