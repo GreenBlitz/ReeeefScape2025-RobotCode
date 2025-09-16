@@ -213,7 +213,7 @@ public class JoysticksBindings {
 
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(intakeActionChooser(robot));
 
-		usedJoystick.B.onTrue(netActionChooser(robot));
+		usedJoystick.R1.onTrue(netActionChooser(robot));
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
 		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
