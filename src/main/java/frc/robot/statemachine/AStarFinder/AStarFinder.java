@@ -53,20 +53,19 @@ public class AStarFinder {
 						hurristicSupplier.apply(neighbors[i], targetState),
 						currentState
 					);
-                    checkedStates.add(currentNeighbor);
+					checkedStates.add(currentNeighbor);
 				}
 			}
 		}
 
-        Command path = robot.getRobotCommander().setState(targetState);
+		Command path = robot.getRobotCommander().setState(targetState);
 
-        while (!currentState.getParent().equals(currentState)){
-            currentState = currentState.getParent();
-            path = path.beforeStarting(robot.getRobotCommander().setState(currentState.getState()));
-        }
+		while (!currentState.getParent().equals(currentState)) {
+			currentState = currentState.getParent();
+			path = path.beforeStarting(robot.getRobotCommander().setState(currentState.getState()));
+		}
 
-        return path;
-
+		return path;
 	}
 
 	private static Optional<StateNode> checkForState(LinkedList<StateNode> checkedStates, RobotState current) {
