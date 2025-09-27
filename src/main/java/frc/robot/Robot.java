@@ -253,7 +253,7 @@ public class Robot {
 				.asProxy()
 		);
 		Supplier<Command> intakingCommand = () -> robotCommander.getSuperstructure()
-			.softCloseL4()
+			.softClose()
 			.andThen(robotCommander.getSuperstructure().intake().withTimeout(AutonomousConstants.INTAKING_TIMEOUT_SECONDS))
 			.asProxy();
 		Supplier<Command> algaeRemoveCommand = () -> robotCommander.getSuperstructure()
