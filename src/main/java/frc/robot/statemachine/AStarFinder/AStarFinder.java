@@ -2,7 +2,6 @@ package frc.robot.statemachine.AStarFinder;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Robot;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 
