@@ -2,6 +2,7 @@ package frc.robot.statemachine;
 
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,6 +21,7 @@ import frc.robot.led.LEDState;
 import frc.robot.led.LEDStateHandler;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
+import frc.robot.statemachine.AStarFinder.AStarFinder;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
@@ -32,6 +34,7 @@ import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
 import frc.utils.pose.PoseUtil;
 
+import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -48,6 +51,8 @@ public class RobotCommander extends GBSubsystem {
 
 	private CANdleWrapper caNdleWrapper;
 	private LEDStateHandler ledStateHandler;
+
+	private HashMap<Pair<RobotState, RobotState>, Command> paths;
 
 	public RobotCommander(String logPath, Robot robot) {
 		super(logPath);
@@ -78,6 +83,15 @@ public class RobotCommander extends GBSubsystem {
 
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANdleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
+
+		for (int i = 0; i < RobotState.values().length; i++) {
+			for (int j = 0; j < RobotState.values().length; j++) {
+				paths.put(
+					new Pair<>(RobotState.values()[i], RobotState.values()[j]),
+					AStarFinder.findSequence(new Pair<>(RobotState.values()[i], RobotState.values()[j]), robot)
+				);
+			}
+		}
 
 		initializeDefaultCommand();
 	}
@@ -291,38 +305,8 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(wantedCommand, name);
 	}
 
-	public Command setState(RobotState state) {
-		return switch (state) {
-			case DRIVE -> drive();
-			case STAY_IN_PLACE -> stayInPlace();
-			case INTAKE_WITH_AIM_ASSIST -> intakeWithAimAssist();
-			case INTAKE_WITHOUT_AIM_ASSIST -> intakeWithoutAimAssist();
-			case CORAL_OUTTAKE -> coralOuttake();
-			case ALIGN_REEF -> alignReef();
-			case ARM_PRE_SCORE -> armPreScore();
-			case PRE_SCORE -> preScore();
-			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
-			case SCORE -> score();
-			case ALGAE_REMOVE -> algaeRemove();
-			case ALGAE_OUTTAKE_FROM_END_EFFECTOR -> algaeOuttakeFromEndEffector();
-			case ALGAE_OUTTAKE_FROM_INTAKE -> algaeOuttakeFromIntake();
-			case ALGAE_INTAKE -> algaeIntake();
-			case TRANSFER_ALGAE_TO_END_EFFECTOR -> transferAlgaeFromIntakeToEndEffector();
-			case AUTO_PRE_NET -> driveToPreNet();
-			case PRE_NET -> preNet();
-			case NET -> net();
-			case PROCESSOR_SCORE -> fullyProcessorScore();
-			case SOFT_CLOSE -> softClose();
-			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
-			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB_WITHOUT_LIMIT_SWITCH -> climbWithoutLimitSwitch();
-			case CLIMB_WITH_LIMIT_SWITCH -> climbWithLimitSwitch();
-			case MANUAL_CLIMB -> manualClimb();
-			case EXIT_CLIMB -> exitClimb();
-			case STOP_CLIMB -> stopClimb();
-			case CLOSE_CLIMB -> closeClimb();
-			case HOLD_ALGAE -> holdAlgae();
-		};
+	public Command setState(RobotState targetState) {
+		return paths.get(new Pair<>(currentState, targetState));
 	}
 
 	public Command autoScore() {
