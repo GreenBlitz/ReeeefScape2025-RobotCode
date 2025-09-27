@@ -84,11 +84,13 @@ public class RobotCommander extends GBSubsystem {
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANdleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 
+		this.paths = new HashMap<>();
+
 		for (int i = 0; i < RobotState.values().length; i++) {
 			for (int j = 0; j < RobotState.values().length; j++) {
 				paths.put(
 					new Pair<>(RobotState.values()[i], RobotState.values()[j]),
-					AStarFinder.findSequence(new Pair<>(RobotState.values()[i], RobotState.values()[j]), robot)
+					AStarFinder.findSequence(new Pair<>(RobotState.values()[i], RobotState.values()[j]), this)
 				);
 			}
 		}

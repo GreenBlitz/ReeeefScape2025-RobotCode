@@ -3,6 +3,7 @@ package frc.robot.statemachine.AStarFinder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 
 import java.util.LinkedList;
@@ -13,7 +14,7 @@ public class AStarFinder {
 
 	private static BiFunction<RobotState, RobotState, Double> hurristicSupplier = (currentState, targetState) -> 1.0;
 
-	public static Command findSequence(Pair<RobotState, RobotState> states, Robot robot) {
+	public static Command findSequence(Pair<RobotState, RobotState> states, RobotCommander robotCommander) {
 		StateNode startingState = new StateNode(states.getFirst(), 0, hurristicSupplier.apply(states.getFirst(), states.getSecond()), null);
 		RobotState targetState = states.getSecond();
 
@@ -63,11 +64,11 @@ public class AStarFinder {
 			}
 		}
 
-		Command path = robot.getRobotCommander().setState(targetState);
+		Command path = robotCommander.setState(targetState);
 
-		while (!currentState.getParent().equals(currentState)) {
+		while (currentState.getParent() != null) {
 			currentState = currentState.getParent();
-			path = path.beforeStarting(robot.getRobotCommander().setState(currentState.getState()));
+			path = path.beforeStarting(robotCommander.setState(currentState.getState()));
 		}
 
 		return path;
