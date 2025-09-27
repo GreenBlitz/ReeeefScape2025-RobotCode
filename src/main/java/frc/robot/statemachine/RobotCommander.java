@@ -20,7 +20,6 @@ import frc.robot.led.LEDState;
 import frc.robot.led.LEDStateHandler;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
-import frc.robot.statemachine.superstructure.ScoreLevel;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
@@ -313,6 +312,7 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_NET -> preNet();
 			case NET -> net();
 			case PROCESSOR_SCORE -> fullyProcessorScore();
+			case SOFT_CLOSE -> softClose();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB_WITHOUT_LIMIT_SWITCH -> climbWithoutLimitSwitch();
@@ -717,6 +717,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command softClose() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.softClose(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.SOFT_CLOSE
+		);
+	}
+
 	private Command preClimbWithAimAssist() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
@@ -782,47 +789,6 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command afterScore() {
-		return new DeferredCommand(
-			() -> new SequentialCommandGroup(
-				(ScoringHelpers.targetScoreLevel == ScoreLevel.L4
-					? driveWith("Soft close l4", superstructure.softCloseL4(), true)
-					: driveWith("pre score hold l2 l3", superstructure.preScore(), false).until(this::isReadyToCloseSuperstructure)),
-				drive()
-			),
-			Set.of(
-				this,
-				superstructure,
-				swerve,
-				robot.getElevator(),
-				robot.getArm(),
-				robot.getEndEffector(),
-				robot.getLifter(),
-				robot.getSolenoid(),
-				robot.getPivot(),
-				robot.getRollers()
-			)
-		);
-	}
-
-	private Command afterNet() {
-		return new DeferredCommand(
-			() -> new SequentialCommandGroup(driveWith("Soft close net", getSuperstructure().softCloseNet(), true), drive()),
-			Set.of(
-				this,
-				superstructure,
-				swerve,
-				robot.getElevator(),
-				robot.getArm(),
-				robot.getEndEffector(),
-				robot.getLifter(),
-				robot.getSolenoid(),
-				robot.getPivot(),
-				robot.getRollers()
-			)
-		);
-	}
-
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
@@ -838,13 +804,13 @@ public class RobotCommander extends GBSubsystem {
 				ALGAE_OUTTAKE_FROM_END_EFFECTOR,
 				PROCESSOR_SCORE,
 				ALGAE_OUTTAKE_FROM_INTAKE,
-				ALGAE_INTAKE ->
+				ALGAE_INTAKE,
+				SOFT_CLOSE ->
 				drive();
-			case AUTO_PRE_NET, PRE_NET, NET -> afterNet();
+			case AUTO_PRE_NET, PRE_NET, NET, SCORE, SCORE_WITHOUT_RELEASE -> softClose();
 			case ALGAE_REMOVE, HOLD_ALGAE, TRANSFER_ALGAE_TO_END_EFFECTOR -> holdAlgae();
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE -> preScore();
-			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB_WITHOUT_LIMIT_SWITCH, CLIMB_WITH_LIMIT_SWITCH, MANUAL_CLIMB, EXIT_CLIMB, STOP_CLIMB -> stopClimb();

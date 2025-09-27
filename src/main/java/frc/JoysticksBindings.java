@@ -115,13 +115,12 @@ public class JoysticksBindings {
 			if (state == RobotState.ALGAE_REMOVE || state == RobotState.PRE_NET) {
 				robotCommander.setState(RobotState.HOLD_ALGAE).schedule();
 				return;
-			} else if (state == RobotState.NET) {
-				command = robotCommander.driveWith("Soft close net", robotCommander.getSuperstructure().softCloseNet(), true);
 			} else if (
-				(state == RobotState.SCORE || state == RobotState.SCORE_WITHOUT_RELEASE || state == RobotState.PRE_SCORE)
-					&& ScoringHelpers.targetScoreLevel == ScoreLevel.L4
+				state == RobotState.NET
+					|| ((state == RobotState.SCORE || state == RobotState.SCORE_WITHOUT_RELEASE || state == RobotState.PRE_SCORE)
+						&& ScoringHelpers.targetScoreLevel == ScoreLevel.L4)
 			) {
-				command = robotCommander.driveWith("Soft close l4", robotCommander.getSuperstructure().softCloseL4(), true);
+				command = robotCommander.setState(RobotState.SOFT_CLOSE);
 			} else {
 				command = Commands.none();
 			}
@@ -134,13 +133,12 @@ public class JoysticksBindings {
 			RobotCommander robotCommander = robot.getRobotCommander();
 			RobotState state = robotCommander.getCurrentState();
 			Command command;
-			if (state == RobotState.NET) {
-				command = robotCommander.driveWith("Soft close net", robotCommander.getSuperstructure().softCloseNet(), true);
-			} else if (
-				(state == RobotState.SCORE || state == RobotState.SCORE_WITHOUT_RELEASE || state == RobotState.PRE_SCORE)
-					&& ScoringHelpers.targetScoreLevel == ScoreLevel.L4
+			if (
+				state == RobotState.NET
+					|| ((state == RobotState.SCORE || state == RobotState.SCORE_WITHOUT_RELEASE || state == RobotState.PRE_SCORE)
+						&& ScoringHelpers.targetScoreLevel == ScoreLevel.L4)
 			) {
-				command = robotCommander.driveWith("Soft close l4", robotCommander.getSuperstructure().softCloseL4(), true);
+				command = robotCommander.setState(RobotState.SOFT_CLOSE);
 			} else {
 				command = Commands.none();
 			}

@@ -41,7 +41,7 @@ public class AStarFinder {
 				}
 
 				StateNode currentNeighbor;
-				if (checkForState(checkedStates, neighbors[i]).get() != null) {
+				if (!checkForState(checkedStates, neighbors[i]).equals(Optional.empty())) {
 					currentNeighbor = checkForState(checkedStates, neighbors[i]).get();
 					if (currentNeighbor.getGCost() > currentState.getGCost() + 1) {
 						currentNeighbor.setParent(currentState);

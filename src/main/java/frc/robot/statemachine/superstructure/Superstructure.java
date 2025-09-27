@@ -412,32 +412,29 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	public Command softCloseL4() {
-		return softClose("L4", ArmState.MID_WAY_CLOSE, ArmState.CLOSED, ElevatorState.L4, ElevatorState.CLOSED, 0.8, Rotation2d.fromDegrees(45));
-	}
-
-	public Command softCloseNet() {
-		return softClose(
-			"Net",
-			ArmState.MID_WAY_CLOSE,
-			ArmState.CLOSED,
-			ElevatorState.NET,
-			ElevatorState.CLOSED,
-			0.6,
-			Rotation2d.fromDegrees(45)
-		);
-	}
 
 	public Command softCloseNetToAlgaeRemove() {
 		return new DeferredCommand(
-			() -> softClose(
-				"Net",
-				ArmState.MID_WAY_CLOSE,
-				ScoringHelpers.getAlgaeRemoveLevel().getArmState(),
-				ElevatorState.NET,
-				ScoringHelpers.getAlgaeRemoveLevel().getElevatorState(),
-				0.6,
-				Rotation2d.fromDegrees(45)
+			() -> new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(armStateHandler.setState(ArmState.MID_WAY_CLOSE), elevatorStateHandler.setState(ElevatorState.NET))
+						.until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_SOFT_CLOSE_ELEVATOR)),
+					new ParallelCommandGroup(
+						armStateHandler.setState(ArmState.MID_WAY_CLOSE),
+						elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getElevatorState())
+					).until(() -> !robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_TO_SOFT_CLOSE_ARM)),
+					new ParallelDeadlineGroup(
+						armStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getArmState()),
+						elevatorStateHandler.setState(ScoringHelpers.getAlgaeRemoveLevel().getElevatorState())
+					).until(
+						() -> armStateHandler.isAtState(ScoringHelpers.getAlgaeRemoveLevel().getArmState(), Tolerances.ARM_POSITION)
+							&& elevatorStateHandler
+								.isAtState(ScoringHelpers.getAlgaeRemoveLevel().getElevatorState(), Tolerances.ELEVATOR_HEIGHT_METERS)
+					)
+				),
+				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+				climbStateHandler.setState(ClimbState.STOP),
+				algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
 			),
 			Set.of(
 				this,
@@ -453,32 +450,29 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	private Command softClose(
-		String name,
-		ArmState notTouchingField,
-		ArmState closed,
-		ElevatorState starting,
-		ElevatorState ending,
-		double elevatorHeightToCloseArm,
-		Rotation2d armPositionToCloseElevator
-	) {
+	public Command softClose() {
 		return asSubsystemCommand(
 			new ParallelDeadlineGroup(
 				new SequentialCommandGroup(
-					new ParallelCommandGroup(armStateHandler.setState(notTouchingField), elevatorStateHandler.setState(starting))
-						.until(() -> robot.getArm().isPastPosition(armPositionToCloseElevator)),
-					new ParallelCommandGroup(armStateHandler.setState(notTouchingField), elevatorStateHandler.setState(ending))
-						.until(() -> !robot.getElevator().isPastPosition(elevatorHeightToCloseArm)),
-					new ParallelDeadlineGroup(armStateHandler.setState(closed), elevatorStateHandler.setState(ending)).until(
-						() -> armStateHandler.isAtState(closed, Tolerances.ARM_POSITION)
-							&& elevatorStateHandler.isAtState(ending, Tolerances.ELEVATOR_HEIGHT_METERS)
-					)
+					new ParallelCommandGroup(
+						armStateHandler.setState(ArmState.MID_WAY_CLOSE),
+						elevatorStateHandler.setState(ElevatorState.STAY_IN_PLACE)
+					).until(() -> robot.getArm().isPastPosition(StateMachineConstants.ARM_POSITION_TO_SOFT_CLOSE_ELEVATOR)),
+					new ParallelCommandGroup(
+						armStateHandler.setState(ArmState.MID_WAY_CLOSE),
+						elevatorStateHandler.setState(ElevatorState.CLOSED)
+					).until(() -> !robot.getElevator().isPastPosition(StateMachineConstants.ELEVATOR_POSITION_TO_SOFT_CLOSE_ARM)),
+					new ParallelDeadlineGroup(armStateHandler.setState(ArmState.CLOSED), elevatorStateHandler.setState(ElevatorState.CLOSED))
+						.until(
+							() -> armStateHandler.isAtState(ArmState.CLOSED, Tolerances.ARM_POSITION)
+								&& elevatorStateHandler.isAtState(ElevatorState.CLOSED, Tolerances.ELEVATOR_HEIGHT_METERS)
+						)
 				),
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 				climbStateHandler.setState(ClimbState.STOP),
 				algaeIntakeStateHandler.handleIdle(driverIsAlgaeInAlgaeIntakeOverride)
 			),
-			"Soft Close " + name
+			SuperstructureState.SOFT_CLOSE
 		);
 	}
 
@@ -865,9 +859,10 @@ public class Superstructure extends GBSubsystem {
 				PROCESSOR_OUTTAKE,
 				PRE_NET,
 				ALGAE_FLOOR_INTAKE,
-				ALGAE_OUTTAKE_FROM_INTAKE ->
+				ALGAE_OUTTAKE_FROM_INTAKE,
+				SOFT_CLOSE ->
 				idle();
-			case NET -> softCloseNet().andThen(idle());
+			case NET -> softClose().andThen(idle());
 			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
 			case PRE_SCORE, SCORE, SCORE_WITHOUT_RELEASE -> preScore();
 			case PRE_CLIMB -> preClimb();
