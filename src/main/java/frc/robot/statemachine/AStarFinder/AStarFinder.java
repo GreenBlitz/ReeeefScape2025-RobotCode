@@ -29,6 +29,11 @@ public class AStarFinder {
 				if (temp.getFCost() > checkedStates.get(i).getFCost()) {
 					temp = checkedStates.get(i);
 				}
+				if (temp.getFCost() == checkedStates.get(i).getFCost()) {
+					if (temp.getGCost() > checkedStates.get(i).getGCost()) {
+						temp = checkedStates.get(i);
+					}
+				}
 			}
 
 			currentState = temp;

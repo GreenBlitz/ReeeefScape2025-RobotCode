@@ -35,7 +35,7 @@ public enum RobotState {
 	private RobotState[] neighbors;
 
 	static {
-		DRIVE.neighbors = new RobotState[] {ALGAE_INTAKE, TRANSFER_ALGAE_TO_END_EFFECTOR};
+		DRIVE.neighbors = new RobotState[] {ALGAE_INTAKE, TRANSFER_ALGAE_TO_END_EFFECTOR, ALGAE_OUTTAKE_FROM_INTAKE};
 		INTAKE_WITH_AIM_ASSIST.neighbors = new RobotState[] {};
 		INTAKE_WITHOUT_AIM_ASSIST.neighbors = new RobotState[] {};
 		CORAL_OUTTAKE.neighbors = new RobotState[] {};
@@ -46,14 +46,14 @@ public enum RobotState {
 		SCORE.neighbors = new RobotState[] {};
 		ALGAE_REMOVE.neighbors = new RobotState[] {};
 		STAY_IN_PLACE.neighbors = new RobotState[] {};
-		ALGAE_OUTTAKE_FROM_END_EFFECTOR.neighbors = new RobotState[] {};
-		ALGAE_OUTTAKE_FROM_INTAKE.neighbors = new RobotState[] {};
+		ALGAE_OUTTAKE_FROM_END_EFFECTOR.neighbors = new RobotState[] {DRIVE};
+		ALGAE_OUTTAKE_FROM_INTAKE.neighbors = new RobotState[] {DRIVE};
 		ALGAE_INTAKE.neighbors = new RobotState[] {DRIVE};
-		TRANSFER_ALGAE_TO_END_EFFECTOR.neighbors = new RobotState[] {};
-		HOLD_ALGAE.neighbors = new RobotState[] {};
+		TRANSFER_ALGAE_TO_END_EFFECTOR.neighbors = new RobotState[] {HOLD_ALGAE};
+		HOLD_ALGAE.neighbors = new RobotState[] {ALGAE_OUTTAKE_FROM_END_EFFECTOR, PRE_NET};
 		AUTO_PRE_NET.neighbors = new RobotState[] {};
-		PRE_NET.neighbors = new RobotState[] {};
-		NET.neighbors = new RobotState[] {};
+		PRE_NET.neighbors = new RobotState[] {NET, HOLD_ALGAE};
+		NET.neighbors = new RobotState[] {SOFT_CLOSE};
 		PROCESSOR_SCORE.neighbors = new RobotState[] {};
 		SOFT_CLOSE.neighbors = new RobotState[] {DRIVE};
 		PRE_CLIMB_WITH_AIM_ASSIST.neighbors = new RobotState[] {};
