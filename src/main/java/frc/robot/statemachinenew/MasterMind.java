@@ -41,7 +41,7 @@ public class MasterMind {
         if (ScoringHelpers.targetScoreLevel == ScoreLevel.L4) {
             superstructureCommand.beforeStarting(superstructure.whileDrive().until(targets::isReadyToOpenSuperstructure));
         } else {
-            superstructureCommand.andThen(scoreReef()).until(targets::isReadyToClose);
+            superstructureCommand.andThen(scoreReef()).until(targets::isReadyToCloseSuperstructure);
         }
         return superstructureCommand;
     }

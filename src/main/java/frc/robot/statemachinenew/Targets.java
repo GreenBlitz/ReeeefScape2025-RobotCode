@@ -8,6 +8,7 @@ import frc.constants.field.Field;
 import frc.robot.Robot;
 import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.scoringhelpers.ScoringHelpers;
+import frc.robot.statemachine.StateMachineConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.pose.PoseUtil;
 
@@ -50,6 +51,19 @@ public class Targets {
             PROCESSOR_RELATIVE_SCORING_DEADBANDS,
             "/isAtProcessorScoringPose"
         );
+    }
+
+
+    public static final Translation2d CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH = new Translation2d(0.6, 1.03);
+
+    public boolean isReadyToCloseSuperstructure() {
+        Rotation2d reefAngle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide()).getRotation();
+
+        Translation2d reefRelativeReefSideMiddle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide())
+                                                        .rotateBy(reefAngle.unaryMinus())
+                                                        .getTranslation();
+        Translation2d reefRelativeRobotPose = poseEstimator.getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
+        return !PoseUtil.isAtTranslation(reefRelativeRobotPose, reefRelativeReefSideMiddle, CLOSE_SUPERSTRUCTURE_LENGTH_AND_WIDTH);
     }
 
 
