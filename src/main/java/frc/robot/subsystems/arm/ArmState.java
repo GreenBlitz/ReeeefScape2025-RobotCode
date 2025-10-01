@@ -6,6 +6,7 @@ public enum ArmState {
 
 	STAY_IN_PLACE(Rotation2d.fromDegrees(Double.NaN)),
 	CLOSED(Rotation2d.fromDegrees(213)),
+	SOFT_CLOSE(Rotation2d.fromDegrees(90), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	START_GAME(Rotation2d.fromDegrees(233)),
 	MID_WAY_CLOSE(Rotation2d.fromDegrees(90), Rotation2d.fromRotations(2), Rotation2d.fromRotations(2)),
 	INTAKE(Rotation2d.fromDegrees(213)),

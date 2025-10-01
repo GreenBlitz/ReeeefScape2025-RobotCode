@@ -385,7 +385,7 @@ public class AutosBuilder {
 			true,
 			AngleTransform.MIRROR_Y
 		);
-		Supplier<Command> softCloseNet = () -> robot.getRobotCommander().getSuperstructure().softCloseNet().asProxy();
+		Supplier<Command> softCloseNet = () -> robot.getRobotCommander().getSuperstructure().softClose().asProxy();
 
 		Command bulbulBalls = new SequentialCommandGroup(
 			autoScoreToBranch(robot, firstAutoScoreTargetBranch, firstAutoScoreTargetScoreLevel),

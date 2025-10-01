@@ -2,6 +2,7 @@ package frc.robot.statemachine;
 
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,7 +21,7 @@ import frc.robot.led.LEDState;
 import frc.robot.led.LEDStateHandler;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
-import frc.robot.statemachine.superstructure.ScoreLevel;
+import frc.robot.statemachine.aStarFinder.AStarFinder;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
@@ -292,7 +293,12 @@ public class RobotCommander extends GBSubsystem {
 		return asSubsystemCommand(wantedCommand, name);
 	}
 
-	public Command setState(RobotState state) {
+	public Command setState(RobotState targetState) {
+		System.out.println(AStarFinder.findSequence(new Pair<>(currentState, targetState), this));
+		return AStarFinder.findSequence(new Pair<>(currentState, targetState), this);
+	}
+
+	public Command applyState(RobotState state) {
 		return switch (state) {
 			case DRIVE -> drive();
 			case STAY_IN_PLACE -> stayInPlace();
@@ -313,6 +319,7 @@ public class RobotCommander extends GBSubsystem {
 			case PRE_NET -> preNet();
 			case NET -> net();
 			case PROCESSOR_SCORE -> fullyProcessorScore();
+			case SOFT_CLOSE -> softClose();
 			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
 			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
 			case CLIMB_WITHOUT_LIMIT_SWITCH -> climbWithoutLimitSwitch();
@@ -324,6 +331,7 @@ public class RobotCommander extends GBSubsystem {
 			case HOLD_ALGAE -> holdAlgae();
 		};
 	}
+
 
 	public Command autoScore() {
 		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(
@@ -717,6 +725,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
+	private Command softClose() {
+		return asSubsystemCommand(
+			new ParallelCommandGroup(superstructure.softClose(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
+			RobotState.SOFT_CLOSE
+		);
+	}
+
 	private Command preClimbWithAimAssist() {
 		return asSubsystemCommand(
 			new ParallelCommandGroup(
@@ -782,54 +797,13 @@ public class RobotCommander extends GBSubsystem {
 		);
 	}
 
-	private Command afterScore() {
-		return new DeferredCommand(
-			() -> new SequentialCommandGroup(
-				(ScoringHelpers.targetScoreLevel == ScoreLevel.L4
-					? driveWith("Soft close l4", superstructure.softCloseL4(), true)
-					: driveWith("pre score hold l2 l3", superstructure.preScore(), false).until(this::isReadyToCloseSuperstructure)),
-				drive()
-			),
-			Set.of(
-				this,
-				superstructure,
-				swerve,
-				robot.getElevator(),
-				robot.getArm(),
-				robot.getEndEffector(),
-				robot.getLifter(),
-				robot.getSolenoid(),
-				robot.getPivot(),
-				robot.getRollers()
-			)
-		);
-	}
-
-	private Command afterNet() {
-		return new DeferredCommand(
-			() -> new SequentialCommandGroup(driveWith("Soft close net", getSuperstructure().softCloseNet(), true), drive()),
-			Set.of(
-				this,
-				superstructure,
-				swerve,
-				robot.getElevator(),
-				robot.getArm(),
-				robot.getEndEffector(),
-				robot.getLifter(),
-				robot.getSolenoid(),
-				robot.getPivot(),
-				robot.getRollers()
-			)
-		);
-	}
-
 	private Command asSubsystemCommand(Command command, RobotState state) {
 		return new ParallelCommandGroup(asSubsystemCommand(command, state.name()), new InstantCommand(() -> currentState = state));
 	}
 
 	private Command endState(RobotState state) {
 		return switch (state) {
-			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
+			case STAY_IN_PLACE, CORAL_OUTTAKE -> setState(RobotState.STAY_IN_PLACE);
 			case
 				INTAKE_WITH_AIM_ASSIST,
 				INTAKE_WITHOUT_AIM_ASSIST,
@@ -838,16 +812,20 @@ public class RobotCommander extends GBSubsystem {
 				ALGAE_OUTTAKE_FROM_END_EFFECTOR,
 				PROCESSOR_SCORE,
 				ALGAE_OUTTAKE_FROM_INTAKE,
-				ALGAE_INTAKE ->
-				drive();
-			case AUTO_PRE_NET, PRE_NET, NET -> afterNet();
-			case ALGAE_REMOVE, HOLD_ALGAE, TRANSFER_ALGAE_TO_END_EFFECTOR -> holdAlgae();
-			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
-			case PRE_SCORE -> preScore();
-			case SCORE, SCORE_WITHOUT_RELEASE -> afterScore();
-			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
-			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB_WITHOUT_LIMIT_SWITCH, CLIMB_WITH_LIMIT_SWITCH, MANUAL_CLIMB, EXIT_CLIMB, STOP_CLIMB -> stopClimb();
+				ALGAE_INTAKE,
+				SOFT_CLOSE,
+				AUTO_PRE_NET,
+				PRE_NET,
+				NET,
+				SCORE,
+				SCORE_WITHOUT_RELEASE ->
+				setState(RobotState.DRIVE);
+			case ALGAE_REMOVE, HOLD_ALGAE, TRANSFER_ALGAE_TO_END_EFFECTOR -> setState(RobotState.HOLD_ALGAE);
+			case ARM_PRE_SCORE, CLOSE_CLIMB -> setState(RobotState.ARM_PRE_SCORE);
+			case PRE_SCORE -> setState(RobotState.PRE_SCORE);
+			case PRE_CLIMB_WITH_AIM_ASSIST -> setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST);
+			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST);
+			case CLIMB_WITHOUT_LIMIT_SWITCH, CLIMB_WITH_LIMIT_SWITCH, MANUAL_CLIMB, EXIT_CLIMB, STOP_CLIMB -> setState(RobotState.STOP_CLIMB);
 		};
 	}
 
