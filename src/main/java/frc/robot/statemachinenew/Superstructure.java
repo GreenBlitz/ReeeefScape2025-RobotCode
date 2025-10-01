@@ -2,8 +2,8 @@ package frc.robot.statemachinenew;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.subsystems.GBSubsystem;
@@ -28,14 +28,10 @@ import java.util.function.BooleanSupplier;
 
 public class Superstructure extends GBSubsystem {
 
-    // (intake algae -> hold algae) must be transfer (they cannot be neighbors)
-    // (net -> close) must be soft close (they cannot be neighbors)
-    // (L4 -> close) must be soft close (they cannot be neighbors)
-    // (while drive l4 -> l4) must be pre l4 (they cannot be neighbors)
-
-
-    private final BooleanSupplier releaseReef;
-
+	// (intake algae -> hold algae) must be transfer (they cannot be neighbors)
+	// (net -> close) must be soft close (they cannot be neighbors)
+	// (L4 -> close) must be soft close (they cannot be neighbors)
+	// (while drive l4 -> l4) must be pre l4 (they cannot be neighbors)
 
 	private final ElevatorStateHandler elevatorStateHandler;
 	private final ArmStateHandler armStateHandler;
@@ -43,6 +39,9 @@ public class Superstructure extends GBSubsystem {
 	private final ClimbStateHandler climbStateHandler;
 	private final AlgaeIntakeStateHandler algaeIntakeStateHandler;
 	private final Set<Subsystem> subsystems;
+
+	private State currentState;
+	private BooleanSupplier reefScoreTrigger = this::isReadyToReef;
 
 	public Superstructure(String logPath, Robot robot, Targets targets) {
 		super(logPath);
@@ -57,8 +56,6 @@ public class Superstructure extends GBSubsystem {
 			robot.getRollers()
 		);
 
-        Trigger transfer = new Trigger(() -> isAlgaeInIntake() && isAlgaeWantedUp).onTrue(intake to hold);
-
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
 		this.armStateHandler = new ArmStateHandler(robot.getArm(), targets::getDistanceToReef);
 		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
@@ -69,9 +66,13 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-    public boolean isReadyToNet() {
-        return elevatorStateHandler.isAtState(ElevatorState.NET) && armStateHandler.isAtState(ArmState.NET);
-    }
+	public State getCurrentState() {
+		return currentState;
+	}
+
+	public void setReefScoreTrigger(BooleanSupplier reefScoreTrigger) {
+		this.reefScoreTrigger = () -> reefScoreTrigger.getAsBoolean() && isReadyToReef();
+	}
 
 	@Override
 	protected void subsystemPeriodic() {
@@ -96,6 +97,14 @@ public class Superstructure extends GBSubsystem {
 		return algaeIntakeStateHandler.isAlgaeIn();
 	}
 
+	public boolean isReadyToNet() {
+		return elevatorStateHandler.isAtState(ElevatorState.NET) && armStateHandler.isAtState(ArmState.NET);
+	}
+
+	public boolean isReadyToReef() {
+		return elevatorStateHandler.isAtState(ScoringHelpers.targetScoreLevel.getElevatorScore())
+			&& armStateHandler.isAtState(ScoringHelpers.targetScoreLevel.getArmScore());
+	}
 
 	public Command close() {
 		return asSubsystemCommand(
@@ -106,7 +115,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 				climbStateHandler.setState(ClimbState.CLOSE)
 			),
-			"CLOSE"
+			State.CLOSE
 		);
 	}
 
@@ -122,7 +131,7 @@ public class Superstructure extends GBSubsystem {
 				),
 				subsystems
 			),
-			"REMOVE ALGAE"
+			State.REMOVE_ALGAE
 		);
 	}
 
@@ -138,7 +147,7 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 				climbStateHandler.setState(ClimbState.STOP)
 			),
-			"INTAKE ALGAE"
+			State.INTAKE_ALGAE
 		);
 	}
 
@@ -151,25 +160,25 @@ public class Superstructure extends GBSubsystem {
 				endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
 				climbStateHandler.setState(ClimbState.CLOSE)
 			),
-			"HOLD ALGAE UP"
+			State.HOLD_ALGAE
 		);
 	}
 
-    public Command net() {
-        return asSubsystemCommand(
-            Commands.parallel(
-                Commands.sequence(
-                    endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(net),
-                    endEffectorStateHandler.setState(EndEffectorState.NET_OUTTAKE)
-                ),
-                elevatorStateHandler.setState(ElevatorState.NET),
-                armStateHandler.setState(ArmState.NET),
-                climbStateHandler.setState(ClimbState.STOP),
-                algaeIntakeStateHandler.handleIdle()
-            ),
-            "NET"
-        );
-    }
+	public Command net() {
+		return asSubsystemCommand(
+			Commands.parallel(
+				Commands.sequence(
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(net),
+					endEffectorStateHandler.setState(EndEffectorState.NET_OUTTAKE)
+				),
+				elevatorStateHandler.setState(ElevatorState.NET),
+				armStateHandler.setState(ArmState.NET),
+				climbStateHandler.setState(ClimbState.STOP),
+				algaeIntakeStateHandler.handleIdle()
+			),
+			State.NET
+		);
+	}
 
 	public Command intakeCoral() {
 		return asSubsystemCommand(
@@ -178,13 +187,52 @@ public class Superstructure extends GBSubsystem {
 					endEffectorStateHandler.setState(EndEffectorState.CORAL_INTAKE).until(this::isCoralIn),
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT)
 				),
-                elevatorStateHandler.setState(ElevatorState.INTAKE),
-                armStateHandler.setState(ArmState.INTAKE),
-                climbStateHandler.setState(ClimbState.STOP),
-                algaeIntakeStateHandler.handleIdle()
+				elevatorStateHandler.setState(ElevatorState.INTAKE),
+				armStateHandler.setState(ArmState.INTAKE),
+				climbStateHandler.setState(ClimbState.STOP),
+				algaeIntakeStateHandler.handleIdle()
 			),
-			"INTAKE CORAL"
+			State.INTAKE_CORAL
 		);
+	}
+
+	public Command scoreReef() {
+		return asSubsystemCommand(
+			Commands.defer(
+				() -> Commands.parallel(
+					Commands.sequence(
+						endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(reefScoreTrigger),
+						endEffectorStateHandler.setState(EndEffectorState.CORAL_OUTTAKE)
+					),
+					elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorScore()),
+					armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmScore()),
+					climbStateHandler.setState(ClimbState.STOP),
+					algaeIntakeStateHandler.handleIdle()
+				),
+				subsystems
+			),
+			State.SCORE_REEF
+		);
+	}
+
+	public Command whileDrive() {
+		return asSubsystemCommand(
+			Commands.defer(
+				() -> Commands.parallel(
+					endEffectorStateHandler.setState(EndEffectorState.DEFAULT),
+					elevatorStateHandler.setState(ScoringHelpers.targetScoreLevel.getElevatorWhileDrive()),
+					armStateHandler.setState(ScoringHelpers.targetScoreLevel.getArmPreScore()),
+					climbStateHandler.setState(ClimbState.STOP),
+					algaeIntakeStateHandler.handleIdle()
+				),
+				subsystems
+			),
+			State.WHILE_DRIVE
+		);
+	}
+
+	public Command asSubsystemCommand(Command command, State state) {
+		return super.asSubsystemCommand(command, state.name()).beforeStarting(new InstantCommand(() -> currentState = state));
 	}
 
 }
