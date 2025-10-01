@@ -33,14 +33,10 @@ public class Superstructure extends GBSubsystem {
     // (L4 -> close) must be soft close (they cannot be neighbors)
     // (while drive l4 -> l4) must be pre l4 (they cannot be neighbors)
 
-    private boolean dontAutoReleaseNet = true;
-    private boolean manualReleaseNet = true;
-    private BooleanSupplier net = () -> !dontAutoReleaseNet && isReadyToNet() && pose || manualReleaseNet && isReadyToNet();
 
-    private boolean isAlgaeWantedUp = true;
+    private final BooleanSupplier releaseReef;
 
 
-	private final Targets targets;
 	private final ElevatorStateHandler elevatorStateHandler;
 	private final ArmStateHandler armStateHandler;
 	private final EndEffectorStateHandler endEffectorStateHandler;
@@ -48,7 +44,7 @@ public class Superstructure extends GBSubsystem {
 	private final AlgaeIntakeStateHandler algaeIntakeStateHandler;
 	private final Set<Subsystem> subsystems;
 
-	public Superstructure(String logPath, Robot robot) {
+	public Superstructure(String logPath, Robot robot, Targets targets) {
 		super(logPath);
 
 		this.subsystems = Set.of(
@@ -60,7 +56,6 @@ public class Superstructure extends GBSubsystem {
 			robot.getPivot(),
 			robot.getRollers()
 		);
-		this.targets = new Targets(robot);
 
         Trigger transfer = new Trigger(() -> isAlgaeInIntake() && isAlgaeWantedUp).onTrue(intake to hold);
 
