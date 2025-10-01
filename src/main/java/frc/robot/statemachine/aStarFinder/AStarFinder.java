@@ -36,24 +36,7 @@ public class AStarFinder {
 		}
 
 		while (!currentState.getState().equals(targetState)) {
-			StateNode temp = uncheckedNeighbors.get(0);
-			int tempIndex = 0;
-
-			for (int i = 1; i < uncheckedNeighbors.size(); i++) {
-				if (temp.getFCost() > uncheckedNeighbors.get(i).getFCost()) {
-					temp = uncheckedNeighbors.get(i);
-					tempIndex = i;
-				}
-				if (temp.getFCost() == uncheckedNeighbors.get(i).getFCost()) {
-					if (temp.getGCost() > uncheckedNeighbors.get(i).getGCost()) {
-						temp = uncheckedNeighbors.get(i);
-						tempIndex = i;
-					}
-				}
-			}
-
-			currentState = temp;
-			uncheckedNeighbors.remove(tempIndex);
+			currentState = findNextStateToCheck(uncheckedNeighbors);
 			checkedStates.add(currentState);
 
 			RobotState[] neighbors = currentState.getState().getNeighbors();
@@ -63,7 +46,7 @@ public class AStarFinder {
 					break;
 				}
 
-				if (checkForState(checkedStates, neighbors[i]).equals(Optional.empty())) {
+				if (checkIfStateWasVisited(checkedStates, neighbors[i]).equals(Optional.empty())) {
 					uncheckedNeighbors.add(
 						new StateNode(
 							neighbors[i],
@@ -76,6 +59,40 @@ public class AStarFinder {
 			}
 		}
 
+		return buildPath(currentState, startingState, robotCommander);
+	}
+
+	private static Optional<StateNode> checkIfStateWasVisited(LinkedList<StateNode> checkedStates, RobotState current) {
+		for (int i = 0; i < checkedStates.size(); i++) {
+			if (checkedStates.get(i).getState().equals(current)) {
+				return Optional.of(checkedStates.get(i));
+			}
+		}
+		return Optional.empty();
+	}
+
+	private static StateNode findNextStateToCheck(LinkedList<StateNode> uncheckedNeighbors) {
+		StateNode temp = uncheckedNeighbors.get(0);
+		int tempIndex = 0;
+
+		for (int i = 1; i < uncheckedNeighbors.size(); i++) {
+			if (temp.getFCost() > uncheckedNeighbors.get(i).getFCost()) {
+				temp = uncheckedNeighbors.get(i);
+				tempIndex = i;
+			}
+			if (temp.getFCost() == uncheckedNeighbors.get(i).getFCost()) {
+				if (temp.getGCost() > uncheckedNeighbors.get(i).getGCost()) {
+					temp = uncheckedNeighbors.get(i);
+					tempIndex = i;
+				}
+			}
+		}
+
+		uncheckedNeighbors.remove(tempIndex);
+		return temp;
+	}
+
+	private static Command buildPath(StateNode currentState, StateNode startingState, RobotCommander robotCommander) {
 		Command path = Commands.none();
 		while (currentState != startingState) {
 			System.out.print(currentState.getState().name() + " <- ");
@@ -83,18 +100,7 @@ public class AStarFinder {
 			currentState = currentState.getParent();
 		}
 
-		System.out.println();
-		Command finalPath = path;
-		return finalPath;
-	}
-
-	private static Optional<StateNode> checkForState(LinkedList<StateNode> checkedStates, RobotState current) {
-		for (int i = 0; i < checkedStates.size(); i++) {
-			if (checkedStates.get(i).getState().equals(current)) {
-				return Optional.of(checkedStates.get(i));
-			}
-		}
-		return Optional.empty();
+		return path;
 	}
 
 }

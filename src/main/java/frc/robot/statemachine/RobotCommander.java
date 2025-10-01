@@ -34,7 +34,6 @@ import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
 import frc.utils.pose.PoseUtil;
 
-import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -51,8 +50,6 @@ public class RobotCommander extends GBSubsystem {
 
 	private CANdleWrapper caNdleWrapper;
 	private LEDStateHandler ledStateHandler;
-
-	private HashMap<Pair<RobotState, RobotState>, Command> paths;
 
 	public RobotCommander(String logPath, Robot robot) {
 		super(logPath);
@@ -85,8 +82,6 @@ public class RobotCommander extends GBSubsystem {
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 
 		initializeDefaultCommand();
-
-		this.paths = new HashMap<>();
 	}
 
 	public RobotState getCurrentState() {
@@ -101,28 +96,24 @@ public class RobotCommander extends GBSubsystem {
 		return ledStateHandler;
 	}
 
-	public HashMap<Pair<RobotState, RobotState>, Command> getPaths() {
-		return paths;
-	}
-
 	public void initializeDefaultCommand() {
-//		setDefaultCommand(
-//			new DeferredCommand(
-//				() -> endState(currentState),
-//				Set.of(
-//					this,
-//					superstructure,
-//					swerve,
-//					robot.getElevator(),
-//					robot.getArm(),
-//					robot.getEndEffector(),
-//					robot.getLifter(),
-//					robot.getSolenoid(),
-//					robot.getPivot(),
-//					robot.getRollers()
-//				)
-//			)
-//		);
+		setDefaultCommand(
+			new DeferredCommand(
+				() -> endState(currentState),
+				Set.of(
+					this,
+					superstructure,
+					swerve,
+					robot.getElevator(),
+					robot.getArm(),
+					robot.getEndEffector(),
+					robot.getLifter(),
+					robot.getSolenoid(),
+					robot.getPivot(),
+					robot.getRollers()
+				)
+			)
+		);
 	}
 
 	/**
@@ -812,7 +803,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command endState(RobotState state) {
 		return switch (state) {
-			case STAY_IN_PLACE, CORAL_OUTTAKE -> stayInPlace();
+			case STAY_IN_PLACE, CORAL_OUTTAKE -> setState(RobotState.STAY_IN_PLACE);
 			case
 				INTAKE_WITH_AIM_ASSIST,
 				INTAKE_WITHOUT_AIM_ASSIST,
@@ -822,15 +813,19 @@ public class RobotCommander extends GBSubsystem {
 				PROCESSOR_SCORE,
 				ALGAE_OUTTAKE_FROM_INTAKE,
 				ALGAE_INTAKE,
-				SOFT_CLOSE ->
-				drive();
-			case AUTO_PRE_NET, PRE_NET, NET, SCORE, SCORE_WITHOUT_RELEASE -> softClose();
-			case ALGAE_REMOVE, HOLD_ALGAE, TRANSFER_ALGAE_TO_END_EFFECTOR -> holdAlgae();
-			case ARM_PRE_SCORE, CLOSE_CLIMB -> armPreScore();
-			case PRE_SCORE -> preScore();
-			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
-			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
-			case CLIMB_WITHOUT_LIMIT_SWITCH, CLIMB_WITH_LIMIT_SWITCH, MANUAL_CLIMB, EXIT_CLIMB, STOP_CLIMB -> stopClimb();
+				SOFT_CLOSE,
+				AUTO_PRE_NET,
+				PRE_NET,
+				NET,
+				SCORE,
+				SCORE_WITHOUT_RELEASE ->
+				setState(RobotState.DRIVE);
+			case ALGAE_REMOVE, HOLD_ALGAE, TRANSFER_ALGAE_TO_END_EFFECTOR -> setState(RobotState.HOLD_ALGAE);
+			case ARM_PRE_SCORE, CLOSE_CLIMB -> setState(RobotState.ARM_PRE_SCORE);
+			case PRE_SCORE -> setState(RobotState.PRE_SCORE);
+			case PRE_CLIMB_WITH_AIM_ASSIST -> setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST);
+			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> setState(RobotState.PRE_CLIMB_WITHOUT_AIM_ASSIST);
+			case CLIMB_WITHOUT_LIMIT_SWITCH, CLIMB_WITH_LIMIT_SWITCH, MANUAL_CLIMB, EXIT_CLIMB, STOP_CLIMB -> setState(RobotState.STOP_CLIMB);
 		};
 	}
 
