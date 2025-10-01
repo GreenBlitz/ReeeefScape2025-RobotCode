@@ -36,10 +36,12 @@ public class MasterMind {
         superstructure.setReefScoreTrigger(() ->  manualReleaseReef || targets.isReadyToScoreReef() && !dontAutoReleaseReef);
     }
 
-    public Command scoreReef() {
+    public Command scoreReef() { // todo: defer
         Command superstructureCommand = superstructure.scoreReef();
         if (ScoringHelpers.targetScoreLevel == ScoreLevel.L4) {
             superstructureCommand.beforeStarting(superstructure.whileDrive().until(targets::isReadyToOpenSuperstructure));
+        } else {
+            superstructureCommand.andThen(scoreReef()).until(targets::isReadyToClose);
         }
         return superstructureCommand;
     }

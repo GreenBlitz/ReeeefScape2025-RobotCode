@@ -103,7 +103,8 @@ public class Superstructure extends GBSubsystem {
 
 	public boolean isReadyToReef() {
 		return elevatorStateHandler.isAtState(ScoringHelpers.targetScoreLevel.getElevatorScore())
-			&& armStateHandler.isAtState(ScoringHelpers.targetScoreLevel.getArmScore());
+			&& armStateHandler.isAtState(ScoringHelpers.targetScoreLevel.getArmScore())
+			&& isCoralIn();
 	}
 
 	public Command close() {
@@ -167,7 +168,7 @@ public class Superstructure extends GBSubsystem {
 	public Command net() {
 		return asSubsystemCommand(
 			Commands.parallel(
-				Commands.sequence(
+				Commands.deadline(
 					endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(net),
 					endEffectorStateHandler.setState(EndEffectorState.NET_OUTTAKE)
 				),
@@ -199,7 +200,7 @@ public class Superstructure extends GBSubsystem {
 	public Command scoreReef() {
 		return asSubsystemCommand(
 			Commands.defer(
-				() -> Commands.parallel(
+				() -> Commands.deadline(
 					Commands.sequence(
 						endEffectorStateHandler.setState(EndEffectorState.DEFAULT).until(reefScoreTrigger),
 						endEffectorStateHandler.setState(EndEffectorState.CORAL_OUTTAKE)
