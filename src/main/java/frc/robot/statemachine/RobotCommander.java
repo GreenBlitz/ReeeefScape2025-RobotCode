@@ -21,7 +21,7 @@ import frc.robot.led.LEDState;
 import frc.robot.led.LEDStateHandler;
 import frc.robot.scoringhelpers.ScoringHelpers;
 import frc.robot.scoringhelpers.ScoringPathsHelper;
-import frc.robot.statemachine.AStarFinder.AStarFinder;
+import frc.robot.statemachine.aStarFinder.AStarFinder;
 import frc.robot.statemachine.superstructure.Superstructure;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
@@ -84,18 +84,9 @@ public class RobotCommander extends GBSubsystem {
 		this.caNdleWrapper = new CANdleWrapper(IDs.CANdleIDs.CANDLE, LEDConstants.NUMBER_OF_LEDS, "candle");
 		this.ledStateHandler = new LEDStateHandler("CANdle", caNdleWrapper);
 
-		this.paths = new HashMap<>();
-
-		for (int i = 0; i < RobotState.values().length; i++) {
-			for (int j = 0; j < RobotState.values().length; j++) {
-				paths.put(
-					new Pair<>(RobotState.values()[i], RobotState.values()[j]),
-					AStarFinder.findSequence(new Pair<>(RobotState.values()[i], RobotState.values()[j]), this)
-				);
-			}
-		}
-
 		initializeDefaultCommand();
+
+		this.paths = new HashMap<>();
 	}
 
 	public RobotState getCurrentState() {
@@ -110,24 +101,28 @@ public class RobotCommander extends GBSubsystem {
 		return ledStateHandler;
 	}
 
+	public HashMap<Pair<RobotState, RobotState>, Command> getPaths() {
+		return paths;
+	}
+
 	public void initializeDefaultCommand() {
-		setDefaultCommand(
-			new DeferredCommand(
-				() -> endState(currentState),
-				Set.of(
-					this,
-					superstructure,
-					swerve,
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getSolenoid(),
-					robot.getPivot(),
-					robot.getRollers()
-				)
-			)
-		);
+//		setDefaultCommand(
+//			new DeferredCommand(
+//				() -> endState(currentState),
+//				Set.of(
+//					this,
+//					superstructure,
+//					swerve,
+//					robot.getElevator(),
+//					robot.getArm(),
+//					robot.getEndEffector(),
+//					robot.getLifter(),
+//					robot.getSolenoid(),
+//					robot.getPivot(),
+//					robot.getRollers()
+//				)
+//			)
+//		);
 	}
 
 	/**
@@ -308,8 +303,44 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	public Command setState(RobotState targetState) {
-		return paths.get(new Pair<>(currentState, targetState));
+		System.out.println(AStarFinder.findSequence(new Pair<>(currentState, targetState), this));
+		return AStarFinder.findSequence(new Pair<>(currentState, targetState), this);
 	}
+
+	public Command applyState(RobotState state) {
+		return switch (state) {
+			case DRIVE -> drive();
+			case STAY_IN_PLACE -> stayInPlace();
+			case INTAKE_WITH_AIM_ASSIST -> intakeWithAimAssist();
+			case INTAKE_WITHOUT_AIM_ASSIST -> intakeWithoutAimAssist();
+			case CORAL_OUTTAKE -> coralOuttake();
+			case ALIGN_REEF -> alignReef();
+			case ARM_PRE_SCORE -> armPreScore();
+			case PRE_SCORE -> preScore();
+			case SCORE_WITHOUT_RELEASE -> scoreWithoutRelease();
+			case SCORE -> score();
+			case ALGAE_REMOVE -> algaeRemove();
+			case ALGAE_OUTTAKE_FROM_END_EFFECTOR -> algaeOuttakeFromEndEffector();
+			case ALGAE_OUTTAKE_FROM_INTAKE -> algaeOuttakeFromIntake();
+			case ALGAE_INTAKE -> algaeIntake();
+			case TRANSFER_ALGAE_TO_END_EFFECTOR -> transferAlgaeFromIntakeToEndEffector();
+			case AUTO_PRE_NET -> driveToPreNet();
+			case PRE_NET -> preNet();
+			case NET -> net();
+			case PROCESSOR_SCORE -> fullyProcessorScore();
+			case SOFT_CLOSE -> softClose();
+			case PRE_CLIMB_WITH_AIM_ASSIST -> preClimbWithAimAssist();
+			case PRE_CLIMB_WITHOUT_AIM_ASSIST -> preClimbWithoutAimAssist();
+			case CLIMB_WITHOUT_LIMIT_SWITCH -> climbWithoutLimitSwitch();
+			case CLIMB_WITH_LIMIT_SWITCH -> climbWithLimitSwitch();
+			case MANUAL_CLIMB -> manualClimb();
+			case EXIT_CLIMB -> exitClimb();
+			case STOP_CLIMB -> stopClimb();
+			case CLOSE_CLIMB -> closeClimb();
+			case HOLD_ALGAE -> holdAlgae();
+		};
+	}
+
 
 	public Command autoScore() {
 		Supplier<Command> fullySuperstructureScore = () -> new SequentialCommandGroup(

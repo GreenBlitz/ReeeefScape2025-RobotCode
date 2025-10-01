@@ -154,10 +154,8 @@ public class JoysticksBindings {
 
 			if (state == RobotState.NET || state == RobotState.PRE_NET) {
 				command = robotCommander.setState(RobotState.NET);
-			} else if (state == RobotState.AUTO_PRE_NET) {
-				command = robotCommander.setState(RobotState.PRE_NET);
 			} else {
-				command = robotCommander.autoNet();
+				command = robotCommander.setState(RobotState.PRE_NET);
 			}
 			command.schedule();
 		});
@@ -216,8 +214,8 @@ public class JoysticksBindings {
 		usedJoystick.R1.onTrue(netActionChooser(robot));
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().setState(RobotState.CORAL_OUTTAKE));
-		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
-		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.PROCESSOR_SCORE));
+		usedJoystick.X.onTrue(netActionChooser(robot));
+		usedJoystick.B.onTrue(robot.getRobotCommander().setState(RobotState.ALGAE_INTAKE));
 
 
 //		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().setState(RobotState.PRE_CLIMB_WITH_AIM_ASSIST));

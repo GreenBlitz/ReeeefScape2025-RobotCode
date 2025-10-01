@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.events.EventTrigger;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.*;
@@ -19,6 +20,8 @@ import frc.robot.led.LEDState;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
 import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimatorConstants;
+import frc.robot.statemachine.RobotState;
+import frc.robot.statemachine.aStarFinder.AStarFinder;
 import frc.robot.subsystems.algaeIntake.pivot.Factory.PivotFactory;
 import frc.robot.subsystems.algaeIntake.pivot.Pivot;
 import frc.robot.subsystems.algaeIntake.rollers.Factory.RollersFactory;
@@ -241,6 +244,17 @@ public class Robot {
 		this.robotCommander = new RobotCommander("StateMachine/RobotCommander", this);
 
 		configureAuto();
+
+		for (int i = 0; i < RobotState.values().length; i++) {
+			for (int j = 0; j < RobotState.values().length; j++) {
+				System.out.println(RobotState.values()[i].name() + ", " + RobotState.values()[j]);
+				robotCommander.getPaths()
+					.put(
+						new Pair<>(RobotState.values()[i], RobotState.values()[j]),
+						AStarFinder.findSequence(new Pair<>(RobotState.values()[i], RobotState.values()[j]), robotCommander)
+					);
+			}
+		}
 	}
 
 	private void configureAuto() {

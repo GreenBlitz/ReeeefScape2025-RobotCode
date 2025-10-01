@@ -1,4 +1,4 @@
-package frc.robot.statemachine.AStarFinder;
+package frc.robot.statemachine.aStarFinder;
 
 import frc.robot.statemachine.RobotState;
 
