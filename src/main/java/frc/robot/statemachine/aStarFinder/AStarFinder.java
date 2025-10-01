@@ -3,13 +3,11 @@ package frc.robot.statemachine.aStarFinder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.statemachine.RobotCommander;
 import frc.robot.statemachine.RobotState;
 
 import java.util.LinkedList;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 public class AStarFinder {
