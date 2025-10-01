@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import frc.robot.statemachine.Tolerances;
 
 public class ElevatorStateHandler {
@@ -20,7 +21,8 @@ public class ElevatorStateHandler {
 
 	public Command setState(ElevatorState state) {
 		if (state == ElevatorState.STAY_IN_PLACE) {
-			return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), elevator.getCommandsBuilder().stayInPlace());
+			return new ParallelCommandGroup(new InstantCommand(() -> currentState = state),
+				elevator.getCommandsBuilder().stayInPlace());
 		} else {
 			return new ParallelCommandGroup(
 				new InstantCommand(() -> currentState = state),

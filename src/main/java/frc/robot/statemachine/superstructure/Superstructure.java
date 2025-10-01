@@ -52,7 +52,7 @@ public class Superstructure extends GBSubsystem {
 		this.robot = robot;
 		this.elevatorStateHandler = new ElevatorStateHandler(robot.getElevator());
 		this.armStateHandler = new ArmStateHandler(robot.getArm(), this::getDistanceToReef);
-		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector(), this);
+		this.endEffectorStateHandler = new EndEffectorStateHandler(robot.getEndEffector());
 		this.climbStateHandler = new ClimbStateHandler(new SolenoidStateHandler(robot.getSolenoid()), new LifterStateHandler(robot.getLifter()));
 		this.algaeIntakeStateHandler = new AlgaeIntakeStateHandler(
 			new PivotStateHandler(robot.getPivot()),
@@ -182,7 +182,7 @@ public class Superstructure extends GBSubsystem {
 
 	@Override
 	protected void subsystemPeriodic() {
-		algaeIntakeStateHandler.updateAlgaeSensor(robot);
+		algaeIntakeStateHandler.updateAlgaeSensor();
 		log();
 	}
 
