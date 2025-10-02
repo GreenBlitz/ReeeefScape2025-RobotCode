@@ -62,17 +62,13 @@ public class AlgaeIntakeStateHandler {
 		return isAlgaeInByMin && isPivotDown && Robot.ROBOT_TYPE.isReal();
 	}
 
-	public Command handleIdle(boolean isAlgaeInAlgaeIntakeOverride) {
-		return new ConditionalCommand(
-			setState(AlgaeIntakeState.HOLD_ALGAE),
-			setState(AlgaeIntakeState.CLOSED),
-			() -> isAlgaeIn() || isAlgaeInAlgaeIntakeOverride
-		);
+	public Command handleIdle() {
+		return new ConditionalCommand(setState(AlgaeIntakeState.HOLD_ALGAE), setState(AlgaeIntakeState.CLOSED), this::isAlgaeIn);
 	}
 
-	public void updateAlgaeSensor(Robot robot) {
+	public void updateAlgaeSensor() {
 		if (
-			Math.abs(robot.getPivot().getVelocity().getDegrees())
+			Math.abs(pivotStateHandler.getPivot().getVelocity().getDegrees())
 				< AlgaeIntakeConstants.MAXIMAL_PIVOT_VELOCITY_TO_UPDATE_FILTER_ANGLE_PER_SECOND.getDegrees()
 				&& pivotStateHandler.getPivot().getPosition().getDegrees()
 					< AlgaeIntakeConstants.MIN_POSITION_WHEN_CLIMB_INTERRUPT_SENSOR.getDegrees()

@@ -8,12 +8,10 @@ import frc.robot.statemachine.superstructure.Superstructure;
 public class EndEffectorStateHandler {
 
 	private final EndEffector endEffector;
-	private final Superstructure superstructure;
 	private EndEffectorState currentState;
 
-	public EndEffectorStateHandler(EndEffector endEffector, Superstructure superstructure) {
+	public EndEffectorStateHandler(EndEffector endEffector) {
 		this.endEffector = endEffector;
-		this.superstructure = superstructure;
 	}
 
 	public EndEffectorState getCurrentState() {
@@ -31,8 +29,11 @@ public class EndEffectorStateHandler {
 	}
 
 	private double defaultStatePower() {
-		return superstructure.isCoralIn() ? EndEffectorState.CORAL_KEEP_POWER : EndEffectorState.ALGAE_KEEP_POWER;
+		return isCoralIn() ? EndEffectorState.CORAL_KEEP_POWER : EndEffectorState.ALGAE_KEEP_POWER;
 	}
 
+	public boolean isCoralIn() {
+		return endEffector.isCoralIn();
+	}
 
 }
