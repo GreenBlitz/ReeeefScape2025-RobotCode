@@ -229,11 +229,24 @@ public class Swerve extends GBSubsystem {
 
 
 	protected void moveToPoseByPID(Pose2d currentPose, Pose2d targetPose) {
-		double xVelocityMetersPerSecond = constants.xMetersPIDController().calculate(currentPose.getX(), targetPose.getX());
-		double yVelocityMetersPerSecond = constants.yMetersPIDController().calculate(currentPose.getY(), targetPose.getY());
+		double sqrtXTarget = currentPose.getX()
+			+ Math.sqrt(targetPose.getX() - currentPose.getX()) * Math.signum(targetPose.getX())
+			- currentPose.getX();
+		double xVelocityMetersPerSecond = constants.xMetersPIDController().calculate(sqrtXTarget);
+
+		double sqrtYTarget = currentPose.getY()
+			+ Math.sqrt(targetPose.getY() - currentPose.getY()) * Math.signum(targetPose.getY())
+			- currentPose.getY();
+		double yVelocityMetersPerSecond = constants.yMetersPIDController().calculate(sqrtYTarget);
+
 		int direction = Field.isFieldConventionAlliance() ? 1 : -1;
+
+		double sqrtRotTarget = Math.sqrt(MathUtil.angleModulus(targetPose.getRotation().getRadians() - currentPose.getRotation().getRadians()));
+		sqrtRotTarget *= Math.signum(MathUtil.angleModulus(targetPose.getRotation().getDegrees() - currentPose.getRotation().getDegrees()));
+		sqrtRotTarget = MathUtil.angleModulus(sqrtRotTarget + currentPose.getRotation().getRadians());
 		Rotation2d rotationVelocityPerSecond = Rotation2d.fromDegrees(
-			constants.rotationDegreesPIDController().calculate(currentPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees())
+			constants.rotationDegreesPIDController()
+				.calculate(currentPose.getRotation().getDegrees(), Rotation2d.fromRadians(sqrtRotTarget).getDegrees())
 		);
 
 		ChassisSpeeds targetAllianceRelativeSpeeds = new ChassisSpeeds(
