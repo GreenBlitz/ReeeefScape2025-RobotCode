@@ -273,13 +273,19 @@ public class RobotCommander extends GBSubsystem {
 	}
 
 	private boolean isCloseToNet() {
-		Translation2d middleOfNetScoringRange = new Translation2d(7.578, 6.03885);
+		Translation2d middleOfCloseNetScoringRange = new Translation2d(7.578, 6.03885);
+		Translation2d middleOfFarNetScoringRange = new Translation2d(9.97, 6.03885);
 		Translation2d netScoringRangeDistancesFromMiddle = new Translation2d(0.035, 2.01295);
 		return PoseUtil.isAtTranslation(
 			robot.getPoseEstimator().getEstimatedPose().getTranslation(),
-			Field.getAllianceRelative(middleOfNetScoringRange, true, true),
+			Field.getAllianceRelative(middleOfCloseNetScoringRange, true, true),
 			netScoringRangeDistancesFromMiddle
-		);
+		)
+			|| PoseUtil.isAtTranslation(
+				robot.getPoseEstimator().getEstimatedPose().getTranslation(),
+				Field.getAllianceRelative(middleOfFarNetScoringRange, true, true),
+				netScoringRangeDistancesFromMiddle
+			);
 	}
 
 	public boolean isReadyForNetForAuto() {

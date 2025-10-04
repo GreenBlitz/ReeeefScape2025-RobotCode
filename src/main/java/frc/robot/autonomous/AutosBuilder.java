@@ -66,6 +66,7 @@ public class AutosBuilder {
 		Supplier<Command> intakingCommand,
 		Supplier<Command> scoringCommand,
 		Supplier<Command> algaeRemoveCommand,
+		Supplier<Command> algaeStealCommand,
 		Supplier<Command> netCommand,
 		Pose2d tolerance
 	) {
@@ -76,7 +77,7 @@ public class AutosBuilder {
 		autos.add(() -> autoBalls(robot, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L4));
 		autos.add(() -> autoBalls(robot, algaeRemoveCommand, netCommand, tolerance, Branch.H, ScoreLevel.L4));
 		autos.add(() -> autoBalls(robot, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L3));
-		autos.add(() -> stealingAuto(robot, algaeRemoveCommand, netCommand, tolerance));
+		autos.add(() -> stealingAuto(robot, algaeRemoveCommand, algaeStealCommand, netCommand, tolerance));
 		autos.add(() -> floorAutoBalls(robot, algaeTranslationSupplier, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L4));
 		autos.add(() -> floorAutoBalls(robot, algaeTranslationSupplier, algaeRemoveCommand, netCommand, tolerance, Branch.H, ScoreLevel.L4));
 		autos.add(() -> floorAutoBalls(robot, algaeTranslationSupplier, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L3));
@@ -317,6 +318,7 @@ public class AutosBuilder {
 	private static PathPlannerAutoWrapper stealingAuto(
 		Robot robot,
 		Supplier<Command> algaeRemoveCommand,
+		Supplier<Command> algaeStealCommand,
 		Supplier<Command> netCommand,
 		Pose2d tolerance
 	) {
@@ -337,7 +339,7 @@ public class AutosBuilder {
 						robot.getPoseEstimator()::getEstimatedPose,
 						PathHelper.PATH_PLANNER_PATHS.get("LN-SD"),
 						AutonomousConstants.getRealTimeConstraintsForAuto(robot.getSwerve()),
-						algaeRemoveCommand
+						algaeStealCommand
 					),
 					PathFollowingCommandsBuilder.deadlinePathWithCommand(
 						robot.getSwerve(),
@@ -345,15 +347,17 @@ public class AutosBuilder {
 						PathHelper.PATH_PLANNER_PATHS.get("SD-FMN"),
 						AutonomousConstants.getRealTimeConstraintsForAuto(robot.getSwerve()),
 						netCommand
-					)
-				).asProxy(),
-				robot.getSwerve().getCommandsBuilder().drive(() -> {
-					ChassisPowers chassisPowers = new ChassisPowers();
-					chassisPowers.xPower = -AutonomousConstants.DEFAULT_AUTO_DRIVE_POWER;
-					return chassisPowers;
-				})
-					.withTimeout(AutonomousConstants.DEFAULT_AUTO_DRIVE_TIME_SECONDS)
-					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds())
+					),
+					robot.getSwerve()
+						.getCommandsBuilder()
+						.driveToPose(
+							robot.getPoseEstimator()::getEstimatedPose,
+							() -> PathPlannerUtil.getLastPathPose(PathHelper.PATH_PLANNER_PATHS.get("SD-FMN"))
+								.transformBy(new Transform2d(0.5, 0, new Rotation2d())),
+							AutonomousConstants.getRealTimeConstraintsForAuto(robot.getSwerve())
+						),
+					robot.getRobotCommander().getSuperstructure().softCloseNet()
+				).asProxy()
 			),
 			Pose2d.kZero,
 			"Stealing"

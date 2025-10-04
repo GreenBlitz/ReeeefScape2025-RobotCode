@@ -32,6 +32,8 @@ public class AutonomousConstants {
 
 	public static final double FIRST_ALGAE_REMOVE_TIMEOUT_SECONDS = 1;
 	public static final double ALGAE_REMOVE_TIMEOUT_SECONDS = 0.5;
+	public static final double ALGAE_STEAL_TIMEOUT_SECONDS = 1.5;
+	public static final double NET_TIMEOUT_SECONDS = 1;
 
 	public static PathConstraints getRealTimeConstraints(Swerve swerve) {
 		return new PathConstraints(

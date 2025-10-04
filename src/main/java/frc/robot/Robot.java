@@ -260,6 +260,10 @@ public class Robot {
 			.softCloseNetToAlgaeRemove()
 			.andThen(robotCommander.getSuperstructure().algaeRemove().withTimeout(AutonomousConstants.ALGAE_REMOVE_TIMEOUT_SECONDS))
 			.asProxy();
+		Supplier<Command> algaeStealCommand = () -> robotCommander.getSuperstructure()
+			.softCloseNet()
+			.andThen(robotCommander.getSuperstructure().algaeRemove().withTimeout(AutonomousConstants.ALGAE_STEAL_TIMEOUT_SECONDS))
+			.asProxy();
 		Supplier<Command> netCommand = () -> new WaitUntilCommand(robotCommander::isReadyForNetForAuto)
 			.andThen(robotCommander.getSuperstructure().netWithRelease().asProxy());
 
@@ -298,6 +302,7 @@ public class Robot {
 				intakingCommand,
 				scoringCommand,
 				algaeRemoveCommand,
+				algaeStealCommand,
 				netCommand,
 				AutonomousConstants.TARGET_POSE_TOLERANCES
 			)
