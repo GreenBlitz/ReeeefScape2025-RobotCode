@@ -76,6 +76,7 @@ public class AutosBuilder {
 		autos.add(() -> autoBalls(robot, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L4));
 		autos.add(() -> autoBalls(robot, algaeRemoveCommand, netCommand, tolerance, Branch.H, ScoreLevel.L4));
 		autos.add(() -> autoBalls(robot, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L3));
+		autos.add(() -> stealingAuto(robot, algaeRemoveCommand, netCommand, tolerance));
 		autos.add(() -> floorAutoBalls(robot, algaeTranslationSupplier, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L4));
 		autos.add(() -> floorAutoBalls(robot, algaeTranslationSupplier, algaeRemoveCommand, netCommand, tolerance, Branch.H, ScoreLevel.L4));
 		autos.add(() -> floorAutoBalls(robot, algaeTranslationSupplier, algaeRemoveCommand, netCommand, tolerance, Branch.G, ScoreLevel.L3));
@@ -311,6 +312,52 @@ public class AutosBuilder {
 
 	private static PathPlannerAutoWrapper centerAuto(Robot robot) {
 		return autoScoreToBranch(robot, Branch.H, ScoreLevel.L4).withAutoName("Center");
+	}
+
+	private static PathPlannerAutoWrapper stealingAuto(
+		Robot robot,
+		Supplier<Command> algaeRemoveCommand,
+		Supplier<Command> netCommand,
+		Pose2d tolerance
+	) {
+		return new PathPlannerAutoWrapper(
+			new SequentialCommandGroup(
+				autoScoreToBranch(robot, Branch.H, ScoreLevel.L4),
+				new SequentialCommandGroup(
+					getFirstAlgaeRemoveCommand(ScoreLevel.L4, robot, Branch.H, tolerance),
+					PathFollowingCommandsBuilder.deadlinePathWithCommand(
+						robot.getSwerve(),
+						robot.getPoseEstimator()::getEstimatedPose,
+						PathHelper.PATH_PLANNER_PATHS.get("ARD-LN"),
+						AutonomousConstants.getRealTimeConstraintsForAuto(robot.getSwerve()),
+						netCommand
+					),
+					PathFollowingCommandsBuilder.deadlinePathWithCommand(
+						robot.getSwerve(),
+						robot.getPoseEstimator()::getEstimatedPose,
+						PathHelper.PATH_PLANNER_PATHS.get("LN-SD"),
+						AutonomousConstants.getRealTimeConstraintsForAuto(robot.getSwerve()),
+						algaeRemoveCommand
+					),
+					PathFollowingCommandsBuilder.deadlinePathWithCommand(
+						robot.getSwerve(),
+						robot.getPoseEstimator()::getEstimatedPose,
+						PathHelper.PATH_PLANNER_PATHS.get("SD-FMN"),
+						AutonomousConstants.getRealTimeConstraintsForAuto(robot.getSwerve()),
+						netCommand
+					)
+				).asProxy(),
+				robot.getSwerve().getCommandsBuilder().drive(() -> {
+					ChassisPowers chassisPowers = new ChassisPowers();
+					chassisPowers.xPower = -AutonomousConstants.DEFAULT_AUTO_DRIVE_POWER;
+					return chassisPowers;
+				})
+					.withTimeout(AutonomousConstants.DEFAULT_AUTO_DRIVE_TIME_SECONDS)
+					.andThen(robot.getSwerve().getCommandsBuilder().resetTargetSpeeds())
+			),
+			Pose2d.kZero,
+			"Stealing"
+		);
 	}
 
 	private static PathPlannerAutoWrapper autoBalls(

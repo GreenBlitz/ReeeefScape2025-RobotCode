@@ -1,0 +1,87 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 11.75,
+        "y": 4.02
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 11.2515,
+        "y": 4.26875
+      },
+      "isLocked": false,
+      "linkedName": "SD"
+    },
+    {
+      "anchor": {
+        "x": 10.0,
+        "y": 6.2
+      },
+      "prevControl": {
+        "x": 10.3935,
+        "y": 5.448499999999999
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 3.8,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "STOP_ROLLERS",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "HOLD_ALGAE",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "PRE_NET",
+      "waypointRelativePos": 0.803970223325062,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.8,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "net",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

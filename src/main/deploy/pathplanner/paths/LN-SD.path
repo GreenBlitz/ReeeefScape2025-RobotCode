@@ -1,0 +1,93 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.578,
+        "y": 5.5
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.315219477927686,
+        "y": 5.376839033322378
+      },
+      "isLocked": false,
+      "linkedName": "LN"
+    },
+    {
+      "anchor": {
+        "x": 7.3,
+        "y": 5.55
+      },
+      "prevControl": {
+        "x": 7.341123362329014,
+        "y": 5.796594543878725
+      },
+      "nextControl": {
+        "x": 7.258876637670985,
+        "y": 5.303405456121275
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.77,
+        "y": 5.6
+      },
+      "prevControl": {
+        "x": 8.27779389018941,
+        "y": 5.591587481781208
+      },
+      "nextControl": {
+        "x": 9.603750000002384,
+        "y": 5.614250000000277
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 11.75,
+        "y": 4.02
+      },
+      "prevControl": {
+        "x": 11.311250000002383,
+        "y": 4.683000000000279
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "SD"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SOFT_CLOSE_NET",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.8,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "net",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
