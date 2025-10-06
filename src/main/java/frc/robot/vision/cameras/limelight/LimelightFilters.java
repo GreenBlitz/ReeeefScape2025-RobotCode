@@ -112,7 +112,7 @@ public class LimelightFilters {
 					)
 				)
 				.and(
-					isPitchOnFloor(
+					isRollOnFloor(
 						() -> Rotation2d.fromRadians(robotPose.get().getRotation().getY()),
 						Rotation2d.fromRadians(tolerance.getRotation().getY())
 					)
