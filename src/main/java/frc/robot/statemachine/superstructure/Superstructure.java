@@ -648,7 +648,7 @@ public class Superstructure extends GBSubsystem {
 			SuperstructureState.ALGAE_OUTTAKE_FROM_INTAKE
 		);
 	}
-	
+
 	public boolean func() {
 		boolean arm = armStateHandler.isAtState(ArmState.TRANSFER_ALGAE_FROM_INTAKE, Rotation2d.fromDegrees(5));
 		boolean elevator = elevatorStateHandler.isAtState(ElevatorState.TRANSFER_ALGAE_FROM_INTAKE);
@@ -670,9 +670,7 @@ public class Superstructure extends GBSubsystem {
 					algaeIntakeStateHandler.setState(AlgaeIntakeState.PUSH_ALGAE_OUT)
 						.withTimeout(StateMachineConstants.PUSH_ALGAE_OUT_TIME_SECONDS)
 						.andThen(algaeIntakeStateHandler.setState(AlgaeIntakeState.HOLD_ALGAE))
-				).until(
-					() -> func()
-				).withTimeout(3),
+				).until(() -> func()).withTimeout(3),
 				new ParallelCommandGroup(
 					new SequentialCommandGroup(
 						endEffectorStateHandler.setState(EndEffectorState.TRANSFER_ALGAE_FROM_INTAKE).withTimeout(0.8),

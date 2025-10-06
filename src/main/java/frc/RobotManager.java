@@ -21,23 +21,29 @@ import frc.utils.auto.PathPlannerUtil;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.logger.LoggerFactory;
 import frc.utils.time.TimeUtil;
+import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as described in the TimedRobot
- * documentation. If you change the name of this class or the package after creating this project, you must also update the build.gradle file in
+ * documentation. If you change the name of this class or the package after creating this project, you must also update the build .gradle file in
  * the project.
  */
 public class RobotManager extends LoggedRobot {
 
+	public static final LogTable replayLogsTable = new LogTable(0);
 	private final Robot robot;
 	private Command auto;
 	private int roborioCycles;
 
 	public RobotManager() {
-		DriverStation.silenceJoystickConnectionWarning(true);
-		LoggerFactory.initializeLogger();
+		if (Robot.ROBOT_TYPE.isReplay()) {
+			setUseTiming(false);
+			LoggerFactory.startReplayLogger();
+		} else {
+			LoggerFactory.initializeLogger();
+		}
 		DriverStation.silenceJoystickConnectionWarning(true);
 		PathPlannerUtil.startPathfinder();
 		PathPlannerUtil.setupPathPlannerLogging();
@@ -117,6 +123,9 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void robotPeriodic() {
+		if (Robot.ROBOT_TYPE.isReplay()) {
+			LoggerFactory.logReplaySource.updateTable(RobotManager.replayLogsTable);
+		}
 		updateTimeRelatedData(); // Better to be first
 		JoysticksBindings.updateChassisDriverInputs();
 		robot.periodic();

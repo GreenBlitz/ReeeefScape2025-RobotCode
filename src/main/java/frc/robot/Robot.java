@@ -44,16 +44,25 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.endeffector.EndEffector;
 import frc.robot.subsystems.climb.solenoid.Solenoid;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.utils.TimedValue;
-import frc.utils.auto.AutonomousChooser;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.vision.DetectedObjectType;
 import frc.robot.vision.cameras.limelight.Limelight;
 import frc.robot.vision.cameras.limelight.LimelightFilters;
 import frc.robot.vision.cameras.limelight.LimelightPipeline;
 import frc.robot.vision.cameras.limelight.LimelightStdDevCalculations;
+import frc.utils.TimedValue;
+import frc.utils.auto.AutonomousChooser;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.poseestimator.IPoseEstimator;
+import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
+import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
+import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimator;
+import frc.robot.poseestimator.helpers.robotheadingestimator.RobotHeadingEstimatorConstants;
+import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
+import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
+import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
 import frc.utils.auto.PathPlannerAutoWrapper;
 import frc.utils.auto.PathPlannerUtil;
 import frc.utils.battery.BatteryUtil;
@@ -73,7 +82,7 @@ import frc.utils.math.StandardDeviations2D;
  */
 public class Robot {
 
-	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
+	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType(true);
 
 	private final Elevator elevator;
 	private final Arm arm;
@@ -250,11 +259,11 @@ public class Robot {
 
 		configureAuto();
 	}
-	
+
 	public RobotHeadingEstimator getHeadingEstimator() {
 		return headingEstimator;
 	}
-	
+
 	private void configureAuto() {
 		Supplier<Command> scoringCommand = () -> new WaitUntilCommand(robotCommander::isReadyToScore).andThen(
 			robotCommander.getSuperstructure()

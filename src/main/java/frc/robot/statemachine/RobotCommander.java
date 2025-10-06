@@ -586,10 +586,7 @@ public class RobotCommander extends GBSubsystem {
 
 	private Command algaeIntake() {
 		return asSubsystemCommand(
-			new ParallelDeadlineGroup(
-				superstructure.algaeIntake(),
-				swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
-			),
+			new ParallelDeadlineGroup(superstructure.algaeIntake(), swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)),
 			RobotState.ALGAE_INTAKE
 		);
 	}
