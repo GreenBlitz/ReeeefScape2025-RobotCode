@@ -16,7 +16,6 @@ import frc.constants.MathConstants;
 import frc.constants.field.Field;
 import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
-import frc.robot.hardware.empties.EmptyGyro;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.poseestimator.OdometryData;
 import frc.robot.subsystems.GBSubsystem;
@@ -177,20 +176,8 @@ public class Swerve extends GBSubsystem {
 				Optional.of(gyroSignals.yawSignal().asArray()[i]),
 				gyroSignals.yawSignal().getTimestamps()[i]
 			);
-			Logger.recordOutput("OdO/len", getNumberOfOdometrySamples());
-			Logger.recordOutput("OdO/wh", odometryData[i].getWheelPositions());
-			Logger.recordOutput("OdO/gy", odometryData[i].getGyroYaw().orElse(new Rotation2d()));
-			Logger.recordOutput("OdO/t", odometryData[i].getTimestamp());
 		}
 
-
-		return odometryData;
-	}
-
-	public OdometryData getLatestOdometryData() {
-		odometryData.setWheelPositions(modules.getWheelPositions(0));
-		odometryData.setGyroYaw(gyro instanceof EmptyGyro ? Optional.empty() : Optional.of(gyroSignals.yawSignal().getLatestValue()));
-		odometryData.setTimestamp(gyroSignals.yawSignal().getTimestamp());
 		return odometryData;
 	}
 
