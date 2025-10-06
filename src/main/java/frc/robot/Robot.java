@@ -148,9 +148,10 @@ public class Robot {
 		limelightFour.setMT1PoseFilter(
 			LimelightFilters.megaTag1Filter(
 				limelightFour,
-				new Pose3d(0.1, 0.1, 0.1, new Rotation3d(Math.toRadians(3), Math.toRadians(3), Math.toRadians(10))),
 				headingEstimator::getEstimatedHeadingAtTimestamp,
-				() -> headingEstimator.isGyroOffsetCalibrated(RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE)
+				() -> headingEstimator.isGyroOffsetCalibrated(RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE),
+				new Translation2d(0.1, 0.1),
+				Rotation2d.fromDegrees(10)
 			)
 		);
 		limelightFour.setMT2PoseFilter(
@@ -185,9 +186,10 @@ public class Robot {
 		limelightThreeGB.setMT1PoseFilter(
 			LimelightFilters.megaTag1Filter(
 				limelightThreeGB,
-				new Pose3d(0.1, 0.1, 0.1, new Rotation3d(Math.toRadians(3), Math.toRadians(3), Math.toRadians(10))),
 				headingEstimator::getEstimatedHeadingAtTimestamp,
-				() -> headingEstimator.isGyroOffsetCalibrated(RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE)
+				() -> headingEstimator.isGyroOffsetCalibrated(RobotHeadingEstimatorConstants.MAXIMUM_STANDARD_DEVIATION_TOLERANCE),
+				new Translation2d(0.1, 0.1),
+				Rotation2d.fromDegrees(10)
 			)
 		);
 		limelightThreeGB.setMT2PoseFilter(
