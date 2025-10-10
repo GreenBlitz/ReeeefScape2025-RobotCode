@@ -175,7 +175,7 @@ public class KrakenX60ArmBuilder {
 
 	private static IAngleEncoder getEncoder(String logPath) {
 		return switch (Robot.ROBOT_TYPE) {
-			case REAL -> buildRealEncoder(logPath);
+			case REPLAY, REAL -> buildRealEncoder(logPath);
 			case SIMULATION -> new EmptyAngleEncoder(logPath + "/Encoder");
 		};
 	}
@@ -207,7 +207,7 @@ public class KrakenX60ArmBuilder {
 
 	private static InputSignal<Rotation2d> generateEncoderPositionSignal(IAngleEncoder encoder) {
 		return switch (Robot.ROBOT_TYPE) {
-			case REAL ->
+			case REPLAY, REAL ->
 				Phoenix6SignalBuilder.build(
 					((CANCoderEncoder) encoder).getDevice().getAbsolutePosition(),
 					RobotConstants.DEFAULT_CANIVORE_SIGNALS_FREQUENCY_HERTZ,

@@ -1,11 +1,13 @@
 package frc.robot.hardware.signal;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.RobotManager;
 import frc.robot.hardware.interfaces.InputSignal;
 import frc.utils.AngleUnit;
 
 import frc.utils.TimedValue;
 import frc.utils.math.ToleranceMath;
+import frc.utils.time.TimeConstants;
 import org.littletonrobotics.junction.LogTable;
 
 public abstract class AngleSignal implements InputSignal<Rotation2d> {
@@ -73,6 +75,9 @@ public abstract class AngleSignal implements InputSignal<Rotation2d> {
 
 	@Override
 	public void fromLog(LogTable table) {
+		LogTable logTable = RobotManager.replayLogsTable.getSubtable("RealOutputs/" + TimeConstants.LOG_PATH);
+		timedValue.setTimestamp(logTable.get("CurrentTimeSeconds", 0.0));
+
 		timedValue.setValue(table.get(name, new Rotation2d()));
 	}
 
