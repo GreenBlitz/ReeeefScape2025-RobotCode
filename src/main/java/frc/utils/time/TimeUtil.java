@@ -1,9 +1,6 @@
 package frc.utils.time;
 
-import edu.wpi.first.hal.HALUtil;
-import frc.RobotManager;
-import frc.robot.Robot;
-import frc.utils.Conversions;
+import edu.wpi.first.wpilibj.Timer;
 import frc.utils.alerts.Alert;
 import frc.utils.alerts.AlertManager;
 import frc.utils.alerts.PeriodicAlert;
@@ -40,9 +37,7 @@ public class TimeUtil {
 	}
 
 	public static double getCurrentTimeSeconds() {
-		return Robot.ROBOT_TYPE.isReplay()
-			? RobotManager.replayLogsTable.getSubtable("RealOutputs/" + TimeConstants.LOG_PATH).get("CurrentTimeSeconds", 0.0)
-			: Conversions.microSecondsToSeconds(HALUtil.getFPGATime());
+		return Timer.getTimestamp();
 	}
 
 	public static double getLatestCycleTimeSeconds() {
