@@ -40,10 +40,8 @@ public class RobotManager extends LoggedRobot {
 	public RobotManager() {
 		if (Robot.ROBOT_TYPE.isReplay()) {
 			setUseTiming(false);
-			LoggerFactory.startReplayLogger();
-		} else {
-			LoggerFactory.initializeLogger();
 		}
+		LoggerFactory.initializeLogger();
 		DriverStation.silenceJoystickConnectionWarning(true);
 		PathPlannerUtil.startPathfinder();
 		PathPlannerUtil.setupPathPlannerLogging();
