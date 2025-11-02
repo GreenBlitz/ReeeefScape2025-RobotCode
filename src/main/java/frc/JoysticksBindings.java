@@ -88,30 +88,63 @@ public class JoysticksBindings {
 	}
 
 	private static Command closeReefActionChooser(Robot robot) {
-		Command command;
-		if (robot.getRobotCommander().getCurrentState() == RobotState.PRE_SCORE) {
-			command = robot.getRobotCommander().driveWith(RobotState.SCORE.activateSwerve(false));
-		} else {
-			command = robot.getRobotCommander().driveWith(RobotState.PRE_SCORE.activateSwerve(false));
+		if (robot.getRobotCommander().getSuperstructure().isCoralIn()) {
+			if (robot.getRobotCommander().getCurrentState() == RobotState.PRE_SCORE) {
+				return new DeferredCommand(
+						() -> robot.getRobotCommander().driveWith(RobotState.SCORE.activateSwerve(false)),
+						Set.of(
+								robot.getRobotCommander(),
+								robot.getRobotCommander().getSuperstructure(),
+								robot.getSwerve(),
+								robot.getElevator(),
+								robot.getArm(),
+								robot.getEndEffector(),
+								robot.getLifter(),
+								robot.getPivot(),
+								robot.getRollers(),
+								robot.getSolenoid(),
+								robot.getRobotCommander().getLedStateHandler()
+						)
+				
+				);			}
+			else {
+				return new DeferredCommand(
+						() -> robot.getRobotCommander().driveWith(RobotState.PRE_SCORE.activateSwerve(false)),
+						Set.of(
+								robot.getRobotCommander(),
+								robot.getRobotCommander().getSuperstructure(),
+								robot.getSwerve(),
+								robot.getElevator(),
+								robot.getArm(),
+								robot.getEndEffector(),
+								robot.getLifter(),
+								robot.getPivot(),
+								robot.getRollers(),
+								robot.getSolenoid(),
+								robot.getRobotCommander().getLedStateHandler()
+						)
+				
+				);			}
 		}
-		return new SequentialCommandGroup(
-			new DeferredCommand(
-				() -> command,
-				Set.of(
-					robot.getRobotCommander(),
-					robot.getRobotCommander().getSuperstructure(),
-					robot.getSwerve(),
-					robot.getElevator(),
-					robot.getArm(),
-					robot.getEndEffector(),
-					robot.getLifter(),
-					robot.getPivot(),
-					robot.getRollers(),
-					robot.getSolenoid(),
-					robot.getRobotCommander().getLedStateHandler()
-				)
-			)
-		);
+		else {
+			return new DeferredCommand(
+							() -> robot.getRobotCommander().driveWith(RobotState.ALGAE_REMOVE.activateSwerve(false)),
+							Set.of(
+									robot.getRobotCommander(),
+									robot.getRobotCommander().getSuperstructure(),
+									robot.getSwerve(),
+									robot.getElevator(),
+									robot.getArm(),
+									robot.getEndEffector(),
+									robot.getLifter(),
+									robot.getPivot(),
+									robot.getRollers(),
+									robot.getSolenoid(),
+									robot.getRobotCommander().getLedStateHandler()
+							)
+					
+					);
+		}
 	}
 
 	private static Command driveActionChooser(Robot robot) {
@@ -197,7 +230,7 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(closeReefActionChooser(robot));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(new InstantCommand(() -> closeReefActionChooser(robot).schedule()));
 
 //		usedJoystick.X.onTrue(robot.getRobotCommander().intakeAutomation());
 		usedJoystick.L1.onTrue(robot.getRobotCommander().driveWith(RobotState.ALGAE_INTAKE.activateSwerve(false)));
