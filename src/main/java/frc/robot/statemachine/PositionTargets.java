@@ -6,26 +6,25 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.field.Field;
 import frc.robot.Robot;
-import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.scoringhelpers.ScoringHelpers;
-import frc.robot.subsystems.swerve.Swerve;
 import frc.utils.pose.PoseUtil;
 
 public class PositionTargets {
 
-	private final IPoseEstimator poseEstimator;
-	private final Swerve swerve;
+	private final Robot robot;
 
 	public static final Pose2d NET_OPENING_SUPERSTRUCTURE_POSITION_METERS = new Pose2d(0.07, 0.07, Rotation2d.fromDegrees(2));
 	public static final Pose2d NET_SCORING_POSITION_METERS = new Pose2d(0.07, 0.07, Rotation2d.fromDegrees(10));
 
 	public PositionTargets(Robot robot) {
-		this.poseEstimator = robot.getPoseEstimator();
-		this.swerve = robot.getSwerve();
+		this.robot = robot;
 	}
 
 	public double getDistanceToReef() {
-		return poseEstimator.getEstimatedPose().getTranslation().getDistance(Field.getCoralPlacement(ScoringHelpers.getTargetBranch(), true));
+		return robot.getPoseEstimator()
+			.getEstimatedPose()
+			.getTranslation()
+			.getDistance(Field.getCoralPlacement(ScoringHelpers.getTargetBranch(), true));
 	}
 
 	private static final Translation2d MIDDLE_OF_NET_SCORING_RANGE = new Translation2d(7.578, 6.03885);
@@ -34,7 +33,7 @@ public class PositionTargets {
 
 	public boolean isReadyToScoreNet() {
 		return PoseUtil.isAtTranslation(
-			poseEstimator.getEstimatedPose().getTranslation(),
+			robot.getPoseEstimator().getEstimatedPose().getTranslation(),
 			Field.getAllianceRelative(MIDDLE_OF_NET_SCORING_RANGE, true, true),
 			NET_SCORING_RANGE_TOLERANCE
 		);
@@ -48,8 +47,8 @@ public class PositionTargets {
 		return PoseUtil.isAtPoseAngleRelative(
 			Field.getProcessor().getRotation(),
 			ScoringHelpers.getAllianceRelativeProcessorScoringPose(),
-			poseEstimator.getEstimatedPose(),
-			swerve.getAllianceRelativeVelocity(),
+			robot.getPoseEstimator().getEstimatedPose(),
+			robot.getSwerve().getAllianceRelativeVelocity(),
 			PROCESSOR_RELATIVE_SCORING_POSITION,
 			PROCESSOR_RELATIVE_SCORING_DEADBANDS,
 			"/isAtProcessorScoringPose"
@@ -65,7 +64,7 @@ public class PositionTargets {
 		Translation2d reefRelativeReefSideMiddle = Field.getReefSideMiddle(ScoringHelpers.getTargetReefSide())
 			.rotateBy(reefAngle.unaryMinus())
 			.getTranslation();
-		Translation2d reefRelativeRobotPose = poseEstimator.getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
+		Translation2d reefRelativeRobotPose = robot.getPoseEstimator().getEstimatedPose().rotateBy(reefAngle.unaryMinus()).getTranslation();
 		return !PoseUtil.isAtTranslation(reefRelativeRobotPose, reefRelativeReefSideMiddle, CLOSE_SUPERSTRUCTURE_ZONE_LENGTH_AND_WIDTH);
 	}
 
@@ -80,8 +79,8 @@ public class PositionTargets {
 
 	public boolean isReadyToOpenSuperstructure() {
 		return isNearReef(
-			poseEstimator.getEstimatedPose(),
-			swerve.getAllianceRelativeVelocity(),
+			robot.getPoseEstimator().getEstimatedPose(),
+			robot.getSwerve().getAllianceRelativeVelocity(),
 			REEF_OPEN_DISTANCE_METERS,
 			REEF_RELATIVE_OPEN_SUPERSTRUCTURE_POSITION,
 			REEF_RELATIVE_OPEN_SUPERSTRUCTURE_DEADBANDS
@@ -94,8 +93,8 @@ public class PositionTargets {
 
 	public boolean isReadyToScoreReef() {
 		return isNearReef(
-			poseEstimator.getEstimatedPose(),
-			swerve.getAllianceRelativeVelocity(),
+			robot.getPoseEstimator().getEstimatedPose(),
+			robot.getSwerve().getAllianceRelativeVelocity(),
 			ROBOT_SCORING_DISTANCE_FROM_REEF_METERS,
 			REEF_RELATIVE_SCORING_POSITION,
 			REEF_RELATIVE_SCORING_DEADBANDS
