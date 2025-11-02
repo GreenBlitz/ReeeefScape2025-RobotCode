@@ -88,10 +88,16 @@ public class JoysticksBindings {
 	}
 
 	private static Command closeReefActionChooser(Robot robot) {
+		Command command;
+		if (robot.getRobotCommander().getCurrentState() == RobotState.PRE_SCORE){
+			command = robot.getRobotCommander().driveWith(RobotState.SCORE.activateSwerve(false));
+		}
+		else {
+			command = robot.getRobotCommander().driveWith(RobotState.PRE_SCORE.activateSwerve(false));
+		}
 		return new SequentialCommandGroup(
-			new InstantCommand(() -> ScoringHelpers.setClosetReefSideTarget(robot)),
 			new DeferredCommand(
-				() -> reefActionChooser(robot),
+				() -> command,
 				Set.of(
 					robot.getRobotCommander(),
 					robot.getRobotCommander().getSuperstructure(),
@@ -130,14 +136,11 @@ public class JoysticksBindings {
 			RobotState state = robotCommander.getCurrentState();
 			Command command;
 
-			if (state == RobotState.PRE_NET && robotCommander.netAssist) {
-				robotCommander.netAssist = false;
-				command = robotCommander.driveWith(RobotState.PRE_NET);
-			} else if (state == RobotState.NET || state == RobotState.PRE_NET) {
-				command = robotCommander.driveWith(RobotState.NET);
-			} else {
-				robotCommander.netAssist = true;
-				command = robotCommander.netAutomation();
+			if (state == RobotState.PRE_NET) {
+				command = robotCommander.driveWith(RobotState.NET.activateSwerve(false));
+
+			} else{
+				command = robotCommander.driveWith(RobotState.PRE_NET.activateSwerve(false));
 			}
 			command.schedule();
 		});
@@ -198,10 +201,10 @@ public class JoysticksBindings {
 		// bindings...
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(closeReefActionChooser(robot));
 
-		usedJoystick.X.onTrue(robot.getRobotCommander().intakeAutomation());
-		usedJoystick.L1.onTrue(robot.getRobotCommander().driveWith(RobotState.ALGAE_INTAKE));
+//		usedJoystick.X.onTrue(robot.getRobotCommander().intakeAutomation());
+		usedJoystick.L1.onTrue(robot.getRobotCommander().driveWith(RobotState.ALGAE_INTAKE.activateSwerve(false)));
 
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().driveWith(RobotState.INTAKE));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().driveWith(RobotState.INTAKE.activateSwerve(false)));
 
 		usedJoystick.R1.onTrue(netActionChooser(robot));
 
@@ -211,12 +214,12 @@ public class JoysticksBindings {
 
 
 		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(true)));
-		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(false)));
-		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().driveWith(RobotState.CLIMB_WITH_LIMIT_SWITCH));
+//		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(false)));
+//		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().driveWith(RobotState.CLIMB_WITH_LIMIT_SWITCH));
 		usedJoystick.A.onTrue(driveActionChooser(robot));
 
-		usedJoystick.START.whileTrue(robot.getRobotCommander().driveWith(RobotState.MANUAL_CLIMB));
-		usedJoystick.BACK.whileTrue(robot.getRobotCommander().driveWith(RobotState.EXIT_CLIMB));
+//		usedJoystick.START.whileTrue(robot.getRobotCommander().driveWith(RobotState.MANUAL_CLIMB));
+//		usedJoystick.BACK.whileTrue(robot.getRobotCommander().driveWith(RobotState.EXIT_CLIMB));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
