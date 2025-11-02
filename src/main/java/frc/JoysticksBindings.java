@@ -89,10 +89,9 @@ public class JoysticksBindings {
 
 	private static Command closeReefActionChooser(Robot robot) {
 		Command command;
-		if (robot.getRobotCommander().getCurrentState() == RobotState.PRE_SCORE){
+		if (robot.getRobotCommander().getCurrentState() == RobotState.PRE_SCORE) {
 			command = robot.getRobotCommander().driveWith(RobotState.SCORE.activateSwerve(false));
-		}
-		else {
+		} else {
 			command = robot.getRobotCommander().driveWith(RobotState.PRE_SCORE.activateSwerve(false));
 		}
 		return new SequentialCommandGroup(
@@ -138,8 +137,7 @@ public class JoysticksBindings {
 
 			if (state == RobotState.PRE_NET) {
 				command = robotCommander.driveWith(RobotState.NET.activateSwerve(false));
-
-			} else{
+			} else {
 				command = robotCommander.driveWith(RobotState.PRE_NET.activateSwerve(false));
 			}
 			command.schedule();
