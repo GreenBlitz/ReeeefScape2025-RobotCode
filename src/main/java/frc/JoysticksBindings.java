@@ -168,14 +168,11 @@ public class JoysticksBindings {
 			RobotState state = robotCommander.getCurrentState();
 			Command command;
 
-			if (state == RobotState.PRE_NET && robotCommander.netAssist) {
-				robotCommander.netAssist = false;
-				command = robotCommander.driveWith(RobotState.PRE_NET);
-			} else if (state == RobotState.NET || state == RobotState.PRE_NET) {
+			 if (state == RobotState.NET || state == RobotState.PRE_NET) {
 				command = robotCommander.driveWith(RobotState.NET);
 			} else {
-				robotCommander.netAssist = true;
-				command = robotCommander.netAutomation();
+				robotCommander.netAssist = false;
+				 command = robotCommander.driveWith(RobotState.PRE_NET);
 			}
 			command.schedule();
 		});
@@ -236,25 +233,25 @@ public class JoysticksBindings {
 		// bindings...
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(new InstantCommand(() -> closeReefActionChooser(robot).schedule()));
 
-		usedJoystick.X.onTrue(robot.getRobotCommander().intakeAutomation());
-		usedJoystick.L1.onTrue(robot.getRobotCommander().driveWith(RobotState.ALGAE_INTAKE));
+//		usedJoystick.X.onTrue(robot.getRobotCommander().intakeAutomation());
+		usedJoystick.L1.onTrue(robot.getRobotCommander().driveWith(RobotState.ALGAE_INTAKE.activateSwerve(false)));
 
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().driveWith(RobotState.INTAKE));
 
 		usedJoystick.R1.onTrue(netActionChooser(robot));
 
 		usedJoystick.Y.onTrue(robot.getRobotCommander().driveWith(RobotState.CORAL_OUTTAKE));
-		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
-		usedJoystick.B.onTrue(processorActionChooser(robot));
+//		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
+//		usedJoystick.B.onTrue(processorActionChooser(robot));
 
 
-		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(true)));
-		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(false)));
-		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().driveWith(RobotState.CLIMB_WITH_LIMIT_SWITCH));
+//		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(true)));
+//		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(false)));
+//		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().driveWith(RobotState.CLIMB_WITH_LIMIT_SWITCH));
 		usedJoystick.A.onTrue(driveActionChooser(robot));
 
-		usedJoystick.START.whileTrue(robot.getRobotCommander().driveWith(RobotState.MANUAL_CLIMB));
-		usedJoystick.BACK.whileTrue(robot.getRobotCommander().driveWith(RobotState.EXIT_CLIMB));
+//		usedJoystick.START.whileTrue(robot.getRobotCommander().driveWith(RobotState.MANUAL_CLIMB));
+//		usedJoystick.BACK.whileTrue(robot.getRobotCommander().driveWith(RobotState.EXIT_CLIMB));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

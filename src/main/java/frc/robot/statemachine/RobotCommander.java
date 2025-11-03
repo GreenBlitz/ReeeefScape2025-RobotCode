@@ -39,7 +39,7 @@ public class RobotCommander extends GBSubsystem {
 	private RobotState currentState;
 	public boolean keepAlgaeInIntake;
 
-	public boolean netAssist = true;
+	public boolean netAssist = false;
 
 	public RobotCommander(String logPath, Robot robot) {
 		super(logPath);
