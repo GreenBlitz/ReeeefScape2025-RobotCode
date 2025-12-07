@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.statemachine.superstructure.TargetChecks;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.function.Supplier;
 
@@ -14,6 +15,7 @@ public class ArmStateHandler {
 	private ArmState currentState;
 	private final Supplier<Double> distanceSupplier;
 	private final Supplier<Double> arbitraryFeedForwardSupplier;
+	public static LoggedNetworkNumber tunableNumber = new LoggedNetworkNumber("/Tuning/MyTunableNumber", 0.0);
 
 	public ArmStateHandler(Arm arm, Supplier<Double> distanceSupplier, Supplier<Double> arbitraryFeedForwardSupplier) {
 		this.arm = arm;
@@ -28,6 +30,14 @@ public class ArmStateHandler {
 
 	public Command setState(ArmState state) {
 		return new ParallelCommandGroup(new InstantCommand(() -> currentState = state), switch (state) {
+			case CALIBRATION ->
+				arm.getCommandsBuilder()
+					.moveToPosition(
+						() -> Rotation2d.fromDegrees(tunableNumber.get()),
+						state.getMaxVelocityRotation2dPerSecond(),
+						state.getMaxAccelerationRotation2dPerSecondSquared(),
+						0
+					);
 			case STAY_IN_PLACE -> arm.getCommandsBuilder().stayInPlace();
 			case L2, L3, L4, PRE_L3, PRE_L2 ->
 				arm.getCommandsBuilder()

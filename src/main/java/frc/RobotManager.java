@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.led.LEDConstants;
 import frc.robot.led.LEDState;
+import frc.robot.subsystems.arm.ArmStateHandler;
 import frc.robot.subsystems.climb.lifter.LifterConstants;
 import frc.utils.DriverStationUtil;
 import frc.utils.alerts.AlertManager;
@@ -122,6 +123,8 @@ public class RobotManager extends LoggedRobot {
 		JoysticksBindings.updateChassisDriverInputs();
 		robot.periodic();
 		AlertManager.reportAlerts();
+
+		ArmStateHandler.tunableNumber.periodic();
 	}
 
 	private void createAutoReadyForConstructionChooser() {

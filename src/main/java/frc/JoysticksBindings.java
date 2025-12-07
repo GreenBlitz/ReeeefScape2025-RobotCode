@@ -32,7 +32,7 @@ public class JoysticksBindings {
 	private static final SmartJoystick THIRD_JOYSTICK = new SmartJoystick(JoystickPorts.THIRD);
 	private static final SmartJoystick FOURTH_JOYSTICK = new SmartJoystick(JoystickPorts.FOURTH);
 //	private static final SmartJoystick FIFTH_JOYSTICK = new SmartJoystick(JoystickPorts.FIFTH);
-//	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
+	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
 
 
 	private static final ChassisPowers chassisDriverInputs = new ChassisPowers();
@@ -263,9 +263,9 @@ public class JoysticksBindings {
 	}
 
 	private static void sixthJoystickButtons(Robot robot) {
-//		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
+		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
 
-//		robot.getArm().applyCalibrationBindings(usedJoystick);
+		robot.getArm().applyCalibrationBindings(usedJoystick);
 //		robot.getEndEffector().applyCalibrationsBindings(usedJoystick);
 	}
 

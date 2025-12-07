@@ -4,6 +4,7 @@
 
 package frc;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -18,7 +19,23 @@ public final class Main {
 	 * <p>If you change your main robot class, change the parameter type.
 	 */
 	public static void main(String... args) {
-		RobotBase.startRobot(RobotManager::new);
+
+		Rotation2d rot = Rotation2d.fromDegrees(-1);
+		Rotation2d rot2 = Rotation2d.fromDegrees(-6);
+		Rotation2d rot4 = Rotation2d.fromDegrees(145);
+
+		double sumCos = rot.getCos() + rot2.getCos() + rot4.getCos();
+		double sumSin = rot.getSin() + rot2.getSin() + rot4.getSin();
+
+		double angleRad = Math.atan2(sumSin, sumCos);
+
+		Rotation2d rotAvg = Rotation2d.fromRadians(angleRad);
+
+		System.out.println(rotAvg);
+
+
+
+//		RobotBase.startRobot(RobotManager::new);
 	}
 
 }
