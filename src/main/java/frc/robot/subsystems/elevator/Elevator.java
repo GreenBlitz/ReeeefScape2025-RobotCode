@@ -232,7 +232,8 @@ public class Elevator extends GBSubsystem {
 		joystick.POV_DOWN.onTrue(elevatorStateHandler.setState(ElevatorState.CLOSED));
 		joystick.POV_LEFT.onTrue(elevatorStateHandler.setState(ElevatorState.NET));
 		joystick.POV_RIGHT.onTrue(elevatorStateHandler.setState(ElevatorState.PRE_L4));
-		joystick.POV_UP.onTrue(elevatorStateHandler.setState(ElevatorState.L3));
+
+		joystick.POV_UP.onTrue(elevatorStateHandler.setState(ElevatorState.CALIBRATION));
 
 		// Calibrate max acceleration and cruse velocity by the equations: max acceleration = (12 + Ks)/2kA cruise velocity = (12 + Ks)/kV
 	}

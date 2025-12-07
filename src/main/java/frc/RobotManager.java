@@ -123,8 +123,6 @@ public class RobotManager extends LoggedRobot {
 		JoysticksBindings.updateChassisDriverInputs();
 		robot.periodic();
 		AlertManager.reportAlerts();
-
-		ArmStateHandler.tunableNumber.periodic();
 	}
 
 	private void createAutoReadyForConstructionChooser() {

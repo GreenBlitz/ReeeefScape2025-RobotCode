@@ -198,7 +198,7 @@ public class Arm extends GBSubsystem {
 		joystick.POV_LEFT.onTrue(armStateHandler.setState(ArmState.NET));
 		joystick.POV_DOWN.onTrue(armStateHandler.setState(ArmState.PRE_L4));
 
-		joystick.L1.onTrue(		armStateHandler.setState(ArmState.CALIBRATION));
+		joystick.L1.onTrue(armStateHandler.setState(ArmState.CALIBRATION));
 
 
 		// Calibrate max acceleration and cruise velocity by the equations: max acceleration = (12 + Ks)/2kA, cruise velocity =(12 + Ks)/kV

@@ -15,7 +15,7 @@ public class ArmStateHandler {
 	private ArmState currentState;
 	private final Supplier<Double> distanceSupplier;
 	private final Supplier<Double> arbitraryFeedForwardSupplier;
-	public static LoggedNetworkNumber tunableNumber = new LoggedNetworkNumber("/Tuning/MyTunableNumber", 0.0);
+	public static LoggedNetworkNumber tunableDegrees = new LoggedNetworkNumber("/Tuning/armDeg", 0.0);
 
 	public ArmStateHandler(Arm arm, Supplier<Double> distanceSupplier, Supplier<Double> arbitraryFeedForwardSupplier) {
 		this.arm = arm;
@@ -33,7 +33,7 @@ public class ArmStateHandler {
 			case CALIBRATION ->
 				arm.getCommandsBuilder()
 					.moveToPosition(
-						() -> Rotation2d.fromDegrees(tunableNumber.get()),
+						() -> Rotation2d.fromDegrees(tunableDegrees.get()),
 						state.getMaxVelocityRotation2dPerSecond(),
 						state.getMaxAccelerationRotation2dPerSecondSquared(),
 						0
