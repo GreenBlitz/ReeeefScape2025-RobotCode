@@ -48,11 +48,11 @@ public class KrakenX60ArmBuilder {
 	private static final int APPLY_CONFIG_RETRIES = 5;
 
 	private static final boolean ENABLE_FOC = true;
-	private static final boolean IS_INVERTED = true;
+	private static final boolean IS_INVERTED = false;
 	private static final Rotation2d STARTING_POSITION = Rotation2d.fromDegrees(17);
 	private static final int NUMBER_OF_MOTORS = 1;
 	private static final double GEAR_RATIO = 450.0 / 7.0;
-	public static final double kG = 0.37;
+	public static final double kG = 0;
 
 	protected static Arm build(String logPath) {
 		Phoenix6DynamicMotionMagicRequest positionRequest = Robot.ROBOT_TYPE.isReal()
@@ -96,13 +96,13 @@ public class KrakenX60ArmBuilder {
 		switch (Robot.ROBOT_TYPE) {
 			case REAL -> {
 				// Motion magic
-				config.Slot0.kP = 28;
+				config.Slot0.kP = 0;
 				config.Slot0.kI = 0;
 				config.Slot0.kD = 0;
-				config.Slot0.kS = 0.065;
+				config.Slot0.kS = 0;
 				config.Slot0.kG = kG;
-				config.Slot0.kV = 9.0000095367432;
-				config.Slot0.kA = 0.5209;
+				config.Slot0.kV = 0;
+				config.Slot0.kA = 0;
 
 				// PID
 				config.Slot1.kP = 80;

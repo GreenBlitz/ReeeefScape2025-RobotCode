@@ -10,16 +10,16 @@ public class ArmConstants {
 
 	public static final Rotation2d POSITION_OFFSET = Rotation2d.fromDegrees(-16); // was 26
 
-	public static final Rotation2d FORWARD_SOFTWARE_LIMIT = Rotation2d.fromDegrees(231 + POSITION_OFFSET.getDegrees());
-	public static final Rotation2d MAXIMUM_POSITION = Rotation2d.fromDegrees(246 + POSITION_OFFSET.getDegrees());
-	public static final Rotation2d ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT = Rotation2d.fromDegrees(-8 + POSITION_OFFSET.getDegrees());
+	public static final Rotation2d FORWARD_SOFTWARE_LIMIT = Rotation2d.fromDegrees(0);
+	public static final Rotation2d MAXIMUM_POSITION = Rotation2d.fromDegrees(0);
+	public static final Rotation2d ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT = Rotation2d.fromDegrees(0);
 	public static final Rotation2d ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT = Rotation2d.fromDegrees(-24 + POSITION_OFFSET.getDegrees());
 	public static final double ELEVATOR_HEIGHT_METERS_TO_CHANGE_SOFT_LIMIT = 0.3;
 	public static final double LENGTH_METERS = 0.3;
 	public static final double MASS_KG = 5;
 
-	public static final Rotation2d CRUISE_VELOCITY_ANGLES_PER_SECOND = Rotation2d.fromRotations(3);
-	public static final Rotation2d ACCELERATION_ANGLES_PER_SECOND_SQUARED = Rotation2d.fromRotations(3);
+	public static final Rotation2d CRUISE_VELOCITY_ANGLES_PER_SECOND = Rotation2d.fromRotations(1);
+	public static final Rotation2d ACCELERATION_ANGLES_PER_SECOND_SQUARED = Rotation2d.fromRotations(1);
 
 	public static final double DEFAULT_ARBITRARY_FEED_FORWARD = 0;
 	public static final double CALIBRATION_MAX_POWER = 0.2;
@@ -46,15 +46,7 @@ public class ArmConstants {
 		InterpolationMap.interpolatorForRotation2d(),
 		Map.of(
 			0.0,
-			Rotation2d.fromDegrees(0),
-			0.48,
-			Rotation2d.fromDegrees(0),
-			0.59,
-			Rotation2d.fromDegrees(1.75),
-			0.65,
-			Rotation2d.fromDegrees(4.5),
-			0.70,
-			Rotation2d.fromDegrees(7)
+			Rotation2d.fromDegrees(0)
 		)
 	);
 
@@ -63,15 +55,7 @@ public class ArmConstants {
 		InterpolationMap.interpolatorForRotation2d(),
 		Map.of(
 			0.0,
-			Rotation2d.fromDegrees(0),
-			0.48,
-			Rotation2d.fromDegrees(0),
-			0.59,
-			Rotation2d.fromDegrees(3.75),
-			0.65,
-			Rotation2d.fromDegrees(6.5),
-			0.70,
-			Rotation2d.fromDegrees(9.5)
+			Rotation2d.fromDegrees(0)
 		)
 	);
 
