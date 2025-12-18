@@ -89,13 +89,13 @@ public class KrakenX60ElevatorBuilder {
 		TalonFXConfiguration configuration = limitsConfiguration();
 		if (Robot.ROBOT_TYPE.isReal()) {
 			// Motion Magic
-			configuration.Slot0.kP = 15;
+			configuration.Slot0.kP = 0;
 			configuration.Slot0.kI = 0;
 			configuration.Slot0.kD = 0;
 			configuration.Slot0.kG = kG;
 			configuration.Slot0.kS = 0;
-			configuration.Slot0.kV = 0.49307;
-			configuration.Slot0.kA = 0.032026;
+			configuration.Slot0.kV = 0;
+			configuration.Slot0.kA = 0;
 
 			// PID
 			configuration.Slot1.kP = 10;
@@ -116,7 +116,7 @@ public class KrakenX60ElevatorBuilder {
 		configuration.Slot1.GravityType = GravityTypeValue.Elevator_Static;
 		configuration.Slot2.GravityType = GravityTypeValue.Elevator_Static;
 
-		configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
 		configuration.MotionMagic.MotionMagicCruiseVelocity = Elevator
 			.convertMetersToRotations(ElevatorConstants.CRUISE_VELOCITY_METERS_PER_SECOND)

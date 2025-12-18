@@ -52,6 +52,7 @@ public class KrakenX60ArmBuilder {
 	private static final Rotation2d STARTING_POSITION = Rotation2d.fromDegrees(17);
 	private static final int NUMBER_OF_MOTORS = 1;
 	private static final double GEAR_RATIO = 450.0 / 7.0;
+	private static final Rotation2d CAN_CODER_MAGNET_OFFSET = Rotation2d.fromDegrees(86);
 	public static final double kG = 0.37;
 
 	protected static Arm build(String logPath) {
@@ -87,7 +88,7 @@ public class KrakenX60ArmBuilder {
 
 
 	public static SysIdRoutine.Config buildSysidConfig() {
-		return new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(7), null, state -> SignalLogger.writeString("state", state.toString()));
+		return new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(2), null, state -> SignalLogger.writeString("state", state.toString()));
 	}
 
 	private static TalonFXConfiguration buildTalonFXConfiguration() {
@@ -96,13 +97,13 @@ public class KrakenX60ArmBuilder {
 		switch (Robot.ROBOT_TYPE) {
 			case REAL -> {
 				// Motion magic
-				config.Slot0.kP = 28;
+				config.Slot0.kP = 0;
 				config.Slot0.kI = 0;
 				config.Slot0.kD = 0;
-				config.Slot0.kS = 0.065;
+				config.Slot0.kS = 0.05;
 				config.Slot0.kG = kG;
-				config.Slot0.kV = 9.0000095367432;
-				config.Slot0.kA = 0.5209;
+				config.Slot0.kV = 0;
+				config.Slot0.kA = 0;
 
 				// PID
 				config.Slot1.kP = 80;
@@ -141,7 +142,7 @@ public class KrakenX60ArmBuilder {
 
 		config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = ArmConstants.FORWARD_SOFTWARE_LIMIT.getRotations();
 		config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ArmConstants.ELEVATOR_OPEN_REVERSED_SOFTWARE_LIMIT.getRotations();
+		config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ArmConstants.ELEVATOR_CLOSED_REVERSED_SOFTWARE_LIMIT.getRotations();
 		config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
 		config.Feedback.RotorToSensorRatio = GEAR_RATIO;
@@ -194,13 +195,10 @@ public class KrakenX60ArmBuilder {
 	}
 
 	private static CANcoderConfiguration buildEncoderConfig(CANCoderEncoder canCoderEncoder) {
-		MagnetSensorConfigs magnetSensorConfigs = new MagnetSensorConfigs();
-		canCoderEncoder.getDevice().getConfigurator().refresh(magnetSensorConfigs);
-
 		CANcoderConfiguration configuration = new CANcoderConfiguration();
 		configuration.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-		configuration.MagnetSensor.MagnetOffset = magnetSensorConfigs.MagnetOffset;
-		configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = ArmConstants.MAXIMUM_POSITION.getRotations();
+		configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.8;
+		configuration.MagnetSensor.MagnetOffset = CAN_CODER_MAGNET_OFFSET.getRotations();
 
 		return configuration;
 	}

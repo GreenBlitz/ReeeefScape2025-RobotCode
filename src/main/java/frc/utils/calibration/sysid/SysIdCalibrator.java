@@ -47,6 +47,8 @@ public class SysIdCalibrator {
 	 * @param smartJoystick - the joystick to apply the buttons on
 	 */
 	public void setAllButtonsForCalibration(SmartJoystick smartJoystick) {
+		smartJoystick.BACK.onTrue(new InstantCommand(SignalLogger::start));
+		
 		smartJoystick.A.whileTrue(getSysIdCommand(true, SysIdRoutine.Direction.kForward));
 		smartJoystick.B.whileTrue(getSysIdCommand(true, SysIdRoutine.Direction.kReverse));
 		smartJoystick.X.whileTrue(getSysIdCommand(false, SysIdRoutine.Direction.kForward));

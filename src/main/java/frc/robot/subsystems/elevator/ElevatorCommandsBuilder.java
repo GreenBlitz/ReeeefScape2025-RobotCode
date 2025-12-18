@@ -56,6 +56,24 @@ public class ElevatorCommandsBuilder extends GBCommandsBuilder {
 			);
 	}
 
+	public Command setTargetPositionMeters(
+		DoubleSupplier targetPositionMeters,
+		double maxVelocityMetersPerSecond,
+		double maxAccelerationMetersPerSecondSquared
+	) {
+		return elevator.asSubsystemCommand(
+			new RunCommand(
+				() -> elevator.setTargetPositionMeters(
+					targetPositionMeters.getAsDouble(),
+					maxVelocityMetersPerSecond,
+					maxAccelerationMetersPerSecondSquared
+				),
+				elevator
+			),
+			"Set Target Position To by supplier"
+		);
+	}
+
 	public Command stayInPlace() {
 		return elevator.asSubsystemCommand(new InitExecuteCommand(elevator::stayInPlace, () -> {}, elevator), "Stay in place");
 	}
