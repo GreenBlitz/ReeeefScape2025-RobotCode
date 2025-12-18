@@ -41,7 +41,7 @@ Arm Calibrations
 
 ##### Feed Forward
 
-- [ ] kS
+- [x] kS
 - [x] kG
 - [ ] kV
 - [ ] kA

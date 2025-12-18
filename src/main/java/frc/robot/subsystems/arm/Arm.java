@@ -174,32 +174,32 @@ public class Arm extends GBSubsystem {
 	}
 
 	public void applyCalibrationBindings(SmartJoystick joystick) {
-		joystick.A.onTrue(new InstantCommand(() -> commandsBuilder.setIsSubsystemRunningIndependently(true)));
-		joystick.B.onTrue(new InstantCommand(() -> commandsBuilder.setIsSubsystemRunningIndependently(false)));
+		joystick.R1.onTrue(new InstantCommand(() -> commandsBuilder.setIsSubsystemRunningIndependently(true)));
+//		joystick.B.onTrue(new InstantCommand(() -> commandsBuilder.setIsSubsystemRunningIndependently(false)));
 
 		// Calibrate kG using phoenix tuner by setting the voltage
 
 		// Check limits
-		joystick.R1.whileTrue(
-			commandsBuilder.setPower(
-				() -> joystick.getAxisValue(Axis.LEFT_Y) * ArmConstants.CALIBRATION_MAX_POWER
-					+ (getKgVoltage() / BatteryUtil.getCurrentVoltage())
-			)
-		);
+//		joystick.R1.whileTrue(
+//			commandsBuilder.setPower(
+//				() -> joystick.getAxisValue(Axis.LEFT_Y) * ArmConstants.CALIBRATION_MAX_POWER
+//					+ (getKgVoltage() / BatteryUtil.getCurrentVoltage())
+//			)
+//		);
 
 		// Calibrate feed forward using sys id:
 		sysIdCalibrator.setAllButtonsForCalibration(joystick);
 
-		ArmStateHandler armStateHandler = new ArmStateHandler(this, () -> 0.0, () -> 0.0);
+//		ArmStateHandler armStateHandler = new ArmStateHandler(this, () -> 0.0, () -> 0.0);
 
 		// Calibrate PID using phoenix tuner and these bindings:
-		joystick.POV_UP.onTrue(armStateHandler.setState(ArmState.CLOSED));
-		joystick.POV_RIGHT.onTrue(armStateHandler.setState(ArmState.CLIMB));
-		joystick.POV_LEFT.onTrue(armStateHandler.setState(ArmState.NET));
-		joystick.POV_DOWN.onTrue(armStateHandler.setState(ArmState.PRE_L4));
-
-		joystick.L1.onTrue(armStateHandler.setState(ArmState.CALIBRATION));
-
+//		joystick.POV_UP.onTrue(armStateHandler.setState(ArmState.CLOSED));
+//		joystick.POV_RIGHT.onTrue(armStateHandler.setState(ArmState.CLIMB));
+//		joystick.POV_LEFT.onTrue(armStateHandler.setState(ArmState.NET));
+//		joystick.POV_DOWN.onTrue(armStateHandler.setState(ArmState.PRE_L4));
+//
+//		joystick.L1.onTrue(armStateHandler.setState(ArmState.CALIBRATION));
+//
 
 		// Calibrate max acceleration and cruise velocity by the equations: max acceleration = (12 + Ks)/2kA, cruise velocity =(12 + Ks)/kV
 	}

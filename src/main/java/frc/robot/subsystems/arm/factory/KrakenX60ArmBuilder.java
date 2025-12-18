@@ -52,8 +52,8 @@ public class KrakenX60ArmBuilder {
 	private static final Rotation2d STARTING_POSITION = Rotation2d.fromDegrees(17);
 	private static final int NUMBER_OF_MOTORS = 1;
 	private static final double GEAR_RATIO = 450.0 / 7.0;
-	private static final Rotation2d CAN_CODER_MAGNET_OFFSET = Rotation2d.fromDegrees(98);
-	public static final double kG = 0.367;
+	private static final Rotation2d CAN_CODER_MAGNET_OFFSET = Rotation2d.fromDegrees(86);
+	public static final double kG = 0.37;
 
 	protected static Arm build(String logPath) {
 		Phoenix6DynamicMotionMagicRequest positionRequest = Robot.ROBOT_TYPE.isReal()
@@ -88,7 +88,7 @@ public class KrakenX60ArmBuilder {
 
 
 	public static SysIdRoutine.Config buildSysidConfig() {
-		return new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(7), null, state -> SignalLogger.writeString("state", state.toString()));
+		return new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(2), null, state -> SignalLogger.writeString("state", state.toString()));
 	}
 
 	private static TalonFXConfiguration buildTalonFXConfiguration() {
@@ -100,7 +100,7 @@ public class KrakenX60ArmBuilder {
 				config.Slot0.kP = 0;
 				config.Slot0.kI = 0;
 				config.Slot0.kD = 0;
-				config.Slot0.kS = 0.055;
+				config.Slot0.kS = 0.05;
 				config.Slot0.kG = kG;
 				config.Slot0.kV = 0;
 				config.Slot0.kA = 0;
