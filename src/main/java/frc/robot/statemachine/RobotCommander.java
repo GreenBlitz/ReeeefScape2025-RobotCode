@@ -114,7 +114,6 @@ public class RobotCommander extends GBSubsystem {
 				),
 				this::isSubsystemRunningIndependently
 			)
-
 		);
 	}
 

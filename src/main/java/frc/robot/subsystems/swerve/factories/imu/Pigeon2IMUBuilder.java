@@ -21,7 +21,7 @@ class Pigeon2IMUBuilder {
 
 	private static Pigeon2Configuration buildIMUConfig() {
 		Pigeon2Configuration imuConfig = new Pigeon2Configuration();
-		imuConfig.MountPose.MountPoseYaw = 90.2035903930664;
+		imuConfig.MountPose.MountPoseYaw = -90.62118530273438;
 		imuConfig.MountPose.MountPosePitch = 0.6566112637519836;
 		imuConfig.MountPose.MountPoseRoll = -2.0430026054382324;
 		return imuConfig;
@@ -48,9 +48,9 @@ class Pigeon2IMUBuilder {
 
 	static IMUSignals buildSignals(Pigeon2IMU pigeon2imu) {
 		return new IMUSignals(
-			buildAnglePigeonSignal(pigeon2imu.getDevice().getYaw()),
 			buildAnglePigeonSignal(pigeon2imu.getDevice().getPitch()),
 			buildAnglePigeonSignal(pigeon2imu.getDevice().getRoll()),
+			buildAnglePigeonSignal(pigeon2imu.getDevice().getYaw()),
 			buildAnglePigeonSignal(pigeon2imu.getDevice().getAngularVelocityXWorld()),
 			buildAnglePigeonSignal(pigeon2imu.getDevice().getAngularVelocityYWorld()),
 			buildAnglePigeonSignal(pigeon2imu.getDevice().getAngularVelocityZWorld()),

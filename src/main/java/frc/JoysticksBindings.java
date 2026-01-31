@@ -255,6 +255,8 @@ public class JoysticksBindings {
 
 		usedJoystick.START.onTrue(robot.getRobotCommander().driveWith(RobotState.CORAL_OUTTAKE));
 
+		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.DRIVE));
+
 		usedJoystick.A.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L1));
 		usedJoystick.B.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L2));
 		usedJoystick.X.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L3));
