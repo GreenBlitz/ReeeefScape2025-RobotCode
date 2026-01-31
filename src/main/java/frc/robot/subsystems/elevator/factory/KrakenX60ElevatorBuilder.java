@@ -89,13 +89,13 @@ public class KrakenX60ElevatorBuilder {
 		TalonFXConfiguration configuration = limitsConfiguration();
 		if (Robot.ROBOT_TYPE.isReal()) {
 			// Motion Magic
-			configuration.Slot0.kP = 15;
+			configuration.Slot0.kP = 15 * 2;
 			configuration.Slot0.kI = 0;
 			configuration.Slot0.kD = 0;
-			configuration.Slot0.kG = kG;
+			configuration.Slot0.kG = kG * 2;
 			configuration.Slot0.kS = 0;
 			configuration.Slot0.kV = 0.49307;
-			configuration.Slot0.kA = 0.032026;
+			configuration.Slot0.kA = 0.032026 * 2;
 
 			// PID
 			configuration.Slot1.kP = 10;
@@ -170,9 +170,9 @@ public class KrakenX60ElevatorBuilder {
 	public static Elevator create(String logPath) {
 		// Followers...
 		TalonFXFollowerConfig followerConfig = new TalonFXFollowerConfig();
-		followerConfig.followerIDs = new TalonFXFollowerConfig.TalonFXFollowerID[] {
-			new TalonFXFollowerConfig.TalonFXFollowerID("LEFT", IDs.TalonFXIDs.ELEVATOR_LEFT, SECOND_MOTOR_OPPOSE_MAIN)};
-		followerConfig.motorConfig = limitsConfiguration();
+//		followerConfig.followerIDs = new TalonFXFollowerConfig.TalonFXFollowerID[] {
+//			new TalonFXFollowerConfig.TalonFXFollowerID("LEFT", IDs.TalonFXIDs.ELEVATOR_LEFT, SECOND_MOTOR_OPPOSE_MAIN)};
+//		followerConfig.motorConfig = limitsConfiguration();
 
 		// Motor...
 		TalonFXMotor motor = new TalonFXMotor(logPath, IDs.TalonFXIDs.ELEVATOR_RIGHT, followerConfig, createSysidConfig(), createSimulation());

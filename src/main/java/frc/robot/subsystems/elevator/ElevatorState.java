@@ -4,8 +4,8 @@ package frc.robot.subsystems.elevator;
 public enum ElevatorState {
 
 	STAY_IN_PLACE(Double.NaN),
-	CLOSED(0.07, 6, 6),
-	HOLD_ALGAE(0.12, 5, 5),
+	CLOSED(0.07, 2, 2),
+	HOLD_ALGAE(0.12, 2, 2),
 	INTAKE(0.07),
 	ALGAE_OUTTAKE(0.02),
 	PRE_L1(0),
@@ -14,16 +14,16 @@ public enum ElevatorState {
 	L2(0.02),
 	PRE_L3(0.19),
 	L3(0.19),
-	WHILE_DRIVE_L4(0.4, 4, 4),
-	PRE_L4(1.18, 4, 4),
-	L4(1.18, 4, 4),
+	WHILE_DRIVE_L4(0.4, 2, 2),
+	PRE_L4(1.18, 2, 2),
+	L4(1.18, 2, 2),
 	LOW_ALGAE_REMOVE(0.02),
-	HIGH_ALGAE_REMOVE(0.05),
+	HIGH_ALGAE_REMOVE(0.02),
 	TRANSFER_ALGAE_FROM_INTAKE(0.1),
-	TRANSFER_ALGAE_FROM_INTAKE_RISE(0.25),
-	NET(1.15, 6, 6),
+	TRANSFER_ALGAE_FROM_INTAKE_RISE(0.22),
+	NET(1.12, 2, 2),
 	PROCESSOR_OUTTAKE(0.02),
-	OPENING_HEIGHT(0.4, 5, 6),
+	OPENING_HEIGHT(0.4, 2, 2),
 	CLIMB(0.23);
 
 	private final double heightMeters;

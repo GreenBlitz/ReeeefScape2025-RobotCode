@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
 import frc.robot.hardware.digitalinput.DigitalInputInputsAutoLogged;
@@ -16,7 +15,6 @@ import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elevator.factory.KrakenX60ElevatorBuilder;
 import frc.robot.subsystems.elevator.records.ElevatorMotorSignals;
 import frc.utils.Conversions;
-import frc.utils.battery.BatteryUtil;
 import frc.utils.calibration.sysid.SysIdCalibrator;
 import org.littletonrobotics.junction.Logger;
 
@@ -210,29 +208,29 @@ public class Elevator extends GBSubsystem {
 		joystick.A.onTrue(new InstantCommand(() -> commandsBuilder.setIsSubsystemRunningIndependently(true)));
 		joystick.B.onTrue(new InstantCommand(() -> commandsBuilder.setIsSubsystemRunningIndependently(false)));
 
-		joystick.getAxisAsButton(Axis.LEFT_TRIGGER).whileTrue(commandsBuilder.setVoltage(() -> ffCalibrationVoltage));
-		joystick.R1.onTrue(new InstantCommand(() -> ffCalibrationVoltage = ffCalibrationVoltage + 0.01));
-		joystick.L1.onTrue(new InstantCommand(() -> ffCalibrationVoltage = ffCalibrationVoltage - 0.01));
-
-		joystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
-			.whileTrue(
-				commandsBuilder.setPower(
-					() -> joystick.getAxisValue(Axis.LEFT_Y) * MAX_CALIBRATION_POWER + (getKgVoltage() / BatteryUtil.getCurrentVoltage())
-				)
-			);
+//		joystick.getAxisAsButton(Axis.LEFT_TRIGGER).whileTrue(commandsBuilder.setVoltage(() -> ffCalibrationVoltage));
+//		joystick.R1.onTrue(new InstantCommand(() -> ffCalibrationVoltage = ffCalibrationVoltage + 0.01));
+//		joystick.L1.onTrue(new InstantCommand(() -> ffCalibrationVoltage = ffCalibrationVoltage - 0.01));
+//
+//		joystick.getAxisAsButton(Axis.RIGHT_TRIGGER)
+//			.whileTrue(
+//				commandsBuilder.setPower(
+//					() -> joystick.getAxisValue(Axis.LEFT_Y) * MAX_CALIBRATION_POWER + (getKgVoltage() / BatteryUtil.getCurrentVoltage())
+//				)
+//			);
 
 		// The sysid outputs will be logged to the "CTRE Signal Logger". Use phoenix tuner x to extract the position, velocity, motorVoltage,
 		// state signals into wpilog. Then enter the wpilog into wpilib sysid app and make sure you enter all info in the correct places. (see
 		// wpilib sysid in google)
 		sysIdCalibrator.setAllButtonsForCalibration(joystick);
 
-		ElevatorStateHandler elevatorStateHandler = new ElevatorStateHandler(this);
+//		ElevatorStateHandler elevatorStateHandler = new ElevatorStateHandler(this);
 
 		// PID Testing
-		joystick.POV_DOWN.onTrue(elevatorStateHandler.setState(ElevatorState.CLOSED));
-		joystick.POV_LEFT.onTrue(elevatorStateHandler.setState(ElevatorState.NET));
-		joystick.POV_RIGHT.onTrue(elevatorStateHandler.setState(ElevatorState.PRE_L4));
-		joystick.POV_UP.onTrue(elevatorStateHandler.setState(ElevatorState.L3));
+//		joystick.POV_DOWN.onTrue(elevatorStateHandler.setState(ElevatorState.CLOSED));
+//		joystick.POV_LEFT.onTrue(elevatorStateHandler.setState(ElevatorState.NET));
+//		joystick.POV_RIGHT.onTrue(elevatorStateHandler.setState(ElevatorState.PRE_L4));
+//		joystick.POV_UP.onTrue(elevatorStateHandler.setState(ElevatorState.L3));
 
 		// Calibrate max acceleration and cruse velocity by the equations: max acceleration = (12 + Ks)/2kA cruise velocity = (12 + Ks)/kV
 	}
