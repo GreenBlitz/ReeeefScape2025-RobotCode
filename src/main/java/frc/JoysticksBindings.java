@@ -196,27 +196,7 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(closeReefActionChooser(robot));
-
-		usedJoystick.X.onTrue(robot.getRobotCommander().intakeAutomation());
-		usedJoystick.L1.onTrue(robot.getRobotCommander().driveWith(RobotState.ALGAE_INTAKE));
-
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().driveWith(RobotState.INTAKE));
-
-		usedJoystick.R1.onTrue(netActionChooser(robot));
-
-		usedJoystick.Y.onTrue(robot.getRobotCommander().driveWith(RobotState.CORAL_OUTTAKE));
-		usedJoystick.X.onTrue(algaeOuttakeActionChooser(robot));
-		usedJoystick.B.onTrue(processorActionChooser(robot));
-
-
-		usedJoystick.POV_LEFT.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(true)));
-		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.PRE_CLIMB.activateSwerve(false)));
-		usedJoystick.POV_DOWN.onTrue(robot.getRobotCommander().driveWith(RobotState.CLIMB_WITH_LIMIT_SWITCH));
-		usedJoystick.A.onTrue(driveActionChooser(robot));
-
-		usedJoystick.START.whileTrue(robot.getRobotCommander().driveWith(RobotState.MANUAL_CLIMB));
-		usedJoystick.BACK.whileTrue(robot.getRobotCommander().driveWith(RobotState.EXIT_CLIMB));
+		soloJoystickButtons(usedJoystick, robot);
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
@@ -267,6 +247,25 @@ public class JoysticksBindings {
 
 //		robot.getArm().applyCalibrationBindings(usedJoystick);
 //		robot.getEndEffector().applyCalibrationsBindings(usedJoystick);
+	}
+
+	private static void soloJoystickButtons(SmartJoystick usedJoystick, Robot robot) {
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(closeReefActionChooser(robot));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getRobotCommander().driveWith(RobotState.INTAKE));
+
+		usedJoystick.START.onTrue(robot.getRobotCommander().driveWith(RobotState.CORAL_OUTTAKE));
+
+		usedJoystick.POV_UP.onTrue(robot.getRobotCommander().driveWith(RobotState.DRIVE));
+
+		usedJoystick.A.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L1));
+		usedJoystick.B.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L2));
+		usedJoystick.X.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L3));
+		usedJoystick.Y.onTrue(new InstantCommand(() -> ScoringHelpers.targetScoreLevel = ScoreLevel.L4));
+
+		usedJoystick.R1.onTrue(new InstantCommand(() -> ScoringHelpers.isLeftBranch = false));
+		usedJoystick.L1.onTrue(new InstantCommand(() -> ScoringHelpers.isLeftBranch = true));
+
+		usedJoystick.BACK.onTrue(new InstantCommand(() -> robot.getSwerve().getModules().resetModulesAngleByEncoder()));
 	}
 
 }
