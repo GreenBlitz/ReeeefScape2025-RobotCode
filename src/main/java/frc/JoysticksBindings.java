@@ -262,6 +262,8 @@ public class JoysticksBindings {
 
 		usedJoystick.R1.onTrue(new InstantCommand(() -> ScoringHelpers.isLeftBranch = false));
 		usedJoystick.L1.onTrue(new InstantCommand(() -> ScoringHelpers.isLeftBranch = true));
+
+		usedJoystick.BACK.onTrue(new InstantCommand(() -> robot.getSwerve().getModules().resetModulesAngleByEncoder()));
 	}
 
 }
